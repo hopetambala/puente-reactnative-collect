@@ -8,7 +8,7 @@ import {
 // import useCachedResources from './modules/cached-resources/useCachedResources';
 import BottomTabNavigator from './navigation/BottomTabNavigator';
 import LinkingConfiguration from './navigation/LinkingConfiguration';
-import initialize from './services/parse/auth';
+import { initialize } from './services/parse/auth/index';
 
 const Stack = createStackNavigator();
 
