@@ -51,7 +51,7 @@
     "redux": "4.0.5",
     "redux-actions": "2.6.5",
     "styled-components": "5.1.1",
-    "standard-version": "8.0.0",
+    "standard-version": "8.0.1",
     "yup": "0.29.2"
   },
   "devDependencies": {
