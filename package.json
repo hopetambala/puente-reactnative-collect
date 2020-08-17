@@ -65,7 +65,7 @@
     "eslint-config-airbnb": "18.1.0",
     "eslint-plugin-import": "2.20.2",
     "eslint-plugin-jsx-a11y": "6.2.3",
-    "eslint-plugin-react": "7.20.0",
+    "eslint-plugin-react": "7.20.6",
     "jest-expo": "37.0.0",
     "standard-version": "7.1.0",
     "standard-version-expo": "1.0.3"
