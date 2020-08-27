@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v0.1.0...v0.2.0) (2020-08-27)
+
+
+### Features
+
+* add initial work to patient ID form ([834b23e](https://github.com/hopetambala/puente-reactnative-collect/commit/834b23e82b319976b0fc29fda0c1dac7bbb99afd))
+* add react-native-paper theming ([e4780cd](https://github.com/hopetambala/puente-reactnative-collect/commit/e4780cd0f5f355afa5ec3804f82d7ea1f83248ba))
+* add standard version for releases ([51b9312](https://github.com/hopetambala/puente-reactnative-collect/commit/51b9312a48a0bdd886bc82f53db859c9e73ef7ef))
+* add translation to project :tada: ([d15c230](https://github.com/hopetambala/puente-reactnative-collect/commit/d15c230f3cb3d1fd7a3f33cca233e85b0a2de475))
+
 ## 0.1.0 (2020-08-08)
 
 
