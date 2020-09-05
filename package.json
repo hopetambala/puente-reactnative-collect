@@ -61,7 +61,7 @@
     "yup": "0.29.3",
     "expo-localization": "8.1.0",
     "expo-location": "8.1.0",
-    "react-native-svg": "11.0.1"
+    "react-native-svg": "12.1.0"
   },
   "devDependencies": {
     "@babel/core": "7.10.2",
