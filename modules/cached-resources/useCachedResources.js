@@ -26,7 +26,7 @@ export default function useCachedResources() {
       try {
         SplashScreen.preventAutoHideAsync();
 
-        await getData('organization').then(async (org) => {
+        getData('organization').then(async (org) => {
           if (org) {
             const residentData = await fetchResidentData(org);
             storeData(residentData, 'residentData');

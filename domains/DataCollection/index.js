@@ -132,9 +132,8 @@ const DataCollection = ({ navigation }) => {
           {view === 'Root'
             && (
               <View>
-                {Platform.OS === 'ios' &&
-                  <MapView organization={surveyingOrganization} />
-                }
+                {Platform.OS === 'ios'
+                  && <MapView organization={surveyingOrganization} />}
                 <View style={styles.screenFlexRowWrap}>
                   <View style={styles.cardContainer}>
                     <Card style={styles.cardSmallStyle} onPress={() => navigateToNewRecord()}>

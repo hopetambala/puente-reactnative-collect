@@ -7,7 +7,7 @@ import { Provider as StoreProvider } from 'react-redux';
 import MainNavigation from './components/MainNavigation';
 
 import configureStore from './modules/state-management/configure-store';
-// import useCachedResources from './modules/cached-resources/useCachedResources';
+import useCachedResources from './modules/cached-resources/useCachedResources';
 import { theme } from './modules/theme';
 
 const store = configureStore();
@@ -17,11 +17,11 @@ if (Platform.OS === 'android') {
 }
 
 export default function App() {
-  // const isLoadingComplete = useCachedResources();
+  const isLoadingComplete = useCachedResources();
 
-  // if (!isLoadingComplete) {
-  //   return null;
-  // }
+  if (!isLoadingComplete) {
+    return null;
+  }
   return (
     <StoreProvider store={store}>
       <PaperProvider theme={theme}>
