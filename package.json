@@ -55,7 +55,7 @@
     "formik": "2.1.5",
     "i18n-js": "3.7.1",
     "metro-config": "0.63.0",
-    "native-base": "2.13.8",
+    "native-base": "2.13.14",
     "parse": "2.14.0",
     "react": "16.11.0",
     "react-dom": "16.11.0",
