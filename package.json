@@ -76,7 +76,7 @@
     "yup": "0.29.3"
   },
   "devDependencies": {
-    "@babel/core": "7.10.2",
+    "@babel/core": "7.12.9",
     "babel-eslint": "10.1.0",
     "babel-preset-expo": "8.2.3",
     "env-cmd": "10.1.0",
