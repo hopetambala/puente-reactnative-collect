@@ -7,66 +7,131 @@ import {
 import { Text, Button } from 'react-native-paper';
 import { Formik } from 'formik';
 
-import { postObjectsToClass } from '../../../../services/parse/crud';
+import { postSupplementaryForm } from '../../../../modules/cached-resources';
 
 import { layout } from '../../../../modules/theme';
-
-import envArray from './configs/envhealth.config';
+import I18n from '../../../../modules/i18n';
+import { isEmpty } from '../../../../modules/utils';
 
 import PaperInputPicker from '../../../../components/FormikFields/PaperInputPicker';
+import yupValidationPicker from '../../../../components/FormikFields/YupValidation';
 
-const SupplementaryForm = ({ navigation, selectedForm, setSelectedForm }) => {
+import envConfig from './configs/envhealth.config';
+import medConfig from './configs/medical-evaluation.config';
+import vitalsConfig from './configs/vitals.config';
+
+import surveyingUserFailsafe from '../utils';
+import { addSelectTextInputs, vitalsBloodPressue } from './utils';
+import ErrorPicker from '../../../../components/FormikFields/ErrorPicker';
+
+const SupplementaryForm = ({
+  navigation, selectedForm, setSelectedForm, surveyee, surveyingUser, surveyingOrganization,
+  customForm
+}) => {
+  const [config, setConfig] = useState({});
+  const [photoFile, setPhotoFile] = useState('State Photo String');
+  const [validationSchema, setValidationSchema] = useState();
+
   const toRoot = () => {
     navigation.navigate('Root');
+    setSelectedForm('');
   };
 
-  const [inputs, setInputs] = useState({});
-  const [photoFile, setPhotoFile] = useState('State Photo String');
-
   useEffect(() => {
-    if (selectedForm === 'env') setInputs(envArray);
-  }, [selectedForm, envArray]);
+    if (selectedForm === 'env') {
+      setConfig(envConfig);
+      setValidationSchema(yupValidationPicker(envConfig.fields));
+    }
+    if (selectedForm === 'med-eval') {
+      setConfig(medConfig);
+      setValidationSchema(yupValidationPicker(medConfig.fields));
+    }
+    if (selectedForm === 'vitals') {
+      setConfig(vitalsConfig);
+    }
+    if (selectedForm === 'custom') setConfig(customForm);
+  }, [selectedForm, config]);
 
   return (
     <Formik
       initialValues={{}}
-      onSubmit={(values, actions) => {
+      onSubmit={async (values, actions) => {
         setPhotoFile('Submitted Photo String');
+
+        const formObject = values;
+        formObject.surveyingUser = await surveyingUserFailsafe(surveyingUser, isEmpty);
+        formObject.surveyingOrganization = surveyingOrganization;
+
+        let formObjectUpdated = addSelectTextInputs(values, formObject);
+        if (selectedForm === 'vitals') {
+          formObjectUpdated = vitalsBloodPressue(values, formObjectUpdated);
+        }
         const postParams = {
-          parseClass: 'SurveyData',
-          signature: 'Sample Signature',
+          parseParentClassID: surveyee.objectId,
+          parseParentClass: 'SurveyData',
+          parseClass: config.class,
           photoFile,
-          localObject: values
+          localObject: formObjectUpdated
         };
 
-        postObjectsToClass(postParams)
-          .then(() => {
-            toRoot(); // This does nothing because we're already at root
-            setSelectedForm('');
-          }, () => {
-          });
-        setTimeout(() => {
-          actions.setSubmitting(false);
-        }, 1000);
+        if (selectedForm === 'custom') {
+          postParams.parseClass = 'FormResults';
+
+          const fieldsArray = Object.entries(formObjectUpdated).map((obj) => ({
+            title: obj[0],
+            answer: obj[1]
+          }));
+
+          postParams.localObject = {
+            title: customForm.name || '',
+            description: customForm.description || '',
+            formSpecificationsId: customForm.objectId,
+            fields: fieldsArray,
+            surveyingUser: formObject.surveyingUser,
+            surveyingOrganization: formObject.surveyingOrganization
+
+          };
+        }
+
+        postSupplementaryForm(postParams).then(() => {
+          setTimeout(() => {
+            actions.setSubmitting(false);
+            toRoot();
+          }, 1000);
+        });
       }}
-    // validationSchema={validationSchema}
+      validationSchema={validationSchema}
+      // only validate on submit, errors persist after fixing
+      validateOnBlur={false}
+      validateOnChange={false}
     >
       {(formikProps) => (
         <View style={layout.formContainer}>
-          {inputs.length && inputs.map((result) => (
+          {config.fields && config.fields.map((result) => (
             <View key={result.formikKey}>
               <PaperInputPicker
                 data={result}
                 formikProps={formikProps}
+                customForm={config.customForm}
               />
             </View>
           ))}
 
+          <ErrorPicker
+            // data={result}
+            formikProps={formikProps}
+            inputs={config.fields}
+          />
+
           {formikProps.isSubmitting ? (
             <ActivityIndicator />
           ) : (
-            <Button onPress={formikProps.handleSubmit}>
-              <Text>Submit</Text>
+            <Button
+              disabled={!surveyee.objectId}
+              onPress={formikProps.handleSubmit}
+            >
+              {surveyee.objectId && <Text>{I18n.t('global.submit')}</Text>}
+              {!surveyee.objectId && <Text>{I18n.t('supplementaryForms.attachResident')}</Text>}
             </Button>
           )}
         </View>

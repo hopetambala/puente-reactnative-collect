@@ -4,6 +4,7 @@ import { Text, Button } from 'react-native-paper';
 import { Formik } from 'formik';
 import FormInput from '../../../../components/FormikFields/FormInput';
 import { storeData } from '../../../../modules/async-storage';
+import I18n from '../../../../modules/i18n';
 
 const StorePinCode = ({ navigation }) => (
   <Formik
@@ -21,7 +22,7 @@ const StorePinCode = ({ navigation }) => (
     {(formikProps) => (
       <>
         <FormInput
-          label="Enter Pincode to use instead of username/password"
+          label={I18n.t('pinCode.storePinCode.enterPinCode')}
           formikProps={formikProps}
           formikKey="pincode"
           placeholder="123456"
@@ -31,7 +32,7 @@ const StorePinCode = ({ navigation }) => (
           <ActivityIndicator />
         ) : (
           <Button onPress={formikProps.handleSubmit}>
-            <Text>Submit</Text>
+            <Text>{I18n.t('global.submit')}</Text>
           </Button>
         )}
       </>

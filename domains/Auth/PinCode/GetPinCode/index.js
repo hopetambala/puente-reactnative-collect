@@ -3,8 +3,9 @@ import { ActivityIndicator } from 'react-native';
 import { Text, Button } from 'react-native-paper';
 import { Formik } from 'formik';
 import FormInput from '../../../../components/FormikFields/FormInput';
-import { getData, deleteData } from '../../../../modules/async-storage';
-import { retrieveSignInFunction } from '../../../../services/parse/auth';
+import { storeData, getData, deleteData } from '../../../../modules/async-storage';
+import { retrieveSignInFunction, retrieveCurrentUserAsyncFunction } from '../../../../services/parse/auth';
+import I18n from '../../../../modules/i18n';
 
 const GetPinCode = ({ navigation }) => {
   const [failedAttempts, setFailedAttempts] = useState(1);
@@ -18,7 +19,20 @@ const GetPinCode = ({ navigation }) => {
             // IF ONLINE, otherwise just log in
             getData('credentials')
               .then((userCreds) => {
-                retrieveSignInFunction(userCreds.username, userCreds.password);
+                retrieveSignInFunction(userCreds.username, userCreds.password)
+                  .then(() => {
+                    const currentUser = retrieveCurrentUserAsyncFunction();
+                    getData('currentUser').then((user) => {
+                      if (user !== currentUser) {
+                        storeData(currentUser, 'currentUser');
+                      }
+                    });
+                    getData('organization').then((organization) => {
+                      if (organization !== currentUser.organization) {
+                        storeData(currentUser.organization, 'organization');
+                      }
+                    });
+                  });
                 navigation.navigate('Root');
               }, () => {
                 // error with stored credentials
@@ -29,14 +43,12 @@ const GetPinCode = ({ navigation }) => {
             if (failedAttempts >= 3) {
               deleteData('credentials');
               deleteData('pincode');
+              deleteData('organization');
               navigation.navigate('Sign In');
             } else if (failedAttempts === 2) {
-              alert('Incorrect pincode, please try again. ' // eslint-disable-line
-                + 'This is your last chance to enter your pincode,'
-                + 'your credentials will be reset and pincode will be'
-                + ' deleted on another failed attempt.');
+              alert(I18n.t('pinCode.getPincode.incorrect1')); // eslint-disable-line
             } else {
-              alert('Incorrect pincode, please try again.'); // eslint-disable-line
+              alert(I18n.t('pinCode.getPincode.incorrect2'));// eslint-disable-line
             }
           }
         });
@@ -49,7 +61,7 @@ const GetPinCode = ({ navigation }) => {
       {(formikProps) => (
         <>
           <FormInput
-            label="Enter Pincode"
+            label={I18n.t('pinCode.getPinCode.enterPinCode')}
             formikProps={formikProps}
             formikKey="pincode"
             placeholder="123456"
@@ -59,7 +71,7 @@ const GetPinCode = ({ navigation }) => {
             <ActivityIndicator />
           ) : (
             <Button onPress={formikProps.handleSubmit}>
-              <Text>Submit</Text>
+              <Text>{I18n.t('global.submit')}</Text>
             </Button>
           )}
         </>

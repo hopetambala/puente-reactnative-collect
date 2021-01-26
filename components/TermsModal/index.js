@@ -1,14 +1,16 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import {
   Modal, Text, Portal, Headline, Button
 } from 'react-native-paper';
 
+import I18n from '../../modules/i18n';
 // STYLING
 import { theme } from '../../modules/theme';
 
 export default function TermsModal(props) {
-  const { visible, hideModal } = props;
+  const { visible, setVisible } = props;
   return (
     <Portal theme={theme}>
       <Modal
@@ -17,19 +19,11 @@ export default function TermsModal(props) {
         contentContainerStyle={styles.modal}
         dismissable={false}
       >
-        <Headline theme={theme}>Terms and Service</Headline>
-        <Text>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-          sed do eiusmod tempor incididunt ut
-          labore et dolore magna aliqua. Ut enim ad minim veniam,
-          quis nostrud exercitation ullamco laboris
-          nisi ut aliquip ex ea commodo consequat. Duis aute
-          irure dolor in reprehenderit in voluptate
-          velit esse cillum dolore eu fugiat nulla pariatur.
-          Excepteur sint occaecat cupidatat non proident,
-          sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </Text>
-        <Button mode="contained" theme={theme} color="#3E81FD" style={styles.button} onPress={hideModal}>Ok</Button>
+        <ScrollView>
+          <Headline theme={theme}>{I18n.t('termsModal.termsService')}</Headline>
+          <Text>{I18n.t('termsModal.policy')}</Text>
+          <Button mode="contained" theme={theme} color="#3E81FD" style={styles.button} onPress={() => setVisible(false)}>{I18n.t('termsModal.ok')}</Button>
+        </ScrollView>
       </Modal>
     </Portal>
   );

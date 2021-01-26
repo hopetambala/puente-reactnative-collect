@@ -18,13 +18,10 @@ const backgroundPostPatient = () => {
             if (item.includes('PatientID-')) {
               getData(item)
                 .then((postParams) => {
-                  postObjectsToClass(postParams)
-                    .then(() => {
-                      // console.log(item, 'POSTED');
-                      // delete item from async after it has been posted to parse
-                      deleteData(item);
-                    }, () => {
-                    });
+                  postObjectsToClass(postParams);
+                  // console.log(item, 'POSTED');
+                  // delete item from async after it has been posted to parse
+                  deleteData(item);
                 });
             }
           });

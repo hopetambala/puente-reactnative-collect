@@ -1,22 +1,36 @@
-import { Ionicons } from '@expo/vector-icons';
-import * as Font from 'expo-font';
+import React, { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
-import * as React from 'react';
 
-const spaceMono = require('../../assets/fonts/SpaceMono-Regular.ttf');
+import { storeData, getData } from '../async-storage';
+import { residentIDQuery } from '../../services/parse/crud';
+
+const fetchResidentData = async (surveyingOrganization) => {
+  const queryParams = {
+    skip: 0,
+    offset: 0,
+    limit: 100000,
+    parseColumn: 'surveyingOrganization',
+    parseParam: surveyingOrganization,
+  };
+  let records = await residentIDQuery(queryParams);
+  records = JSON.parse(JSON.stringify(records));
+  return records;
+};
 
 export default function useCachedResources() {
   const [isLoadingComplete, setLoadingComplete] = React.useState(false);
 
   // Load any resources or data that we need prior to rendering the app
-  React.useEffect(() => {
+  useEffect(() => {
     async function loadResourcesAndDataAsync() {
       try {
         SplashScreen.preventAutoHideAsync();
 
-        await Font.loadAsync({
-          ...Ionicons.font,
-          'space-mono': spaceMono,
+        await getData('organization').then(async (org) => {
+          if (org) {
+            const residentData = await fetchResidentData(org);
+            storeData(residentData || [], 'residentData');
+          }
         });
       } catch (e) {
         // We might want to provide this error information to an error reporting service

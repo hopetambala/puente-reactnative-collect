@@ -1,4 +1,4 @@
-# Contributing to Puente Dashboard
+# Contributing to Puente Collect
 
 Do you want to help us make awesome open-source software for humanitarian work?
  
@@ -18,7 +18,7 @@ discouraged! If there's a problem with the implementation, we'll make sure to pr
 ### Create issues...
 
 Any significant improvement should be documented as [a github
-issue](https://github.com/hopetambala/puente-ionic-datacollection/issues) before anybody
+issue](https://github.com/hopetambala/puente-reactnative-collect/issues) before anybody
 starts working on it.
 
 ### ...but check for existing issues first!
@@ -61,9 +61,9 @@ in your changes being overwritten.
 
 ### How are decisions made?
 
-Short answer: with pull requests to the Puente-Ionic-Datacollection repository.
+Short answer: with pull requests to the Puente-Reactnative-Collect repository.
 
-All decisions affecting Puente-Ionic-Datacollection follow the same 3 steps:
+All decisions affecting Puente-Reactnative-Collect follow the same 3 steps:
 
 * Step 1: Open a pull request. Anyone can do this.
 
@@ -85,7 +85,7 @@ You don't have to be a maintainer to make a difference on our project!
 It is every maintainer's responsibility to:
 
 * 1) Deliver prompt feedback and decisions on pull requests.
-* 2) Be available to anyone with questions, bug reports, criticism etc. on Puente's Ionic Datacollection app.
+* 2) Be available to anyone with questions, bug reports, criticism etc. on Puente's Collect app.
 
 ### How is this process changed?
 

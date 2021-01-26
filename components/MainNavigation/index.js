@@ -31,11 +31,7 @@ const MainNavigation = () => {
       {Platform.OS === 'ios' && <StatusBar />}
       <NavigationContainer linking={LinkingConfiguration}>
         <Stack.Navigator>
-          <Stack.Screen
-            name="Sign In"
-            component={SignIn}
-            options={{ headerShown: false }}
-          />
+          <Stack.Screen name="Sign In" component={SignIn} options={{ headerShown: false }} />
           <Stack.Screen name="Sign Up" component={SignUp} options={{ headerShown: false }} />
           <Stack.Screen name="GetPincode" component={GetPinCode} options={{ headerShown: true }} />
           <Stack.Screen name="StorePincode" component={StorePinCode} options={{ headerShown: true }} />

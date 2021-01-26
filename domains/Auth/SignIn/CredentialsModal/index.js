@@ -6,6 +6,7 @@ import {
 
 // STYLING
 import { theme } from '../../../../modules/theme';
+import I18n from '../../../../modules/i18n';
 
 export default function CredentialsModal(props) {
   const {
@@ -21,7 +22,7 @@ export default function CredentialsModal(props) {
         dismissable={false}
       >
         <View>
-          <Text>Would you like to use your saved login credentials?</Text>
+          <Text>{I18n.t('signIn.credentialsModal.useCreds')}</Text>
           <View style={styles.buttonContainer}>
             <View style={styles.button}>
               <Button
@@ -34,7 +35,7 @@ export default function CredentialsModal(props) {
                   navigation.navigate('GetPincode');
                 }}
               >
-                Yes
+                {I18n.t('global.yes')}
               </Button>
             </View>
             <View style={styles.button}>
@@ -45,7 +46,7 @@ export default function CredentialsModal(props) {
                   setModalVisible(!modalVisible);
                 }}
               >
-                No
+                {I18n.t('global.no')}
               </Button>
             </View>
           </View>

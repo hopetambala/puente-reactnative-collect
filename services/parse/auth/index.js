@@ -1,14 +1,21 @@
 import { Parse } from 'parse/react-native';
-import { AsyncStorage } from 'react-native';
-import getEnvVars from '../../../environment';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import selectedENV from '../../../environment';
 
 function initialize() {
-  const { parseAppId, parseJavascriptKey, parseServerUrl } = getEnvVars();
+  const { parseAppId, parseJavascriptKey, parseServerUrl } = selectedENV;
 
   Parse.setAsyncStorage(AsyncStorage);
   Parse.initialize(parseAppId, parseJavascriptKey);
   Parse.serverURL = parseServerUrl;
   console.log(`Initialize Parse with App ID:${parseAppId}, Javascript Key: ${parseJavascriptKey}`); // eslint-disable-line
+  createRoles();
+}
+
+function createRoles() {
+  Parse.Cloud.run('createAdminRole');
+  Parse.Cloud.run('createManagerRole');
+  Parse.Cloud.run('createContributorRole');
 }
 
 function retrieveSignUpFunction(params) {
@@ -45,9 +52,18 @@ function retrieveSignOutFunction() {
 }
 
 function retrieveForgotPasswordFunction(params) {
-  Parse.Cloud.run('forgotPassword', params).then((result) => result);
+  return new Promise((resolve, reject) => {
+    Parse.Cloud.run('forgotPassword', params).then((result) => {
+      resolve(result);
+    }, (error) => {
+      reject(error);
+    });
+  });
 }
 
+/**
+ * Deprecated
+ */
 function retrieveCurrentUserFunction() {
   const u = Parse.User.current();
   if (u) {
@@ -62,11 +78,28 @@ function retrieveCurrentUserFunction() {
   return null;
 }
 
+function retrieveCurrentUserAsyncFunction() {
+  return Parse.User.currentAsync().then((u) => {
+    const user = {};
+    user.id = u.id;
+    user.username = u.get('username');
+    user.firstname = u.get('firstname');
+    user.lastname = u.get('lastname');
+    user.email = u.get('email');
+    user.organization = u.get('organization');
+    user.role = u.get('role');
+    return user;
+  });
+}
+
 function retrieveDeleteUserFunction(params) {
   Parse.Cloud.run('deleteUser', params).then((result) => result);
 }
 
 export {
-  initialize, retrieveSignUpFunction, retrieveSignInFunction, retrieveSignOutFunction,
-  retrieveForgotPasswordFunction, retrieveCurrentUserFunction, retrieveDeleteUserFunction
+  initialize,
+  retrieveSignUpFunction, retrieveSignInFunction, retrieveSignOutFunction,
+  retrieveForgotPasswordFunction,
+  retrieveCurrentUserFunction, retrieveCurrentUserAsyncFunction,
+  retrieveDeleteUserFunction
 };

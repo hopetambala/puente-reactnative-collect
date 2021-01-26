@@ -6,7 +6,7 @@ export default {
     Root: {
       path: 'root',
       screens: {
-        Home: 'home',
+        // Home: 'home',
         Data_Collection: 'data_collection',
         Data_Analysis: 'data_analysis',
         Sign_Up: 'sign_up',

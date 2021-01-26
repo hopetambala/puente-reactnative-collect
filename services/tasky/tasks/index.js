@@ -1,8 +1,8 @@
 import axios from 'axios';
-import getEnvVars from '../../../environment';
+import selectedENV from '../../../environment';
 
 function getTasks() {
-  const { taskyUrlApi } = getEnvVars();
+  const { taskyUrlApi } = selectedENV;
 
   return axios.get(`${taskyUrlApi}/tasks`)
     .then(async (response) => {

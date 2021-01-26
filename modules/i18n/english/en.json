@@ -1,4 +1,16 @@
 {
+  "global": {
+    "yes": "Yes",
+    "no": "No",
+    "notSure": "Not Sure",
+    "other": "Other",
+    "submit": "Submit",
+    "fName": "First Name",
+    "lName": "Last Name",
+    "city": "City",
+    "commName": "Community Name",
+    "notes": "Notes"
+  },
   "signUp": {
     "firstName": "First Name",
     "lastName": "Last Name",
@@ -13,13 +25,384 @@
     },
     "submit": "Submit",
     "toEnglish": "Changle language to English",
-    "toSpanish": "Change Language to Spanish"
+    "toSpanish": "Change Language to Spanish",
+    "errorTerms": "Error, terms and service need to be agreed to.",
+    "errorPassword": "Error, your passwords do not match.",
+    "usernameError": "Sign up attempt failed.\n\nYou might have attempted to sign up with a username (email/phone number) that has been previously registered with another account.\n\nPlease contact your supervisor if you believe this is an error."
   },
   "signIn": {
-    "username": "Username",
+    "username": "Email or Phone Number",
     "password": "Password",
     "showPassword": "Show Password",
-    "submit": "Submit",
-    "signUpLink": "Don't have an account, sign up!"
+    "login": "Log-In",
+    "signUpLink": "Don't have an account, sign up!",
+    "deleteCreds": "Delete Credentials",
+    "noAccount": "Don't have an account?",
+    "puente2020": "Puente 2020 |",
+    "termsConditions": "Terms & Conditions",
+    "forgotPassword": {
+      "enterEmail": "Please enter your email to reset your password",
+      "sendLink": "Send Reset Link",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign Up!",
+      "rememberPass": "Remember your Password?",
+      "signIn": "Sign In"
+    },
+    "credentialsModal": {
+      "useCreds": "Would you like to use your saved login credentials?"
+    },
+    "unableLogin": "Unable to login",
+    "usernamePasswordIncorrect": "Your username or password may be incorrect, please try again.",
+    "credentials": "Credentials",
+    "saveLoginCreds": "Would you like to save your login credentials for future use?"
+  },
+  "pinCode": {
+    "getPinCode": {
+      "enterPinCode": "Enter Pincode",
+      "incorrect1": "Incorrect pincode, please try again. This is your last chance to enter your pincode, your credentials will be reset and pincode will be deleted on another failed attempt.",
+      "incorrect2": "Incorrect pincode, please try again."
+    },
+    "storePinCode": {
+      "enterPinCode": "Enter Pincode to use instead of username/password"
+    }
+  },
+  "formsGallery": {
+    "puenteForms": "Puente Forms",
+    "customForms": "Custom Forms",
+    "ourMarketPlace": "Our Marketplace",
+    "discoverForms": "Discover forms created by trusted companies",
+    "exploreForms": "Explore Forms",
+    "noCustomForms": "You do not have any custom forms",
+    "checkOutMarketplace": "Check out our marketplace to view available forms",
+    "viewMarketplace": "View Marketplace",
+    "marketPlace": "Marketplace"
+  },
+  "identificationForm": {
+    "demographics": "Demographics",
+    "nickname": "Nickname",
+    "age": "Age (if their date of birth isn't available)",
+    "dob": {
+      "label": "Date of Birth",
+      "month": "Month",
+      "day": "Day",
+      "year": "Year"
+    },
+    "sex": {
+      "label": "Sex",
+      "male": "Male",
+      "female": "Female",
+      "notSay": "Prefer Not to Say"
+    },
+    "telephone": "Telephone Number",
+    "marriageStatus": {
+      "label": "Marriage Status",
+      "single": "Single",
+      "married": "Married",
+      "cohabitation": "Cohabitation",
+      "widow": "Widow"
+    },
+    "occupation": "Occupation",
+    "educationLevel": {
+      "label": "Education Level",
+      "lessPrim": "Less than Primary",
+      "prim": "Primary",
+      "someHS": "Some high school",
+      "hs": "Highschool",
+      "someCollege": "Some College",
+      "college": "College"
+    },
+    "cedulaNumber": "License Number",
+    "location": "Location",
+    "province": "Province",
+    "insurance": "Insurance",
+    "insNumber": "Insurance Number",
+    "insProvider": "Insurance Provider",
+    "clinicProvider": "Clinic Provider",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "household": "Household",
+    "subcounty": "Sub-county",
+    "region": "Region",
+    "country": "Country"
+  },
+  "environmentalHealth": {
+    "name": "Environmental Health Form",
+    "yearsLived": {
+      "community": "Years Lived in the Community",
+      "house": "Years Lived in This House",
+      "less1": "Less than 1 Year",
+      "1_2": "1-2 years",
+      "3_4": "3-4 years",
+      "5_10": "5-10 years",
+      "moreThan10": "10+ years"
+    },
+    "biggestProblemComm": "Biggest Problem of the Community",
+    "waterAccess": {
+      "label": "Water Access",
+      "everyday": "Everyday",
+      "4_6": "4-6 days a week",
+      "2_3": "2-3 days per week",
+      "1perWeek": "Less than or equal to 1 day per week",
+      "1perMonth": "1 day per month",
+      "never": "Never"
+    },
+    "typeOfWater": {
+      "label": "Type of Water Do you Drink",
+      "bottled": "Bottled",
+      "tap": "Tap",
+      "filtered": "Filtered"
+    },
+    "bathroomAccess": "Bathroom Access",
+    "latrineAccess": "Latrine Access",
+    "clinicAccess": "Clinic Access",
+    "medicalProblemsGo": "Where do you go for medical problems?",
+    "dentalProblemsGo": "Where do you go for dental problems?",
+    "timesPerWeekTrash": "Times per Week Trash is Collected",
+    "trashBetweenPickups": "Where is trash left between pickups?",
+    "houseOwnership": "House Ownership",
+    "floorCondition": {
+      "label": "Condition of Floor in your house?",
+      "dirtFloorPoor": "Dirt Floor Poor Condition",
+      "dirtFloorWork": "Dirt Floor Working Condition",
+      "cementPoor": "Cement Floor Poor Condition",
+      "cementWorking": "Cement Floor Working Condition"
+    },
+    "roofCondition": {
+      "label": "Condition of Roof in your house?",
+      "normal": "Normal Condition",
+      "bad": "Bad Condition"
+    },
+    "typeStove": {
+      "label": "Type of Stove Top",
+      "constructedVentilation": "Constructed stove with ventilation",
+      "stoveTop": "Stovetop with tank or electricity",
+      "openFire": "Open Fire"
+    },
+    "houseMaterials": {
+      "label": "What material is your house made from?",
+      "zinc": "Zinc",
+      "wood": "Wood",
+      "partBlock_partWood": "Part cinderblock, part wood",
+      "block": "Cinderblock",
+      "brick": "Brick",
+      "clay": "Clay"
+    },
+    "electricityAccess": {
+      "label": "How often do you have access to electricity?",
+      "never": "Never",
+      "sometimes": "Sometimes",
+      "always": "Always"
+    },
+    "foodSecurity": "In the past month, have you ever worried that you or your family did not have enough food to eat?",
+    "govAssistance": {
+      "label": "Do you have access to government assistance?",
+      "foodStamps": "Food Stamps",
+      "adultLiteracy": "Adult literacy Program",
+      "noAssistance": "No assistance"
+    },
+    "numberIndividualsHouse": "Number of Individuals Living in the House",
+    "numberChildrenUnder5": "Number of children Living in this House under age of 5"
+  },
+  "evaluationMedical": {
+    "name": "Medical Assessment Form",
+    "chronicHypertension": "Chronic Condition Hypertension",
+    "chronicDiabetes": "Chronic Condition Diabetes",
+    "chronicOther": "Chronic Condition Other",
+    "doctor": "Have you seen a doctor for this problem?",
+    "statusOfHealth": {
+      "label": "Status of Health",
+      "receivingNoSupport": "Receiving Treatment or Follow-up Care | No Support Needed",
+      "receivingSupport": "Receiving Treatment or Follow-up Care | Support Needed",
+      "awaitingNoSupport": "Awaiting Treatment or Follow-up Care |  No Support Needed",
+      "noTreatmentSupport": "No Treatment | Support Needed"
+    },
+    "partOfBody": {
+      "label": "Part of Body",
+      "bonesJoints": "Bones or Joints",
+      "eyes": "Eyes",
+      "earsNoseThroat": "Ears, Nose or Throat",
+      "skin": "Skin",
+      "headMental": "Head or Mental Issues",
+      "stomachIntestines": "Stomach, Intestines",
+      "bladderUrinary": "Bladder, Urinary tract",
+      "reproductiveOrgans": "Reproductive Organs",
+      "nutritionIssues": "Nutrition Issue",
+      "---": "---"
+    },
+    "partOfBodyDescription": "Part of Body Description",
+    "duration": {
+      "label": "Duration",
+      "lastMonth": "Within Last Month",
+      "lastYear": "Within Last Year",
+      "last5Years": "Within Last 5 Years",
+      "past5Years": "Past 5 Years"
+    },
+    "problemSuddenness": {
+      "label": "Problem Suddenness",
+      "suddenTrauma": "Sudden and due to trauma",
+      "suddenNoTrauma": "Sudden but not to trauma",
+      "gradually": "Gradually"
+    },
+    "progressionOfCondition": {
+      "label": "Progression of Condition",
+      "improving": "Improving",
+      "worsening": "Worsening",
+      "constant": "Constant"
+    },
+    "generalHealthConsult": "General Health Consult Required?",
+    "surgicalRequired": "Surgical Need Required?",
+    "yourGuess": "Your Guess",
+    "immediateFollowupRequired": "Immediate Follow Up Required?",
+    "plan": "Plan"
+  },
+  "vitals": {
+    "name": "Vitals",
+    "height": "Height",
+    "inches": "Inches",
+    "weight": "Weight",
+    "pounds": "Pounds",
+    "bmi": "Body Mass Index",
+    "temp": "Body Temperature",
+    "celsius": "°Celsius",
+    "pulse": "Pulse",
+    "bpm": "Beats Per Minute",
+    "respRate": "Respiratory Rate",
+    "breathspm": "Breaths Per Minute",
+    "bloodPressure": {
+      "label": "Blood Pressure",
+      "systolic": "Systolic",
+      "diastolic": "Diastolic"
+    },
+    "bloodOxygen": "Blood Oxygen",
+    "mmHg": "mm Hg",
+    "bloodSugar": "Fasting Blood Glucose",
+    "mgdL": "mg/dL",
+    "hemoglobinLevels": "Hemoglobin Levels (Hb)",
+    "hemoglobinA1c": "Hemoglobin A1c (HbA1c)",
+    "gdL": "g/dL",
+    "pain": "Pain"
+  },
+  "supplementaryForms": {
+    "attachResident": "Attach a Community Resident"
+  },
+  "forms": {
+    "successfullySubmitted": "Form successfully submitted",
+    "grabCoffee": "Great job, grab yourself a coffee",
+    "suggestedForms": "Suggested next Forms",
+    "viewGallery": "View Forms Gallery",
+    "returnHome": "Return Home"
+  },
+  "gdpr": {
+    "consentForm": "Consent Form",
+    "mustConsent": "Community member must consent before you can continue.",
+    "policy": "Privacy Policy\nThis policy describes how we collect, use and handle your information when you use our website, software and services (“Services”).\n\nIf you’re using our Services for an organization, you are agreeing to this Privacy Policy on behalf of that organization.\nIf you’re using our Services to provide services, software and content for someone else, you are agreeing to this Privacy Policy on their behalf.\n\nIF YOU OR THE ORGANIZATION YOU REPRESENT DON’T AGREE TO BE BOUND TO THIS PRIVACY POLICY, YOU SHOULD NOT USE OUR SERVICES.",
+    "viewFullPolicy": "View Full Policy",
+    "communityMemAgrees": "Community member agrees to data policy",
+    "continueToForm": "Continue to Form"
+  },
+  "dataCollection": {
+    "newRecord": "New Record",
+    "findRecord": "Find Record",
+    "viewAll": "View All Forms",
+    "back": "Back"
+  },
+  "home": {
+    "myTasks": "My Tasks",
+    "comingSoon": "Coming Soon",
+    "tasks": "Tasks",
+    "logOut": "Log Out"
+  },
+  "components": {
+    "autofill": {
+      "placeholder": "Enter the",
+      "placeholder_end": "here"
+    }
+  },
+  "cards": {
+    "smallCards": {
+      "residentID": "Resident ID",
+      "environmental": "Environment",
+      "history": "History",
+      "medical": "Medical",
+      "evaluation": "Evaluation",
+      "vitals": "Vitals"
+    }
+  },
+  "findResident": {
+    "searchIndividual": "Search Individual",
+    "typeHere": "Type Here...",
+    "residentCard": {
+      "city": "City",
+      "community": "Community"
+    },
+    "residentPage": {
+      "demographics": {
+        "dob": "Date of Birth:",
+        "city": "City:",
+        "community": "Community:",
+        "province": "Province:",
+        "license": "License Number:"
+      },
+      "forms": {
+        "completedForms": "Completed Forms",
+        "formCategory": "Form Category",
+        "comingSoon": "Coming Soon",
+        "suggestedForms": "Suggested Forms"
+      },
+      "household": {
+        "editProfile": "Edit Profile",
+        "demographics": "Demographics",
+        "forms": "Forms",
+        "household": "Household",
+        "goBack": "Go back to find records"
+      }
+    }
+  },
+  "householdManager": {
+    "createHousehold": "Create a new household",
+    "linkIndividual": "Link this individual to an existing house",
+    "household": "Household",
+    "householdManager": "Household Manager",
+    "relationshipHousehold": "What is their role/relationship in the household?",
+    "linked": "Linked",
+    "useSearchBar": "Please use the searchbar to find and select the correct Household.",
+    "doNothing": "Do Nothing",
+    "successCreateHousehold": "You have successfully created a new household.",
+    "noHousehold": "You have chosen not to link a household.",
+    "addCreateHousehold": "Add or Create a Household"
+  },
+  "header": {
+    "goodMorning": "Good morning",
+    "goodAfternoon": "Good afternoon",
+    "goodEvening": "Good evening",
+    "goodMorning!": "Good morning!",
+    "goodAfternoon!": "Good afternoon!",
+    "goodEvening!": "Good evening!",
+    "puente": "PUENTE",
+    "volunteerSince": "Volunteer Since",
+    "surveysCollected": "Surveys Collected",
+    "submitOffline": "Submit Offline Forms",
+    "failedAttempt": "Failed Attempt Submitting Offline Forms.",
+    "tryAgain": "Please ensure that you are connected to the internet and try again.",
+    "ok": "Ok",
+    "success": "Success!",
+    "justSubmitted": "You have just submitted",
+    "form": "form!",
+    "forms": "forms!"
+  },
+  "languagePicker": {
+    "english": "English",
+    "spanish": "Spanish"
+  },
+  "residentIdSearchbar": {
+    "searchIndividual": "Search Individual"
+  },
+  "termsModal": {
+    "termsService": "Terms and Service",
+    "policy": "Privacy Policy\nThis policy describes how we collect, use and handle your information when you use our website, software and services (“Services”).\n\nIf you’re using our Services for an organization, you are agreeing to this Privacy Policy on behalf of that organization.\nIf you’re using our Services to provide services, software and content for someone else, you are agreeing to this Privacy Policy on their behalf.\n\nIF YOU OR THE ORGANIZATION YOU REPRESENT DON’T AGREE TO BE BOUND TO THIS PRIVACY POLICY, YOU SHOULD NOT USE OUR SERVICES.\n\nYour Rights\nData protection legislation gives you a number of rights to protect you against an organization mishandling your personal information. It is important that you understand your rights and in this Policy we have set out what those rights are and how you can exercise your rights in respect of Puente’s processing of your personal information.\n\nThe right to access\nYou have the right to request Puente for copies of your personal data.\n\nThe right to rectification\nYou have the right to request that Puente correct any information you believe is inaccurate or complete the information you believe is incomplete.\n\nThe right to erasure\nYou have the right to request that Puente erase your personal data, under certain conditions.\n\nThe right to restrict processing\nYou have the right to request that Puente restrict the processing of your personal data, under certain conditions.\n\nThe right to data portability\nYou have the right to request that Puente transfer the data that we have collected to another organization, or directly to you, under certain conditions.\n\nIf you make a request, Puente will respond as early as possible, maximum one month to respond. If you would like to exercise any of the aforementioned rights please contact us info@puente-dr.org.\n\nWhat information we collect\nWe collect and use the following information in order to provide our Services.\n\nAccount\nWe collect and associate your account with information such as your name, email address, and organization.\n\nCookies\nPuente does not use cookies. If we use cookies in the future, we will notify users and update Privacy Policy accordingly.\n\nUse of Information\nWe may use information about you to: Enable you to have full access to the Services; provide, maintain and improve the Services; Provide and deliver the products and services you request, process transactions and send you related information, including confirmations and invoices; Send you technical notices, updates, security alerts, support and administrative messages; Respond to your comments, questions and requests, and provide customer support; Create your Puente account and identify you when signing-in to your account in accordance with your agreement with us; Monitor and analyze trends, usage and activities  in connection with the Services; Detect, investigate and prevent fraud and other illegal activities and protect the rights and property of Puente and others; Notify you about important changes to the Services, including changes or updates to this Privacy Policy; Facilitate contests and promotions; Link or combine with information we get from others to help understand your needs and provide you with better service; Consider you for possible employment at Puente in connection with an application that you submit; and Carry out any other purpose described to you at the time the information was collected. \n\nWith whom do we share\nWe may share information as explained below, however, we will never sell it to advertisers or other third parties.\n\nForm data that you create and populate is owned by you. Puente will keep your forms private, unless you agree to make your forms publicly available. Puente safeguards respondents’ information and holds your data securely. \n\nForms are administered by form creators and specific organizations. Puente hosts forms on our websites and collects the responses your organization submits. Puente does not sell or make publicly available your responses to third parties. \n\nOthers working for Puente: Puente uses certain trusted third parties (for example, providers of IT services) to help us provide, improve, protect and promote our Services. These third parties will access your information only to perform tasks on our behalf in compliance with this Privacy Policy. We use Stripe, DonorBox, Square, GiveButter and PayPal to process credit cards, all of whom being our PCI-DSS compliant payment processing partners.\n\nAnalytics: We use analytic partners, including MailChimp to analyze some of the marketing information we collect. If you do not consent to our analytics partners having access to your information (email address), please let us know at info@puente-dr.org\n\nLegal Compliance and Protection: We may disclose your information to third parties if we determine that such disclosure is reasonably necessary to (i) comply with the law; (ii) protect any person from death or serious bodily injury; (iii) prevent fraud or abuse of Puente or our users, or (iv) protect Puente’s property rights. \n\nHow do we protect your information\nPuente is dedicated to keeping your information secure and testing for vulnerabilities. To prevent unauthorized access, maintain accuracy, and ensure proper use of information, we have employed physical, technical, and administrative processes to safeguard and secure the information we collect.\n\nNote: No method of transmission over the internet, or method of electronic storage, is 100% secure, the security of your information ALSO depends on how you use the Services and protect your login credentials. \n\nYour personal information will be retained by Puente for the duration of your account and may be retained for a period after this time as necessary and relevant to our legitimate interests, our terms of agreement with you and in accordance with applicable legal obligations. This may include retention necessary to meet our tax reporting requirements as well as time required to enforce the relevant terms of agreement or to identify, issue or resolve legal proceedings.\nWe may retain a record of your stated objection to the processing of your data, including in respect of an objection to receiving marketing communications, for the sole legitimate purpose of ensuring that we can continue to respect your wishes and not contract you further, during the term of your objection. \n\nWhere we store your information\nTo provide you with the Services, we may store, process and transmit information to the United States and other locations around the world--including those outside of your country. Information may also be stored locally on devices you use to access the Services.  \n\nChanges\nIf we are involved in a reorganization or merger, your information may be transferred as part of that deal. We will notify you of any such deal and outline your choices.\n\nWe may revise this Privacy Policy from time to time, and will post the most current version on our website. If a revision meaningfully reduces your rights, we will notify you.\n\n\nContact\nHave questions or concerns about Puente, our Services and privacy? Contact us at info@puente-dr.org\n\n\nLast Update: October 2020",
+    "ok": "Ok"
+  },
+  "errorPicker": {
+    "invalidFields": "Invalid Fields:"
   }
 }

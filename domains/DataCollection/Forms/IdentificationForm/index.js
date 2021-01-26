@@ -1,44 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import {
   ActivityIndicator,
-  View
+  View, TouchableWithoutFeedback, Keyboard,
 } from 'react-native';
-import { Text, Button } from 'react-native-paper';
 import { Formik } from 'formik';
-// import * as yup from 'yup';
 
-import { postObjectsToClass } from '../../../../services/parse/crud';
-
-import {
-  storeData
-} from '../../../../modules/async-storage';
-import checkOnlineStatus from '../../../../modules/offline';
-import generateRandomID from '../../../../modules/utils';
+import { postIdentificationForm } from '../../../../modules/cached-resources';
+import { isEmpty } from '../../../../modules/utils';
 import { layout } from '../../../../modules/theme';
+import I18n from '../../../../modules/i18n';
 
+import PaperButton from '../../../../components/Button';
+import PaperInputPicker from '../../../../components/FormikFields/PaperInputPicker';
+import yupValidationPicker from '../../../../components/FormikFields/YupValidation';
+import ErrorPicker from '../../../../components/FormikFields/ErrorPicker';
 import backgroundPostPatient from './utils';
+import surveyingUserFailsafe from '../utils';
+
 import configArray from './config/config';
 
-import PaperInputPicker from '../../../../components/FormikFields/PaperInputPicker';
-
-// const validationSchema = yup.object().shape({
-//   fname: yup
-//     .string()
-//     .label('First Name')
-//     .required(),
-//   lname: yup
-//     .string()
-//     .label('Last Name')
-//     .required()
-// });
-
 const IdentificationForm = ({
-  scrollViewScroll, setScrollViewScroll, setSelectedForm
+  scrollViewScroll, setScrollViewScroll,
+  setSelectedForm, setSurveyee, surveyingUser, surveyingOrganization
 }) => {
   useEffect(() => {
     const interval = setInterval(() => {
       backgroundPostPatient();
     }, 10000);
+
+    setValidationSchema(yupValidationPicker(configArray));
 
     return () => {
       clearInterval(interval);
@@ -46,7 +36,8 @@ const IdentificationForm = ({
   }, [clearInterval]);
 
   const [inputs, setInputs] = useState({});
-  const [camera, setCamera] = React.useState(false);
+  const [photoFile, setPhotoFile] = useState('State Photo String');
+  const [validationSchema, setValidationSchema] = useState();
 
   useEffect(() => {
     setInputs(configArray);
@@ -54,66 +45,86 @@ const IdentificationForm = ({
 
   return (
     <View>
-      <Formik
-        initialValues={{}}
-        onSubmit={(values, actions) => {
-          const submitAction = () => {
-            setTimeout(() => {
-              setSelectedForm('');
-              actions.setSubmitting(false);
-            }, 1000);
-          };
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss()} accessible={false}>
+        <Formik
+          initialValues={{}}
+          onSubmit={async (values, actions) => {
+            setPhotoFile('Submitted Photo String');
 
-          const { photo } = values;
-          delete values.photo; // eslint-disable-line
-          const postParams = {
-            parseClass: 'SurveyData',
-            signature: 'Sample Signature',
-            photoFile: photo,
-            localObject: values
-          };
+            const formObject = values;
+            formObject.surveyingOrganization = surveyingOrganization;
+            formObject.surveyingUser = await surveyingUserFailsafe(surveyingUser, isEmpty);
 
-          checkOnlineStatus().then((connected) => {
-            if (connected) {
-              postObjectsToClass(postParams).then(() => {
-                submitAction();
-              });
-            } else {
-              const id = `PatientID-${generateRandomID()}`;
-              storeData(postParams, id);
+            formObject.latitude = values.location?.latitude || 0;
+            formObject.longitude = values.location?.longitude || 0;
+            formObject.altitude = values.location?.altitude || 0;
+
+            formObject.dob = `${values.Month || '00'}/${values.Day || '00'}/${values.Year || '0000'}`;
+
+            const valuesToPrune = ['Month', 'Day', 'Year', 'location'];
+            valuesToPrune.forEach((value) => {
+              delete formObject[value];
+            });
+
+            const submitAction = () => {
+              setTimeout(() => {
+                setSelectedForm('');
+                actions.setSubmitting(false);
+              }, 1000);
+            };
+
+            const postParams = {
+              parseClass: 'SurveyData',
+              signature: 'Sample Signature',
+              photoFile,
+              localObject: formObject
+            };
+
+            postIdentificationForm(postParams).then((surveyee) => {
+              setSurveyee(surveyee);
               submitAction();
-            }
-          });
-        }}
-      // validationSchema={validationSchema}
-      >
-        {(formikProps) => (
-          <View style={layout.formContainer}>
-            {inputs.length && inputs.map((result) => (
-              <View key={result.formikKey}>
-                <PaperInputPicker
-                  data={result}
-                  formikProps={formikProps}
-                  scrollViewScroll={scrollViewScroll}
-                  setScrollViewScroll={setScrollViewScroll}
-                  camera={camera}
-                  setCamera={setCamera}
-                  values={formikProps.values}
-                // placeholder="Ana"
+            });
+          }}
+          validationSchema={validationSchema}
+          // only validate on submit, errors persist after fixing
+          validateOnBlur={false}
+          validateOnChange={false}
+        >
+          {(formikProps) => (
+            <View style={layout.formContainer}>
+              {inputs.length && inputs.map((result) => (
+                <View key={result.formikKey}>
+                  <PaperInputPicker
+                    data={result}
+                    formikProps={formikProps}
+                    surveyingOrganization={surveyingOrganization}
+                    scrollViewScroll={scrollViewScroll}
+                    setScrollViewScroll={setScrollViewScroll}
+                    customForm={false}
+                  // placeholder="Ana"
+                  />
+                </View>
+              ))}
+              <ErrorPicker
+                // data={result}
+                formikProps={formikProps}
+                inputs={inputs}
+              />
+              {formikProps.isSubmitting ? (
+                <ActivityIndicator />
+              ) : (
+                <PaperButton
+                  onPressEvent={formikProps.handleSubmit}
+                  buttonText={I18n.t('global.submit')}
                 />
-              </View>
-            ))}
-
-            {formikProps.isSubmitting ? (
-              <ActivityIndicator />
-            ) : (
-              <Button onPress={formikProps.handleSubmit}>
-                <Text>Submit</Text>
-              </Button>
-            )}
-          </View>
-        )}
-      </Formik>
+              // <Button icon="human" onPress={formikProps.handleSubmit}>
+              //   <Text>Submit</Text>
+              // </Button>
+              )}
+            </View>
+          )}
+        </Formik>
+      </TouchableWithoutFeedback>
     </View>
   );
 };
