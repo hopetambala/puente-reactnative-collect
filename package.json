@@ -90,7 +90,7 @@
     "jest-expo": "37.0.0",
     "react-native-svg-transformer": "0.14.3",
     "react-test-renderer": "16.13.0",
-    "standard-version": "9.0.0",
+    "standard-version": "9.1.0",
     "standard-version-expo": "1.0.3"
   },
   "private": true
