@@ -56,7 +56,7 @@
     "expo-web-browser": "8.3.1",
     "formik": "2.1.5",
     "i18n-js": "3.7.1",
-    "metro-config": "0.63.0",
+    "metro-config": "0.65.0",
     "native-base": "2.13.8",
     "parse": "2.14.0",
     "react": "16.11.0",
