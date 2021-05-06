@@ -64,7 +64,7 @@
     "lodash": "4.17.21",
     "native-base": "2.13.8",
     "parse": "2.14.0",
-    "react": "16.13.1",
+    "react": "17.0.2",
     "react-native": "0.63.4",
     "react-native-autocomplete-input": "4.2.0",
     "react-native-emoji": "1.8.0",
