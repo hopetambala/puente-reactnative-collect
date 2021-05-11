@@ -96,7 +96,7 @@
     "eslint-plugin-simple-import-sort": "7.0.0",
     "jest-expo": "^41.0.0",
     "react-native-svg-transformer": "0.14.3",
-    "standard-version": "9.2.0",
+    "standard-version": "9.3.0",
     "standard-version-expo": "1.0.3"
   },
   "private": true
