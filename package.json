@@ -64,7 +64,7 @@
     "i18n-js": "3.7.1",
     "lodash": "4.17.21",
     "native-base": "2.13.8",
-    "parse": "2.14.0",
+    "parse": "3.3.0",
     "react": "16.13.1",
     "react-native": "0.63.4",
     "react-native-autocomplete-input": "4.2.0",
