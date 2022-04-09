@@ -60,7 +60,7 @@
     "expo-store-review": "~4.1.0",
     "expo-updates": "~0.8.2",
     "expo-web-browser": "~9.2.0",
-    "formik": "2.1.5",
+    "formik": "2.2.9",
     "i18n-js": "3.7.1",
     "lodash": "4.17.21",
     "native-base": "2.13.8",
