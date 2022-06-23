@@ -19,7 +19,7 @@ jobs:
           node-version: 10.x
 
       - name: Setup Expo
-        uses: expo/expo-github-action@v5
+        uses: expo/expo-github-action@v7
         with:
           expo-version: 3.x
           expo-token: ${{ secrets.EXPO_TOKEN }}
