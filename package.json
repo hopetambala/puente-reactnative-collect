@@ -110,7 +110,7 @@
     "jest-expo": "^46.0.0",
     "prettier": "^2.8.4",
     "prompt": "1.1.0",
-    "react-native-svg-transformer": "0.14.3",
+    "react-native-svg-transformer": "1.0.0",
     "standard-version": "9.2.0",
     "standard-version-expo": "1.0.3"
   },
