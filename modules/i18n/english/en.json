@@ -16,6 +16,7 @@
     "ok": "Ok",
     "emptyForm": "Empty Form",
     "back": "Back",
+    "cancel": "Cancel",
     "pleaseTryAgain": "Please, try again"
   },
   "signUp": {
@@ -356,6 +357,9 @@
     "attachForm": "Attach a form and an asset",
     "createAsset": "Create an Asset"
   },
+  "demographics":{
+    "updateForm": "Update Form"
+  },
   "forms": {
     "successfullySubmitted": "Form successfully submitted",
     "grabCoffee": "Great job, grab yourself a coffee",
@@ -410,11 +414,21 @@
     },
     "residentPage": {
       "demographics": {
-        "dob": "Date of Birth:",
-        "city": "City:",
-        "community": "Community:",
-        "province": "Province:",
-        "license": "License Number:"
+        "dob": "Date of Birth: ",
+        "city": "City: ",
+        "community": "Community: ",
+        "province": "Province: ",
+        "license": "License Number: ",
+        "age": "Age: ",
+        "sex": "Sex: ",
+        "telephone": "Telephone Number: ",
+        "marriageStatus": "Marriage Status: ",
+        "occupation": "Occupation: ",
+        "educationLevel": "Education Level: ",
+        "subcounty": "Sub-county: ",
+        "region": "Region: ",
+        "country": "Country: ",
+        "location": "Location: "
       },
       "forms": {
         "completedForms": "Completed Forms",

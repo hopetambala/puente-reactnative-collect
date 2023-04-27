@@ -38,6 +38,7 @@ const PaperInputPicker = ({
 
   const translatedLabel = customForm ? label : I18n.t(label);
   const translatedLabelSide = customForm ? sideLabel : I18n.t(sideLabel);
+  // const dateOfBirth = values[formikKey].split('/', 3); // ACCOUNT FOR NULL DOB
 
   const addArrayVal = (result) => {
     if (values[formikKey] || values[formikKey] === []) {
@@ -52,6 +53,13 @@ const PaperInputPicker = ({
   const [image, setImage] = React.useState(null);
 
   const [additionalQuestions, setAdditionalQuestions] = React.useState([]);
+
+  React.useEffect(() => {
+    // setInputs(configArray.fields);
+    if (fieldType === 'select' && values[formikKey]) setFieldValue(values[formikKey]);
+
+    if (fieldType === 'photo' && values[formikKey]) setImage(values[formikKey]);
+  }, [data]);
 
   return (
     <>
@@ -96,6 +104,7 @@ const PaperInputPicker = ({
             {...rest} //eslint-disable-line
             mode="outlined"
             keyboardType="numeric"
+            defaultValue={_.isEmpty(formikProps.values) ? '' : values[formikKey]}
             theme={stylesPaper}
             style={stylesDefault.label}
           />
@@ -353,6 +362,7 @@ const PaperInputPicker = ({
             formikProps={formikProps}
             formikKey={formikKey}
             label={label}
+            initialValue={values[formikKey] ? values[formikKey] : ''}
             translatedLabel={translatedLabel}
             scrollViewScroll={scrollViewScroll}
             setScrollViewScroll={setScrollViewScroll}
@@ -376,6 +386,7 @@ const PaperInputPicker = ({
       )}
       {fieldType === "geolocation" && (
         <Geolocation
+          values={values}
           errors={errors}
           formikKey={formikKey}
           setFieldValue={setFieldValue}

@@ -105,6 +105,16 @@ function getObjectsByGeolocation(params) {
   });
 }
 
+function updateObject(params) {
+  return new Promise((resolve, reject) => {
+    Parse.Cloud.run('updateObject', params).then((result) => {
+      resolve(result);
+    }, (error) => {
+      reject(error);
+    });
+  });
+}
+
 function postOfflineForms(params) {
   return new Promise((resolve, reject) => {
     Parse.Cloud.run("postOfflineForms", params).then(

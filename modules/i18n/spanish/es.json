@@ -16,6 +16,7 @@
     "ok": "OK",
     "emptyForm": "Forma vacía",
     "back": "Regresa",
+    "cancel": "Cancelar Editar",
     "pleaseTryAgain": "Inténtalo de nuevo"
   },
   "signUp": {
@@ -356,6 +357,9 @@
     "attachForm": "Adjuntar una forma y un activo",
     "createAsset": "Crear un activo"
   },
+  "demographics":{
+    "updateForm": "Actualiza el formulario"
+  },
   "forms": {
     "successfullySubmitted": "Formulario entregado satisfactoriamente",
     "grabCoffee": "Buen trabajo, tómate un café",
@@ -410,11 +414,21 @@
     },
     "residentPage": {
       "demographics": {
-        "dob": "Fecha de nacimiento:",
-        "city": "Ciudad:",
-        "community": "Comunidad:",
-        "province": "Provincia:",
-        "license": "Número de licencia:"
+        "dob": "Fecha de nacimiento: ",
+        "city": "Ciudad: ",
+        "community": "Comunidad: ",
+        "province": "Provincia: ",
+        "license": "License Number: ",
+        "age": "Edad: ",
+        "sex": "Sexo: ",
+        "telephone": "Número de teléfono: ",
+        "marriageStatus": "Estado civil: ",
+        "occupation": "Ocupación: ",
+        "educationLevel": "Nivel de Educación: ",
+        "subcounty": "Sub-condado: ",
+        "region": "Región: ",
+        "country": "País: ",
+        "location": "Localización: "
       },
       "forms": {
         "completedForms": "Formularios completados",
