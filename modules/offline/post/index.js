@@ -5,7 +5,7 @@ import { isEmpty } from "@modules/utils";
 import { Platform } from "react-native";
 
 import checkOnlineStatus from "..";
-import getAWSLogger from "@modules/aws-logging/logger";
+import getAWSLogger from "@modules/aws-logging/hook";
 
 const cleanupPostedOfflineForms = async () => {
   await deleteData("offlineIDForms");
