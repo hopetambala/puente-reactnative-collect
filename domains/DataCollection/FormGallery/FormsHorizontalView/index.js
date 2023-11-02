@@ -20,15 +20,10 @@ const FormsHorizontalView = ({
       </View>
     )}
     <ScrollView horizontal>
-      {forms.map((form) => {
-        const cardId = uuid.v4();
-        return (
+      {forms.map((form) => (
           <Card
-            key={cardId}
             style={layout.cardSmallStyle}
-            onPress={() => {
-              navigateToCustomForm(form);
-            }}
+            onPress={() => navigateToCustomForm(form)}
             onLongPress={() => pinForm(form)}
           >
             <View style={styles.cardContainer}>
@@ -37,8 +32,7 @@ const FormsHorizontalView = ({
               </View>
             </View>
           </Card>
-        );
-      })}
+        ))}
       {forms?.length < 1 && (
         <View style={layout.screenRow}>
           <Card key={() => uuid.v4()}>
