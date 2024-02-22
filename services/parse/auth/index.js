@@ -1,11 +1,13 @@
-import selectedENV from "@app/environment";
 import client from "@app/services/parse/client";
 import { getData } from "@modules/async-storage";
 
 import notificationTypeRestParams from "./_signupHelper";
 
-const { parseAppId, parseJavascriptKey, parseServerUrl, TEST_MODE } =
-  selectedENV;
+const parseAppId = process.env.EXPO_PUBLIC_PARSE_APP_ID;
+const parseJavascriptKey = process.env.EXPO_PUBLIC_PARSE_JAVASCRIPT_KEY;
+const parseServerUrl = process.env.EXPO_PUBLIC_PARSE_SERVER_URL;
+const TEST_MODE = process.env.EXPO_PUBLIC_TEST_MODE === "true";
+
 const Parse = client(TEST_MODE);
 
 function initialize() {

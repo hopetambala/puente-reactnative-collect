@@ -1,4 +1,3 @@
-import selectedENV from "@app/environment";
 import client from "@app/services/parse/client";
 
 import {
@@ -7,7 +6,7 @@ import {
   customQueryService,
 } from "./custom-queries";
 
-const { TEST_MODE } = selectedENV;
+const TEST_MODE = process.env.EXPO_PUBLIC_TEST_MODE === "true";
 const Parse = client(TEST_MODE);
 
 function retrieveHelloFunction() {

@@ -1,4 +1,3 @@
-import selectedENV from "@app/environment";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import Constants from "expo-constants";
@@ -7,6 +6,8 @@ import { toInteger } from "lodash";
 import { Platform } from "react-native";
 
 const axios = require("axios");
+const awsFlaskAPIUrl = process.env.EXPO_PUBLIC_AWS_FLASK_API;
+const expoPushTokenUrl = process.env.EXPO_PUBLIC_PUSH_TOKEN_URL;
 
 const registerForPushNotificationsAsync = async () => {
   let token;
@@ -57,7 +58,7 @@ const checkAppVersionAndSendPush = async (token) => {
     const patchCurrentInt = toInteger(patchCurrent);
     if (Platform.OS === "android") {
       await axios
-        .get(`${selectedENV.awsFlaskApi}android`)
+        .get(`${awsFlaskAPIUrl}android`)
         .then((latestVersion) => {
           const [majorLatest, minorLatest, patchLatest] =
             latestVersion.data.version.version_number.split(".");
@@ -78,7 +79,7 @@ const checkAppVersionAndSendPush = async (token) => {
             )
           ) {
             axios
-              .post(selectedENV.expoPushTokenUrl, [
+              .post(expoPushTokenUrl, [
                 {
                   to: token,
                   sound: "default",
@@ -98,7 +99,7 @@ const checkAppVersionAndSendPush = async (token) => {
         .catch((error) => console.log("push notification", error)); //eslint-disable-line
     } else if (Platform.OS === "ios") {
       await axios
-        .get(`${selectedENV.awsFlaskApi}ios`)
+        .get(`${awsFlaskAPIUrl}ios`)
         .then((latestVersion) => {
           const [majorLatest, minorLatest, patchLatest] =
             latestVersion.data.version.version_number.split(".");
@@ -119,7 +120,7 @@ const checkAppVersionAndSendPush = async (token) => {
             )
           ) {
             axios
-              .post(selectedENV.expoPushTokenUrl, [
+              .post(expoPushTokenUrl, [
                 {
                   to: token,
                   sound: "default",

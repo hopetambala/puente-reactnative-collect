@@ -1,9 +1,7 @@
-import selectedENV from "@app/environment";
-
 const axios = require("axios");
 
 function retrievePuenteAutofillData(parameter) {
-  const { AWS_LAMBDA_URL } = selectedENV;
+  const AWS_LAMBDA_URL = process.env.EXPO_PUBLIC_AWS_LAMBDA_URL;
   return axios
     .get(AWS_LAMBDA_URL, {
       params: {

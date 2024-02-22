@@ -3,19 +3,16 @@
 import "react-native-url-polyfill/auto";
 import "react-native-get-random-values";
 
-import selectedENV from "@app/environment";
 import {
   CloudWatchLogsClient,
   PutLogEventsCommand,
 } from "@aws-sdk/client-cloudwatch-logs";
 
 const getAWSLogger = () => {
-  const { logGroupName, logStreamName, accessKeyId, secretAccessKey, region } =
-    selectedENV.cloudWatchLogging;
 
   const credentials = {
-    accessKeyId,
-    secretAccessKey,
+    accessKeyId: process.env.EXPO_PUBLIC_AWS_CLOUDWATCH_LOG_ACCESS_KEY_ID,
+    secretAccessKey: process.env.EXPO_PUBLIC_AWS_CLOUDWATCH_LOG_SECRET_ACCESS_KEY,
   };
 
   const config = {
@@ -28,8 +25,8 @@ const getAWSLogger = () => {
       // Stringify the message as JSON.
       const jsonMessage = JSON.stringify(message);
       const input = {
-        logGroupName,
-        logStreamName,
+        logGroupName: process.env.EXPO_PUBLIC_AWS_CLOUDWATCH_LOG_GROUP_NAME,
+        logStreamName: process.env.EXPO_PUBLIC_AWS_CLOUDWATCH_LOG_STREAM_NAME,
         logEvents: [{ message: jsonMessage, timestamp: Date.now() }],
       };
 

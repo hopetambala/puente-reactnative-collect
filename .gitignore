@@ -25,3 +25,4 @@ reactenv/
 scripts/update-version/app.secrets.json
 environment.js
 eas.json
+.env*
