@@ -9,12 +9,20 @@ jobs:
       contents: read
       pull-requests: write
     steps:
+      - name: Check for EXPO_TOKEN
+        run: |
+          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "You must provide an EXPO_TOKEN secret linked to this project's Expo account in this repo's secrets. Learn more: https://docs.expo.dev/eas-update/github-actions"
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Create Environment.js for Build
         run: |
           touch environment.js
-          echo "const selectedEnv = {
-            TEST_MODE: true,
-            parseAppId: '${{ secrets.PARSE_APP_ID }}',
+          echo "const selectedEnv = {TEST_MODE: true, parseAppId: '${{ secrets.PARSE_APP_ID }}',
             parseJavascriptKey: '${{ secrets.PARSE_JAVASCRIPT_KEY }}',
             parseServerUrl: 'https://parseapi.back4app.com/',
             taskyUrlApi: 'https://puente-tasky-dev.herokuapp.com/',
@@ -27,19 +35,8 @@ jobs:
               region: 'us-east-1'
             }
           };
-          export default selectedEnv" >> environment.js
-          echo environment.js
+          export default selectedEnv;" >> environment.js
           ls
-
-      - name: Check for EXPO_TOKEN
-        run: |
-          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
-            echo "You must provide an EXPO_TOKEN secret linked to this project's Expo account in this repo's secrets. Learn more: https://docs.expo.dev/eas-update/github-actions"
-            exit 1
-          fi
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
 
       - name: Setup Node
         uses: actions/setup-node@v3
