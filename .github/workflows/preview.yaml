@@ -36,7 +36,6 @@ jobs:
             }
           };
           export default selectedEnv;" >> environment.js
-          ls
 
       - name: Setup Node
         uses: actions/setup-node@v3
