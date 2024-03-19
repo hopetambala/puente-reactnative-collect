@@ -1,0 +1,57 @@
+name: Create Expo Preview
+on: pull_request
+
+jobs:
+  update:
+    name: EAS Update
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check for EXPO_TOKEN
+        run: |
+          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "You must provide an EXPO_TOKEN secret linked to this project's Expo account in this repo's secrets. Learn more: https://docs.expo.dev/eas-update/github-actions"
+            exit 1
+          fi
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create Environment.js for Build
+        run: |
+          touch environment.js
+          echo "const selectedEnv = {TEST_MODE: true, parseAppId: '${{ secrets.PARSE_APP_ID }}',
+            parseJavascriptKey: '${{ secrets.PARSE_JAVASCRIPT_KEY }}',
+            parseServerUrl: 'https://parseapi.back4app.com/',
+            taskyUrlApi: 'https://puente-tasky-dev.herokuapp.com/',
+            AWS_LAMBDA_URL: '${{ secrets.AWS_LAMBDA_URL }}',
+            cloudWatchLogging: {
+              logGroupName: 'puente-test-logs',
+              logStreamName: 'test-log-stream',
+              accessKeyId: '${{ secrets.AWS_CLOUDWATCH_ACCESSKEY_ID }}',
+              secretAccessKey: '${{ secrets.AWS_CLOUDWATCH_SECRET_ACCESS_KEY }}',
+              region: 'us-east-1'
+            }
+          };
+          export default selectedEnv;" >> environment.js
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: Setup EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create preview
+        uses: expo/expo-github-action/preview@v8
+        with:
+          command: eas update --auto
