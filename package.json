@@ -5,7 +5,7 @@
   "scripts": {
     "start": "expo start",
     "start-clear": "expo start --clear",
-    "reinstall": "rm package-lock.json && rm -rf node_modules/ && npm install",
+    "reinstall": "rm yarn.lock && rm -rf node_modules/ && yarn install",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
@@ -40,7 +40,7 @@
     }
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch-logs": "^3.342.0",
+    "@aws-sdk/client-cloudwatch-logs": "3.429.0",
     "@expo/config-plugins": "~7.2.2",
     "@expo/metro-config": "~0.10.0",
     "@expo/vector-icons": "^13.0.0",

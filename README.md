@@ -97,6 +97,17 @@ We use jest for both unit tests and for integration/cross-stack tests.
 
 `npm run test int` runs integration tests
 
+## Simulators
+
+### iOS
+
+You need to make sure the simulator you're using is "booted". 
+```
+xcrun simctl delete unavailable
+xcrun simctl list devices available
+xcrun simctl boot "iPhone 16"
+```
+
 ## Resources
 
 - [React Native Paper](https://callstack.github.io/react-native-paper/index.html)
