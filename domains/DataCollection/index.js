@@ -29,6 +29,7 @@ import { Button, Card } from "react-native-paper";
 import Assets from "./Assets";
 import FormGallery from "./FormGallery";
 import Forms from "./Forms";
+import EditRecords from "./EditRecords";
 import styles from "./index.styles";
 
 const puenteForms = [
@@ -131,6 +132,10 @@ const DataCollection = ({ navigation }) => {
     setView("Find Records");
   };
 
+  const navigateToEditRecords = async () => {
+    setView("Edit Records");
+  };
+
   const logOut = () => onLogout().then(() => navigation.navigate("Sign In"));
 
   return (
@@ -176,6 +181,37 @@ const DataCollection = ({ navigation }) => {
                           {I18n.t("dataCollection.newRecord")}
                         </Text>
                       </Card>
+                    </View>
+                    <View style={styles.cardContainer}>
+                      <Card
+                        style={styles.cardSmallStyle}
+                        onPress={navigateToGallery}
+                      >
+                        <ComingSoonSVG
+                          height={70}
+                          width={70}
+                          style={styles.svg}
+                        />
+                        <Text style={styles.text}>
+                          {I18n.t("dataCollection.viewAll")}
+                        </Text>
+                      </Card>
+                    </View>
+                    <View style={styles.cardContainer}>
+                      <Card
+                        style={styles.cardSmallStyle}
+                        onPress={navigateToEditRecords}
+                      >
+                        <ComingSoonSVG
+                          height={70}
+                          width={70}
+                          style={styles.svg}
+                        />
+                        <Text style={styles.text}>
+                          {/* {I18n.t("dataCollection.viewAll")} */}
+                          Edit Record
+                        </Text>
+                      </Card>
                       <Card
                         style={styles.cardSmallStyle}
                         onPress={navigateToFindRecords}
@@ -186,15 +222,7 @@ const DataCollection = ({ navigation }) => {
                         </Text>
                       </Card>
                     </View>
-                    <Card
-                      style={styles.cardSmallStyle}
-                      onPress={navigateToGallery}
-                    >
-                      <ComingSoonSVG height={65} style={styles.svg} />
-                      <Text style={styles.text}>
-                        {I18n.t("dataCollection.viewAll")}
-                      </Text>
-                    </Card>
+
                     <View style={styles.cardContainer}>
                       <Card
                         style={styles.cardSmallStyle}
@@ -209,6 +237,8 @@ const DataCollection = ({ navigation }) => {
                           {I18n.t("dataCollection.newAsset")}
                         </Text>
                       </Card>
+                    </View>
+                    <View style={styles.cardContainer}>
                       <Card
                         style={styles.cardSmallStyle}
                         onPress={navigateToViewAllAssets}
@@ -317,6 +347,23 @@ const DataCollection = ({ navigation }) => {
                     navigateToNewRecord={navigateToNewRecord}
                     surveyee={surveyee}
                     setSurveyee={setSurveyee}
+                    navigateToRoot={navigateToRoot}
+                    setView={setView}
+                  />
+                </View>
+              )}
+              {view === "Edit Records" && (
+                <View>
+                  {!selectPerson && (
+                    <Button
+                      icon="arrow-left"
+                      width={100}
+                      onPress={navigateToRoot}
+                    >
+                      <Text>{I18n.t("dataCollection.back")}</Text>
+                    </Button>
+                  )}
+                  <EditRecords
                     navigateToRoot={navigateToRoot}
                     setView={setView}
                   />
