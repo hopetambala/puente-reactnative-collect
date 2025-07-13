@@ -27,7 +27,8 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app uses your location to geo-tag surveys accurately.",
         "NSCameraUsageDescription": "This app uses photos to identify residents more accurately.",
-        "NSPhotoLibraryUsageDescription": "This app uses the photo gallery to let you choose photos to identify residents more accurately."
+        "NSPhotoLibraryUsageDescription": "This app uses the photo gallery to let you choose photos to identify residents more accurately.",
+        "ITSAppUsesNonExemptEncryption": false
       },
       "appStoreUrl": "https://apps.apple.com/us/app/puente-collect/id1362371696",
       "bundleIdentifier": "io.ionic.starter1270348"
