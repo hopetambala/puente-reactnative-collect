@@ -1,7 +1,7 @@
 import surveyingUserFailsafe from "@app/domains/DataCollection/Forms/utils";
 import { uploadOfflineForms } from "@app/services/parse/crud";
 import { deleteData, getData } from "@modules/async-storage";
-import getAWSLogger from "@modules/aws-logging/logger";
+// import getAWSLogger from "@modules/aws-logging/logger";
 import { isEmpty } from "@modules/utils";
 import { Platform } from "react-native";
 
@@ -50,10 +50,10 @@ const postOfflineForms = async () => {
     const uploadedForms = await uploadOfflineForms(offlineForms).catch(() => ({
       status: "Error",
     }));
-    getAWSLogger().log({
-      type: "OFFLINE_FORM_UPLOADED",
-      parseUser: user.objectId,
-    });
+    // getAWSLogger().log({
+    //   type: "OFFLINE_FORM_UPLOADED",
+    //   parseUser: user.objectId,
+    // });
     return {
       offlineForms,
       uploadedForms,

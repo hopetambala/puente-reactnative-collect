@@ -2,11 +2,6 @@
 
 [![made with expo](https://img.shields.io/badge/MADE%20WITH%20EXPO-000.svg?style=for-the-badge&logo=expo&labelColor=4630eb&logoWidth=20)](https://github.com/expo/expo) [![supports iOS and Android](https://img.shields.io/badge/Platforms-Native-4630EB.svg?style=for-the-badge&logo=EXPO&labelColor=000&logoColor=fff)](https://github.com/expo/expo)
 
-[![Build Status](https://travis-ci.com/hopetambala/puente-reactnative-collect.svg?branch=master)](https://travis-ci.com/hopetambala/puente-reactnative-collect)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/490748505d184028b66bbdaf9c83f887)](https://app.codacy.com/manual/hopetambala/puente-reactnative-collect?utm_source=github.com&utm_medium=referral&utm_content=hopetambala/puente-reactnative-collect&utm_campaign=Badge_Grade_Dashboard)
-[![codecov](https://codecov.io/gh/hopetambala/puente-reactnative-collect/branch/master/graph/badge.svg)](https://codecov.io/gh/hopetambala/puente-reactnative-collect)
-[![Tuple](https://img.shields.io/badge/Pairing%20with-Tuple-5A67D8)](https://tuple.app)
-
 Here are some quick npm commands to get started:
 
 - `npm install`: Install Node dependencies
