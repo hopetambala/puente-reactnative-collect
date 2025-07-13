@@ -44,9 +44,9 @@
         "INTERNET"
       ],
       "softwareKeyboardLayoutMode": "pan",
-      "playStoreUrl": "https://play.google.com/store/apps/details?id=puente.collect",
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=io.ionic.starter1270348",
       "googleServicesFile": "./google-services.json",
-      "package": "puente.collect",
+      "package": "io.ionic.starter1270348",
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyD_vRnyXGdu1zFcivOt2VMwhstAqZnxcNw"
