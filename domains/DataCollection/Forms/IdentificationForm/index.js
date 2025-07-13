@@ -11,7 +11,7 @@ import { postIdentificationForm } from "@modules/cached-resources";
 import { storeAppVersion } from "@modules/cached-resources/populate-cache";
 import I18n from "@modules/i18n";
 import { layout, theme } from "@modules/theme";
-import { isEmpty } from "@modules/utils";
+import { isEmpty, withTimeoutAbort } from "@modules/utils";
 import { Formik } from "formik";
 import _ from "lodash";
 import React, { useContext, useEffect, useState } from "react";
@@ -134,7 +134,7 @@ const IdentificationFormWrapper = ({
       isEmpty
     );
 
-    formObject.appVersion = (await storeAppVersion()) || "";
+    formObject.appVersion = await withTimeoutAbort(storeAppVersion, 300, "");
     formObject.phoneOS = Platform.OS || "";
 
     formObject.latitude = values.location?.latitude || 0;
@@ -182,6 +182,7 @@ const IdentificationFormWrapper = ({
       alert(`${fname} ${lname}'s ${I18n.t("forms.successfullySubmitted")}`);
       submitAction();
     } catch (e) {
+      console.error(e);
       setSubmitting(false);
       setSubmissionError(true);
       alert(`${I18n.t("submissionError.error")}`);

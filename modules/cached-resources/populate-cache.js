@@ -9,8 +9,8 @@ import {
 } from "./read";
 
 export const storeAppVersion = async () => {
-  const appVersion = Constants.manifest.version;
-  return storeData(appVersion, "appVersion");
+  const appVersion = Constants.expoConfig.version;
+  return await storeData(appVersion, "appVersion");
 };
 
 const populateCache = async (user) => {
