@@ -29,4 +29,4 @@ jobs:
         run: npx EXPO_APPLE_APP_SPECIFIC_PASSWORD=${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }} eas submit -p ios --latest --apple-id=${{ secrets.EXPO_APPLE_EMAIL_ADDRESS }} --asc-app-id=${{ secrets.EXPO_APPLE_APP_ID }}
      
       - name: Submit on EAS Submit Android
-        run: eas submit -p android --latest --key=""./expo-resources/android/api-6741007454030476273-79684-2bb9749d6828.json"
+        run: eas submit -p android --latest --key=""./expo-resources/android/puente-collect-432600-c8bdda85a074.json"

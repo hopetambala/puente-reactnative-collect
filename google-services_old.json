@@ -1,15 +1,15 @@
 {
   "project_info": {
-    "project_number": "973301568952",
-    "project_id": "puente-collect-432600",
-    "storage_bucket": "puente-collect-432600.appspot.com"
+    "project_number": "425526256987",
+    "project_id": "react-native-collect",
+    "storage_bucket": "react-native-collect.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:973301568952:android:e750f12b7f5465d9a06b4d",
+        "mobilesdk_app_id": "1:425526256987:android:cd2a65705def56f6ad667e",
         "android_client_info": {
-          "package_name": "puente.collect"
+          "package_name": "io.ionic.starter1270348"
         }
       },
       "oauth_client": [
@@ -20,7 +20,7 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCQcKNdkIix6HMUg7SyIeg8Tf2a1OftiRM"
+          "current_key": "AIzaSyD_vRnyXGdu1zFcivOt2VMwhstAqZnxcNw"
         }
       ],
       "services": {
