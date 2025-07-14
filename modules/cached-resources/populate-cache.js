@@ -10,7 +10,7 @@ import {
 
 export const storeAppVersion = async () => {
   const appVersion = Constants.expoConfig.version;
-  return await storeData(appVersion, "appVersion");
+  return storeData(appVersion, "appVersion");
 };
 
 const populateCache = async (user) => {
