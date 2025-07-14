@@ -31,7 +31,7 @@
         "ITSAppUsesNonExemptEncryption": false
       },
       "appStoreUrl": "https://apps.apple.com/us/app/puente-collect/id1362371696",
-      "bundleIdentifier": "io.ionic.starter1270348"
+      "bundleIdentifier": "example.bundle.identifier"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
@@ -48,7 +48,7 @@
       "package": "puente.collect",
       "config": {
         "googleMaps": {
-          "apiKey": "AIzaSyD_vRnyXGdu1zFcivOt2VMwhstAqZnxcNw"
+          "apiKey": "AIzaSyD_exampleApiKey"
         }
       }
     },
@@ -70,7 +70,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "04cfb8a1-9de3-4228-91d4-d2f43aeaed27"
+        "projectId": "04cfb8a1-example-project-id"
       }
     },
     "plugins": [

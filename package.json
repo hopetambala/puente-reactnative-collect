@@ -1,18 +1,18 @@
 {
   "name": "puente-reactnative",
-  "version": "12.6.1",
+  "version": "12.7.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
-    "start-clear": "expo start --clear",
+    "start": "npx expo start",
+    "start-clear": "npx expo start --clear",
     "reinstall": "rm package-lock.json && rm -rf node_modules/ && npm install",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web",
-    "eject": "expo eject",
-    "test": "jest --watchAll",
-    "test-debug": "jest -o --watch --coverage=false",
-    "test-run": "jest --forceExit --detectOpenHandles && codecov",
+    "android": "npx expo start --android",
+    "ios": "npx expo start --ios",
+    "web": "npx expo start --web",
+    "eject": "npx expo eject",
+    "test": "npx jest --watchAll",
+    "test-debug": "npx jest -o --watch --coverage=false",
+    "test-run": "npx jest --forceExit --detectOpenHandles && codecov",
     "lint": "./node_modules/.bin/eslint '**/*.{js,jsx}' --quiet",
     "lint-fix": "./node_modules/.bin/eslint '**/*.{js,jsx}' --fix",
     "prettier": "prettier --write '**/*.{js,jsx}'",
@@ -40,7 +40,6 @@
     }
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch-logs": "^3.342.0",
     "@expo/config-plugins": "~7.2.2",
     "@expo/metro-config": "~0.10.0",
     "@expo/vector-icons": "^13.0.0",
@@ -53,7 +52,7 @@
     "@react-navigation/stack": "5.14.5",
     "axios": "0.21.1",
     "deprecated-react-native-prop-types": "^2.3.0",
-    "expo": "^49.0.0",
+    "expo": "^49.0.23",
     "expo-application": "~5.3.0",
     "expo-asset": "~8.10.1",
     "expo-camera": "~13.4.4",
@@ -115,7 +114,7 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-react-native": "^4.0.0",
     "eslint-plugin-simple-import-sort": "^7.0.0",
-    "jest-expo": "^49.0.0",
+    "jest-expo": "~49.0.0",
     "prettier": "^2.8.4",
     "prompt": "1.1.0",
     "react-native-svg-transformer": "0.14.3",
@@ -124,7 +123,7 @@
   },
   "private": true,
   "engines": {
-    "node": ">=16.16.0",
-    "npm": ">=8.11.0"
+    "node": ">=18.18.0",
+    "npm": ">=9.8.1"
   }
 }

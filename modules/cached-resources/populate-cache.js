@@ -9,7 +9,7 @@ import {
 } from "./read";
 
 export const storeAppVersion = async () => {
-  const appVersion = Constants.manifest.version;
+  const appVersion = Constants.expoConfig.version;
   return storeData(appVersion, "appVersion");
 };
 

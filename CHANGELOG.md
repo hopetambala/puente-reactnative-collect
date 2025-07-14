@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [12.7.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v12.6.1...v12.7.0) (2025-07-13)
+
+
+### Code Refactors
+
+* remove aws logger ([6926d66](https://github.com/hopetambala/puente-reactnative-collect/commit/6926d6672527cdc359a4a98c5edb2160f6fcaf98))
+
+
+### Bug fixes
+
+* update expo ([90fc714](https://github.com/hopetambala/puente-reactnative-collect/commit/90fc71432684e3b1f93eb2a50b44f18da90e51bc))
+* update to create abort error ([b31ca14](https://github.com/hopetambala/puente-reactnative-collect/commit/b31ca149e31e17db6e68ae9961414ed1d4830b2b))
+
 ### [12.6.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v12.5.4...v12.6.1) (2023-11-02)
 
 ### Bug fixes

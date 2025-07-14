@@ -1,0 +1,6 @@
+export { default as NewRecordSVG } from "./NewRecordSVG"
+export { default as ResearchSVG } from "./ResearchSVG"
+export { default as EnvSVG } from "./EnvSVG"
+export { default as MedEvalSVG } from "./MedEvalSVG"
+export { default as FindRecordSVG } from "./FindRecordSVG"
+export { default as ComingSoonSVG } from "./ComingSoonSVG"
