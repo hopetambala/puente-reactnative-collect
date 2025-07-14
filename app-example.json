@@ -1,0 +1,80 @@
+{
+  "expo": {
+    "name": "Collect",
+    "slug": "puente-reactnative-collect",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "version": "12.7.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "myapp",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "backgroundColor": "#3d80fc"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "buildNumber": "12.7.0",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to geo-tag surveys accurately.",
+        "NSCameraUsageDescription": "This app uses photos to identify residents more accurately.",
+        "NSPhotoLibraryUsageDescription": "This app uses the photo gallery to let you choose photos to identify residents more accurately.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "appStoreUrl": "https://apps.apple.com/us/app/puente-collect/id1362371696",
+      "bundleIdentifier": "example.bundle.identifier"
+    },
+    "web": {
+      "favicon": "./assets/images/favicon.png"
+    },
+    "android": {
+      "versionCode": 490120700,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "INTERNET"
+      ],
+      "softwareKeyboardLayoutMode": "pan",
+      "googleServicesFile": "./google-services.json",
+      "package": "puente.collect",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyD_exampleApiKey"
+        }
+      }
+    },
+    "packagerOpts": {
+      "config": "metro.config.js",
+      "sourceExts": [
+        "expo.ts",
+        "expo.tsx",
+        "expo.js",
+        "expo.jsx",
+        "ts",
+        "tsx",
+        "js",
+        "jsx",
+        "json",
+        "wasm",
+        "svg"
+      ]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "04cfb8a1-example-project-id"
+      }
+    },
+    "plugins": [
+      "expo-localization"
+    ]
+  }
+}
