@@ -3,52 +3,54 @@
 import "react-native-url-polyfill/auto";
 import "react-native-get-random-values";
 
-import selectedENV from "@app/environment";
-import {
-  CloudWatchLogsClient,
-  PutLogEventsCommand,
-} from "@aws-sdk/client-cloudwatch-logs";
+// import selectedENV from "@app/environment";
+// import {
+//   CloudWatchLogsClient,
+//   PutLogEventsCommand,
+// } from "@aws-sdk/client-cloudwatch-logs";
 
-const getAWSLogger = () => {
-  const { logGroupName, logStreamName, accessKeyId, secretAccessKey, region } =
-    selectedENV.cloudWatchLogging;
+// const getAWSLogger = () => {
+//   const { logGroupName, logStreamName, accessKeyId, secretAccessKey, region } =
+//     selectedENV.cloudWatchLogging;
 
-  const credentials = {
-    accessKeyId,
-    secretAccessKey,
-  };
+//   const credentials = {
+//     accessKeyId,
+//     secretAccessKey,
+//   };
 
-  const config = {
-    region,
-    credentials,
-  };
+//   const config = {
+//     region,
+//     credentials,
+//   };
 
-  const log = async (message) => {
-    try {
-      // Stringify the message as JSON.
-      const jsonMessage = JSON.stringify(message);
-      const input = {
-        logGroupName,
-        logStreamName,
-        logEvents: [{ message: jsonMessage, timestamp: Date.now() }],
-      };
+//   const log = async (message) => {
+//     try {
+//       // Stringify the message as JSON.
+//       const jsonMessage = JSON.stringify(message);
+//       const input = {
+//         logGroupName,
+//         logStreamName,
+//         logEvents: [{ message: jsonMessage, timestamp: Date.now() }],
+//       };
 
-      const client = new CloudWatchLogsClient(config);
+//       const client = new CloudWatchLogsClient(config);
 
-      const command = new PutLogEventsCommand(input);
+//       const command = new PutLogEventsCommand(input);
 
-      const response = await client.send(command);
+//       const response = await client.send(command);
 
-      return response;
-    } catch (error) {
-      // eslint-disable-next-line
-      console.log(error);
+//       return response;
+//     } catch (error) {
+//       // eslint-disable-next-line
+//       console.log(error);
 
-      return null;
-    }
-  };
+//       return null;
+//     }
+//   };
 
-  return { log };
-};
+//   return { log };
+// };
+
+const getAWSLogger = () => ({ log: () => {} });
 
 export default getAWSLogger;

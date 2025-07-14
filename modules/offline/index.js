@@ -1,4 +1,4 @@
-// import getAWSLogger from "@modules/aws-logging/logger";
+import getAWSLogger from "@modules/aws-logging/logger";
 import NetInfo from "@react-native-community/netinfo";
 import * as Network from "expo-network";
 import { Platform } from "react-native";
@@ -10,17 +10,17 @@ const checkOnlineStatus = () => {
     if (Platform.OS === "ios") {
       Network.getNetworkStateAsync().then(
         (status) => {
-          // getAWSLogger().log({
-          //   type: "CHECK_ONLINE_STATUS_SUCCESS_TIMER_SUCCESS",
-          //   duration: new Date() - startTime,
-          // });
+          getAWSLogger().log({
+            type: "CHECK_ONLINE_STATUS_SUCCESS_TIMER_SUCCESS",
+            duration: new Date() - startTime,
+          });
           resolve(status.isConnected);
         },
         (error) => {
-          // getAWSLogger().log({
-          //   type: "CHECK_ONLINE_STATUS_SUCCESS_TIMER_ERROR",
-          //   duration: new Date() - startTime,
-          // });
+          getAWSLogger().log({
+            type: "CHECK_ONLINE_STATUS_SUCCESS_TIMER_ERROR",
+            duration: new Date() - startTime,
+          });
           reject(error);
         }
       );
@@ -33,16 +33,16 @@ const checkOnlineStatus = () => {
             state.details.strength !== undefined &&
             state.details.strength > 10
           ) {
-            // getAWSLogger().log({
-            //   type: "CHECK_ONLINE_STATUS_SUCCESS_TIMER_SUCCESS",
-            //   duration: new Date() - startTime,
-            // });
+            getAWSLogger().log({
+              type: "CHECK_ONLINE_STATUS_SUCCESS_TIMER_SUCCESS",
+              duration: new Date() - startTime,
+            });
             resolve(true);
           } else {
-            // getAWSLogger().log({
-            //   type: "CHECK_ONLINE_STATUS_SUCCESS_TIMER_ERROR",
-            //   duration: new Date() - startTime,
-            // });
+            getAWSLogger().log({
+              type: "CHECK_ONLINE_STATUS_SUCCESS_TIMER_ERROR",
+              duration: new Date() - startTime,
+            });
             resolve(false);
           }
         },
