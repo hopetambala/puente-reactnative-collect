@@ -17,6 +17,9 @@ module.exports = () => {
         fallbackToCacheTimeout: 0,
         url: 'https://u.expo.dev/04cfb8a1-9de3-4228-91d4-d2f43aeaed27',
       },
+      runtimeVersion: {
+        policy: 'appVersion',
+      },
       assetBundlePatterns: ['**/*'],
       ios: {
         supportsTablet: true,
