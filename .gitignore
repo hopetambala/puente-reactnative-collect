@@ -29,3 +29,6 @@ scripts/update-version/app.secrets.json
 environment.js
 app.json
 
+android/ 
+ios/
+

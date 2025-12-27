@@ -3,7 +3,7 @@
 import DataCollection from "@app/domains/DataCollection";
 import { TabBarIcon } from "@impacto-design-system/Extensions";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import I18n from "i18n-js";
+import I18n from "@modules/i18n";
 import * as React from "react";
 
 const BottomTab = createBottomTabNavigator();
@@ -17,7 +17,7 @@ export default function BottomTabNavigator() {
         component={HomeScreen}
         options={{
           title: 'Get Started',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-home" />,
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="home" />,
         }}
       /> */}
       <BottomTab.Screen
@@ -25,8 +25,9 @@ export default function BottomTabNavigator() {
         component={DataCollection}
         options={{
           title: I18n.t("bottomTab.dataCollection"),
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
-            <TabBarIcon focused={focused} name="md-folder" />
+            <TabBarIcon focused={focused} name="folder" />
           ),
         }}
       />
@@ -35,7 +36,7 @@ export default function BottomTabNavigator() {
         component={DataAnalysis}
         options={{
           title: 'Data Analysis',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-analytics" />,
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="analytics" />,
         }}
       /> */}
     </BottomTab.Navigator>

@@ -165,13 +165,13 @@ const DataCollection = ({ navigation }) => {
               {view === "Root" && (
                 <View>
                   <MapView organization={surveyingOrganization} />
-                  <View style={styles.screenFlexRowWrap}>
+                  <View>
                     <View style={styles.cardContainer}>
                       <Card
                         style={styles.cardSmallStyle}
                         onPress={() => navigateToNewRecord()}
                       >
-                        <NewRecordSVG height={70} style={styles.svg} />
+                        <NewRecordSVG style={styles.svg} />
                         <Text style={styles.text}>
                           {I18n.t("dataCollection.newRecord")}
                         </Text>
@@ -180,21 +180,25 @@ const DataCollection = ({ navigation }) => {
                         style={styles.cardSmallStyle}
                         onPress={navigateToFindRecords}
                       >
-                        <FindRecordSVG height={65} style={styles.svg} />
+                        <FindRecordSVG style={styles.svg} />
                         <Text style={styles.text}>
                           {I18n.t("dataCollection.findRecord")}
                         </Text>
                       </Card>
                     </View>
+                    {/* <View style={styles.cardContainer}> */}
                     <Card
-                      style={styles.cardSmallStyle}
+                      style={styles.cardLargeStyle}
                       onPress={navigateToGallery}
                     >
-                      <ComingSoonSVG height={65} style={styles.svg} />
+                      <ComingSoonSVG
+                        style={styles.svg}
+                      />
                       <Text style={styles.text}>
                         {I18n.t("dataCollection.viewAll")}
                       </Text>
                     </Card>
+                    {/* </View> */}
                     <View style={styles.cardContainer}>
                       <Card
                         style={styles.cardSmallStyle}

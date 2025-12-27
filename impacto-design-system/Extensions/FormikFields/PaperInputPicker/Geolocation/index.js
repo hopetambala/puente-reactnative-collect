@@ -3,7 +3,7 @@ import getLocation from "@modules/geolocation";
 import I18n from "@modules/i18n";
 import { theme } from "@modules/theme";
 import { fulfillWithTimeLimit } from "@modules/utils";
-import { Spinner } from "native-base";
+import { ActivityIndicator } from "react-native";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { Headline } from "react-native-paper";
@@ -67,7 +67,7 @@ const Geolocation = ({ errors, formikKey, setFieldValue }) => {
             }}
           >
             {locationLoading === true && (
-              <Spinner color={theme.colors.primary} />
+              <ActivityIndicator color={theme.colors.primary} />
             )}
             {locationLoading === false && (
               <View>

@@ -18,6 +18,10 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v3
+      
+      - name: Create app.json for Build
+        run: |
+          mv app-example.json app.json
 
       - name: Create Environment.js for Build
         run: |
