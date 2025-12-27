@@ -2,13 +2,19 @@
 
 [![made with expo](https://img.shields.io/badge/MADE%20WITH%20EXPO-000.svg?style=for-the-badge&logo=expo&labelColor=4630eb&logoWidth=20)](https://github.com/expo/expo) [![supports iOS and Android](https://img.shields.io/badge/Platforms-Native-4630EB.svg?style=for-the-badge&logo=EXPO&labelColor=000&logoColor=fff)](https://github.com/expo/expo)
 
-Here are some quick npm commands to get started:
+**Current Version:** 12.7.1  
+**Expo SDK:** 54.0.0
 
-- `npm install`: Install Node dependencies
-- `npm start`: Start expo.
-- `npm test`: Run the test suit and watch for changes.
-- `npm build`: Build a production optimized bundle of the app.
-- `npm lint-fix`: Run the ESLinter.
+## Quick Start
+
+Here are some quick commands to get started (we use **yarn**):
+
+- `yarn install`: Install Node dependencies
+- `yarn start`: Start Expo development server
+- `yarn ios`: Run on iOS simulator
+- `yarn android`: Run on Android emulator
+- `yarn test`: Run the test suite and watch for changes
+- `yarn lint-fix`: Run ESLint and auto-fix issues
 
 ## Async Storage Values
 
@@ -60,37 +66,50 @@ Important notes:
 
 ## Deployment
 
-### Secrets
+This project uses **EAS Build** for building and deploying to app stores. Native folders (`android/` and `ios/`) are generated locally and are not tracked in git.
 
-This project dynamically creates the required `app.json` in order to avoid commit secret keys in the project. The related commands are:
+### Configuration
 
-- `npm run prepublish`: Generates an `app.generated.json` that we use for the rest of the deployment process. It runs a script in `scripts/dynamic-env` that does a deep merge of our `app.secrets.json` file with all our application keys and `app.json` to create `app.generated.json`. This will have to be run before publishing to the store
+- **App Configuration**: `app.json` contains the main app configuration including bundle identifiers, permissions, and app metadata
+- **Environment Variables**: Sensitive values are stored in `environment.js` (not tracked in git)
+- **EAS Configuration**: `eas.json` defines build profiles for development, preview, and production
 
-### Standalone apps
+### Version Management
 
-For releases and bumping versions of `app.json`, we have:
+For releases and bumping versions, we have:
 
-- `npm run release-patch`: Does a patch bump i.e. `1.0.0` to `1.0.1`
-- `npm run release-minor`: Does a minor bump i.e. `1.0.0` to `1.1.0`
-- `npm run release-major`: Does a major bump i.e. `1.0.0` to `2.0.0`
+- `yarn release-patch`: Does a patch bump i.e. `1.0.0` to `1.0.1`
+- `yarn release-minor`: Does a minor bump i.e. `1.0.0` to `1.1.0`
+- `yarn release-major`: Does a major bump i.e. `1.0.0` to `2.0.0`
 
-_NOTE_ it is REQUIRED to do some sort of bump in order for the app to be upload to its respective stores. Google Play and Itunes Connect disallows applications with the same bundleIdentifier or packageNumber in the store.
+_NOTE:_ Version bumps are required for app store submissions. Both Google Play and App Store require unique version codes for each submission.
 
-Lastly for actual deployment, we have:
+### Building & Submitting
 
-- `npm run publish-staging`: Runs `npm run prepublish` which generates our `app.generated.json` and publishes a staging application to Exp
-- `npm run publish-prod`: Runs `npm run prepublish` which generates our `app.generated.json` and publishes a production application to Expo
-- `npm run upload`: Uploads the lates staging or production application (uploaded in Expo) to both Google Play and iTunes Connect
+Build and deployment commands:
+
+- `yarn build-apps` or `eas build --platform all`: Build for both iOS and Android using EAS Build
+- `eas build --platform ios`: Build for iOS only
+- `eas build --platform android`: Build for Android only
+- `yarn submit-apps`: Submit the latest builds to both App Store and Google Play
+
+### First Time Setup
+
+1. Install EAS CLI: `npm install -g eas-cli`
+2. Login to your Expo account: `eas login`
+3. Configure the project: `eas build:configure`
+4. Create required files from examples:
+   - Copy `environment-example.js` to `environment.js`
+   - Fill in required API keys and secrets
+5. Build: `eas build --platform all`
 
 ## Testing
 
-### Commands
+We use Jest for both unit tests and integration/cross-stack tests.
 
-We use jest for both unit tests and for integration/cross-stack tests.
-
-`npm run test unit` runs unit tests
-
-`npm run test int` runs integration tests
+- `yarn test`: Run tests in watch mode
+- `yarn test-debug`: Run tests in debug mode without coverage
+- `yarn test-run`: Run all tests once and exit
 
 ## Resources
 
