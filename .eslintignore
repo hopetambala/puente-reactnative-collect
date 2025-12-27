@@ -4,3 +4,4 @@ node_modules/
 .expo/
 android/
 ios/
+scripts/dynamic-env/
