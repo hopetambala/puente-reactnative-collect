@@ -58,10 +58,7 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Create EAS Update
-        run: eas update --auto --non-interactive
-
-      - name: Comment on PR with preview
-        uses: expo/expo-github-action/preview-comment@v8
+      - name: Create EAS Update and preview
+        uses: expo/expo-github-action/preview@v8
         with:
-          channel: preview
+          command: eas update --auto --non-interactive
