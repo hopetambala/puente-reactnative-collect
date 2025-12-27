@@ -1,4 +1,3 @@
-import * as crudServices from "@app/services/parse/crud";
 import {
   postIdentificationForm,
   postSupplementaryForm,
@@ -12,8 +11,12 @@ import {
   createSupplementaryFormMockData,
 } from "./utils";
 
+// Mock the crud services module
+jest.mock("@app/services/parse/crud", () => ({
+  uploadOfflineForms: jest.fn().mockResolvedValue({}),
+}));
+
 jest.mock("..", () => jest.fn());
-crudServices.uploadOfflineForms = jest.fn().mockResolvedValue({});
 
 describe("Testing full feature of offline posting", () => {
   test("Testing number of postOfflineForms", async () => {
