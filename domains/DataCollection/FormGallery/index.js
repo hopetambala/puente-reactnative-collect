@@ -189,7 +189,8 @@ const FormGallery = ({
           pinForm={pinForm}
         />
       )}
-      <View style={layout.screenRow}>
+      {/** One day we'll have marketplace forms */}
+      {/* <View style={layout.screenRow}>
         <Text style={styles.header}>{I18n.t("formsGallery.marketPlace")}</Text>
       </View>
       <View key="marketplace" style={layout.screenRow}>
@@ -203,7 +204,7 @@ const FormGallery = ({
             </Button>
           </Card.Content>
         </Card>
-      </View>
+      </View> */}
     </View>
   );
 };

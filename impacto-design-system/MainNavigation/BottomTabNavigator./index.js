@@ -25,6 +25,7 @@ export default function BottomTabNavigator() {
         component={DataCollection}
         options={{
           title: I18n.t("bottomTab.dataCollection"),
+          headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabBarIcon focused={focused} name="folder" />
           ),

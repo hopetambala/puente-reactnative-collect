@@ -22,7 +22,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 7,
     marginVertical: 7,
     flex: 1,
-    padding: 10,
   },
   horizontalLine: {
     borderBottomColor: theme.colors.primary,
@@ -51,7 +50,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     flex: 1,
     width: "100%",
-    maxHeight: 80,
   },
   text: {
     flexShrink: 1,

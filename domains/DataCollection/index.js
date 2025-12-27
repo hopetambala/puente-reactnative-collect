@@ -186,23 +186,29 @@ const DataCollection = ({ navigation }) => {
                         </Text>
                       </Card>
                     </View>
-                    <View style={styles.cardContainer}>
-                      <Card
-                        style={styles.cardSmallStyle}
-                        onPress={navigateToGallery}
-                      >
-                        <ComingSoonSVG style={styles.svg} />
-                        <Text style={styles.text}>
-                          {I18n.t("dataCollection.viewAll")}
-                        </Text>
-                      </Card>
-                    </View>
+                    {/* <View style={styles.cardContainer}> */}
+                    <Card
+                      style={styles.cardLargeStyle}
+                      onPress={navigateToGallery}
+                    >
+                      <ComingSoonSVG
+                        style={styles.svg}
+                      />
+                      <Text style={styles.text}>
+                        {I18n.t("dataCollection.viewAll")}
+                      </Text>
+                    </Card>
+                    {/* </View> */}
                     <View style={styles.cardContainer}>
                       <Card
                         style={styles.cardSmallStyle}
                         onPress={navigateToNewAssets}
                       >
-                        <ResearchSVG style={styles.svg} />
+                        <ResearchSVG
+                          height={70}
+                          width={70}
+                          style={styles.svg}
+                        />
                         <Text style={styles.text}>
                           {I18n.t("dataCollection.newAsset")}
                         </Text>
@@ -211,7 +217,11 @@ const DataCollection = ({ navigation }) => {
                         style={styles.cardSmallStyle}
                         onPress={navigateToViewAllAssets}
                       >
-                        <ResearchSVG style={styles.svg} />
+                        <ResearchSVG
+                          height={70}
+                          width={70}
+                          style={styles.svg}
+                        />
                         <Text style={styles.text}>
                           {I18n.t("dataCollection.viewAssets")}
                         </Text>
