@@ -30,5 +30,29 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Create app.json for linting
+        run: |
+          mv app-example.json app.json
+
+      - name: Create environment.js for linting
+        run: |
+          touch environment.js
+          echo "const selectedEnv = {
+            TEST_MODE: true,
+            parseAppId: 'test-app-id',
+            parseJavascriptKey: 'test-key',
+            parseServerUrl: 'https://parseapi.back4app.com/',
+            taskyUrlApi: 'https://puente-tasky-dev.herokuapp.com/',
+            AWS_LAMBDA_URL: 'https://test-lambda-url.com',
+            cloudWatchLogging: {
+              logGroupName: 'puente-test-logs',
+              logStreamName: 'test-log-stream',
+              accessKeyId: 'test-access-key',
+              secretAccessKey: 'test-secret-key',
+              region: 'us-east-1'
+            }
+          };
+          export default selectedEnv;" >> environment.js
+
       - name: Run linter
         run: yarn lint
