@@ -15,6 +15,7 @@ import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import { layout } from "@modules/theme";
 import { useFocusEffect } from "@react-navigation/native";
+import { GlassView } from "expo-glass-effect";
 import React, { useCallback, useContext, useState } from "react";
 import {
   ActivityIndicator,
@@ -165,7 +166,7 @@ const DataCollection = ({ navigation }) => {
               {view === "Root" && (
                 <View>
                   <MapView organization={surveyingOrganization} />
-                  <View>
+                  <GlassView style={styles.glassContainer}>
                     <View style={styles.cardContainer}>
                       <Card
                         style={styles.cardSmallStyle}
@@ -186,7 +187,6 @@ const DataCollection = ({ navigation }) => {
                         </Text>
                       </Card>
                     </View>
-                    {/* <View style={styles.cardContainer}> */}
                     <Card
                       style={styles.cardLargeStyle}
                       onPress={navigateToGallery}
@@ -198,7 +198,6 @@ const DataCollection = ({ navigation }) => {
                         {I18n.t("dataCollection.viewAll")}
                       </Text>
                     </Card>
-                    {/* </View> */}
                     <View style={styles.cardContainer}>
                       <Card
                         style={styles.cardSmallStyle}
@@ -227,7 +226,7 @@ const DataCollection = ({ navigation }) => {
                         </Text>
                       </Card>
                     </View>
-                  </View>
+                  </GlassView>
                 </View>
               )}
               {view === "Forms" && (
