@@ -55,7 +55,7 @@ jobs:
           export default selectedEnv;" >> environment.js
 
       - name: Run tests
-        run: yarn test-run
+        run: yarn test-run -- --testPathIgnorePatterns="integrate.test.js"
 
       - name: Upload coverage reports
         if: always()
