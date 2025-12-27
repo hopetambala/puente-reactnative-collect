@@ -114,7 +114,7 @@
     "eslint-plugin-module-resolver": "^1.5.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-react": "^7.37.2",
-    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-native": "^4.1.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "jest-expo": "~54.0.0",
