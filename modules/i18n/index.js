@@ -1,18 +1,18 @@
 import * as Localization from "expo-localization";
-import I18n from "i18n-js";
+import { I18n } from "i18n-js";
 
 import english from "./english/en.json";
 import haitian from "./kreyol/hk.json";
 import spanish from "./spanish/es.json";
 
-I18n.translations = {
+const i18n = new I18n({
   en: english,
   es: spanish,
   hk: haitian,
-};
+});
 
-I18n.locale = Localization.locale;
+i18n.locale = Localization.getLocales()[0].languageCode;
+i18n.enableFallback = true;
+i18n.defaultLocale = "en";
 
-I18n.fallbacks = true;
-
-export default I18n;
+export default i18n;
