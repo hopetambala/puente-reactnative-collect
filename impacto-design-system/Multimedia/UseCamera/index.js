@@ -1,7 +1,7 @@
 // STYLING
 import { theme } from "@modules/theme";
 import { Camera } from "expo-camera";
-import I18n from "i18n-js";
+import I18n from "@modules/i18n";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Dimensions,

@@ -73,7 +73,6 @@
     "i18n-js": "^4.4.3",
     "lodash": "^4.17.21",
     "metro-react-native-babel-transformer": "^0.77.0",
-    "native-base": "2.15.2",
     "parse": "2.19.0",
     "patch-package": "^8.0.0",
     "prop-types": "^15.8.1",

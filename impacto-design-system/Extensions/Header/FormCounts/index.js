@@ -2,8 +2,8 @@ import { countService } from "@app/services/parse/crud";
 import { getData } from "@modules/async-storage";
 import checkOnlineStatus from "@modules/offline";
 import { theme } from "@modules/theme";
-import I18n from "i18n-js";
-import { Spinner } from "native-base";
+import I18n from "@modules/i18n";
+import { ActivityIndicator } from "react-native";
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Text } from "react-native-paper";
@@ -138,7 +138,7 @@ const FormCounts = ({ setShowCounts }) => {
         </View>
       )}
       {!queryDone && !error && !offline && (
-        <Spinner color={theme.colors.primary} />
+        <ActivityIndicator color={theme.colors.primary} />
       )}
       <Button onPress={() => setShowCounts(false)}>
         {I18n.t("formCounts.back")}

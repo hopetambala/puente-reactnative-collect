@@ -11,7 +11,9 @@ const i18n = new I18n({
   hk: haitian,
 });
 
-i18n.locale = Localization.getLocales()[0].languageCode;
+// Set locale from device settings, with fallback
+const locales = Localization.getLocales();
+i18n.locale = locales && locales[0] ? locales[0].languageCode : "en";
 i18n.enableFallback = true;
 i18n.defaultLocale = "en";
 

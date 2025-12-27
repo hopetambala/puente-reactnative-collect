@@ -2,7 +2,7 @@ import { OfflineContext } from "@context/offline.context";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
-import { Spinner } from "native-base";
+import { ActivityIndicator } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
 import { Button, Headline, Searchbar } from "react-native-paper";
@@ -131,7 +131,7 @@ const FindResidents = ({
             {I18n.t("global.refresh")}
           </Button>
         )}
-        {loading && <Spinner color="blue" />}
+        {loading && <ActivityIndicator color="blue" />}
 
         {!selectPerson && (
           <FlatList

@@ -7,7 +7,7 @@ import {
   cleanupPostedOfflineForms,
   postOfflineForms,
 } from "@modules/offline/post";
-import { Spinner } from "native-base";
+import { ActivityIndicator } from "react-native";
 import React, { useContext, useState } from "react";
 import { View } from "react-native";
 import Emoji from "react-native-emoji";
@@ -190,9 +190,9 @@ const Header = ({ setSettings }) => {
               ) : (
                 <Button disabled>{I18n.t("header.submitOffline")}</Button>
               )}
-              {isSubmitting && <Spinner color="blue" />}
+              {isSubmitting && <ActivityIndicator color="blue" />}
               {isOfflineLoading ? (
-                <Spinner color="blue" />
+                <ActivityIndicator color="blue" />
               ) : (
                 <Button onPress={cacheOfflineData}>
                   {I18n.t("header.populateOffline")}

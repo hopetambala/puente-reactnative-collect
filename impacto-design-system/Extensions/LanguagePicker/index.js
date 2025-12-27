@@ -1,6 +1,7 @@
 import I18n from "@modules/i18n";
-import { Picker } from "native-base";
+import { Picker } from "@react-native-picker/picker";
 import React from "react";
+import { Platform, StyleSheet, View } from "react-native";
 
 const languages = [
   {
@@ -20,22 +21,41 @@ const languages = [
 const LanguagePicker = (props) => {
   const { language, onChangeLanguage } = props;
   return (
-    <Picker
-      mode="dropdown"
-      iosHeader=""
-      style={{ width: undefined, height: 40 }}
-      selectedValue={language}
-      onValueChange={onChangeLanguage}
-    >
-      {languages.map((lang) => (
-        <Picker.Item
-          key={lang.key}
-          value={lang.key}
-          label={`🌐${lang.label}`}
-        />
-      ))}
-    </Picker>
+    <View style={styles.container}>
+      <Picker
+        style={styles.picker}
+        itemStyle={styles.pickerItem}
+        selectedValue={language}
+        onValueChange={onChangeLanguage}
+        mode={Platform.OS === "android" ? "dropdown" : "dialog"}
+      >
+        {languages.map((lang) => (
+          <Picker.Item
+            key={lang.key}
+            value={lang.key}
+            label={`🌐${lang.label}`}
+          />
+        ))}
+      </Picker>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 4,
+    backgroundColor: "#fff",
+    overflow: "hidden",
+  },
+  picker: {
+    width: "100%",
+    height: 40,
+  },
+  pickerItem: {
+    height: 40,
+  },
+});
 
 export default LanguagePicker;

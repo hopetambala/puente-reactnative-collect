@@ -2,7 +2,7 @@ import { getData } from "@modules/async-storage";
 import { assetDataQuery } from "@modules/cached-resources/index";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
-import { Spinner } from "native-base";
+import { ActivityIndicator } from "react-native";
 import React, { useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 import { Button, Headline, Searchbar } from "react-native-paper";
@@ -139,7 +139,7 @@ const AssetSearchbar = ({ setSelectedAsset, surveyingOrganization }) => {
           {I18n.t("global.refresh")}
         </Button>
       )}
-      {loading && <Spinner color="blue" />}
+      {loading && <ActivityIndicator color="blue" />}
       {query !== "" && (
         <FlatList
           data={filterOfflineList(assetData)}

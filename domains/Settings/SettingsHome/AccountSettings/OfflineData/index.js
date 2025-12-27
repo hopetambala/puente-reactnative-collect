@@ -8,7 +8,7 @@ import { deleteData, getData } from "@modules/async-storage";
 import { cacheResidentDataMulti } from "@modules/cached-resources";
 import { layout } from "@modules/theme";
 import { Formik } from "formik";
-import I18n from "i18n-js";
+import I18n from "@modules/i18n";
 import _ from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";

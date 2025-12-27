@@ -2,7 +2,7 @@ import { getData, storeData } from "@modules/async-storage";
 import { assetDataQuery } from "@modules/cached-resources/read";
 import getLocation from "@modules/geolocation";
 import { theme } from "@modules/theme";
-import { Spinner } from "native-base";
+import { ActivityIndicator } from "react-native";
 import React, { createRef, useEffect, useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
@@ -131,7 +131,7 @@ const ViewAssets = ({ organization, switchAssetPage }) => {
           />
         </View>
         {loading && (
-          <Spinner style={styles.loading} color={theme.colors.primary} />
+          <ActivityIndicator style={styles.loading} color={theme.colors.primary} />
         )}
       </View>
       <View style={styles.container}>

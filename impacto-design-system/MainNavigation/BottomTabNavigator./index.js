@@ -3,7 +3,7 @@
 import DataCollection from "@app/domains/DataCollection";
 import { TabBarIcon } from "@impacto-design-system/Extensions";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import I18n from "i18n-js";
+import I18n from "@modules/i18n";
 import * as React from "react";
 
 const BottomTab = createBottomTabNavigator();

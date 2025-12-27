@@ -2,7 +2,7 @@ import { residentIDQuery } from "@app/services/parse/crud";
 import { getData, storeData } from "@modules/async-storage";
 import getLocation from "@modules/geolocation";
 import { theme } from "@modules/theme";
-import { Spinner } from "native-base";
+import { ActivityIndicator } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
@@ -128,7 +128,7 @@ const Maps = ({ organization }) => {
           )}
       </MapView>
       {loading && (
-        <Spinner style={styles.loading} color={theme.colors.primary} />
+        <ActivityIndicator style={styles.loading} color={theme.colors.primary} />
       )}
       <View style={styles.buttonStyle}>
         <IconButton
