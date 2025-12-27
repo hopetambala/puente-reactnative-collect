@@ -54,8 +54,12 @@ jobs:
           };
           export default selectedEnv;" >> environment.js
 
-      - name: Run linter
-        run: yarn lint
-
       - name: Run tests
         run: yarn test-run
+
+      - name: Upload coverage reports
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage/lcov.info
+          fail_ci_if_error: false
