@@ -196,7 +196,6 @@ const DataCollection = ({ navigation }) => {
                           {I18n.t("dataCollection.viewAll")}
                         </Text>
                       </Card>
-                      <View style={styles.cardSmallStyle} />
                     </View>
                     <View style={styles.cardContainer}>
                       <Card
