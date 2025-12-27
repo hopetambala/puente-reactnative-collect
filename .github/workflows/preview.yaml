@@ -61,7 +61,7 @@ jobs:
       - name: Create EAS Update
         run: eas update --auto --non-interactive
 
-      - name: Create preview comment
-        uses: expo/expo-github-action/preview@v8
+      - name: Comment on PR with preview
+        uses: expo/expo-github-action/preview-comment@v8
         with:
-          comment: true
+          channel: preview
