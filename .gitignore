@@ -30,5 +30,5 @@ environment.js
 app.json
 
 android/ 
-ios/
+# ios/
 
