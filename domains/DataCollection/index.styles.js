@@ -46,9 +46,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   svg: {
-    marginLeft: "auto",
-    marginRight: "auto",
-    marginTop: "auto",
+    alignSelf: "center",
+    marginTop: 10,
   },
   text: {
     flexShrink: 1,

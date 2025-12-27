@@ -165,7 +165,7 @@ const DataCollection = ({ navigation }) => {
               {view === "Root" && (
                 <View>
                   <MapView organization={surveyingOrganization} />
-                  <View style={styles.screenFlexRowWrap}>
+                  <View>
                     <View style={styles.cardContainer}>
                       <Card
                         style={styles.cardSmallStyle}
@@ -186,15 +186,18 @@ const DataCollection = ({ navigation }) => {
                         </Text>
                       </Card>
                     </View>
-                    <Card
-                      style={styles.cardSmallStyle}
-                      onPress={navigateToGallery}
-                    >
-                      <ComingSoonSVG height={65} style={styles.svg} />
-                      <Text style={styles.text}>
-                        {I18n.t("dataCollection.viewAll")}
-                      </Text>
-                    </Card>
+                    <View style={styles.cardContainer}>
+                      <Card
+                        style={styles.cardSmallStyle}
+                        onPress={navigateToGallery}
+                      >
+                        <ComingSoonSVG height={65} style={styles.svg} />
+                        <Text style={styles.text}>
+                          {I18n.t("dataCollection.viewAll")}
+                        </Text>
+                      </Card>
+                      <View style={styles.cardSmallStyle} />
+                    </View>
                     <View style={styles.cardContainer}>
                       <Card
                         style={styles.cardSmallStyle}
