@@ -7,13 +7,13 @@ import uuid from "react-native-uuid";
 
 import styles from "../index.styles";
 
-const FormsHorizontalView = ({
+function FormsHorizontalView({
   forms,
   header,
   navigateToCustomForm,
   pinForm,
-}) => (
-  <View key={() => uuid.v4()} style={layout.screenRow}>
+}) {
+  return <View key={() => uuid.v4()} style={layout.screenRow}>
     {header && (
       <View style={{ flexDirection: "row" }}>
         <Text style={styles.mediumHeader}>{header}</Text>
@@ -47,6 +47,6 @@ const FormsHorizontalView = ({
       )}
     </ScrollView>
   </View>
-);
+}
 
 export default FormsHorizontalView;

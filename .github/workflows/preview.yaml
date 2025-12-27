@@ -17,11 +17,13 @@ jobs:
           fi
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Create app.json for Build
         run: |
-          mv app-example.json app.json
+          cp app-example.json app.json
+          # Update with real EAS project ID
+          sed -i 's/"projectId": "04cfb8a1-example-project-id"/"projectId": "04cfb8a1-9de3-4228-91d4-d2f43aeaed27"/' app.json
 
       - name: Create Environment.js for Build
         run: |
@@ -42,9 +44,10 @@ jobs:
           export default selectedEnv;" >> environment.js
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: '20.x'
+          cache: 'yarn'
 
       - name: Setup EAS
         uses: expo/expo-github-action@v8
@@ -53,9 +56,9 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
-        run: npm install
+        run: yarn install --frozen-lockfile
 
-      - name: Create preview
+      - name: Create EAS Update and preview
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas update --auto
+          command: eas update --auto --non-interactive

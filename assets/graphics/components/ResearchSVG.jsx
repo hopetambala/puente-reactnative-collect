@@ -1,8 +1,8 @@
 import * as React from "react"
-import Svg, { SvgProps, Path, Circle, Rect, G } from "react-native-svg"
+import Svg, { Circle, G,Path, Rect, SvgProps } from "react-native-svg"
 /* SVGR has dropped some elements not supported by react-native-svg: title */
-const SvgComponent = (props) => (
-  <Svg
+function SvgComponent(props) {
+  return <Svg
     xmlns="http://www.w3.org/2000/svg"
     width={406}
     height={306}
@@ -111,5 +111,5 @@ const SvgComponent = (props) => (
       <Path d="m168.26 58.85 1 3.86c.22.85.43 1.64.57 2.42.18-.77.43-1.58.68-2.4l1.24-3.88H173l1.18 3.8c.28.91.5 1.71.67 2.48a21.49 21.49 0 0 1 .58-2.46l1.08-3.82h1.37l-2.45 7.6h-1.26L173 62.82c-.26-.84-.48-1.6-.67-2.49a24.73 24.73 0 0 1-.69 2.51l-1.23 3.61h-1.25l-2.29-7.6ZM180 58.85l1 3.86c.22.85.42 1.64.56 2.42h.05c.17-.77.42-1.58.67-2.4l1.24-3.88h1.16l1.18 3.8c.28.91.5 1.71.68 2.48a23.83 23.83 0 0 1 .58-2.46l1.09-3.82h1.36l-2.45 7.6h-1.25l-1.16-3.63a24.6 24.6 0 0 1-.68-2.49 22.38 22.38 0 0 1-.69 2.51l-1.22 3.61h-1.26l-2.29-7.6ZM191.75 58.85l1 3.86c.22.85.43 1.64.57 2.42.18-.77.43-1.58.68-2.4l1.24-3.88h1.16l1.18 3.8c.28.91.5 1.71.67 2.48h.05a21.49 21.49 0 0 1 .58-2.46l1.12-3.82h1.37l-2.45 7.6h-1.26l-1.16-3.63c-.26-.84-.48-1.6-.67-2.49a24.73 24.73 0 0 1-.69 2.51l-1.23 3.61h-1.25l-2.3-7.6ZM201.81 65.63a.94.94 0 1 1 1.87 0 .94.94 0 1 1-1.87 0Z" />
     </G>
   </Svg>
-)
+}
 export default SvgComponent

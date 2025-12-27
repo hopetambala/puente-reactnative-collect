@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { Snackbar } from "react-native-paper";
 
-const PopupError = ({ error, setError, errorMessage }) => {
+function PopupError({ error, setError, errorMessage }) {
   useEffect(() => {
     setVisible(error);
   }, [error]);
@@ -32,6 +32,6 @@ const PopupError = ({ error, setError, errorMessage }) => {
       </Snackbar>
     </View>
   );
-};
+}
 
 export default PopupError;

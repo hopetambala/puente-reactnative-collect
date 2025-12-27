@@ -2,7 +2,7 @@ import React, { createContext, useState } from "react";
 
 export const AlertContext = createContext();
 
-export const AlertContextProvider = ({ children }) => {
+export function AlertContextProvider({ children }) {
   const [visible, setVisible] = useState(false);
   const [message, setMessage] = useState();
 
@@ -27,4 +27,4 @@ export const AlertContextProvider = ({ children }) => {
       {children}
     </AlertContext.Provider>
   );
-};
+}

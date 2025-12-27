@@ -5,7 +5,7 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Button, Checkbox, Text, Title } from "react-native-paper";
 
-const GdprCompliance = ({ setConsent }) => {
+function GdprCompliance({ setConsent }) {
   const [visible, setVisible] = React.useState(false);
   const [checked, setChecked] = React.useState(false);
   const continueToForm = () => {
@@ -55,7 +55,7 @@ const GdprCompliance = ({ setConsent }) => {
       </Button>
     </View>
   );
-};
+}
 
 export default GdprCompliance;
 

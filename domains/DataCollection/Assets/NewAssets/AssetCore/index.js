@@ -18,14 +18,14 @@ import { Provider } from "react-native-paper";
 import configArray from "./config/config";
 import styles from "./index.styles";
 
-const AssetCore = ({
+function AssetCore({
   setSelectedAsset,
   scrollViewScroll,
   setScrollViewScroll,
   surveyingUser,
   surveyingOrganization,
   setPage,
-}) => {
+}) {
   const [inputs, setInputs] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState(false);
@@ -132,6 +132,6 @@ const AssetCore = ({
       </Provider>
     </ScrollView>
   );
-};
+}
 
 export default AssetCore;

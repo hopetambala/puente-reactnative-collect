@@ -6,7 +6,7 @@ import { UserContext } from "./auth.context";
 
 export const OfflineContext = createContext();
 
-export const OfflineContextProvider = ({ children }) => {
+export function OfflineContextProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [residents, setResidents] = useState(null);
   const { user } = useContext(UserContext);
@@ -67,4 +67,4 @@ export const OfflineContextProvider = ({ children }) => {
       {children}
     </OfflineContext.Provider>
   );
-};
+}

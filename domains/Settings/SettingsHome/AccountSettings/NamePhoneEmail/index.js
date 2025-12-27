@@ -14,7 +14,7 @@ import {
 
 import styles from "../../../index.styles";
 
-const NamePhoneEmail = () => {
+function NamePhoneEmail() {
   useEffect(() => {
     async function setUserInformation() {
       const currentUser = await getData("currentUser");
@@ -202,6 +202,6 @@ const NamePhoneEmail = () => {
       )}
     </View>
   );
-};
+}
 
 export default NamePhoneEmail;

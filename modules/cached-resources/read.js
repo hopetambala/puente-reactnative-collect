@@ -17,10 +17,10 @@ async function residentQuery(queryParams) {
 
 async function cacheResidentDataMulti(queryParamsArray) {
   let records = await customMultiValueArrayService(
-    5000,
     "SurveyData",
     "communityname",
-    queryParamsArray
+    queryParamsArray,
+    5000
   );
   records = JSON.parse(JSON.stringify(records));
   if (records !== null && records !== undefined && records !== "") {
@@ -120,9 +120,9 @@ function customFormsQuery(surveyingOrganization) {
       };
 
       return customMultiParamQueryService(
-        5000,
         "FormSpecificationsV2",
-        parseParams
+        parseParams,
+        5000
       ).then(
         async (forms) => {
           if (forms !== null && forms !== undefined && forms !== "") {
@@ -191,9 +191,9 @@ function assetFormsQuery(surveyingOrganization) {
             organizations: surveyingOrganization,
           };
           customMultiParamQueryService(
-            5000,
             "FormSpecificationsV2",
-            parseParams
+            parseParams,
+            5000
           ).then(
             (forms) => {
               let activeForms = [];

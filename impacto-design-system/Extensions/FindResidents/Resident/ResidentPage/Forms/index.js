@@ -6,8 +6,8 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Text, Title } from "react-native-paper";
 
-const Forms = ({ puenteForms, navigateToNewRecord, surveyee, setView }) => (
-  <View style={styles.container}>
+function Forms({ puenteForms, navigateToNewRecord, surveyee, setView }) {
+  return <View style={styles.container}>
     <Title style={styles.title}>
       {I18n.t("findResident.residentPage.forms.completedForms")}
     </Title>
@@ -28,7 +28,7 @@ const Forms = ({ puenteForms, navigateToNewRecord, surveyee, setView }) => (
       setUser
     />
   </View>
-);
+}
 
 const styles = StyleSheet.create({
   container: {

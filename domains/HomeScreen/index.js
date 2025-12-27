@@ -8,7 +8,7 @@ import { Text, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { Button, Card, Paragraph, Title } from "react-native-paper";
 
-const HomeScreen = () => {
+function HomeScreen() {
   const [tasks, setTasks] = useState(null);
   // const { navigation } = props;
 
@@ -56,6 +56,6 @@ const HomeScreen = () => {
       </ScrollView>
     </View>
   );
-};
+}
 
 export default HomeScreen;

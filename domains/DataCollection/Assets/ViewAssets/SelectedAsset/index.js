@@ -5,8 +5,8 @@ import { View } from "react-native";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { Text, Title } from "react-native-paper";
 
-const SelectedAsset = ({ selectedMarker, switchAssetPage }) => (
-  <TouchableWithoutFeedback
+function SelectedAsset({ selectedMarker, switchAssetPage }) {
+  return <TouchableWithoutFeedback
     onPress={
       switchAssetPage
         ? () => switchAssetPage("assetSupplementary", selectedMarker)
@@ -43,6 +43,6 @@ const SelectedAsset = ({ selectedMarker, switchAssetPage }) => (
         ))}
     </View>
   </TouchableWithoutFeedback>
-);
+}
 
 export default SelectedAsset;

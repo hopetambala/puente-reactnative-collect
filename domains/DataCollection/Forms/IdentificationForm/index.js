@@ -25,7 +25,7 @@ import {
 
 import configArray from "./config/config";
 
-const IdentificationForm = ({
+function IdentificationForm({
   scrollViewScroll,
   setScrollViewScroll,
   surveyingOrganization,
@@ -37,7 +37,7 @@ const IdentificationForm = ({
   submissionError,
   setSubmissionError,
   onSubmit,
-}) => {
+}) {
   useEffect(() => {
     setValidationSchema(yupValidationPicker(configArray));
   }, []);
@@ -103,16 +103,16 @@ const IdentificationForm = ({
       </TouchableWithoutFeedback>
     </View>
   );
-};
+}
 
-const IdentificationFormWrapper = ({
+function IdentificationFormWrapper({
   scrollViewScroll,
   setScrollViewScroll,
   setSelectedForm,
   setSurveyee,
   surveyingUser,
   surveyingOrganization,
-}) => {
+}) {
   const { alert } = useContext(AlertContext);
   const [inputs, setInputs] = useState({});
   const [validationSchema, setValidationSchema] = useState();
@@ -206,6 +206,6 @@ const IdentificationFormWrapper = ({
       setSurveyee={setSurveyee}
     />
   );
-};
+}
 
 export default IdentificationFormWrapper;

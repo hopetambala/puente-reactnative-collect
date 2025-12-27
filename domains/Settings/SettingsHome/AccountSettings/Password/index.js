@@ -8,7 +8,7 @@ import { Button, Headline, Text, TextInput } from "react-native-paper";
 
 import styles from "../../../index.styles";
 
-const Password = () => {
+function Password() {
   const [submitting, setSubmitting] = useState(false);
   const [currentState, setCurrentState] = useState("");
   const [newState, setNewState] = useState("");
@@ -112,6 +112,6 @@ const Password = () => {
       )}
     </View>
   );
-};
+}
 
 export default Password;

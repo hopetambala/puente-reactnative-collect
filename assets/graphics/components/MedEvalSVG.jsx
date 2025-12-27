@@ -1,14 +1,15 @@
 import * as React from "react"
 import Svg, {
-  SvgProps,
   Defs,
-  Pattern,
-  Use,
   Image,
   Path,
+  Pattern,
+  SvgProps,
+  Use,
 } from "react-native-svg"
-const SvgComponent = (props) => (
-  <Svg
+
+function SvgComponent(props) {
+  return <Svg
     xmlns="http://www.w3.org/2000/svg"
     xmlnsXlink="http://www.w3.org/1999/xlink"
     width={48}
@@ -37,5 +38,5 @@ const SvgComponent = (props) => (
     </Defs>
     <Path fill="url(#b)" d="M0 0h48v48H0z" />
   </Svg>
-)
+}
 export default SvgComponent

@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import { ActivityIndicator } from "react-native";
 import { Button, Text } from "react-native-paper";
 
-const GetPinCode = ({ navigation }) => {
+function GetPinCode({ navigation }) {
   const [failedAttempts, setFailedAttempts] = useState(1);
 
   return (
@@ -80,6 +80,6 @@ const GetPinCode = ({ navigation }) => {
       )}
     </Formik>
   );
-};
+}
 
 export default GetPinCode;

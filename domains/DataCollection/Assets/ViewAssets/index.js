@@ -2,15 +2,14 @@ import { getData, storeData } from "@modules/async-storage";
 import { assetDataQuery } from "@modules/cached-resources/read";
 import getLocation from "@modules/geolocation";
 import { theme } from "@modules/theme";
-import { ActivityIndicator } from "react-native";
 import React, { createRef, useEffect, useState } from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
+import { ActivityIndicator , Dimensions, StyleSheet, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { IconButton } from "react-native-paper";
 
 import SelectedAsset from "./SelectedAsset";
 
-const ViewAssets = ({ organization, switchAssetPage }) => {
+function ViewAssets({ organization, switchAssetPage }) {
   const [region, setRegion] = useState();
   const [delta, setDelta] = useState({
     latitudeDelta: 0.0922,
@@ -145,7 +144,7 @@ const ViewAssets = ({ organization, switchAssetPage }) => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

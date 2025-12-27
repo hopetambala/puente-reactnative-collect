@@ -28,13 +28,13 @@ import { ScrollView } from "react-native-gesture-handler";
 import AssetFormSelect from "./AssetFormSelect";
 import styles from "./index.styles";
 
-const AssetSupplementary = ({
+function AssetSupplementary({
   selectedAsset,
   setSelectedAsset,
   surveyingOrganization,
   surveyingUser,
   setPage,
-}) => {
+}) {
   const [selectedForm, setSelectedForm] = useState();
   const [submitting, setSubmitting] = useState(false);
   const [photoFile, setPhotoFile] = useState("State Photo String");
@@ -176,5 +176,5 @@ const AssetSupplementary = ({
       </Formik>
     </ScrollView>
   );
-};
+}
 export default AssetSupplementary;

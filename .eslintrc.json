@@ -3,7 +3,13 @@
         "airbnb",
         "prettier"
     ],
-    "parser": "babel-eslint",
+    "parser": "@babel/eslint-parser",
+    "parserOptions": {
+        "requireConfigFile": false,
+        "babelOptions": {
+            "presets": ["@babel/preset-react"]
+        }
+    },
     "plugins": [
         "simple-import-sort",
         "import",
@@ -17,6 +23,12 @@
         "no-use-before-define": "off",
         "react/jsx-filename-extension": "off",
         "react/prop-types": "off",
+        "react/function-component-definition": "off",
+        "react/jsx-props-no-spreading": "off",
+        "react/jsx-no-constructed-context-values": "warn",
+        "react/no-unstable-nested-components": "warn",
+        "no-unused-vars": "warn",
+        "no-console": "warn",
         "comma-dangle": "off",
         "react/no-string-refs": "off",
         "react/no-access-state-in-setstate": "off",

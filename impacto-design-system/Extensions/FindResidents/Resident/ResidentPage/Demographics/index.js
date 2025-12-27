@@ -3,8 +3,8 @@ import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
 
-const Demographics = ({ dob, community, province, city, license }) => (
-  <View style={styles.container}>
+function Demographics({ dob, community, province, city, license }) {
+  return <View style={styles.container}>
     <Text style={styles.topLabel}>
       {I18n.t("findResident.residentPage.demographics.dob")}
       {` ${dob}`}
@@ -26,7 +26,7 @@ const Demographics = ({ dob, community, province, city, license }) => (
       {` ${license}`}
     </Text>
   </View>
-);
+}
 const styles = StyleSheet.create({
   container: {
     margin: 20,

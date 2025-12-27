@@ -1,1 +1,7 @@
 babel.config.js
+coverage/
+node_modules/
+.expo/
+android/
+ios/
+scripts/dynamic-env/

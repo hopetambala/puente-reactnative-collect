@@ -2,8 +2,8 @@ import * as React from "react";
 import { StyleSheet, View } from "react-native";
 import { Snackbar } from "react-native-paper";
 
-const Toast = ({ text, visible, onClick, onClickLabel }) => (
-  <View style={styles.container}>
+function Toast({ text, visible, onClick, onClickLabel }) {
+  return <View style={styles.container}>
     <Snackbar
       visible={visible}
       onDismiss={onClick}
@@ -16,7 +16,7 @@ const Toast = ({ text, visible, onClick, onClickLabel }) => (
       {text}
     </Snackbar>
   </View>
-);
+}
 
 const styles = StyleSheet.create({
   container: {

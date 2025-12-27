@@ -4,7 +4,7 @@ import { Snackbar } from "react-native-paper";
 
 // import I18n from '@modules/i18n';
 
-const PopupSuccess = ({ success, setSuccess, submittedForms }) => {
+function PopupSuccess({ success, setSuccess, submittedForms }) {
   useEffect(() => {
     setVisible(success);
   }, [success]);
@@ -33,6 +33,6 @@ const PopupSuccess = ({ success, setSuccess, submittedForms }) => {
       </Snackbar>
     </View>
   );
-};
+}
 
 export default PopupSuccess;

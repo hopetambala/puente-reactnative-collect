@@ -1,7 +1,8 @@
 import * as React from "react"
-import Svg, { Path, Rect, Ellipse } from "react-native-svg"
-const SvgComponent = (props) => (
-  <Svg xmlns="http://www.w3.org/2000/svg" width={144} height={93} {...props}>
+import Svg, { Ellipse,Path, Rect } from "react-native-svg"
+
+function SvgComponent(props) {
+  return <Svg xmlns="http://www.w3.org/2000/svg" width={144} height={93} {...props}>
     <Path
       fill="#3D80FC"
       fillRule="evenodd"
@@ -161,7 +162,7 @@ const SvgComponent = (props) => (
       d="M83 40.105s7.227-.854 7.86 2.304c.635 3.159-.75 4.833-7.253 2.499L83 40.105zM6 39.93s1.167 4.973 5.838 3.925C16.51 42.807 13.175 36.707 6 39.93z"
     />
   </Svg>
-)
+}
 export default SvgComponent
 export const FindRecordSVG = React.memo(SvgComponent)
 FindRecordSVG.displayName = "FindRecordSVG"

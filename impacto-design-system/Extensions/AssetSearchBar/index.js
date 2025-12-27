@@ -2,14 +2,13 @@ import { getData } from "@modules/async-storage";
 import { assetDataQuery } from "@modules/cached-resources/index";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
-import { ActivityIndicator } from "react-native";
 import React, { useEffect, useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { ActivityIndicator , FlatList, Text, View } from "react-native";
 import { Button, Headline, Searchbar } from "react-native-paper";
 
 import styles from "./index.styles";
 
-const AssetSearchbar = ({ setSelectedAsset, surveyingOrganization }) => {
+function AssetSearchbar({ setSelectedAsset, surveyingOrganization }) {
   const [query, setQuery] = useState("");
   const [assetData, setAssetData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -149,6 +148,6 @@ const AssetSearchbar = ({ setSelectedAsset, surveyingOrganization }) => {
       )}
     </View>
   );
-};
+}
 
 export default AssetSearchbar;

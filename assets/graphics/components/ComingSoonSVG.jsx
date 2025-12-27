@@ -1,16 +1,17 @@
 import * as React from "react"
 import Svg, {
-  SvgProps,
   Defs,
-  LinearGradient,
-  Stop,
-  Path,
-  Mask,
-  Use,
   G,
+  LinearGradient,
+  Mask,
+  Path,
+  Stop,
+  SvgProps,
+  Use,
 } from "react-native-svg"
-const SvgComponent = (props) => (
-  <Svg
+
+function SvgComponent(props) {
+  return <Svg
     xmlns="http://www.w3.org/2000/svg"
     xmlnsXlink="http://www.w3.org/1999/xlink"
     width={340}
@@ -489,5 +490,5 @@ const SvgComponent = (props) => (
       />
     </G>
   </Svg>
-)
+}
 export default SvgComponent

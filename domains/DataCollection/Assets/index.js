@@ -4,13 +4,13 @@ import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import NewAssets from "./NewAssets";
 import ViewAssets from "./ViewAssets";
 
-const Assets = ({
+function Assets({
   selectedAsset,
   setSelectedAsset,
   surveyingOrganization,
   scrollViewScroll,
   setScrollViewScroll,
-}) => {
+}) {
   const [page, setPage] = useState("assetCore");
 
   const switchAssetPage = (pageIndex, asset) => {
@@ -40,6 +40,6 @@ const Assets = ({
       </View>
     </TouchableWithoutFeedback>
   );
-};
+}
 
 export default Assets;

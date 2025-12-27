@@ -15,7 +15,7 @@ import { Snackbar } from "react-native-paper";
     @returns
 * */
 
-const ErrorPicker = ({ formikProps, inputs }) => {
+function ErrorPicker({ formikProps, inputs }) {
   const { errors, isSubmitting } = formikProps;
   const [formErrors, setFormErrors] = useState([]);
   const [visible, setVisible] = useState(false);
@@ -68,6 +68,6 @@ const ErrorPicker = ({ formikProps, inputs }) => {
       </Snackbar>
     </View>
   );
-};
+}
 
 export default ErrorPicker;

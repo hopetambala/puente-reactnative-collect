@@ -22,15 +22,15 @@ import { Card, Text } from "react-native-paper";
  * @returns
  */
 
-const SmallCardsCarousel = ({
+function SmallCardsCarousel({
   puenteForms,
   navigateToNewRecord,
   setView,
   surveyee,
   setUser,
   pinForm,
-}) => (
-  <ScrollView horizontal>
+}) {
+  return <ScrollView horizontal>
     {puenteForms.map((form) => (
       <Card
         key={form.tag}
@@ -54,7 +54,7 @@ const SmallCardsCarousel = ({
       </Card>
     ))}
   </ScrollView>
-);
+}
 
 const styles = StyleSheet.create({
   cardSmallStyle: {

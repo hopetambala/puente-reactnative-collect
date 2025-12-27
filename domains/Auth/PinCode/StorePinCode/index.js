@@ -6,8 +6,8 @@ import React from "react";
 import { ActivityIndicator } from "react-native";
 import { Button, Text } from "react-native-paper";
 
-const StorePinCode = ({ navigation }) => (
-  <Formik
+function StorePinCode({ navigation }) {
+  return <Formik
     initialValues={{ pincode: "" }}
     onSubmit={(values, actions) => {
       storeData(values.pincode, "pincode").then(() => {
@@ -38,6 +38,6 @@ const StorePinCode = ({ navigation }) => (
       </>
     )}
   </Formik>
-);
+}
 
 export default StorePinCode;

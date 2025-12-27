@@ -18,7 +18,7 @@ import {
 import FormsHorizontalView from "./FormsHorizontalView";
 import styles from "./index.styles";
 
-const FormGallery = ({
+function FormGallery({
   navigateToNewRecord,
   navigateToCustomForm,
   puenteForms,
@@ -26,7 +26,7 @@ const FormGallery = ({
   setPinnedForms,
   setLoading,
   surveyingOrganization,
-}) => {
+}) {
   const [customForms, setCustomForms] = useState([]);
   const [workflowData, setWorkflowData] = useState({});
   const [noWorkflowData, setNoWorkflowData] = useState([]);
@@ -207,5 +207,5 @@ const FormGallery = ({
       </View> */}
     </View>
   );
-};
+}
 export default FormGallery;

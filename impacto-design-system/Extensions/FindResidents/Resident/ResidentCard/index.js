@@ -5,7 +5,7 @@ import { Image, View } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Text, Title } from "react-native-paper";
 
-const ResidentCard = ({ resident, onSelectPerson }) => {
+function ResidentCard({ resident, onSelectPerson }) {
   const { fname, lname, nickname, city, picture, communityname, objectId } =
     resident;
   const [pictureUrl, setPictureUrl] = useState();
@@ -49,6 +49,6 @@ const ResidentCard = ({ resident, onSelectPerson }) => {
       </TouchableOpacity>
     </View>
   );
-};
+}
 
 export default ResidentCard;

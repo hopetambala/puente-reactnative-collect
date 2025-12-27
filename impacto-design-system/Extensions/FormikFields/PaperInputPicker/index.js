@@ -19,7 +19,7 @@ import {
 } from "./index.style";
 import Looper from "./Looper";
 
-const PaperInputPicker = ({
+function PaperInputPicker({
   data,
   formikProps,
   scrollViewScroll,
@@ -30,7 +30,7 @@ const PaperInputPicker = ({
   loopsAdded,
   setLoopsAdded,
   ...rest
-}) => {
+}) {
   const { label, formikKey, fieldType, sideLabel } = data;
 
   const { handleChange, handleBlur, errors, setFieldValue, values } =
@@ -578,6 +578,6 @@ const PaperInputPicker = ({
       )}
     </>
   );
-};
+}
 
 export default PaperInputPicker;

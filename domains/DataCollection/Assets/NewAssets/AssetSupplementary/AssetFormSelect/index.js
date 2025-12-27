@@ -7,7 +7,7 @@ import { Card, IconButton, Text } from "react-native-paper";
 
 import styles from "./index.style";
 
-const AssetFormSelect = ({ setSelectedForm, surveyingOrganization }) => {
+function AssetFormSelect({ setSelectedForm, surveyingOrganization }) {
   const [assetForms, setAssetForms] = useState([]);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
@@ -63,6 +63,6 @@ const AssetFormSelect = ({ setSelectedForm, surveyingOrganization }) => {
       </ScrollView>
     </View>
   );
-};
+}
 
 export default AssetFormSelect;

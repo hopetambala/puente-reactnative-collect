@@ -4,9 +4,9 @@ import { storeData } from "@modules/async-storage";
 const createOfflineUserMockData = async () => {
   const user = {
     objectId: faker.database.mongodbObjectId(),
-    username: faker.internet.userName(),
-    firstname: faker.name.firstName(),
-    lastname: faker.name.lastName(),
+    username: faker.internet.username(),
+    firstname: faker.person.firstName(),
+    lastname: faker.person.lastName(),
     organization: faker.company.name(),
     email: faker.internet.email(),
     createdAt: faker.date.past(),
@@ -26,13 +26,13 @@ const createResidentMockData = (
     const postParams = {
       parseClass: "SurveyData",
       parseUser: userObjectId,
-      photoFile: faker.image.imageUrl(),
+      photoFile: faker.image.url(),
       localObject: {
-        fname: faker.name.firstName(),
-        lname: faker.name.lastName(),
-        nickname: faker.name.middleName(),
+        fname: faker.person.firstName(),
+        lname: faker.person.lastName(),
+        nickname: faker.person.middleName(),
         dob: String(faker.date.birthdate()),
-        sex: faker.name.sex(),
+        sex: faker.person.sex(),
         householdId,
       },
     };
