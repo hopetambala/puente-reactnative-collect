@@ -17,7 +17,7 @@ export default function BottomTabNavigator() {
         component={HomeScreen}
         options={{
           title: 'Get Started',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-home" />,
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="home" />,
         }}
       /> */}
       <BottomTab.Screen
@@ -26,7 +26,7 @@ export default function BottomTabNavigator() {
         options={{
           title: I18n.t("bottomTab.dataCollection"),
           tabBarIcon: ({ focused }) => (
-            <TabBarIcon focused={focused} name="md-folder" />
+            <TabBarIcon focused={focused} name="folder" />
           ),
         }}
       />
@@ -35,7 +35,7 @@ export default function BottomTabNavigator() {
         component={DataAnalysis}
         options={{
           title: 'Data Analysis',
-          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="md-analytics" />,
+          tabBarIcon: ({ focused }) => <TabBarIcon focused={focused} name="analytics" />,
         }}
       /> */}
     </BottomTab.Navigator>

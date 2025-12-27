@@ -43,18 +43,16 @@ const LanguagePicker = (props) => {
 
 const styles = StyleSheet.create({
   container: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 4,
-    backgroundColor: "#fff",
-    overflow: "hidden",
+    paddingVertical: 10
+
   },
   picker: {
     width: "100%",
-    height: 40,
+    height: 50,
+    
   },
   pickerItem: {
-    height: 40,
+    height: "100%"
   },
 });
 
