@@ -171,7 +171,7 @@ const DataCollection = ({ navigation }) => {
                         style={styles.cardSmallStyle}
                         onPress={() => navigateToNewRecord()}
                       >
-                        <NewRecordSVG height={70} style={styles.svg} />
+                        <NewRecordSVG style={styles.svg} />
                         <Text style={styles.text}>
                           {I18n.t("dataCollection.newRecord")}
                         </Text>
@@ -180,7 +180,7 @@ const DataCollection = ({ navigation }) => {
                         style={styles.cardSmallStyle}
                         onPress={navigateToFindRecords}
                       >
-                        <FindRecordSVG height={65} style={styles.svg} />
+                        <FindRecordSVG style={styles.svg} />
                         <Text style={styles.text}>
                           {I18n.t("dataCollection.findRecord")}
                         </Text>
@@ -191,7 +191,7 @@ const DataCollection = ({ navigation }) => {
                         style={styles.cardSmallStyle}
                         onPress={navigateToGallery}
                       >
-                        <ComingSoonSVG height={65} style={styles.svg} />
+                        <ComingSoonSVG style={styles.svg} />
                         <Text style={styles.text}>
                           {I18n.t("dataCollection.viewAll")}
                         </Text>
@@ -202,11 +202,7 @@ const DataCollection = ({ navigation }) => {
                         style={styles.cardSmallStyle}
                         onPress={navigateToNewAssets}
                       >
-                        <ResearchSVG
-                          height={70}
-                          width={70}
-                          style={styles.svg}
-                        />
+                        <ResearchSVG style={styles.svg} />
                         <Text style={styles.text}>
                           {I18n.t("dataCollection.newAsset")}
                         </Text>
@@ -215,11 +211,7 @@ const DataCollection = ({ navigation }) => {
                         style={styles.cardSmallStyle}
                         onPress={navigateToViewAllAssets}
                       >
-                        <ResearchSVG
-                          height={70}
-                          width={70}
-                          style={styles.svg}
-                        />
+                        <ResearchSVG style={styles.svg} />
                         <Text style={styles.text}>
                           {I18n.t("dataCollection.viewAssets")}
                         </Text>
