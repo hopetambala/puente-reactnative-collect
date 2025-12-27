@@ -58,7 +58,7 @@ const puenteForms = [
   },
 ];
 
-const DataCollection = ({ navigation }) => {
+function DataCollection({ navigation }) {
   const [scrollViewScroll, setScrollViewScroll] = useState();
   const [loading, setLoading] = useState(false);
   const [settings, setSettings] = useState(false);
@@ -338,6 +338,6 @@ const DataCollection = ({ navigation }) => {
       </KeyboardAvoidingView>
     </View>
   );
-};
+}
 
 export default DataCollection;

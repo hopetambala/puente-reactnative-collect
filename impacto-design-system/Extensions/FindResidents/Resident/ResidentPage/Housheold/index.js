@@ -3,8 +3,8 @@ import React from "react";
 import { View } from "react-native";
 import { Text } from "react-native-paper";
 
-const Household = () => (
-  <View>
+function Household() {
+  return <View>
     <View marginLeft="auto" marginRight="auto">
       <ComingSoonSVG width={200} height={200} />
     </View>
@@ -14,6 +14,6 @@ const Household = () => (
       </Text>
     </View>
   </View>
-);
+}
 
 export default Household;

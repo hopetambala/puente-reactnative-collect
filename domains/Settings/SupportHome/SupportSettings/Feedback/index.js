@@ -6,7 +6,7 @@ import { Button, Headline, Text, TextInput } from "react-native-paper";
 
 import styles from "../../../index.styles";
 
-const Feedback = () => {
+function Feedback() {
   const handleEmail = async () => {
     await MailComposer.isAvailableAsync().then((mailAvailable) => {
       if (mailAvailable) {
@@ -39,6 +39,6 @@ const Feedback = () => {
       </View>
     </View>
   );
-};
+}
 
 export default Feedback;

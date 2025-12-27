@@ -16,7 +16,7 @@ import IdentificationForm from "./IdentificationForm";
 import styles from "./index.styles";
 import SupplementaryForm from "./SupplementaryForm";
 
-const Forms = (props) => {
+function Forms(props) {
   const {
     navigation,
     navigateToGallery,
@@ -162,6 +162,6 @@ const Forms = (props) => {
       )}
     </View>
   );
-};
+}
 
 export default Forms;

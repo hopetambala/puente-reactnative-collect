@@ -8,7 +8,7 @@ import Demographics from "./Demographics";
 import Forms from "./Forms";
 import Household from "./Housheold";
 
-const ResidentPage = ({
+function ResidentPage({
   fname,
   lname,
   nickname,
@@ -20,7 +20,7 @@ const ResidentPage = ({
   navigateToNewRecord,
   setSurveyee,
   setView,
-}) => {
+}) {
   const [pictureUrl, setPictureUrl] = useState();
   const [demographics, setDemographics] = useState(true);
   const [forms, setForms] = useState(false);
@@ -123,7 +123,7 @@ const ResidentPage = ({
       </Button>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   profPic: {

@@ -19,7 +19,7 @@ import { stylesDefault, stylesPaper } from "../index.style";
 // LogBox.ignoreWarnings(['VirtualizedLists should never be nested']);
 LogBox.ignoreAllLogs(true);
 
-const AutoFillMS = (props) => {
+function AutoFillMS(props) {
   const [fields, setFields] = useState([]);
   const [query, setQuery] = useState("");
   const [values, setValues] = useState(null);
@@ -163,7 +163,7 @@ const AutoFillMS = (props) => {
       )}
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

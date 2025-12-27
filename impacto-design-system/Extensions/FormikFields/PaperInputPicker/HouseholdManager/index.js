@@ -14,7 +14,7 @@ import {
 
 import styles from "./index.style";
 
-const HouseholdManager = (props) => {
+function HouseholdManager(props) {
   const { formikProps, formikKey, surveyingOrganization, values } = props;
   const { setFieldValue, handleBlur, handleChange, errors } = formikProps;
   const [relationships] = useState([
@@ -233,6 +233,6 @@ const HouseholdManager = (props) => {
       )}
     </View>
   );
-};
+}
 
 export default HouseholdManager;

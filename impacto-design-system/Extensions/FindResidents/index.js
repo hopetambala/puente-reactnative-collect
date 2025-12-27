@@ -2,9 +2,8 @@ import { OfflineContext } from "@context/offline.context";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
-import { ActivityIndicator } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, View } from "react-native";
+import { ActivityIndicator , FlatList, View } from "react-native";
 import { Button, Headline, Searchbar } from "react-native-paper";
 
 import parseSearch from "./_utils";
@@ -12,7 +11,7 @@ import styles from "./index.styles";
 import ResidentCard from "./Resident/ResidentCard";
 import ResidentPage from "./Resident/ResidentPage";
 
-const FindResidents = ({
+function FindResidents({
   selectPerson,
   setSelectPerson,
   organization,
@@ -21,7 +20,7 @@ const FindResidents = ({
   surveyee,
   setSurveyee,
   setView,
-}) => {
+}) {
   const [query, setQuery] = useState("");
   const [residentsData, setResidentsData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -161,6 +160,6 @@ const FindResidents = ({
       )}
     </View>
   );
-};
+}
 
 export default FindResidents;

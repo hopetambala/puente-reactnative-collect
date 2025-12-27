@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button } from "react-native-paper";
 
-const Looper = ({
+function Looper({
   data,
   config,
   additionalQuestions,
@@ -13,7 +13,7 @@ const Looper = ({
   loopsAdded,
   setLoopsAdded,
   sameForm,
-}) => {
+}) {
   const { formikKey, numberQuestionsToRepeat } = data;
 
   const [individualLoopsAdded, setIndividualLoopsAdded] = useState(0);
@@ -118,6 +118,6 @@ const Looper = ({
       )}
     </View>
   );
-};
+}
 
 export default Looper;

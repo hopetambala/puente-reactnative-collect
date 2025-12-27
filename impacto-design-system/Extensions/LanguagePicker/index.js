@@ -18,7 +18,7 @@ const languages = [
   },
 ];
 
-const LanguagePicker = (props) => {
+function LanguagePicker(props) {
   const { language, onChangeLanguage } = props;
   return (
     <View style={styles.container}>
@@ -39,7 +39,7 @@ const LanguagePicker = (props) => {
       </Picker>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

@@ -3,12 +3,11 @@ import getLocation from "@modules/geolocation";
 import I18n from "@modules/i18n";
 import { theme } from "@modules/theme";
 import { fulfillWithTimeLimit } from "@modules/utils";
-import { ActivityIndicator } from "react-native";
 import React, { useState } from "react";
-import { Text, View } from "react-native";
+import { ActivityIndicator , Text, View } from "react-native";
 import { Headline } from "react-native-paper";
 
-const Geolocation = ({ errors, formikKey, setFieldValue }) => {
+function Geolocation({ errors, formikKey, setFieldValue }) {
   const [location, setLocation] = useState({
     latitude: 0,
     longitude: 0,
@@ -22,9 +21,9 @@ const Geolocation = ({ errors, formikKey, setFieldValue }) => {
 
     const locationPromise = new Promise((resolve, reject) => {
       try {
-        return getLocation().then((value) => resolve(value));
+        getLocation().then((value) => resolve(value));
       } catch (e) {
-        return reject(e);
+        reject(e);
       }
     });
 
@@ -89,6 +88,6 @@ const Geolocation = ({ errors, formikKey, setFieldValue }) => {
       />
     </View>
   );
-};
+}
 
 export default Geolocation;

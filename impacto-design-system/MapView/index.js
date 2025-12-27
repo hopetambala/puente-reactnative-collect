@@ -2,13 +2,12 @@ import { residentIDQuery } from "@app/services/parse/crud";
 import { getData, storeData } from "@modules/async-storage";
 import getLocation from "@modules/geolocation";
 import { theme } from "@modules/theme";
-import { ActivityIndicator } from "react-native";
 import React, { useEffect, useState } from "react";
-import { Dimensions, StyleSheet, View } from "react-native";
+import { ActivityIndicator , Dimensions, StyleSheet, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { IconButton } from "react-native-paper";
 
-const Maps = ({ organization }) => {
+function Maps({ organization }) {
   useEffect(() => {
     let isSubscribed = true;
 
@@ -146,7 +145,7 @@ const Maps = ({ organization }) => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

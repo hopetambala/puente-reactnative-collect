@@ -11,12 +11,12 @@ import { Button, Headline, IconButton, Text } from "react-native-paper";
 import styles from "../index.styles";
 import SupportSettings from "./SupportSettings";
 
-const SupportHome = ({
+function SupportHome({
   logOut,
   settingsView,
   setSettingsView,
   setSettings,
-}) => {
+}) {
   const { PUENTE_MANAGE_URL } = ENV;
   const { user } = useContext(UserContext);
   const [supportView, setSupportView] = useState("");
@@ -160,6 +160,6 @@ const SupportHome = ({
       )}
     </View>
   );
-};
+}
 
 export default SupportHome;

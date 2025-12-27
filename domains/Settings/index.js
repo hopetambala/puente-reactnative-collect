@@ -4,13 +4,13 @@ import { View } from "react-native";
 import SettingsHome from "./SettingsHome";
 import SupportHome from "./SupportHome";
 
-const SettingsView = ({
+function SettingsView({
   logOut,
   setSettings,
   surveyingOrganization,
   scrollViewScroll,
   setScrollViewScroll,
-}) => {
+}) {
   const [settingsView, setSettingsView] = useState("Settings");
   return (
     <View>
@@ -37,6 +37,6 @@ const SettingsView = ({
       </View>
     </View>
   );
-};
+}
 
 export default SettingsView;

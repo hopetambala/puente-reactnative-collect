@@ -7,16 +7,15 @@ import {
   cleanupPostedOfflineForms,
   postOfflineForms,
 } from "@modules/offline/post";
-import { ActivityIndicator } from "react-native";
 import React, { useContext, useState } from "react";
-import { View } from "react-native";
+import { ActivityIndicator , View } from "react-native";
 import Emoji from "react-native-emoji";
 import { Button, Headline, IconButton, Text } from "react-native-paper";
 
 import FormCounts from "./FormCounts";
 import styles from "./index.styles";
 
-const Header = ({ setSettings }) => {
+function Header({ setSettings }) {
   const { header, headerText, headerIcon } = styles;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [volunteerDate, setVolunteerDate] = useState("");
@@ -262,6 +261,6 @@ const Header = ({ setSettings }) => {
       />
     </View>
   );
-};
+}
 
 export default Header;

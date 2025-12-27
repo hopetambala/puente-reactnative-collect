@@ -4,7 +4,7 @@ import { StyleSheet, View } from "react-native";
 import AssetCore from "./AssetCore";
 import AssetSupplementary from "./AssetSupplementary";
 
-const NewAsset = ({
+function NewAsset({
   selectedAsset,
   setSelectedAsset,
   surveyingOrganization,
@@ -13,8 +13,8 @@ const NewAsset = ({
   scrollViewScroll,
   setScrollViewScroll,
   setPage,
-}) => (
-  <View>
+}) {
+  return <View>
     {assetPageIndex === "assetCore" && (
       <View style={styles.page}>
         <AssetCore
@@ -40,7 +40,7 @@ const NewAsset = ({
       </View>
     )}
   </View>
-);
+}
 
 const styles = StyleSheet.create({
   page: {

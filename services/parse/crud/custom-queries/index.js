@@ -58,7 +58,7 @@ function customQueryService(
  * @param {object} parseParams object of key-value pairs of params
  * @returns Results of Query
  */
-function customMultiParamQueryService(limit = 5000, parseModel, parseParams) {
+function customMultiParamQueryService(parseModel, parseParams, limit = 5000) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       const Model = Parse.Object.extend(parseModel);
@@ -100,10 +100,10 @@ function customMultiParamQueryService(limit = 5000, parseModel, parseParams) {
  * @returns Results of Query
  */
 function customMultiValueArrayService(
-  limit = 5000,
   parseModel,
   parseColumn,
-  parseParamsArray
+  parseParamsArray,
+  limit = 5000
 ) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {

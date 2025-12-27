@@ -1,5 +1,5 @@
-import * as ImagePicker from "expo-image-picker";
 import I18n from "@modules/i18n";
+import * as ImagePicker from "expo-image-picker";
 import React, { useEffect } from "react";
 import { Platform, View } from "react-native";
 import { Button } from "react-native-paper";

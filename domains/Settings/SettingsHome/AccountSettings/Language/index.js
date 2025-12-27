@@ -6,7 +6,7 @@ import { Button, Headline } from "react-native-paper";
 
 import styles from "../../../index.styles";
 
-const Language = () => {
+function Language() {
   useEffect(() => {
     async function setUserInformation() {
       const currentLocale = await getData("locale");
@@ -75,6 +75,6 @@ const Language = () => {
       </View>
     </View>
   );
-};
+}
 
 export default Language;

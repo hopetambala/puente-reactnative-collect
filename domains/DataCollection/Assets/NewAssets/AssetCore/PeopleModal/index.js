@@ -5,7 +5,7 @@ import React from "react";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
 import { Appbar, TextInput } from "react-native-paper";
 
-const PeopleModal = ({
+function PeopleModal({
   people,
   handleInputChange,
   handleAddClick,
@@ -13,8 +13,8 @@ const PeopleModal = ({
   toggleModal,
   stylesPaper,
   stylesDefault,
-}) => (
-  <>
+}) {
+  return <>
     <Appbar.Header style={{ backgroundColor: theme.colors.accent }}>
       <Appbar.Action icon="chevron-down" onPress={toggleModal} />
       <Appbar.Content
@@ -70,6 +70,6 @@ const PeopleModal = ({
       </ScrollView>
     ))}
   </>
-);
+}
 
 export default PeopleModal;

@@ -9,14 +9,14 @@ import NamePhoneEmail from "./NamePhoneEmail";
 import OfflineData from "./OfflineData";
 import Password from "./Password";
 
-const AccountSettings = ({
+function AccountSettings({
   accountSettingsView,
   setAccountSettingsView,
   surveyingOrganization,
   scrollViewScroll,
   setScrollViewScroll,
-}) => (
-  <View style={styles.mainContainer}>
+}) {
+  return <View style={styles.mainContainer}>
     {accountSettingsView === "NamePhoneEmail" && <NamePhoneEmail />}
     {accountSettingsView === "ChangePassword" && <Password />}
     {accountSettingsView === "FindRecords" && <FindRecords />}
@@ -36,6 +36,6 @@ const AccountSettings = ({
       Back
     </Button>
   </View>
-);
+}
 
 export default AccountSettings;

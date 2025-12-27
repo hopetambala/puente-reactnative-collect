@@ -15,7 +15,7 @@ const Stack = createStackNavigator();
 
 const { background } = theme.colors;
 
-const MainNavigation = () => {
+function MainNavigation() {
   const { container } = styles;
   return (
     <View style={container}>
@@ -51,7 +51,7 @@ const MainNavigation = () => {
       </NavigationContainer>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

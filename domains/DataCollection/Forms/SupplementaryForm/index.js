@@ -24,7 +24,7 @@ import {
   vitalsBloodPressue,
 } from "./utils";
 
-const SupplementaryForm = ({
+function SupplementaryForm({
   navigation,
   selectedForm,
   setSelectedForm,
@@ -32,7 +32,7 @@ const SupplementaryForm = ({
   surveyingUser,
   surveyingOrganization,
   customForm,
-}) => {
+}) {
   const [config, setConfig] = useState({});
   const [photoFile, setPhotoFile] = useState("State Photo String");
   const [validationSchema, setValidationSchema] = useState();
@@ -186,6 +186,6 @@ const SupplementaryForm = ({
       )}
     </Formik>
   );
-};
+}
 
 export default SupplementaryForm;

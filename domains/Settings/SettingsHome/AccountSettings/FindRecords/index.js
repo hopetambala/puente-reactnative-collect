@@ -13,7 +13,7 @@ import {
 
 import styles from "../../../index.styles";
 
-const FindRecords = () => {
+function FindRecords() {
   useEffect(() => {
     async function setUserInformation() {
       const storedLimit = await getData("findRecordsLimit");
@@ -166,6 +166,6 @@ const FindRecords = () => {
       )}
     </View>
   );
-};
+}
 
 export default FindRecords;

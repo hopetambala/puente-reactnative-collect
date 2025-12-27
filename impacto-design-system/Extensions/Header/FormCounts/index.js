@@ -1,16 +1,15 @@
 import { countService } from "@app/services/parse/crud";
 import { getData } from "@modules/async-storage";
+import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
 import { theme } from "@modules/theme";
-import I18n from "@modules/i18n";
-import { ActivityIndicator } from "react-native";
 import React, { useEffect, useState } from "react";
-import { View } from "react-native";
+import { ActivityIndicator , View } from "react-native";
 import { Button, Text } from "react-native-paper";
 
 import styles from "../index.styles";
 
-const FormCounts = ({ setShowCounts }) => {
+function FormCounts({ setShowCounts }) {
   const [surveyCount, setSurveyCount] = useState(0);
   const [envHealthCount, setEnvHealthCount] = useState(0);
   const [vitalsCount, setVitalsCount] = useState(0);
@@ -145,6 +144,6 @@ const FormCounts = ({ setShowCounts }) => {
       </Button>
     </View>
   );
-};
+}
 
 export default FormCounts;

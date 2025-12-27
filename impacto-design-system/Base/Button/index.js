@@ -10,7 +10,7 @@ const colorStyle = {
   black: theme.colors.black,
 };
 
-const Button = ({
+function Button({
   onPress,
   buttonText,
   mode,
@@ -20,8 +20,8 @@ const Button = ({
   loading,
   color,
   style,
-}) => (
-  <PaperButton
+}) {
+  return <PaperButton
     icon={icon || ""}
     mode={mode || "contained"}
     disabled={!!disabled}
@@ -34,7 +34,7 @@ const Button = ({
   >
     {buttonText}
   </PaperButton>
-);
+}
 
 Button.defaultProps = {
   color: "primary",

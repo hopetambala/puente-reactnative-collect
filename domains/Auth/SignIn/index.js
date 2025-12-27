@@ -36,7 +36,7 @@ const validationSchema = yup.object().shape({
     .min(4, "Seems a bit short..."),
 });
 
-const SignIn = ({ navigation }) => {
+function SignIn({ navigation }) {
   const [checked, setChecked] = useState(false);
   const [language, setLanguage] = useState("");
   const [visible, setVisible] = useState(false);
@@ -243,7 +243,7 @@ const SignIn = ({ navigation }) => {
       )}
     </KeyboardAvoidingView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

@@ -2,8 +2,8 @@
 // import HomeScreen from '../../../domains/HomeScreen';
 import DataCollection from "@app/domains/DataCollection";
 import { TabBarIcon } from "@impacto-design-system/Extensions";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import I18n from "@modules/i18n";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as React from "react";
 
 const BottomTab = createBottomTabNavigator();

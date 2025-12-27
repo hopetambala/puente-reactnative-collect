@@ -7,7 +7,7 @@ import { Button, Headline, IconButton, Text } from "react-native-paper";
 import styles from "../index.styles";
 import AccountSettings from "./AccountSettings";
 
-const SettingsHome = ({
+function SettingsHome({
   logOut,
   settingsView,
   setSettingsView,
@@ -15,7 +15,7 @@ const SettingsHome = ({
   surveyingOrganization,
   scrollViewScroll,
   setScrollViewScroll,
-}) => {
+}) {
   const [accountSettingsView, setAccountSettingsView] = useState("");
   const inputs = [
     {
@@ -121,6 +121,6 @@ const SettingsHome = ({
       )}
     </View>
   );
-};
+}
 
 export default SettingsHome;

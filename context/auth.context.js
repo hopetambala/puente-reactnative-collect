@@ -10,7 +10,7 @@ import React, { createContext, useEffect, useState } from "react";
 
 export const UserContext = createContext();
 
-export const UserContextProvider = ({ children }) => {
+export function UserContextProvider({ children }) {
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
@@ -125,4 +125,4 @@ export const UserContextProvider = ({ children }) => {
       {children}
     </UserContext.Provider>
   );
-};
+}

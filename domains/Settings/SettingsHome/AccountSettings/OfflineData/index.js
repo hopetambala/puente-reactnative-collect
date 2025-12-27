@@ -6,20 +6,20 @@ import {
 import { PaperInputPicker } from "@impacto-design-system/Extensions";
 import { deleteData, getData } from "@modules/async-storage";
 import { cacheResidentDataMulti } from "@modules/cached-resources";
+import I18n from "@modules/i18n";
 import { layout } from "@modules/theme";
 import { Formik } from "formik";
-import I18n from "@modules/i18n";
 import _ from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
 
 import configArray from "./config/config";
 
-const OfflineData = ({
+function OfflineData({
   surveyingOrganization,
   scrollViewScroll,
   setScrollViewScroll,
-}) => {
+}) {
   const [inputs, setInputs] = useState({});
   const [cacheSuccess, setCacheSuccess] = useState(false);
   const [submittedForms, setSubmittedForms] = useState(0);
@@ -101,5 +101,5 @@ const OfflineData = ({
       </TouchableWithoutFeedback>
     </View>
   );
-};
+}
 export default OfflineData;

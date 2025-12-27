@@ -3,19 +3,18 @@ import ResidentCard from "@impacto-design-system/Extensions/FindResidents/Reside
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
-import { ActivityIndicator } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { ActivityIndicator , FlatList, Text, View } from "react-native";
 import { Button, Headline, Searchbar } from "react-native-paper";
 
 import styles from "./index.styles";
 import parseSearch from "./utils";
 
-const ResidentIdSearchbar = ({
+function ResidentIdSearchbar({
   surveyee,
   setSurveyee,
   surveyingOrganization,
-}) => {
+}) {
   const [query, setQuery] = useState("");
   const [residentsData, setResidentsData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -154,6 +153,6 @@ const ResidentIdSearchbar = ({
       {surveyee && surveyee.objectId && <ResidentCard resident={surveyee} />}
     </View>
   );
-};
+}
 
 export default ResidentIdSearchbar;

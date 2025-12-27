@@ -6,8 +6,8 @@ import { Button } from "react-native-paper";
 import styles from "../../index.styles";
 import Feedback from "./Feedback";
 
-const SupportSettings = ({ supportView, setSupportView }) => (
-  <View style={styles.mainContainer}>
+function SupportSettings({ supportView, setSupportView }) {
+  return <View style={styles.mainContainer}>
     {supportView === "feedback" && <Feedback />}
     <Button
       onPress={() => {
@@ -17,6 +17,6 @@ const SupportSettings = ({ supportView, setSupportView }) => (
       {I18n.t("supportHome.back")}
     </Button>
   </View>
-);
+}
 
 export default SupportSettings;
