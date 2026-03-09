@@ -29,5 +29,10 @@ app.generated.json
 # Virtual Env
 reactenv/
 
+# Large directories not needed for EAS builds
+# EAS runs pod install and builds native code on its servers
+ios/Pods/
+ios/build/
+.git/
 android/
 # ios/
