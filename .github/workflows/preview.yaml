@@ -61,4 +61,4 @@ jobs:
       - name: Create EAS Update and preview
         uses: expo/expo-github-action/preview@v8
         with:
-          command: eas update --auto --non-interactive
+          command: eas update --auto --non-interactive --environment preview

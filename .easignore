@@ -1,0 +1,38 @@
+# EAS Build ignore file
+# When this file exists, EAS uses it INSTEAD of .gitignore
+# to determine which files to upload for builds.
+#
+# This lets us keep app.json and environment.js out of git
+# but still include them in EAS builds.
+
+node_modules/
+coverage/
+expo-resources/
+.expo
+.vscode
+npm-debug.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# macOS
+.DS_Store*
+.env*
+scripts/dynamic-env/app.secrets.json
+scripts/update-version/app.secrets.json
+app.generated.json
+
+# Virtual Env
+reactenv/
+
+# Large directories not needed for EAS builds
+# EAS runs pod install and builds native code on its servers
+ios/Pods/
+ios/build/
+.git/
+android/
+# ios/
