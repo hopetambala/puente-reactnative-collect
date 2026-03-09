@@ -1,58 +1,68 @@
 import I18n from "@modules/i18n";
-import { Picker } from "@react-native-picker/picker";
-import React from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { Button, Dialog, Portal, RadioButton, Text } from "react-native-paper";
 
 const languages = [
-  {
-    key: "en",
-    label: I18n.t("languagePicker.english"),
-  },
-  {
-    key: "es",
-    label: I18n.t("languagePicker.spanish"),
-  },
-  {
-    key: "hk",
-    label: I18n.t("languagePicker.creole"),
-  },
+  { key: "en", label: "languagePicker.english" },
+  { key: "es", label: "languagePicker.spanish" },
+  { key: "hk", label: "languagePicker.creole" },
 ];
 
 function LanguagePicker(props) {
   const { language, onChangeLanguage } = props;
+  const [dialogVisible, setDialogVisible] = useState(false);
+
+  const selectedLabel =
+    languages.find((l) => l.key === language)?.label ?? "languagePicker.english";
+
   return (
     <View style={styles.container}>
-      <Picker
-        style={styles.picker}
-        itemStyle={styles.pickerItem}
-        selectedValue={language}
-        onValueChange={onChangeLanguage}
-        mode={Platform.OS === "android" ? "dropdown" : "dialog"}
+      <Button
+        mode="outlined"
+        onPress={() => setDialogVisible(true)}
+        icon="web"
+        style={styles.button}
       >
-        {languages.map((lang) => (
-          <Picker.Item
-            key={lang.key}
-            value={lang.key}
-            label={`🌐${lang.label}`}
-          />
-        ))}
-      </Picker>
+        {I18n.t(selectedLabel)}
+      </Button>
+      <Portal>
+        <Dialog
+          visible={dialogVisible}
+          onDismiss={() => setDialogVisible(false)}
+        >
+          <Dialog.Title>🌐 Language</Dialog.Title>
+          <Dialog.Content>
+            <RadioButton.Group
+              value={language}
+              onValueChange={(value) => {
+                onChangeLanguage(value);
+                setDialogVisible(false);
+              }}
+            >
+              {languages.map((lang) => (
+                <RadioButton.Item
+                  key={lang.key}
+                  value={lang.key}
+                  label={I18n.t(lang.label)}
+                />
+              ))}
+            </RadioButton.Group>
+          </Dialog.Content>
+        </Dialog>
+      </Portal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 10
-
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    alignItems: "flex-start",
   },
-  picker: {
-    width: "100%",
-    height: 50,
-    
-  },
-  pickerItem: {
-    height: "100%"
+  button: {
+    borderRadius: 8,
   },
 });
 

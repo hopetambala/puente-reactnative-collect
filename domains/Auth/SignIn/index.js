@@ -38,7 +38,7 @@ const validationSchema = yup.object().shape({
 
 function SignIn({ navigation }) {
   const [checked, setChecked] = useState(false);
-  const [language, setLanguage] = useState("");
+  const [language, setLanguage] = useState("en");
   const [visible, setVisible] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
   const { onlineLogin, offlineLogin, isLoading, error } =
