@@ -68,6 +68,9 @@ function HouseholdManager(props) {
     postHousehold(postParams).then((household) => {
       const { objectId } = household;
       setFieldValue(formikKey, objectId);
+    }).catch((e) => {
+      console.log(e); //eslint-disable-line
+      alert(I18n.t("submissionError.error")); //eslint-disable-line
     });
   };
 
@@ -83,6 +86,9 @@ function HouseholdManager(props) {
     postHousehold(postParams).then((household) => {
       const { objectId } = household;
       setFieldValue(formikKey, objectId);
+    }).catch((e) => {
+      console.log(e); //eslint-disable-line
+      alert(I18n.t("submissionError.error")); //eslint-disable-line
     });
     setHouseholdSet(true);
   };

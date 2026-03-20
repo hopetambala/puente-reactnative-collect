@@ -1,14 +1,12 @@
 /* eslint-disable-file */
-import "react-native-gesture-handler";
-
 import { AlertContextProvider } from "@context/alert.context";
 import { UserContextProvider } from "@context/auth.context";
 import { OfflineContextProvider } from "@context/offline.context";
 import MainNavigation from "@impacto-design-system/MainNavigation";
 import useCachedResources from "@modules/cached-resources/useCachedResources";
 import { theme } from "@modules/theme";
-import { NavigationContainer } from "@react-navigation/native";
 import React from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Provider as PaperProvider } from "react-native-paper";
 
 import { initialize } from "./services/parse/auth";
@@ -22,7 +20,7 @@ export default function App() {
     return null;
   }
   return (
-    <NavigationContainer independent>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <PaperProvider theme={theme}>
         <AlertContextProvider>
           <UserContextProvider>
@@ -32,6 +30,6 @@ export default function App() {
           </UserContextProvider>
         </AlertContextProvider>
       </PaperProvider>
-    </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }

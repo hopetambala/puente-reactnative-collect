@@ -20,8 +20,8 @@ hooks();
 
 jest.mock("..", () => jest.fn());
 
-// Since full feature testing takes longer than normal we define this timeout to be 10s.
-const FULL_FEATURE_TESTING_TIMEOUT = 10000;
+// Since full feature testing takes longer than normal we define this timeout to be 60s.
+const FULL_FEATURE_TESTING_TIMEOUT = 60000;
 
 /**
  * Test offline forms uploading with real connection to a Parse Cloud Code

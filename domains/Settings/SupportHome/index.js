@@ -15,7 +15,7 @@ function SupportHome({
   logOut,
   settingsView,
   setSettingsView,
-  setSettings,
+  onClose,
 }) {
   const { PUENTE_MANAGE_URL } = ENV;
   const { user } = useContext(UserContext);
@@ -129,7 +129,7 @@ function SupportHome({
           </View>
           <Button
             onPress={() => {
-              setSettings(false);
+              onClose();
             }}
           >
             {I18n.t("accountSettings.back")}

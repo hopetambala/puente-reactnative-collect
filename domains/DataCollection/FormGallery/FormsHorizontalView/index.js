@@ -3,7 +3,6 @@ import { layout } from "@modules/theme";
 import React from "react";
 import { ScrollView, View } from "react-native";
 import { Card, Text } from "react-native-paper";
-import uuid from "react-native-uuid";
 
 import styles from "../index.styles";
 
@@ -13,7 +12,7 @@ function FormsHorizontalView({
   navigateToCustomForm,
   pinForm,
 }) {
-  return <View key={() => uuid.v4()} style={layout.screenRow}>
+  return <View style={layout.screenRow}>
     {header && (
       <View style={{ flexDirection: "row" }}>
         <Text style={styles.mediumHeader}>{header}</Text>
@@ -22,6 +21,7 @@ function FormsHorizontalView({
     <ScrollView horizontal>
       {forms.map((form) => (
           <Card
+            key={form.objectId || form.name}
             style={layout.cardSmallStyle}
             onPress={() => navigateToCustomForm(form)}
             onLongPress={() => pinForm(form)}
@@ -35,7 +35,7 @@ function FormsHorizontalView({
         ))}
       {forms?.length < 1 && (
         <View style={layout.screenRow}>
-          <Card key={() => uuid.v4()}>
+          <Card key="no-custom-forms">
             <Card.Title title={I18n.t("formsGallery.noCustomForms")} />
             {/* To be used when marketplace is available */}
             {/* <Card.Content>

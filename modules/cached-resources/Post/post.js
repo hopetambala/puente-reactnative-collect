@@ -4,17 +4,20 @@ import {
 } from "@app/services/parse/crud";
 import { getData, storeData } from "@modules/async-storage";
 import checkOnlineStatus from "@modules/offline";
-import { generateRandomID } from "@modules/utils";
+import { fulfillWithTimeLimit, generateRandomID } from "@modules/utils";
+
+const POST_TIMEOUT_MS = 15000;
 
 const postIdentificationForm = async (postParams) => {
   const isConnected = await checkOnlineStatus();
   if (isConnected) {
-    return postObjectsToClass(postParams)
-      .then((surveyee) => {
-        const surveyeeSanitized = JSON.parse(JSON.stringify(surveyee));
-        return surveyeeSanitized;
-      })
-      .catch((error) => error);
+    const result = await fulfillWithTimeLimit(
+      POST_TIMEOUT_MS,
+      postObjectsToClass(postParams),
+      null
+    );
+    if (!result) throw new Error("postIdentificationForm timed out or returned null");
+    return JSON.parse(JSON.stringify(result));
   }
 
   return getData("offlineIDForms").then(async (offlineIDForms) => {
@@ -55,7 +58,7 @@ const postAssetForm = async (postParams) => {
         const assetSanitized = JSON.parse(JSON.stringify(asset));
         return assetSanitized;
       })
-      .catch((error) => error);
+      .catch((error) => { throw error; });
   }
   return getData("offlineAssetIDForms").then(async (offlineData) => {
     const id = `AssetID-${generateRandomID()}`;
@@ -126,7 +129,7 @@ const postHousehold = async (postParams) => {
   if (isConnected) {
     return postObjectsToClass(postParams)
       .then((result) => result.id)
-      .catch((error) => error);
+      .catch((error) => { throw error; });
   }
 
   return getData("offlineHouseholds").then(async (offlineHouseholds) => {

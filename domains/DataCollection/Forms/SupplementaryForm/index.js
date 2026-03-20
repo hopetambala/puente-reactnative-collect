@@ -33,13 +33,14 @@ function SupplementaryForm({
   surveyingOrganization,
   customForm,
 }) {
+  const { alert } = useContext(AlertContext);
   const [config, setConfig] = useState({});
   const [photoFile, setPhotoFile] = useState("State Photo String");
   const [validationSchema, setValidationSchema] = useState();
   const [submitting, setSubmitting] = useState(false);
   const [loopsAdded, setLoopsAdded] = useState(0);
   const [submissionError, setSubmissionError] = useState(false);
-  const { alert } = useContext(AlertContext);
+
 
   const toRoot = () => {
     navigation.navigate("Root");
@@ -70,71 +71,65 @@ function SupplementaryForm({
         setSubmitting(true);
         setPhotoFile("Submitted Photo String");
 
-        const formObject = values;
-        const user = await getData("currentUser");
-
-        formObject.surveyingUser = await surveyingUserFailsafe(
-          user,
-          surveyingUser,
-          isEmpty
-        );
-        formObject.surveyingOrganization =
-          surveyingOrganization || user.organization;
-        formObject.appVersion = (await getData("appVersion")) || "";
-        formObject.phoneOS = Platform.OS || "";
-
-        let formObjectUpdated = addSelectTextInputs(values, formObject);
-        if (selectedForm === "vitals") {
-          formObjectUpdated = vitalsBloodPressue(values, formObjectUpdated);
-        }
-
-        // clean looped form questions
-        formObjectUpdated = cleanLoopSubmissions(values, formObjectUpdated);
-
-        const postParams = {
-          parseParentClassID: surveyee.objectId,
-          parseParentClass: "SurveyData",
-          parseUser: user.objectId,
-          parseClass: config.class,
-          photoFile,
-          localObject: formObjectUpdated,
-          loop: loopsAdded !== 0,
-        };
-
-        if (selectedForm === "custom") {
-          postParams.parseClass = "FormResults";
-
-          const fieldsArray = Object.entries(formObjectUpdated).map((obj) => ({
-            title: obj[0],
-            answer: obj[1],
-          }));
-
-          postParams.localObject = {
-            title: customForm.name || "",
-            description: customForm.description || "",
-            formSpecificationsId: customForm.objectId,
-            fields: fieldsArray,
-            surveyingUser: formObject.surveyingUser,
-            surveyingOrganization: formObject.surveyingOrganization,
-          };
-        }
-
-        const submitAction = () => {
-          setTimeout(() => {
-            setSubmitting(false);
-            toRoot();
-          }, 1000);
-        };
-
         try {
+          const formObject = values;
+          const user = await getData("currentUser");
+
+          formObject.surveyingUser = await surveyingUserFailsafe(
+            user,
+            surveyingUser,
+            isEmpty
+          );
+          formObject.surveyingOrganization =
+            surveyingOrganization || user.organization;
+          formObject.appVersion = (await getData("appVersion")) || "";
+          formObject.phoneOS = Platform.OS || "";
+
+          let formObjectUpdated = addSelectTextInputs(values, formObject);
+          if (selectedForm === "vitals") {
+            formObjectUpdated = vitalsBloodPressue(values, formObjectUpdated);
+          }
+
+          // clean looped form questions
+          formObjectUpdated = cleanLoopSubmissions(values, formObjectUpdated);
+
+          const postParams = {
+            parseParentClassID: surveyee.objectId,
+            parseParentClass: "SurveyData",
+            parseUser: user.objectId,
+            parseClass: config.class,
+            photoFile,
+            localObject: formObjectUpdated,
+            loop: loopsAdded !== 0,
+          };
+
+          if (selectedForm === "custom") {
+            postParams.parseClass = "FormResults";
+
+            const fieldsArray = Object.entries(formObjectUpdated).map((obj) => ({
+              title: obj[0],
+              answer: obj[1],
+            }));
+
+            postParams.localObject = {
+              title: customForm.name || "",
+              description: customForm.description || "",
+              formSpecificationsId: customForm.objectId,
+              fields: fieldsArray,
+              surveyingUser: formObject.surveyingUser,
+              surveyingOrganization: formObject.surveyingOrganization,
+            };
+          }
+
           await postSupplementaryForm(postParams);
-          alert(` ${I18n.t("forms.successfullySubmitted")}`);
-          submitAction();
+          alert(I18n.t("forms.successfullySubmitted"));
+          setSubmitting(false);
+          toRoot();
         } catch (e) {
-          console.log(error); // eslint-disable-line
-          // perhaps an alert to let the user know there was an error
+          console.log(e); // eslint-disable-line
           setSubmitting(false);
           setSubmissionError(true);
+          alert(I18n.t("submissionError.error"));
         }
       }}
       validationSchema={validationSchema}

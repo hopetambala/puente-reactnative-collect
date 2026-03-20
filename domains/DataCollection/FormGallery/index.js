@@ -91,6 +91,15 @@ function FormGallery({
 
   return (
     <View>
+      <View key="puenteForms" style={layout.screenRow}>
+        <Text style={styles.header}>{I18n.t("formsGallery.puenteForms")}</Text>
+        <SmallCardsCarousel
+          puenteForms={puenteForms}
+          navigateToNewRecord={navigateToNewRecord}
+          pinForm={pinForm}
+          setUser={false}
+        />
+      </View>
       <View key="pinnedForms" style={layout.screenRow}>
         <Text style={styles.header}>{I18n.t("formsGallery.pinnedForms")}</Text>
         <ScrollView horizontal>
@@ -124,15 +133,6 @@ function FormGallery({
             </View>
           )}
         </ScrollView>
-      </View>
-      <View key="puenteForms" style={layout.screenRow}>
-        <Text style={styles.header}>{I18n.t("formsGallery.puenteForms")}</Text>
-        <SmallCardsCarousel
-          puenteForms={puenteForms}
-          navigateToNewRecord={navigateToNewRecord}
-          pinForm={pinForm}
-          setUser={false}
-        />
       </View>
       {/* ALL custom forms */}
       <View key="customForms" style={{ marginHorizontal: 20 }}>

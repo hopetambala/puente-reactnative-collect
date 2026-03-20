@@ -7,7 +7,8 @@ function Toast({ text, visible, onClick, onClickLabel }) {
     <Snackbar
       visible={visible}
       onDismiss={onClick}
-      duration={6000}
+      duration={3000}
+      style={styles.snackbar}
       action={{
         label: onClickLabel,
         onPress: () => onClick(),
@@ -20,8 +21,13 @@ function Toast({ text, visible, onClick, onClickLabel }) {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: "space-between",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  snackbar: {
+    backgroundColor: "green",
   },
 });
 

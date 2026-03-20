@@ -11,7 +11,7 @@ function SettingsHome({
   logOut,
   settingsView,
   setSettingsView,
-  setSettings,
+  onClose,
   surveyingOrganization,
   scrollViewScroll,
   setScrollViewScroll,
@@ -94,7 +94,7 @@ function SettingsHome({
           </View>
           <Button
             onPress={() => {
-              setSettings(false);
+              onClose();
             }}
           >
             {I18n.t("accountSettings.back")}

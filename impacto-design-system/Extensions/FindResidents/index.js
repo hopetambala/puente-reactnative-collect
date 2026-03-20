@@ -155,7 +155,7 @@ function FindResidents({
           navigateToNewRecord={navigateToNewRecord}
           surveyee={surveyee}
           setSurveyee={setSurveyee}
-          setView={setView}
+          setView={setView || (() => {})}
         />
       )}
     </View>

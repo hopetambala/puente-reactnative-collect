@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
+import { View } from "react-native";
 
 import NewAssets from "./NewAssets";
 import ViewAssets from "./ViewAssets";
@@ -18,27 +18,25 @@ function Assets({
     setSelectedAsset(asset);
   };
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View>
-        {selectedAsset && (
-          <NewAssets
-            setSelectedAsset={setSelectedAsset}
-            selectedAsset={selectedAsset}
-            surveyingOrganization={surveyingOrganization}
-            assetPageIndex={page}
-            scrollViewScroll={scrollViewScroll}
-            setScrollViewScroll={setScrollViewScroll}
-            setPage={setPage}
-          />
-        )}
-        {selectedAsset === null && (
-          <ViewAssets
-            organization={surveyingOrganization}
-            switchAssetPage={switchAssetPage}
-          />
-        )}
-      </View>
-    </TouchableWithoutFeedback>
+    <View>
+      {selectedAsset && (
+        <NewAssets
+          setSelectedAsset={setSelectedAsset}
+          selectedAsset={selectedAsset}
+          surveyingOrganization={surveyingOrganization}
+          assetPageIndex={page}
+          scrollViewScroll={scrollViewScroll}
+          setScrollViewScroll={setScrollViewScroll}
+          setPage={setPage}
+        />
+      )}
+      {selectedAsset === null && (
+        <ViewAssets
+          organization={surveyingOrganization}
+          switchAssetPage={switchAssetPage}
+        />
+      )}
+    </View>
   );
 }
 

@@ -3,7 +3,6 @@ import I18n from "@modules/i18n";
 import { theme } from "@modules/theme";
 import React, { useEffect, useState } from "react";
 import {
-  LogBox,
   Platform,
   StyleSheet,
   Text,
@@ -15,9 +14,6 @@ import { Chip, TextInput } from "react-native-paper";
 import uuid from "react-native-uuid";
 
 import { stylesDefault, stylesPaper } from "../index.style";
-
-// LogBox.ignoreWarnings(['VirtualizedLists should never be nested']);
-LogBox.ignoreAllLogs(true);
 
 function AutoFillMS(props) {
   const [fields, setFields] = useState([]);

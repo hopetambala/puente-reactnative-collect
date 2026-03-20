@@ -12,9 +12,7 @@ function initialize() {
   Parse.initialize(parseAppId, parseJavascriptKey);
   Parse.serverURL = parseServerUrl;
   // eslint-disable-next-line
-  console.log(
-    `Initialize Parse with App ID:${parseAppId}, Javascript Key: ${parseJavascriptKey}`
-  );
+  console.log(`Initialize Parse for server: ${parseServerUrl}`);
 }
 
 function retrieveSignUpFunction(params, type) {

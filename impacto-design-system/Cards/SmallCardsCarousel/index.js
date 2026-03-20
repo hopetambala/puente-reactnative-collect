@@ -37,7 +37,9 @@ function SmallCardsCarousel({
         style={styles.cardSmallStyle}
         onPress={() => {
           if (setUser) {
-            setView("Forms");
+            if (setView) {
+              setView("Forms");
+            }
             navigateToNewRecord(form.tag, surveyee);
           } else {
             navigateToNewRecord(form.tag);

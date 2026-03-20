@@ -15,7 +15,7 @@ import { Button, Headline, IconButton, Text } from "react-native-paper";
 import FormCounts from "./FormCounts";
 import styles from "./index.styles";
 
-function Header({ setSettings }) {
+function Header({ setSettings, onOpenSettings, onBack }) {
   const { header, headerText, headerIcon } = styles;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [volunteerDate, setVolunteerDate] = useState("");
@@ -146,7 +146,13 @@ function Header({ setSettings }) {
 
   const navToSettings = () => {
     setDrawerOpen(false);
-    setSettings(true);
+    if (onOpenSettings) {
+      onOpenSettings();
+      return;
+    }
+    if (setSettings) {
+      setSettings(true);
+    }
   };
 
   const navToCounts = () => {
@@ -156,10 +162,21 @@ function Header({ setSettings }) {
   return (
     <View style={styles.container}>
       <View style={header}>
+        {onBack ? (
+          <View style={headerIcon}>
+            <IconButton
+              icon="arrow-left"
+              color={headerIcon.color}
+              size={30}
+              onPress={onBack}
+            />
+          </View>
+        ) : (
+          <View style={headerIcon}>
+            <IconButton color={headerIcon.color} size={30} />
+          </View>
+        )}
         <Text style={headerText}>{I18n.t("header.puente")}</Text>
-        <View style={headerIcon}>
-          <IconButton color={headerIcon.color} size={30} />
-        </View>
         <View style={headerIcon}>
           <IconButton
             icon="tune"

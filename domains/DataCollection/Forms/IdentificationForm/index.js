@@ -121,71 +121,68 @@ function IdentificationFormWrapper({
 
   const onSubmit = async (values) => {
     setSubmitting(true);
-    const { photoFile } = values;
-
-    const formObject = values;
-    const user = await getData("currentUser");
-
-    formObject.surveyingOrganization =
-      surveyingOrganization || user.organization;
-    formObject.surveyingUser = await surveyingUserFailsafe(
-      user,
-      surveyingUser,
-      isEmpty
-    );
-
-    formObject.appVersion = await withTimeoutAbort(storeAppVersion, 300, "");
-    formObject.phoneOS = Platform.OS || "";
-
-    formObject.latitude = values.location?.latitude || 0;
-    formObject.longitude = values.location?.longitude || 0;
-    formObject.altitude = values.location?.altitude || 0;
-
-    formObject.dob = `${values.Month || "00"}/${values.Day || "00"}/${
-      values.Year || "0000"
-    }`;
-
-    formObject.searchIndex = [
-      values.fname,
-      values.lname,
-      values.nickname,
-      values.communityname,
-    ]
-      .filter((result) => result)
-      .map((result) => result.toLowerCase().trim());
-
-    formObject.fullTextSearchIndex = formObject.searchIndex.join(" ");
-
-    const valuesToPrune = ["Month", "Day", "Year", "location", "photoFile"];
-    valuesToPrune.forEach((value) => {
-      delete formObject[value];
-    });
-
-    const submitAction = () => {
-      setTimeout(() => {
-        setSelectedForm("");
-        setSubmitting(false);
-      }, 1000);
-    };
-
-    const postParams = {
-      parseClass: "SurveyData",
-      parseUser: user.objectId,
-      photoFile,
-      localObject: formObject,
-    };
 
     try {
+      const { photoFile } = values;
+
+      const formObject = values;
+      const user = await getData("currentUser");
+
+      formObject.surveyingOrganization =
+        surveyingOrganization || user.organization;
+      formObject.surveyingUser = await surveyingUserFailsafe(
+        user,
+        surveyingUser,
+        isEmpty
+      );
+
+      formObject.appVersion = await withTimeoutAbort(storeAppVersion, 300, "");
+      formObject.phoneOS = Platform.OS || "";
+
+      formObject.latitude = values.location?.latitude || 0;
+      formObject.longitude = values.location?.longitude || 0;
+      formObject.altitude = values.location?.altitude || 0;
+
+      formObject.dob = `${values.Month || "00"}/${values.Day || "00"}/${
+        values.Year || "0000"
+      }`;
+
+      formObject.searchIndex = [
+        values.fname,
+        values.lname,
+        values.nickname,
+        values.communityname,
+      ]
+        .filter((result) => result)
+        .map((result) => result.toLowerCase().trim());
+
+      formObject.fullTextSearchIndex = formObject.searchIndex.join(" ");
+
+      const valuesToPrune = ["Month", "Day", "Year", "location", "photoFile"];
+      valuesToPrune.forEach((value) => {
+        delete formObject[value];
+      });
+
+      const postParams = {
+        parseClass: "SurveyData",
+        parseUser: user.objectId,
+        photoFile,
+        localObject: formObject,
+      };
+
       const surveyee = await postIdentificationForm(postParams);
       setSurveyee(surveyee);
-      const { fname, lname } = surveyee;
-      alert(`${fname} ${lname}'s ${I18n.t("forms.successfullySubmitted")}`);
-      submitAction();
+      const fname = surveyee?.fname || "";
+      const lname = surveyee?.lname || "";
+      alert(`${fname} ${lname} ${I18n.t("forms.successfullySubmitted")}`.trim());
+      setSubmitting(false);
+      setSelectedForm("");
+
     } catch (e) {
       console.error(e);
       setSubmitting(false);
       setSubmissionError(true);
-      alert(`${I18n.t("submissionError.error")}`);
+      alert(I18n.t("submissionError.error"));
     }
   };
 
