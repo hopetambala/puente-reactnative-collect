@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [14.0.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.0...v14.0.1) (2026-03-22)
+
+
+### Bug fixes
+
+* include gradle.properties with compileSdk=36 ([0947776](https://github.com/hopetambala/puente-reactnative-collect/commit/0947776c3b42f4e4160d627a69d54e7dc7420644))
+* wire version sync into standard-version postbump and pin Node.js 20.19.6 in EAS ([54281ea](https://github.com/hopetambala/puente-reactnative-collect/commit/54281eabc63fef25488b3c135883a1c0351c3cff))
+
 ## [14.0.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v13.0.0...v14.0.0) (2026-03-22)
 
 
