@@ -3,19 +3,10 @@ module.exports = {
     {
       filename: "package.json",
     },
-    {
-      filename: "app.json",
-      updater: require.resolve("standard-version-expo"),
-    },
-    {
-      filename: "app.json",
-      updater: require.resolve("standard-version-expo/android"),
-    },
-    {
-      filename: "app.json",
-      updater: require.resolve("standard-version-expo/ios"),
-    },
   ],
+  scripts: {
+    postbump: "node scripts/update-version/versionNumber.js",
+  },
   types: [
     { type: "chore", section: "Housekeeping Tasks", hidden: true },
     { type: "ci", section: "Pipeline Changes" },

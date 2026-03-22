@@ -8,19 +8,22 @@
       "developmentClient": true,
       "distribution": "internal",
       "channel": "development",
-      "environment": "development"
+      "environment": "development",
+      "node": "20.19.6"
     },
     "preview": {
       "distribution": "internal",
       "channel": "preview",
-      "environment": "preview"
+      "environment": "preview",
+      "node": "20.19.6"
     },
     "production": {
       "ios": {
         "image": "latest"
       },
       "channel": "production",
-      "environment": "production"
+      "environment": "production",
+      "node": "20.19.6"
     }
   },
   "submit": {
