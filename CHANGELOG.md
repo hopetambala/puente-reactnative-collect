@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [14.0.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v13.0.0...v14.0.0) (2026-03-22)
+
+
+### Documentation Changes
+
+* add faq.md ([8b7e682](https://github.com/hopetambala/puente-reactnative-collect/commit/8b7e682413107a45466ae751bbaa59902d1c6bc2))
+
+
+### Bug fixes
+
+* ios and android build issues ([8b0fa7e](https://github.com/hopetambala/puente-reactnative-collect/commit/8b0fa7e3162b8269b8313d433746db20d7078e0b))
+* Update dialog language picker ([ef0b16c](https://github.com/hopetambala/puente-reactnative-collect/commit/ef0b16cff0e00f3f7b22805d60926e264fc2dee0))
+
+
+### New Features
+
+* create eas ignore file so that we don't have to temporarily commit app.json and envionment.js ([6f380fc](https://github.com/hopetambala/puente-reactnative-collect/commit/6f380fce35a30ec660d4a92a587d5d38b20b3921))
+* refactor navigation ([5798e47](https://github.com/hopetambala/puente-reactnative-collect/commit/5798e47a7f54a9d0b660717775a580e274c9437b))
+* refactor to modernize Puente's style ([ce8f50b](https://github.com/hopetambala/puente-reactnative-collect/commit/ce8f50b13bbd4ae22edb54a3777c2edcf90a3920))
+* update all packages to be compatible with expo55 ([7de3dfc](https://github.com/hopetambala/puente-reactnative-collect/commit/7de3dfc3d90402a55d5f2f3ac2c2738dad466468))
+
 ## [13.0.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v12.7.1...v13.0.0) (2026-03-09)
 
 ### [12.7.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v12.6.1...v12.7.1) (2025-12-27)
