@@ -1,23 +1,73 @@
-/* eslint-disable */
-import React from "react";
-import { StyleSheet, View, Text } from "react-native";
-import { TextInput } from "react-native-paper";
-import { theme } from "@modules/theme";
-import styles from "../PaperInputPicker/index.style";
-export default function FormInput({ label, formikProps, formikKey, ...rest }) {
+import { spacing, typography } from "@modules/theme";
+import PropTypes from "prop-types";
+import React, { useState } from "react";
+import { StyleSheet, Text,View } from "react-native";
+import { TextInput, useTheme } from "react-native-paper";
+
+const createStyles = (theme) =>
+  StyleSheet.create({
+    container: {
+      marginHorizontal: spacing.lg,
+      marginVertical: spacing.md,
+    },
+    input: {
+      backgroundColor: theme.colors.surfaceSunken,
+    },
+    errorText: {
+      color: theme.colors.error,
+      fontSize: typography.caption.fontSize,
+      marginTop: spacing.xs,
+      marginLeft: spacing.sm,
+    },
+  });
+
+function FormInput({ label, formikProps, formikKey, ...rest }) {
+  const theme = useTheme();
+  const styles = createStyles(theme);
+  const [isFocused, setIsFocused] = useState(false);
+  const error = formikProps.touched[formikKey] && formikProps.errors[formikKey];
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    formikProps.setFieldTouched(formikKey, true);
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
   return (
-    <View style={{ marginHorizontal: 15, marginVertical: 0 }}>
+    <View style={styles.container}>
       <TextInput
         label={label}
         onChangeText={formikProps.handleChange(formikKey)}
-        onBlur={formikProps.handleBlur(formikKey)}
+        onBlur={handleBlur}
+        onFocus={handleFocus}
         {...rest}
         mode="outlined"
-        theme={{ colors: { placeholder: theme.colors.primary }, text: "black" }}
+        style={styles.input}
+        theme={{
+          colors: {
+            placeholder: theme.colors.textTertiary,
+            primary: isFocused ? theme.colors.primary : theme.colors.outline,
+            error: theme.colors.error,
+          },
+        }}
       />
-      <Text style={{ color: "red" }}>
-        {formikProps.touched[formikKey] && formikProps.errors[formikKey]}
-      </Text>
+      {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 }
+
+FormInput.propTypes = {
+  label: PropTypes.string.isRequired,
+  formikProps: PropTypes.shape({
+    handleChange: PropTypes.func,
+    setFieldTouched: PropTypes.func,
+    errors: PropTypes.shape({}),
+    touched: PropTypes.shape({}),
+  }).isRequired,
+  formikKey: PropTypes.string.isRequired,
+};
+
+export default FormInput;

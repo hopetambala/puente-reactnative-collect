@@ -10,7 +10,7 @@ import { getData } from "@modules/async-storage";
 import { postIdentificationForm } from "@modules/cached-resources";
 import { storeAppVersion } from "@modules/cached-resources/populate-cache";
 import I18n from "@modules/i18n";
-import { layout, theme } from "@modules/theme";
+import { createLayoutStyles } from "@modules/theme";
 import { isEmpty, withTimeoutAbort } from "@modules/utils";
 import { Formik } from "formik";
 import _ from "lodash";
@@ -22,6 +22,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useTheme } from "react-native-paper";
 
 import configArray from "./config/config";
 
@@ -38,6 +39,8 @@ function IdentificationForm({
   setSubmissionError,
   onSubmit,
 }) {
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
   useEffect(() => {
     setValidationSchema(yupValidationPicker(configArray));
   }, []);
@@ -87,8 +90,8 @@ function IdentificationForm({
                   }
                   style={{
                     backgroundColor: _.isEmpty(formikProps.values)
-                      ? "red"
-                      : "green",
+                      ? theme.colors.error
+                      : theme.colors.success,
                   }}
                 />
               )}

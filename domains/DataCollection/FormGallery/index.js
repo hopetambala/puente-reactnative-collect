@@ -3,20 +3,20 @@ import SmallCardsCarousel from "@impacto-design-system/Cards/SmallCardsCarousel"
 import { getData, storeData } from "@modules/async-storage";
 import { customFormsQuery } from "@modules/cached-resources";
 import I18n from "@modules/i18n";
-import { layout, theme } from "@modules/theme";
+import { createLayoutStyles } from "@modules/theme";
 import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
-import {
-  Button,
+import {   Button,
   Card,
   IconButton,
   Paragraph,
   Text,
   Title,
+useTheme ,
 } from "react-native-paper";
 
 import FormsHorizontalView from "./FormsHorizontalView";
-import styles from "./index.styles";
+import createStyles from "./index.styles";
 
 function FormGallery({
   navigateToNewRecord,
@@ -27,6 +27,9 @@ function FormGallery({
   setLoading,
   surveyingOrganization,
 }) {
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
+  const styles = createStyles(theme);
   const [customForms, setCustomForms] = useState([]);
   const [workflowData, setWorkflowData] = useState({});
   const [noWorkflowData, setNoWorkflowData] = useState([]);
@@ -90,7 +93,7 @@ function FormGallery({
   };
 
   return (
-    <View>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <View key="puenteForms" style={layout.screenRow}>
         <Text style={styles.header}>{I18n.t("formsGallery.puenteForms")}</Text>
         <SmallCardsCarousel

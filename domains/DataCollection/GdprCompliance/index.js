@@ -1,13 +1,53 @@
 import TermsModal from "@impacto-design-system/Extensions/TermsModal";
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { Button, Checkbox, Text, Title } from "react-native-paper";
+import { Button, Checkbox, Text, Title,useTheme  } from "react-native-paper";
 
 function GdprCompliance({ setConsent }) {
+  const theme = useTheme();
   const [visible, setVisible] = React.useState(false);
   const [checked, setChecked] = React.useState(false);
+
+  // Create styles dynamically based on theme
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          borderRadius: 20,
+          borderWidth: 1,
+          padding: 0,
+          margin: 15,
+          flex: 3,
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "stretch",
+          borderColor: theme.colors.primary,
+        },
+        policyButton: {
+          flex: 1,
+          borderTopWidth: 1,
+          borderTopColor: theme.colors.primary,
+          borderBottomLeftRadius: 20,
+          borderBottomRightRadius: 20,
+        },
+        checkbox: {
+          borderWidth: 1,
+          borderRadius: 5,
+          marginLeft: 20,
+          width: 40,
+        },
+        checkboxContainer: {
+          flexDirection: "row",
+        },
+        checkboxText: {
+          marginLeft: 15,
+          marginTop: 10,
+        },
+      }),
+    [theme.colors.primary]
+  );
+
   const continueToForm = () => {
     if (checked) {
       setConsent(true);
@@ -58,37 +98,3 @@ function GdprCompliance({ setConsent }) {
 }
 
 export default GdprCompliance;
-
-const styles = StyleSheet.create({
-  container: {
-    borderRadius: 20,
-    borderWidth: 1,
-    padding: 0,
-    margin: 15,
-    flex: 3,
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "stretch",
-    borderColor: theme.colors.primary,
-  },
-  policyButton: {
-    flex: 1,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.primary,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-  },
-  checkbox: {
-    borderWidth: 1,
-    borderRadius: 5,
-    marginLeft: 20,
-    width: 40,
-  },
-  checkboxContainer: {
-    flexDirection: "row",
-  },
-  checkboxText: {
-    marginLeft: 15,
-    marginTop: 10,
-  },
-});

@@ -1,12 +1,13 @@
 import ComingSoonSVG from "@assets/graphics/static/Adventurer.svg";
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
 import SmallCardsCarousel from "impacto-design-system/Cards/SmallCardsCarousel";
 import React from "react";
 import { StyleSheet, View } from "react-native";
-import { Text, Title } from "react-native-paper";
+import { Text, Title, useTheme } from "react-native-paper";
 
 function Forms({ puenteForms, navigateToNewRecord, surveyee, setView }) {
+  const theme = useTheme();
+  const styles = createStyles(theme);
   return <View style={styles.container}>
     <Title style={styles.title}>
       {I18n.t("findResident.residentPage.forms.completedForms")}
@@ -30,24 +31,25 @@ function Forms({ puenteForms, navigateToNewRecord, surveyee, setView }) {
   </View>
 }
 
-const styles = StyleSheet.create({
-  container: {
-    margin: 20,
-  },
-  title: {
-    fontWeight: "bold",
-    fontSize: 25,
-  },
-  category: {
-    fontWeight: "bold",
-    fontSize: 15,
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  horizontalLine: {
-    borderBottomColor: theme.colors.primary,
-    borderBottomWidth: 1,
-  },
-});
+const createStyles = (theme) =>
+  StyleSheet.create({
+    container: {
+      margin: 20,
+    },
+    title: {
+      fontWeight: "bold",
+      fontSize: 25,
+    },
+    category: {
+      fontWeight: "bold",
+      fontSize: 15,
+      marginTop: 10,
+      marginBottom: 10,
+    },
+    horizontalLine: {
+      borderBottomColor: theme.colors.primary,
+      borderBottomWidth: 1,
+    },
+  });
 
 export default Forms;

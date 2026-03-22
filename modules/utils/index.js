@@ -8,7 +8,8 @@ const fulfillWithTimeLimit = async (timeLimit, task, failureValue) => {
       resolve(failureValue);
     }, timeLimit);
   });
-  const response = await Promise.race([task, timeoutPromise]);
+  const safeTask = Promise.resolve(task).catch(() => failureValue);
+  const response = await Promise.race([safeTask, timeoutPromise]);
   if (timeout) {
     clearTimeout(timeout);
   }

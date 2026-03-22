@@ -1,7 +1,9 @@
 import I18n from "@modules/i18n";
+import { spacing } from "@modules/theme";
+import PropTypes from "prop-types";
 import React, { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { Button, Dialog, Portal, RadioButton, Text } from "react-native-paper";
+import { Button, Dialog, Portal, RadioButton } from "react-native-paper";
 
 const languages = [
   { key: "en", label: "languagePicker.english" },
@@ -9,8 +11,18 @@ const languages = [
   { key: "hk", label: "languagePicker.creole" },
 ];
 
-function LanguagePicker(props) {
-  const { language, onChangeLanguage } = props;
+const styles = StyleSheet.create({
+  container: {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    alignItems: "flex-start",
+  },
+  button: {
+    borderRadius: spacing.radiusMedium,
+  },
+});
+
+function LanguagePicker({ language, onChangeLanguage }) {
   const [dialogVisible, setDialogVisible] = useState(false);
 
   const selectedLabel =
@@ -55,15 +67,9 @@ function LanguagePicker(props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    alignItems: "flex-start",
-  },
-  button: {
-    borderRadius: 8,
-  },
-});
+LanguagePicker.propTypes = {
+  language: PropTypes.string.isRequired,
+  onChangeLanguage: PropTypes.func.isRequired,
+};
 
 export default LanguagePicker;

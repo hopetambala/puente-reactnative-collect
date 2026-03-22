@@ -1,89 +1,99 @@
-import { theme } from "@modules/theme";
-import { Dimensions, StyleSheet } from "react-native";
+import { spacing, typography } from "@modules/theme";
+import { StyleSheet } from "react-native";
 
-const borderRadius = 20;
+/**
+ * Create Header styles dynamically with theme
+ * Modern design: clean, minimal, uses semantic tokens
+ */
+// eslint-disable-next-line import/prefer-default-export
+export const createHeaderStyles = (theme) => {
+  const { colors } = theme;
 
-const { accent, black } = theme.colors;
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: accent,
-    width: Dimensions.get("window").width,
-    borderBottomRightRadius: borderRadius,
-    borderBottomLeftRadius: borderRadius,
-  },
-  header: {
-    height: 80, // equivalent to flex: 0.2,
-    // width: Dimensions.get('window').width * .99,
-    paddingTop: 20, // for ios
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-evenly",
-    backgroundColor: accent,
-  },
-  headerIcon: {
-    borderRadius: 30,
-    color: black,
-  },
-  headerText: {
-    fontSize: 30,
-    fontWeight: "bold",
-    color: black,
-    flex: 0.7,
-  },
-  calculationText: {
-    fontWeight: "bold",
-    textAlign: "center",
-    padding: 20,
-  },
-  calculationTextLeft: {
-    fontWeight: "bold",
-    textAlign: "center",
-    paddingLeft: 10,
-    paddingTop: 10,
-    paddingBottom: 10,
-    flex: 1,
-  },
-  calculationTextRight: {
-    fontWeight: "bold",
-    textAlign: "center",
-    paddingRight: 10,
-    paddingTop: 10,
-    paddingBottom: 10,
-    flex: 1,
-  },
-  headerFormText: {
-    paddingTop: 20,
-    paddingBottom: 10,
-    marginLeft: "auto",
-    marginRight: "auto",
-    fontSize: 25,
-    fontWeight: "bold",
-  },
-  countContainer: {
-    flexDirection: "row",
-    padding: 10,
-  },
-  label: {
-    marginRight: "auto",
-    marginLeft: Dimensions.get("window").width / 10,
-    fontSize: 15,
-    fontWeight: "bold",
-  },
-  count: {
-    marginLeft: "auto",
-    marginRight: Dimensions.get("window").width / 10,
-    fontSize: 15,
-    fontWeight: "bold",
-    color: theme.colors.primary,
-  },
-  horizontalLineGray: {
-    borderBottomWidth: 1,
-    marginTop: 10,
-    marginBottom: 10,
-    marginRight: Dimensions.get("window").width / 10,
-    marginLeft: Dimensions.get("window").width / 10,
-  },
-});
-
-export default styles;
+  return StyleSheet.create({
+    container: {
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.outline,
+    },
+    header: {
+      height: 56,
+      paddingHorizontal: spacing.md,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      backgroundColor: colors.surface,
+    },
+    title: {
+      fontSize: typography.heading1.fontSize,
+      fontWeight: "600",
+      color: colors.textPrimary,
+      flex: 1,
+      marginLeft: spacing.md,
+    },
+    iconButton: {
+      color: colors.textPrimary,
+    },
+    drawerContent: {
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.md,
+      backgroundColor: colors.background,
+    },
+    greeting: {
+      ...typography.heading2,
+      color: colors.textPrimary,
+      marginVertical: spacing.md,
+      textAlign: "center",
+    },
+    volunteerDate: {
+      ...typography.body1,
+      color: colors.textSecondary,
+      textAlign: "center",
+      marginVertical: spacing.md,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: colors.outline,
+      marginVertical: spacing.md,
+    },
+    successText: {
+      ...typography.body1,
+      color: colors.textPrimary,
+      textAlign: "center",
+      marginVertical: spacing.sm,
+    },
+    errorText: {
+      ...typography.body1,
+      color: colors.error,
+      textAlign: "center",
+      marginVertical: spacing.sm,
+    },
+    buttonContainer: {
+      marginVertical: spacing.sm,
+    },
+    // FormCounts styles
+    headerFormText: {
+      ...typography.heading2,
+      color: colors.textPrimary,
+      marginVertical: spacing.md,
+    },
+    horizontalLineGray: {
+      height: 1,
+      backgroundColor: colors.outline,
+      marginVertical: spacing.sm,
+    },
+    countContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginVertical: spacing.sm,
+    },
+    label: {
+      ...typography.body1,
+      color: colors.textPrimary,
+    },
+    count: {
+      ...typography.body1,
+      color: colors.textSecondary,
+      fontWeight: "600",
+    },
+  });
+};

@@ -1,10 +1,10 @@
 import I18n from "@modules/i18n";
-import { layout } from "@modules/theme";
+import { createLayoutStyles } from "@modules/theme";
 import React from "react";
 import { ScrollView, View } from "react-native";
-import { Card, Text } from "react-native-paper";
+import { Card, Text,useTheme  } from "react-native-paper";
 
-import styles from "../index.styles";
+import createStyles from "../index.styles";
 
 function FormsHorizontalView({
   forms,
@@ -12,7 +12,9 @@ function FormsHorizontalView({
   navigateToCustomForm,
   pinForm,
 }) {
-  return <View style={layout.screenRow}>
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
+  const styles = createStyles(theme);  return <View style={layout.screenRow}>
     {header && (
       <View style={{ flexDirection: "row" }}>
         <Text style={styles.mediumHeader}>{header}</Text>

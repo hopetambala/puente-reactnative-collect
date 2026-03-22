@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   container: {
-    marginHorizontal: 10,
+    flex: 1,
   },
 });
 

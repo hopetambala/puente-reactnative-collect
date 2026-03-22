@@ -1,6 +1,5 @@
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
 import React, { Component } from "react";
 import {
   LogBox,
@@ -13,11 +12,11 @@ import {
 import Autocomplete from "react-native-autocomplete-input";
 import { TextInput } from "react-native-paper";
 
-import { stylesDefault, stylesPaper } from "../index.style";
+import createPaperInputPickerStyles from "../index.style";
 
 LogBox.ignoreAllLogs(true);
 
-export default class AutoFill extends Component {
+class AutoFill extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -65,9 +64,42 @@ export default class AutoFill extends Component {
       formikKey,
       scrollViewScroll,
       setScrollViewScroll,
+      theme,
     } = this.props;
 
+    const { stylesDefault, stylesPaper } = createPaperInputPickerStyles(theme);
     const placeholder = I18n.t(label);
+
+    const styles = StyleSheet.create({
+      container: {
+        flex: 1,
+        paddingLeft: 15,
+        paddingRight: 15,
+        paddingTop: 10,
+        marginBottom: 75,
+      },
+      textInputContainer: {
+        borderColor: theme.colors.primary,
+        borderWidth: 1,
+        borderRadius: 4,
+        paddingBottom: 8,
+        paddingTop: 8,
+        paddingLeft: 10,
+        backgroundColor: theme.colors.surfaceSunken,
+      },
+      itemText: {
+        fontSize: 15,
+        margin: 2,
+        flex: 1,
+        padding: 5,
+        color: theme.colors.textPrimary,
+      },
+      listContainer: {
+        height: 80,
+        borderBottomRightRadius: 4,
+        borderBottomLeftRadius: 4,
+      },
+    });
 
     return (
       <View style={styles.container}>
@@ -100,7 +132,7 @@ export default class AutoFill extends Component {
                 formikProps.setFieldValue(formikKey, text);
               }}
               placeholder={placeholder}
-              placeholderTextColor="black"
+              placeholderTextColor={theme.colors.textPrimary}
               listStyle={styles.listContainer}
               keyExtractor={(item) => item.key}
               onStartShouldSetResponderCapture={() => {
@@ -148,7 +180,7 @@ export default class AutoFill extends Component {
                 formikProps.setFieldValue(formikKey, text);
               }}
               placeholder={placeholder}
-              placeholderTextColor="black"
+              placeholderTextColor={theme.colors.textPrimary}
               listStyle={styles.listContainer}
               keyExtractor={(item) => item.key}
               renderItem={({ item }) => (
@@ -173,33 +205,4 @@ export default class AutoFill extends Component {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingLeft: 15,
-    paddingRight: 15,
-    paddingTop: 10,
-    marginBottom: 75,
-  },
-  textInputContainer: {
-    borderColor: theme.colors.primary,
-    borderWidth: 1,
-    borderRadius: 4,
-    paddingBottom: 8,
-    paddingTop: 8,
-    paddingLeft: 10,
-    backgroundColor: "#FFFFFF",
-  },
-  itemText: {
-    fontSize: 15,
-    margin: 2,
-    flex: 1,
-    padding: 5,
-    color: "#000000",
-  },
-  listContainer: {
-    height: 80,
-    borderBottomRightRadius: 4,
-    borderBottomLeftRadius: 4,
-  },
-});
+export default AutoFill;

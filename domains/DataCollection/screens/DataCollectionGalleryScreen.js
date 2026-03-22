@@ -1,14 +1,18 @@
 import FormGallery from "@app/domains/DataCollection/FormGallery";
 import { puenteForms } from "@app/domains/DataCollection/formsConfig";
 import { UserContext } from "@context/auth.context";
-import { Header } from "@impacto-design-system/Extensions";
 import { getData } from "@modules/async-storage";
-import { layout } from "@modules/theme";
+import I18n from "@modules/i18n";
+import { createLayoutStyles } from "@modules/theme";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useContext, useState } from "react";
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import { Text, useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function DataCollectionGalleryScreen({ navigation }) {
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
   const [scrollViewScroll, setScrollViewScroll] = useState();
   const [loading, setLoading] = useState(false);
   const [pinnedForms, setPinnedForms] = useState([]);
@@ -28,8 +32,6 @@ function DataCollectionGalleryScreen({ navigation }) {
     }, [user])
   );
 
-  const openSettings = () => navigation.navigate("Settings");
-
   const navigateToNewRecord = (formTag, surveyee) => {
     navigation.navigate("DataCollectionForms", {
       formTag: formTag || "id",
@@ -46,23 +48,29 @@ function DataCollectionGalleryScreen({ navigation }) {
   };
 
   return (
-    <View
+    <SafeAreaView
+      edges={["top"]}
       style={layout.screenContainer}
       onStartShouldSetResponderCapture={() => {
         setScrollViewScroll(true);
       }}
     >
-      <Header onOpenSettings={openSettings} />
       <KeyboardAvoidingView
         enabled
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        style={layout.screenContainer}
       >
         {loading === true && <ActivityIndicator />}
         <ScrollView
           keyboardShouldPersistTaps="never"
           scrollEnabled={scrollViewScroll}
+          style={layout.screenContainer}
         >
+          <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+            <Text variant="headlineMedium" style={{ fontWeight: "bold", marginTop: 10 }}>
+              {I18n.t("dataCollection.collectData")}
+            </Text>
+          </View>
           <FormGallery
             navigateToNewRecord={navigateToNewRecord}
             puenteForms={puenteForms}
@@ -74,7 +82,7 @@ function DataCollectionGalleryScreen({ navigation }) {
           />
         </ScrollView>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }
 

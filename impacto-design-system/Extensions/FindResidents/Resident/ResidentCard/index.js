@@ -1,53 +1,111 @@
 import I18n from "@modules/i18n";
-import { layout } from "@modules/theme";
-import React, { useEffect, useState } from "react";
-import { Image, View } from "react-native";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { Text, Title } from "react-native-paper";
+import React, { useMemo } from "react";
+import { StyleSheet, View } from "react-native";
+import { Card, Text, useTheme } from "react-native-paper";
 
 function ResidentCard({ resident, onSelectPerson }) {
-  const { fname, lname, nickname, city, picture, communityname, objectId } =
+  const theme = useTheme();
+  const { fname, lname, nickname, city, communityname, sex, educationLevel, objectId } =
     resident;
-  const [pictureUrl, setPictureUrl] = useState();
-  useEffect(() => {
-    const pic = picture;
-    if (pic) {
-      setPictureUrl({ uri: pic.url });
-    }
-  }, []);
+
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        card: {
+          marginHorizontal: 15,
+          marginVertical: 8,
+        },
+        content: {
+          padding: 14,
+        },
+        name: {
+          fontSize: 16,
+          fontWeight: "bold",
+          color: theme.colors.textPrimary,
+        },
+        nickname: {
+          fontSize: 13,
+          color: theme.colors.textSecondary,
+          marginTop: 2,
+        },
+        meta: {
+          flexDirection: "row",
+          flexWrap: "wrap",
+          marginTop: 8,
+          gap: 12,
+        },
+        metaLabel: {
+          fontSize: 12,
+          color: theme.colors.textTertiary,
+        },
+        metaValue: {
+          fontSize: 12,
+          color: theme.colors.textSecondary,
+          fontWeight: "500",
+        },
+        offlineBadge: {
+          width: 10,
+          height: 10,
+          borderRadius: 5,
+          backgroundColor: theme.colors.error,
+          marginLeft: 6,
+          alignSelf: "center",
+        },
+        nameRow: {
+          flexDirection: "row",
+          alignItems: "center",
+        },
+      }),
+    [theme]
+  );
 
   return (
-    <View>
-      <TouchableOpacity
-        style={layout.resCardContainer}
-        onPress={() => {
-          if (onSelectPerson) onSelectPerson(resident);
-        }}
-      >
-        <View style={layout.resCardNameContainer}>
-          <Title style={layout.resCardName}>{`${fname} ${lname}`}</Title>
+    <Card
+      style={styles.card}
+      onPress={() => onSelectPerson && onSelectPerson(resident)}
+    >
+      <View style={styles.content}>
+        <View style={styles.nameRow}>
+          <Text style={styles.name}>{`${fname} ${lname}`}</Text>
           {objectId.includes("PatientID-") && (
-            <View style={layout.resCardRedCircle} />
+            <View style={styles.offlineBadge} />
           )}
         </View>
-        <Text style={layout.resCardNickname}>{`"${nickname}"`}</Text>
-        <Image style={layout.resCardProfPic} source={pictureUrl} />
-        <View style={layout.resCardCityLicenseContainer}>
-          <View style={layout.resCardCityContainer}>
-            <Text style={layout.resCardFont}>
+        {nickname ? (
+          <Text style={styles.nickname}>{`"${nickname}"`}</Text>
+        ) : null}
+        <View style={styles.meta}>
+          <View>
+            <Text style={styles.metaLabel}>
               {I18n.t("findResident.residentCard.city")}
             </Text>
-            <Text style={layout.resCardFont}>{city}</Text>
+            <Text style={styles.metaValue}>{city}</Text>
           </View>
-          <View style={layout.resCardLicenseContainer}>
-            <Text style={layout.resCardFont}>
+          <View>
+            <Text style={styles.metaLabel}>
               {I18n.t("findResident.residentCard.community")}
             </Text>
-            <Text style={layout.resCardLicense}>{communityname}</Text>
+            <Text style={styles.metaValue}>{communityname}</Text>
           </View>
+          {sex ? (
+            <View>
+              <Text style={styles.metaLabel}>
+                {I18n.t("findResident.residentCard.sex")}
+              </Text>
+              <Text style={styles.metaValue}>{sex}</Text>
+            </View>
+          ) : null}
+          {educationLevel ? (
+            <View>
+              <Text style={styles.metaLabel}>
+                {I18n.t("findResident.residentCard.educationLevel")}
+              </Text>
+              <Text style={styles.metaValue}>{educationLevel}</Text>
+            </View>
+          ) : null}
         </View>
-      </TouchableOpacity>
-    </View>
+      </View>
+    </Card>
   );
 }
 

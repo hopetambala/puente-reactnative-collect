@@ -1,9 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
-import Colors from "@modules/theme/colors";
-import * as React from "react";
+import PropTypes from "prop-types";
+import React from "react";
+import { useTheme } from "react-native-paper";
 
-export default function TabBarIcon(props) {
-  const { name, focused } = props;
+function TabBarIcon({ name, focused }) {
+  const theme = useTheme();
   return (
     <Ionicons
       name={name}
@@ -11,7 +12,16 @@ export default function TabBarIcon(props) {
       style={{
         marginBottom: -3,
       }}
-      color={focused ? Colors.tabIconSelected : Colors.tabIconDefault}
+      color={
+        focused ? theme.colors.primary : theme.colors.textSecondary
+      }
     />
   );
 }
+
+TabBarIcon.propTypes = {
+  name: PropTypes.string.isRequired,
+  focused: PropTypes.bool.isRequired,
+};
+
+export default TabBarIcon;

@@ -1,8 +1,7 @@
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
 import React, { useEffect, useState } from "react";
-import { Image, StyleSheet, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Image, ScrollView, StyleSheet, View } from "react-native";
+import { Button, Text, useTheme } from "react-native-paper";
 
 import Demographics from "./Demographics";
 import Forms from "./Forms";
@@ -21,6 +20,8 @@ function ResidentPage({
   setSurveyee,
   setView,
 }) {
+  const theme = useTheme();
+  const styles = createStyles(theme);
   const [pictureUrl, setPictureUrl] = useState();
   const [demographics, setDemographics] = useState(true);
   const [forms, setForms] = useState(false);
@@ -51,7 +52,7 @@ function ResidentPage({
     setHousehold(true);
   };
   return (
-    <View>
+    <ScrollView style={{ backgroundColor: theme.colors.background, flex: 1 }}>
       <Button icon="arrow-left" width={100} onPress={() => setSelectPerson()}>
         {I18n.t("dataCollection.back")}
       </Button>
@@ -121,51 +122,56 @@ function ResidentPage({
       <Button onPress={() => setSelectPerson()}>
         {I18n.t("findResident.residentPage.household.goBack")}
       </Button>
-    </View>
+    </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  profPic: {
-    width: 100,
-    height: 100,
-    borderWidth: 1,
-    borderRadius: 10,
-    borderColor: "#D0D0D0",
-  },
-  picNameContainer: {
-    flexDirection: "row",
-    margin: 14,
-  },
-  nameContainer: {
-    flexDirection: "row",
-  },
-  name: {
-    color: "#696969",
-    flexShrink: 1,
-    marginVertical: 7,
-  },
-  button: {
-    width: 120,
-    marginLeft: -5,
-  },
-  buttonContent: {
-    marginLeft: 0,
-  },
-  horizontalLine: {
-    borderBottomColor: theme.colors.primary,
-    borderBottomWidth: 1,
-  },
-  navigationButtonsContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-  },
-  navigationButton: {
-    flex: 1,
-  },
-  navigationButtonText: {
-    fontWeight: "bold",
-  },
-});
+const createStyles = (theme) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+    profPic: {
+      width: 100,
+      height: 100,
+      borderWidth: 1,
+      borderRadius: 10,
+      borderColor: theme.colors.border,
+    },
+    picNameContainer: {
+      flexDirection: "row",
+      margin: 14,
+    },
+    nameContainer: {
+      flexDirection: "row",
+    },
+    name: {
+      color: theme.colors.textTertiary,
+      flexShrink: 1,
+      marginVertical: 7,
+    },
+    button: {
+      width: 120,
+      marginLeft: -5,
+    },
+    buttonContent: {
+      marginLeft: 0,
+    },
+    horizontalLine: {
+      borderBottomColor: theme.colors.primary,
+      borderBottomWidth: 1,
+    },
+    navigationButtonsContainer: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+    },
+    navigationButton: {
+      flex: 1,
+    },
+    navigationButtonText: {
+      fontWeight: "bold",
+    },
+  });
 
 export default ResidentPage;

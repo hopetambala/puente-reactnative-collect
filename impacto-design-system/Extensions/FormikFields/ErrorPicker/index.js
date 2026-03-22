@@ -1,7 +1,7 @@
 import I18n from "@modules/i18n";
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
-import { Snackbar } from "react-native-paper";
+import { Snackbar, useTheme } from "react-native-paper";
 
 /**
     Display Errors for ID, Supplementary and custom forms i.e.
@@ -16,6 +16,7 @@ import { Snackbar } from "react-native-paper";
 * */
 
 function ErrorPicker({ formikProps, inputs }) {
+  const theme = useTheme();
   const { errors, isSubmitting } = formikProps;
   const [formErrors, setFormErrors] = useState([]);
   const [visible, setVisible] = useState(false);
@@ -56,7 +57,7 @@ function ErrorPicker({ formikProps, inputs }) {
         onDismiss={dismissSnackBar}
         duration={8500}
         style={{
-          backgroundColor: "red",
+          backgroundColor: theme.colors.error,
           fontSize: 130,
         }}
       >

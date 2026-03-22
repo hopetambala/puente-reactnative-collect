@@ -1,13 +1,13 @@
 import { Button as PaperButton, PopupError } from "@impacto-design-system/Base";
 import getLocation from "@modules/geolocation";
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
 import { fulfillWithTimeLimit } from "@modules/utils";
 import React, { useState } from "react";
-import { ActivityIndicator , Text, View } from "react-native";
-import { Headline } from "react-native-paper";
+import { ActivityIndicator, View } from "react-native";
+import { Text, useTheme } from "react-native-paper";
 
 function Geolocation({ errors, formikKey, setFieldValue }) {
+  const theme = useTheme();
   const [location, setLocation] = useState({
     latitude: 0,
     longitude: 0,
@@ -70,15 +70,15 @@ function Geolocation({ errors, formikKey, setFieldValue }) {
             )}
             {locationLoading === false && (
               <View>
-                <Headline>
+                <Text variant="headlineMedium">
                   {`(${location.latitude.toFixed(
                     2
                   )}, ${location.longitude.toFixed(2)})`}
-                </Headline>
+                </Text>
               </View>
             )}
           </View>
-          <Text style={{ color: "red" }}>{errors[formikKey]}</Text>
+          <Text style={{ color: theme.colors.error }}>{errors[formikKey]}</Text>
         </View>
       )}
       <PopupError

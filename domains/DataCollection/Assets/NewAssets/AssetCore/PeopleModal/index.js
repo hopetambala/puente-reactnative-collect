@@ -1,9 +1,8 @@
 import { Button as PaperButton } from "@impacto-design-system/Base";
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
 import React from "react";
 import { KeyboardAvoidingView, ScrollView, View } from "react-native";
-import { Appbar, TextInput } from "react-native-paper";
+import { Appbar, TextInput, useTheme } from "react-native-paper";
 
 function PeopleModal({
   people,
@@ -14,8 +13,9 @@ function PeopleModal({
   stylesPaper,
   stylesDefault,
 }) {
+  const theme = useTheme();
   return <>
-    <Appbar.Header style={{ backgroundColor: theme.colors.accent }}>
+    <Appbar.Header style={{ backgroundColor: theme.colors.surfaceRaised }}>
       <Appbar.Action icon="chevron-down" onPress={toggleModal} />
       <Appbar.Content
         title="People Manager"

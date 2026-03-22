@@ -2,7 +2,7 @@ import I18n from "@modules/i18n";
 import * as MailComposer from "expo-mail-composer";
 import React, { useState } from "react";
 import { View } from "react-native";
-import { Button, Headline, Text, TextInput } from "react-native-paper";
+import { Button, Text, TextInput } from "react-native-paper";
 
 import styles from "../../../index.styles";
 
@@ -23,7 +23,7 @@ function Feedback() {
 
   return (
     <View style={styles.mainContainer}>
-      <Headline>{I18n.t("feedback.feedback")}</Headline>
+      <Text variant="headlineMedium">{I18n.t("feedback.feedback")}</Text>
       <View style={styles.horizontalLinePrimary} />
       <Text>{I18n.t("feedback.enterFeedback")}</Text>
       <View style={styles.horizontalLinePrimary} />

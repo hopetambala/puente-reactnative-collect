@@ -113,7 +113,7 @@ export default function ForgotPassword({ navigation, setForgotPassword }) {
           <Button
             mode="text"
             theme={theme}
-            color="#3E81FD"
+            color={theme.colors.link}
             onPress={handleSignUp}
             labelStyle={{ marginLeft: 5 }}
           >

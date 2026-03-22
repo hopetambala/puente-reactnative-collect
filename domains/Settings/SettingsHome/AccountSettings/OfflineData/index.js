@@ -7,11 +7,12 @@ import { PaperInputPicker } from "@impacto-design-system/Extensions";
 import { deleteData, getData } from "@modules/async-storage";
 import { cacheResidentDataMulti } from "@modules/cached-resources";
 import I18n from "@modules/i18n";
-import { layout } from "@modules/theme";
+import { createLayoutStyles } from "@modules/theme";
 import { Formik } from "formik";
 import _ from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
+import { useTheme } from "react-native-paper";
 
 import configArray from "./config/config";
 
@@ -20,6 +21,8 @@ function OfflineData({
   scrollViewScroll,
   setScrollViewScroll,
 }) {
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
   const [inputs, setInputs] = useState({});
   const [cacheSuccess, setCacheSuccess] = useState(false);
   const [submittedForms, setSubmittedForms] = useState(0);
@@ -54,7 +57,7 @@ function OfflineData({
                 onPress={repopulateAllData}
                 buttonText="Populate all ID Forms"
                 loading={!!isLoading}
-                style={{ backgroundColor: "blue" }}
+                style={{ backgroundColor: theme.colors.info }}
               />
               {inputs.length &&
                 inputs.map((result) => (
@@ -80,15 +83,15 @@ function OfflineData({
                 icon={_.isEmpty(formikProps.values) ? "alert-octagon" : "plus"}
                 style={{
                   backgroundColor: _.isEmpty(formikProps.values)
-                    ? "#FFDDDD"
-                    : "green",
+                    ? theme.colors.errorContainer
+                    : theme.colors.success,
                 }}
               />
               <PaperButton
                 onPress={() => deleteData("residentData")}
                 buttonText="Clear Cached ID Forms"
                 icon="delete"
-                style={{ backgroundColor: "red" }}
+                style={{ backgroundColor: theme.colors.error }}
               />
               <PopupSuccess
                 success={cacheSuccess}

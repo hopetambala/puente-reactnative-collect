@@ -14,7 +14,7 @@ import { Formik } from "formik";
 import _ from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Platform, ScrollView, View } from "react-native";
-import { Provider } from "react-native-paper";
+import { Provider, useTheme } from "react-native-paper";
 
 import configArray from "./config/config";
 import styles from "./index.styles";
@@ -27,6 +27,7 @@ function AssetCore({
   surveyingOrganization,
   setPage,
 }) {
+  const theme = useTheme();
   const { alert } = useContext(AlertContext);
   const [inputs, setInputs] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -112,8 +113,8 @@ function AssetCore({
                   }
                   style={{
                     backgroundColor: _.isEmpty(formikProps.values)
-                      ? "red"
-                      : "green",
+                      ? theme.colors.error
+                      : theme.colors.success,
                   }}
                 />
               )}

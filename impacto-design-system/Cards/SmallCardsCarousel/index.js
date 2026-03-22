@@ -1,8 +1,7 @@
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
-import React from "react";
+import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Card, Text } from "react-native-paper";
+import { Card, Text, useTheme } from "react-native-paper";
 
 /**
  * Carousel of Forms that are used for Form Navigation
@@ -30,6 +29,36 @@ function SmallCardsCarousel({
   setUser,
   pinForm,
 }) {
+  const currentTheme = useTheme();
+  
+  const styles = useMemo(() => StyleSheet.create({
+    cardSmallStyle: {
+      height: 110,
+      width: 150,
+      marginHorizontal: 7,
+      marginVertical: 7,
+    },
+    svg: {
+      marginLeft: "auto",
+      marginRight: "auto",
+    },
+    cardContainer: {
+      alignItems: "center",
+      justifyContent: "center",
+      margin: 20,
+    },
+    textContainer: {
+      flexDirection: "row",
+    },
+    text: {
+      flexShrink: 1,
+      textAlign: "center",
+      color: currentTheme.colors.link,
+      fontWeight: "bold",
+      marginVertical: 7,
+    },
+  }), [currentTheme]);
+
   return <ScrollView horizontal>
     {puenteForms.map((form) => (
       <Card
@@ -57,33 +86,5 @@ function SmallCardsCarousel({
     ))}
   </ScrollView>
 }
-
-const styles = StyleSheet.create({
-  cardSmallStyle: {
-    height: 110,
-    width: 150,
-    marginHorizontal: 7,
-    marginVertical: 7,
-  },
-  svg: {
-    marginLeft: "auto",
-    marginRight: "auto",
-  },
-  cardContainer: {
-    alignItems: "center",
-    marginHorizontal: 14,
-    marginVertical: 14,
-  },
-  textContainer: {
-    flexDirection: "row",
-  },
-  text: {
-    flexShrink: 1,
-    textAlign: "center",
-    color: theme.colors.primary,
-    fontWeight: "bold",
-    marginVertical: 7,
-  },
-});
 
 export default SmallCardsCarousel;

@@ -10,13 +10,17 @@ import {
 import React, { useContext, useState } from "react";
 import { ActivityIndicator , View } from "react-native";
 import Emoji from "react-native-emoji";
-import { Button, Headline, IconButton, Text } from "react-native-paper";
+import { Button, IconButton, Text, useTheme } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import FormCounts from "./FormCounts";
-import styles from "./index.styles";
+import { createHeaderStyles } from "./index.styles";
 
 function Header({ setSettings, onOpenSettings, onBack }) {
-  const { header, headerText, headerIcon } = styles;
+  const theme = useTheme();
+  const insets = useSafeAreaInsets();
+  const styles = createHeaderStyles(theme);
+  const { header } = styles;
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [volunteerDate, setVolunteerDate] = useState("");
   const [volunteerGreeting, setVolunteerGreeting] = useState("");
@@ -161,65 +165,72 @@ function Header({ setSettings, onOpenSettings, onBack }) {
 
   return (
     <View style={styles.container}>
-      <View style={header}>
+      <View style={[header, { paddingTop: insets.top }]}>
         {onBack ? (
-          <View style={headerIcon}>
-            <IconButton
-              icon="arrow-left"
-              color={headerIcon.color}
-              size={30}
-              onPress={onBack}
-            />
-          </View>
-        ) : (
-          <View style={headerIcon}>
-            <IconButton color={headerIcon.color} size={30} />
-          </View>
-        )}
-        <Text style={headerText}>{I18n.t("header.puente")}</Text>
-        <View style={headerIcon}>
           <IconButton
-            icon="tune"
-            color={headerIcon.color}
-            size={30}
-            onPress={navToSettings}
+            icon="arrow-left"
+            iconColor={styles.iconButton.color}
+            size={24}
+            onPress={onBack}
           />
-        </View>
+        ) : (
+          <View style={{ width: 48 }} />
+        )}
+        <Text style={styles.title}>{I18n.t("header.puente")}</Text>
+        <IconButton
+          icon="tune"
+          iconColor={styles.iconButton.color}
+          size={24}
+          onPress={navToSettings}
+        />
       </View>
+
       {drawerOpen && (
-        <View>
+        <View style={styles.drawerContent}>
           {!showCounts ? (
-            <View>
-              <Headline style={styles.calculationText}>
+            <>
+              <Text style={styles.greeting}>
                 {volunteerGreeting}
                 <Emoji name="coffee" />
-              </Headline>
-              <View style={{ flexDirection: "row", alignSelf: "center" }}>
-                <Text style={styles.calculationText}>{`${I18n.t(
-                  "header.volunteerSince"
-                )}\n${volunteerDate}`}</Text>
+              </Text>
+              <Text style={styles.volunteerDate}>
+                {`${I18n.t("header.volunteerSince")}\n${volunteerDate}`}
+              </Text>
+
+              <View style={styles.divider} />
+
+              <View style={styles.buttonContainer}>
+                {offlineForms ? (
+                  <Button
+                    mode="contained"
+                    onPress={upload}
+                    loading={isSubmitting}
+                  >
+                    {I18n.t("header.submitOffline")}
+                  </Button>
+                ) : (
+                  <Button mode="contained" disabled>
+                    {I18n.t("header.submitOffline")}
+                  </Button>
+                )}
               </View>
-              {offlineForms ? (
-                <Button onPress={upload}>
-                  {I18n.t("header.submitOffline")}
-                </Button>
-              ) : (
-                <Button disabled>{I18n.t("header.submitOffline")}</Button>
-              )}
-              {isSubmitting && <ActivityIndicator color="blue" />}
-              {isOfflineLoading ? (
-                <ActivityIndicator color="blue" />
-              ) : (
-                <Button onPress={cacheOfflineData}>
+
+              <View style={styles.buttonContainer}>
+                <Button
+                  mode="outlined"
+                  onPress={cacheOfflineData}
+                  loading={isOfflineLoading}
+                >
                   {I18n.t("header.populateOffline")}
                 </Button>
-              )}
-              {!submission && (
+              </View>
+
+              {submission === false && (
                 <View>
-                  <Text style={styles.calculationText}>
+                  <Text style={styles.errorText}>
                     {I18n.t("header.failedAttempt")}
                   </Text>
-                  <Text style={{ alignSelf: "center" }}>
+                  <Text style={styles.successText}>
                     {I18n.t("header.tryAgain")}
                   </Text>
                   <Button onPress={() => setSubmission(null)}>
@@ -227,55 +238,29 @@ function Header({ setSettings, onOpenSettings, onBack }) {
                   </Button>
                 </View>
               )}
-              {submission && (
+
+              {submission === true && (
                 <View>
-                  <Text style={styles.calculationText}>
+                  <Text style={styles.successText}>
                     {I18n.t("header.success")}
                   </Text>
-                  <Text style={{ alignSelf: "center" }}>
+                  <Text style={styles.successText}>
                     {I18n.t("header.justSubmitted")} {offlineFormCount}{" "}
-                    {offlineFormCount > 1 && (
-                      <Text>{I18n.t("header.forms")}</Text>
-                    )}
-                    {offlineFormCount === 1 && (
-                      <Text>{I18n.t("header.form")}</Text>
-                    )}
+                    {offlineFormCount > 1
+                      ? I18n.t("header.forms")
+                      : I18n.t("header.form")}
                   </Text>
                   <Button onPress={() => setSubmission(null)}>
                     {I18n.t("header.ok")}
                   </Button>
                 </View>
               )}
-              <View style={{ flexDirection: "row" }}>
-                <Button
-                  style={styles.calculationTextLeft}
-                  onPress={navToSettings}
-                >
-                  {I18n.t("header.settingsPage")}
-                </Button>
-                <Button
-                  style={styles.calculationTextRight}
-                  onPress={navToCounts}
-                >
-                  {I18n.t("header.surveysCollected")}
-                </Button>
-              </View>
-            </View>
+            </>
           ) : (
-            <FormCounts setShowCounts={setShowCounts} />
+            <FormCounts />
           )}
         </View>
       )}
-      <IconButton
-        size={3}
-        style={{
-          width: 70,
-          backgroundColor: "grey",
-          alignSelf: "center",
-          opacity: 0.5,
-        }}
-        onPress={count}
-      />
     </View>
   );
 }

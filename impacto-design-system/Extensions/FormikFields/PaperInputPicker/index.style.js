@@ -1,94 +1,122 @@
-import { theme } from "@modules/theme";
+import { spacing, typography } from "@modules/theme";
 import { StyleSheet } from "react-native";
 
-const stylesDefault = StyleSheet.create({
-  horizontalLine: {
-    borderBottomColor: "#D0D0D0",
-    borderBottomWidth: 1,
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  inputItem: {
-    flex: 7,
-    marginHorizontal: 5,
-  },
-  multiInputContainer: {
-    flexDirection: "row",
-  },
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 10,
-  },
-  header: {
-    fontWeight: "bold",
-    marginTop: 10,
-  },
-  label: {
-    fontWeight: "bold",
-    color: theme.colors.black,
-    backgroundColor: theme.colors.background,
-  },
-  labelImage: {
-    fontWeight: "bold",
-    color: theme.colors.black,
-    backgroundColor: theme.colors.background,
-    paddingBottom: 10,
-  },
-});
+// Factory function to create dynamic styles with theme colors
+const createPaperInputPickerStyles = (theme) => {
+  const { colors } = theme;
 
-const stylesPaper = {
-  colors: {
-    placeholder: theme.colors.black,
-  },
-  text: theme.colors.priary,
+  const stylesDefault = StyleSheet.create({
+    horizontalLine: {
+      borderBottomColor: colors.outline,
+      borderBottomWidth: 1,
+      marginTop: spacing.md,
+      marginBottom: spacing.md,
+    },
+    inputItem: {
+      flex: 7,
+      marginHorizontal: spacing.xs,
+    },
+    multiInputContainer: {
+      flexDirection: "row",
+    },
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      padding: spacing.md,
+    },
+    header: {
+      ...typography.title1,
+      marginTop: spacing.md,
+    },
+    label: {
+      ...typography.label1,
+      color: colors.onSurface,
+      backgroundColor: colors.background,
+    },
+    labelImage: {
+      ...typography.label1,
+      color: colors.onSurface,
+      backgroundColor: colors.background,
+      paddingBottom: spacing.md,
+    },
+  });
+
+  const stylesPaper = {
+    colors: {
+      placeholder: colors.textTertiary,
+      primary: colors.primary,
+      error: colors.error,
+    },
+  };
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      paddingHorizontal: spacing.md,
+    },
+    button: {
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    errorText: {
+      color: colors.error,
+      fontSize: 12,
+      marginTop: 4,
+    },
+    redText: {
+      color: colors.error,
+    },
+    whiteText: {
+      color: colors.onPrimary,
+    },
+    blackText: {
+      color: colors.onSurface,
+    },
+    primaryText: {
+      color: colors.primary,
+    },
+  });
+
+  const styleX = StyleSheet.create({
+    sideLabel: {
+      flex: 1,
+      marginTop: "auto",
+      marginBottom: "auto",
+      padding: spacing.md,
+      ...typography.body1,
+    },
+    textSplit: {
+      ...typography.heading1,
+      marginLeft: "auto",
+      marginRight: "auto",
+      marginTop: "auto",
+      marginBottom: spacing.lg,
+    },
+  });
+
+  const styleButton = StyleSheet.create({
+    selected: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+      borderWidth: 1,
+      borderRadius: spacing.radiusMedium,
+      alignItems: "center",
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.xs,
+      margin: spacing.xs,
+    },
+    unselected: {
+      borderWidth: 1,
+      borderColor: colors.outline,
+      borderRadius: spacing.radiusMedium,
+      paddingHorizontal: spacing.lg,
+      paddingVertical: spacing.xs,
+      margin: spacing.xs,
+    },
+  });
+
+  return { styleButton, styles, stylesDefault, stylesPaper, styleX };
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    paddingHorizontal: 10,
-  },
-});
-
-const styleX = StyleSheet.create({
-  sideLabel: {
-    flex: 1,
-    marginTop: "auto",
-    marginBottom: "auto",
-    padding: 10,
-    fontSize: 15,
-  },
-  textSplit: {
-    fontSize: 35,
-    marginLeft: "auto",
-    marginRight: "auto",
-    marginTop: "auto",
-    marginBottom: 25,
-  },
-});
-
-const styleButton = StyleSheet.create({
-  selected: {
-    backgroundColor: theme.colors.primary,
-    borderColor: theme.colors.primary,
-    borderWidth: 1,
-    borderRadius: 5,
-    alignItems: "center",
-    color: theme.colors.primary,
-    paddingHorizontal: 15,
-    paddingVertical: 5,
-    margin: 5,
-  },
-  unselected: {
-    borderWidth: 1,
-    borderColor: theme.colors.primary,
-    borderRadius: 5,
-    paddingHorizontal: 15,
-    paddingVertical: 5,
-    margin: 5,
-  },
-});
-
-export { styleButton, styles, stylesDefault, stylesPaper, styleX };
+export default createPaperInputPickerStyles;

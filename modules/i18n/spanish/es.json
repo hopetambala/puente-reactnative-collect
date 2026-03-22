@@ -372,6 +372,8 @@
     "continueToForm": "Continuar con el formulario"
   },
   "dataCollection": {
+    "collectData": "Recopilar datos",
+    "manageAssets": "Gestionar activos",
     "newRecord": "Nuevo record",
     "newAsset": "Nuevo activo",
     "findRecord": "Buscar registro",
@@ -406,7 +408,9 @@
     "typeHere": "Escriba aquí...",
     "residentCard": {
       "city": "Ciudad",
-      "community": "Comunidad"
+      "community": "Comunidad",
+      "sex": "Sexo",
+      "educationLevel": "Educación"
     },
     "residentPage": {
       "demographics": {

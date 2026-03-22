@@ -1,21 +1,23 @@
+// Default export with light theme for backwards compatibility
 import { theme } from "@modules/theme";
 import { StyleSheet } from "react-native";
 
-const styles = StyleSheet.create({
+// Factory function to create dynamic styles with theme
+export const createSettingsStyles = (appTheme) => StyleSheet.create({
   text: {
     flexShrink: 1,
     fontSize: 16,
-    color: "#555",
+    color: appTheme.colors.textSecondary,
     marginVertical: 7,
   },
   horizontalLineGray: {
-    borderBottomColor: "#D0D0D0",
+    borderBottomColor: appTheme.colors.outline,
     borderBottomWidth: 1,
     marginTop: 10,
     marginBottom: 10,
   },
   horizontalLinePrimary: {
-    borderBottomColor: theme.colors.primary,
+    borderBottomColor: appTheme.colors.info,
     borderBottomWidth: 1,
     marginTop: 10,
     marginBottom: 10,
@@ -46,5 +48,5 @@ const styles = StyleSheet.create({
     paddingTop: 10,
   },
 });
-
-export default styles;
+const defaultStyles = createSettingsStyles(theme);
+export default defaultStyles;

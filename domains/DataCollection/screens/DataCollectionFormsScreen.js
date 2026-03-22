@@ -1,21 +1,22 @@
 import Forms from "@app/domains/DataCollection/Forms";
 import { UserContext } from "@context/auth.context";
-import { Header } from "@impacto-design-system/Extensions";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
-import { layout } from "@modules/theme";
+import { createLayoutStyles } from "@modules/theme";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useContext, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Text,
   View,
 } from "react-native";
-import { Button } from "react-native-paper";
+import { Button, Text, useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function DataCollectionFormsScreen({ navigation, route }) {
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
   const [scrollViewScroll, setScrollViewScroll] = useState();
   const [selectedForm, setSelectedForm] = useState(route?.params?.formTag || "id");
   const [customForm, setCustomForm] = useState(route?.params?.customForm);
@@ -50,8 +51,6 @@ function DataCollectionFormsScreen({ navigation, route }) {
     }, [route?.params, user])
   );
 
-  const openSettings = () => navigation.navigate("Settings");
-
   const navigateToGallery = () => {
     navigation.navigate("DataCollectionGallery");
   };
@@ -73,22 +72,28 @@ function DataCollectionFormsScreen({ navigation, route }) {
   };
 
   return (
-    <View
+    <SafeAreaView
+      edges={["top"]}
       style={layout.screenContainer}
       onStartShouldSetResponderCapture={() => {
         setScrollViewScroll(true);
       }}
     >
-      <Header onOpenSettings={openSettings} />
       <KeyboardAvoidingView
         enabled
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        style={layout.screenContainer}
       >
         <ScrollView
           keyboardShouldPersistTaps="never"
           scrollEnabled={scrollViewScroll}
+          style={layout.screenContainer}
         >
+          <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+            <Text variant="headlineMedium" style={{ fontWeight: "bold", marginTop: 10 }}>
+              {I18n.t("dataCollection.collectData")}
+            </Text>
+          </View>
           <Button icon="arrow-left" width={100} onPress={navigateToRoot}>
             <Text>{I18n.t("dataCollection.back")}</Text>
           </Button>
@@ -111,7 +116,7 @@ function DataCollectionFormsScreen({ navigation, route }) {
           />
         </ScrollView>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }
 

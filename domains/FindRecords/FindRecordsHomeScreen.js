@@ -1,14 +1,17 @@
 import { puenteForms } from "@app/domains/DataCollection/formsConfig";
 import { UserContext } from "@context/auth.context";
-import { FindResidents, Header } from "@impacto-design-system/Extensions";
+import { FindResidents } from "@impacto-design-system/Extensions";
 import { getData } from "@modules/async-storage";
-import { layout } from "@modules/theme";
+import { createLayoutStyles } from "@modules/theme";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useContext, useState } from "react";
-import { KeyboardAvoidingView, Platform, View } from "react-native";
+import { KeyboardAvoidingView, Platform } from "react-native";
+import { useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function FindRecordsHomeScreen({ navigation }) {
-  const [scrollViewScroll, setScrollViewScroll] = useState();
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
   const [selectPerson, setSelectPerson] = useState();
   const [surveyee, setSurveyee] = useState({});
   const [surveyingOrganization, setSurveyingOrganization] = useState("");
@@ -24,8 +27,6 @@ function FindRecordsHomeScreen({ navigation }) {
     }, [user])
   );
 
-  const openSettings = () => navigation.navigate("Settings");
-
   const navigateToNewRecord = (formTag, surveyeePerson) => {
     navigation.navigate("FindRecordsForms", {
       formTag: formTag || "id",
@@ -34,17 +35,14 @@ function FindRecordsHomeScreen({ navigation }) {
   };
 
   return (
-    <View
+    <SafeAreaView
+      edges={["top"]}
       style={layout.screenContainer}
-      onStartShouldSetResponderCapture={() => {
-        setScrollViewScroll(true);
-      }}
     >
-      <Header onOpenSettings={openSettings} />
       <KeyboardAvoidingView
         enabled
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+        style={[layout.screenContainer, { flex: 1 }]}
       >
         <FindResidents
           selectPerson={selectPerson}
@@ -56,7 +54,7 @@ function FindRecordsHomeScreen({ navigation }) {
           setSurveyee={setSurveyee}
         />
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }
 

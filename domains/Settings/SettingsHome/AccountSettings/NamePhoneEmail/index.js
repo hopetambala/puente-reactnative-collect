@@ -6,7 +6,6 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
 import {
   Button,
-  Headline,
   IconButton,
   Text,
   TextInput,
@@ -141,7 +140,7 @@ function NamePhoneEmail() {
 
   return (
     <View>
-      <Headline>{I18n.t("namePhoneEmailSettings.namePhoneEmail")}</Headline>
+      <Text variant="headlineMedium">{I18n.t("namePhoneEmailSettings.namePhoneEmail")}</Text>
       <View style={styles.horizontalLinePrimary} />
       {inputs.length > 0 &&
         inputs.map((result) => (

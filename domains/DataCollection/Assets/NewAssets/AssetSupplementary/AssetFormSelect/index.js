@@ -1,13 +1,16 @@
 import { assetFormsQuery } from "@modules/cached-resources";
 import I18n from "@modules/i18n";
-import { layout, theme } from "@modules/theme";
-import React, { useEffect, useState } from "react";
+import { createLayoutStyles } from "@modules/theme";
+import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
-import { Card, IconButton, Text } from "react-native-paper";
+import { Card, IconButton, Text,useTheme  } from "react-native-paper";
 
-import styles from "./index.style";
+import { createAssetFormSelectStyles } from "./index.style";
 
 function AssetFormSelect({ setSelectedForm, surveyingOrganization }) {
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
+  const styles = useMemo(() => createAssetFormSelectStyles(theme), [theme]);
   const [assetForms, setAssetForms] = useState([]);
   const [loading, setLoading] = useState(false);
   useEffect(() => {

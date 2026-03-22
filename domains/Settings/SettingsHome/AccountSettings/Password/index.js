@@ -4,7 +4,7 @@ import { theme } from "@modules/theme";
 import { Parse } from "parse/react-native";
 import React, { useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
-import { Button, Headline, Text, TextInput } from "react-native-paper";
+import { Button, Text, TextInput } from "react-native-paper";
 
 import styles from "../../../index.styles";
 
@@ -86,7 +86,7 @@ function Password() {
 
   return (
     <View>
-      <Headline>{I18n.t("passwordSettings.changePassword")}</Headline>
+      <Text variant="headlineMedium">{I18n.t("passwordSettings.changePassword")}</Text>
       <View style={styles.horizontalLinePrimary} />
       <View style={styles.lineContainer}>
         <Text style={styles.text}>

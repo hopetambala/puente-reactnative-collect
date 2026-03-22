@@ -8,12 +8,12 @@ import yupValidationPicker from "@impacto-design-system/Extensions/FormikFields/
 import { getData } from "@modules/async-storage";
 import { postSupplementaryForm } from "@modules/cached-resources";
 import I18n from "@modules/i18n";
-import { layout, theme } from "@modules/theme";
+import { createLayoutStyles } from "@modules/theme";
 import { isEmpty } from "@modules/utils";
 import { Formik } from "formik";
 import React, { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Platform, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Button, Text,useTheme  } from "react-native-paper";
 
 import envConfig from "./configs/envhealth.config";
 import medConfig from "./configs/medical-evaluation.config";
@@ -33,6 +33,8 @@ function SupplementaryForm({
   surveyingOrganization,
   customForm,
 }) {
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
   const { alert } = useContext(AlertContext);
   const [config, setConfig] = useState({});
   const [photoFile, setPhotoFile] = useState("State Photo String");

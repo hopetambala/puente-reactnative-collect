@@ -1,7 +1,6 @@
-import { theme } from "@modules/theme";
 import { StyleSheet } from "react-native";
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
   cardContainer: {
     alignItems: "center",
     justifyContent: "center",
@@ -13,7 +12,7 @@ const styles = StyleSheet.create({
   text: {
     flexShrink: 1,
     textAlign: "center",
-    color: theme.colors.primary,
+    color: theme.colors.link,
     fontWeight: "bold",
     marginVertical: 7,
   },
@@ -23,4 +22,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default styles;
+export default createStyles;

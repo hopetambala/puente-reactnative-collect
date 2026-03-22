@@ -5,26 +5,33 @@ import SignUp from "@app/domains/Auth/SignUp";
 import SettingsView from "@app/domains/Settings";
 import { AlertContext } from "@context/alert.context";
 import Toast from "@impacto-design-system/Base/Toast";
-import { theme } from "@modules/theme";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useContext } from "react";
 import { Platform, StatusBar, StyleSheet, View } from "react-native";
+import { useTheme } from "react-native-paper";
 
 import BottomTabNavigator from "./BottomTabNavigator";
 import LinkingConfiguration from "./LinkingConfiguration";
 
 const Stack = createNativeStackNavigator();
 
-const { background } = theme.colors;
-
 function MainNavigation() {
-  const { container } = styles;
+  const theme = useTheme();
   const { visible, message, dismiss } = useContext(AlertContext);
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: theme.colors.background,
+    },
+  });
   return (
-    <View style={container}>
+    <View style={styles.container}>
       {Platform.OS === "ios" && <StatusBar />}
-      <NavigationContainer linking={LinkingConfiguration}>
+      <NavigationContainer
+        linking={LinkingConfiguration}
+      >
         <Stack.Navigator>
           <Stack.Screen
             name="Sign In"
@@ -67,12 +74,5 @@ function MainNavigation() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: background,
-  },
-});
 
 export default MainNavigation;

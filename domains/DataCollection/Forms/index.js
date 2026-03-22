@@ -2,7 +2,7 @@ import PostSubmissionSVG from "@app/assets/graphics/static/Submission-Page-Icon.
 import GdprCompliance from "@app/domains/DataCollection/GdprCompliance";
 import ResidentIdSearchbar from "@impacto-design-system/Extensions/ResidentIdSearchbar";
 import I18n from "@modules/i18n";
-import { layout, theme } from "@modules/theme";
+import { createLayoutStyles } from "@modules/theme";
 import React, { useState } from "react";
 import {
   Keyboard,
@@ -10,13 +10,16 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { Button, Card, Text } from "react-native-paper";
+import { Button, Card, Text,useTheme  } from "react-native-paper";
 
 import IdentificationForm from "./IdentificationForm";
-import styles from "./index.styles";
+import createStyles from "./index.styles";
 import SupplementaryForm from "./SupplementaryForm";
 
 function Forms(props) {
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
+  const styles = createStyles(theme);
   const {
     navigation,
     navigateToGallery,
@@ -144,7 +147,7 @@ function Forms(props) {
               )}
             </ScrollView>
             <Button mode="contained" onPress={navigateToGallery}>
-              <Text style={{ color: "white" }}>
+              <Text style={{ color: theme.colors.onSurface }}>
                 {I18n.t("forms.viewGallery")}
               </Text>
             </Button>

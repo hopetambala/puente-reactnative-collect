@@ -3,7 +3,7 @@ import { UserContext } from "@context/auth.context";
 import { Header } from "@impacto-design-system/Extensions";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
-import { layout } from "@modules/theme";
+import { createLayoutStyles } from "@modules/theme";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useContext, useState } from "react";
 import {
@@ -13,9 +13,11 @@ import {
   Text,
   View,
 } from "react-native";
-import { Button } from "react-native-paper";
+import { Button,useTheme  } from "react-native-paper";
 
 function FindRecordsFormsScreen({ navigation, route }) {
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
   const [scrollViewScroll, setScrollViewScroll] = useState();
   const [selectedForm, setSelectedForm] = useState(route?.params?.formTag || "id");
   const [customForm, setCustomForm] = useState(route?.params?.customForm);

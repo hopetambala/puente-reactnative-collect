@@ -1,22 +1,21 @@
 import UseCameraRoll from "@impacto-design-system/Multimedia/CameraRoll";
 import UseCamera from "@impacto-design-system/Multimedia/UseCamera";
 import I18n from "@modules/i18n";
-import { layout, theme } from "@modules/theme";
+import { createLayoutStyles } from "@modules/theme";
 import * as React from "react";
-import { Image, Text, TouchableWithoutFeedback, View } from "react-native";
-import { Button, Headline, TextInput } from "react-native-paper";
+import { Image, TouchableWithoutFeedback, View } from "react-native";
+import {
+  Button,
+  Text,
+  TextInput,
+  useTheme,
+} from "react-native-paper";
 
 import AutoFill from "./AutoFill";
 import AutoFillMS from "./AutoFillMS";
 import Geolocation from "./Geolocation";
 import HouseholdManager from "./HouseholdManager";
-import {
-  styleButton,
-  styles,
-  stylesDefault,
-  stylesPaper,
-  styleX,
-} from "./index.style";
+import createPaperInputPickerStyles from "./index.style";
 import Looper from "./Looper";
 
 function PaperInputPicker({
@@ -31,6 +30,15 @@ function PaperInputPicker({
   setLoopsAdded,
   ...rest
 }) {
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
+  const {
+    styleButton,
+    styles,
+    stylesDefault,
+    stylesPaper,
+    styleX,
+  } = React.useMemo(() => createPaperInputPickerStyles(theme), [theme]);
   const { label, formikKey, fieldType, sideLabel } = data;
 
   const { handleChange, handleBlur, errors, setFieldValue, values } =
@@ -69,7 +77,7 @@ function PaperInputPicker({
             theme={stylesPaper}
             style={stylesDefault.label}
           />
-          <Text style={{ color: "red" }}>{errors[formikKey]}</Text>
+          <Text style={styles.redText}>{errors[formikKey]}</Text>
         </View>
       )}
       {fieldType === "numberInput" && (
@@ -99,7 +107,7 @@ function PaperInputPicker({
             theme={stylesPaper}
             style={stylesDefault.label}
           />
-          <Text style={{ color: "red" }}>{errors[formikKey]}</Text>
+          <Text style={styles.redText}>{errors[formikKey]}</Text>
         </View>
       )}
       {fieldType === "inputSideLabel" && (
@@ -113,13 +121,12 @@ function PaperInputPicker({
               mode="outlined"
               theme={{
                 colors: { placeholder: theme.colors.primary },
-                text: "black",
               }}
               style={{ flex: 1 }}
             />
             <Text style={styleX.sideLabel}>{translatedLabelSide}</Text>
           </View>
-          <Text style={{ color: "red" }}>{errors[formikKey]}</Text>
+          <Text style={styles.redText}>{errors[formikKey]}</Text>
         </View>
       )}
       {fieldType === "inputSideLabelNum" && (
@@ -137,7 +144,11 @@ function PaperInputPicker({
             />
             <Text style={styleX.sideLabel}>{translatedLabelSide}</Text>
           </View>
-          <Text style={{ color: "red" }}>{errors[formikKey]}</Text>
+          {errors[formikKey] && (
+            <Text style={styles.errorText}>
+              {errors[formikKey]}
+            </Text>
+          )}
         </View>
       )}
       {fieldType === "inputSideLabelTextQuestNumber" && (
@@ -152,13 +163,12 @@ function PaperInputPicker({
               keyboardType="numeric"
               theme={{
                 colors: { placeholder: theme.colors.primary },
-                text: "black",
               }}
               style={{ flex: 1 }}
             />
             <Text style={styleX.sideLabel}>{translatedLabelSide}</Text>
           </View>
-          <Text style={{ color: "red" }}>{errors[formikKey]}</Text>
+          <Text style={styles.redText}>{errors[formikKey]}</Text>
         </View>
       )}
       {fieldType === "inputSideBySideLabel" && (
@@ -172,7 +182,6 @@ function PaperInputPicker({
               mode="outlined"
               theme={{
                 colors: { placeholder: theme.colors.primary },
-                text: "black",
               }}
               style={{ flex: 1 }}
             />
@@ -185,12 +194,11 @@ function PaperInputPicker({
               mode="outlined"
               theme={{
                 colors: { placeholder: theme.colors.primary },
-                text: "black",
               }}
               style={{ flex: 1 }}
             />
           </View>
-          <Text style={{ color: "red" }}>{errors[formikKey]}</Text>
+          <Text style={styles.redText}>{errors[formikKey]}</Text>
         </View>
       )}
       {fieldType === "select" && (
@@ -208,7 +216,7 @@ function PaperInputPicker({
                   >
                     <View style={styleButton.selected}>
                       <View style={styles.button}>
-                        <Text style={{ color: "white" }}>
+                        <Text style={styles.whiteText}>
                           {customForm ? result.label : I18n.t(result.label)}
                         </Text>
                       </View>
@@ -221,7 +229,7 @@ function PaperInputPicker({
                     onPress={() => setFieldValue(formikKey, result.value)}
                   >
                     <View style={styleButton.unselected}>
-                      <Text style={{ color: theme.colors.primary }}>
+                      <Text style={styles.primaryText}>
                         {customForm ? result.label : I18n.t(result.label)}
                       </Text>
                     </View>
@@ -251,15 +259,14 @@ function PaperInputPicker({
                     mode="outlined"
                     theme={{
                       colors: { placeholder: theme.colors.primary },
-                      text: "black",
                     }}
                   />
-                  <Text style={{ color: "red" }}>{errors[result.textKey]}</Text>
+                  <Text style={styles.redText}>{errors[result.textKey]}</Text>
                 </View>
               )}
             </View>
           ))}
-          <Text style={{ color: "red" }}>{errors[formikKey]}</Text>
+          <Text style={styles.redText}>{errors[formikKey]}</Text>
         </View>
       )}
       {fieldType === "selectMulti" && (
@@ -284,7 +291,7 @@ function PaperInputPicker({
                       >
                         <View style={styleButton.selected}>
                           <View style={styles.button}>
-                            <Text style={{ color: "white" }}>
+                            <Text style={styles.whiteText}>
                               {customForm ? result.label : I18n.t(result.label)}
                             </Text>
                           </View>
@@ -300,7 +307,7 @@ function PaperInputPicker({
                       onPress={() => addArrayVal(result)}
                     >
                       <View style={styleButton.unselected}>
-                        <Text style={{ color: theme.colors.primary }}>
+                        <Text style={styles.primaryText}>
                           {customForm ? result.label : I18n.t(result.label)}
                         </Text>
                       </View>
@@ -336,14 +343,14 @@ function PaperInputPicker({
                         text: "black",
                       }}
                     />
-                    <Text style={{ color: "red" }}>
+                    <Text style={{ color: theme.colors.error }}>
                       {errors[result.textKey]}
                     </Text>
                   </View>
                 )}
             </View>
           ))}
-          <Text style={{ color: "red" }}>{errors[formikKey]}</Text>
+          <Text style={styles.redText}>{errors[formikKey]}</Text>
         </View>
       )}
       {fieldType === "autofill" && (
@@ -356,8 +363,9 @@ function PaperInputPicker({
             translatedLabel={translatedLabel}
             scrollViewScroll={scrollViewScroll}
             setScrollViewScroll={setScrollViewScroll}
+            theme={theme}
           />
-          <Text style={{ color: "red" }}>{errors[formikKey]}</Text>
+          <Text style={styles.redText}>{errors[formikKey]}</Text>
         </View>
       )}
       {fieldType === "autofillms" && (
@@ -371,7 +379,7 @@ function PaperInputPicker({
             scrollViewScroll={scrollViewScroll}
             setScrollViewScroll={setScrollViewScroll}
           />
-          <Text style={{ color: "red" }}>{errors[formikKey]}</Text>
+          <Text style={styles.redText}>{errors[formikKey]}</Text>
         </View>
       )}
       {fieldType === "geolocation" && (
@@ -393,7 +401,7 @@ function PaperInputPicker({
       )}
       {fieldType === "header" && (
         <View key={translatedLabel} style={stylesDefault.container}>
-          <Headline style={stylesDefault.header}>{translatedLabel}</Headline>
+          <Text variant="headlineMedium" style={stylesDefault.header}>{translatedLabel}</Text>
           <View style={stylesDefault.horizontalLine} />
         </View>
       )}
@@ -420,10 +428,9 @@ function PaperInputPicker({
                     mode="outlined"
                     theme={{
                       colors: { placeholder: theme.colors.primary },
-                      text: "black",
                     }}
                   />
-                  <Text style={{ color: "red" }}>
+                  <Text style={styles.redText}>
                     {errors[customForm ? result.label : I18n.t(result.label)]}
                   </Text>
                 </View>
@@ -453,10 +460,9 @@ function PaperInputPicker({
                     maxLength={result.maxLength ? result.maxLength : null}
                     theme={{
                       colors: { placeholder: theme.colors.primary },
-                      text: "black",
                     }}
                   />
-                  <Text style={{ color: "red" }}>{errors[result.value]}</Text>
+                  <Text style={styles.redText}>{errors[result.value]}</Text>
                 </View>
               )
             )}

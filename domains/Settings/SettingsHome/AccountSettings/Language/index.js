@@ -2,7 +2,7 @@ import { getData, storeData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
-import { Button, Headline } from "react-native-paper";
+import { Button, Text } from "react-native-paper";
 
 import styles from "../../../index.styles";
 
@@ -27,7 +27,7 @@ function Language() {
 
   return (
     <View>
-      <Headline>{I18n.t("languageSettings.chooseLanguage")}</Headline>
+      <Text variant="headlineMedium">{I18n.t("languageSettings.chooseLanguage")}</Text>
       <View style={styles.languageContainer}>
         {language === "en" && (
           <Button mode="contained">{I18n.t("languagePicker.english")}</Button>

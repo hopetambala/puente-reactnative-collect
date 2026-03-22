@@ -1,12 +1,11 @@
 import ENV from "@app/environment";
 import { UserContext } from "@context/auth.context";
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
 import * as Linking from "expo-linking";
 import * as StoreReview from "expo-store-review";
 import React, { useContext, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
-import { Button, Headline, IconButton, Text } from "react-native-paper";
+import { Button, IconButton, Text, useTheme } from "react-native-paper";
 
 import styles from "../index.styles";
 import SupportSettings from "./SupportSettings";
@@ -17,6 +16,7 @@ function SupportHome({
   setSettingsView,
   onClose,
 }) {
+  const theme = useTheme();
   const { PUENTE_MANAGE_URL } = ENV;
   const { user } = useContext(UserContext);
   const [supportView, setSupportView] = useState("");
@@ -53,7 +53,14 @@ function SupportHome({
     <View>
       {settingsView === "Support" && supportView === "" && (
         <View>
+       
           <View
+            style={{ paddingHorizontal: 16, paddingVertical: 12 }}
+          >
+            <Text variant="headlineMedium" style={{ fontWeight: "bold", marginTop: 10 }}>
+              {I18n.t("supportHome.helpCenter")}
+            </Text>
+               <View
             style={{
               flexDirection: "row",
               marginLeft: "auto",
@@ -71,12 +78,6 @@ function SupportHome({
               </Button>
             </View>
           </View>
-          <View
-            style={{ paddingLeft: "5%", paddingRight: "5%", paddingTop: 20 }}
-          >
-            <Headline style={{ fontWeight: "bold" }}>
-              {I18n.t("supportHome.helpCenter")}
-            </Headline>
             <View style={styles.horizontalLineGray} />
             {inputs.length > 0 &&
               inputs.map((input) => (
@@ -142,7 +143,7 @@ function SupportHome({
             {I18n.t("accountSettings.logout")}
           </Button>
           <Button
-            color="red"
+            color={theme.colors.error}
             onPress={deleteUser}
             style={{ marginTop: 20, marginLeft: "5%", marginRight: "5%" }}
           >
