@@ -29,7 +29,10 @@
       },
       "channel": "production",
       "environment": "production",
-      "node": "20.19.6"
+      "node": "20.19.6",
+      "env": {
+        "GOOGLE_MAPS_API_KEY": "@GOOGLE_MAPS_API_KEY"
+      }
     }
   },
   "submit": {
