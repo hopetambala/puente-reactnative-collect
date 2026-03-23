@@ -22,7 +22,7 @@
         "image": "latest"
       },
       "android": {
-        "gradleCommand": ":app:bundleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a",
+        "gradleCommand": ":app:bundleRelease",
         "cache": {
           "disabled": false
         }
