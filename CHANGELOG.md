@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [14.0.3](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.2...v14.0.3) (2026-03-23)
+
+
+### Bug fixes
+
+* set compileSdkVersion to 36 via proper expo-build-properties in app.json ([b6bc19c](https://github.com/hopetambala/puente-reactnative-collect/commit/b6bc19c293086b117fd8b9b66014dc7b289c23ae))
+
+
+### Code Refactors
+
+* move architecture optimization to eas.json - pass as gradle argument instead of modifying gradle.properties ([ba620e1](https://github.com/hopetambala/puente-reactnative-collect/commit/ba620e1489de851cd8e28efc76d5b07f1300e581))
+
 ### [14.0.2](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.1...v14.0.2) (2026-03-22)
 
 ### [14.0.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.0...v14.0.1) (2026-03-22)
