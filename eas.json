@@ -21,6 +21,12 @@
       "ios": {
         "image": "latest"
       },
+      "android": {
+        "gradleCommand": ":app:bundleRelease",
+        "cache": {
+          "disabled": false
+        }
+      },
       "channel": "production",
       "environment": "production",
       "node": "20.19.6"
