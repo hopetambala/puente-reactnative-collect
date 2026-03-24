@@ -1,9 +1,27 @@
 import I18n from "@modules/i18n";
-import React from "react";
+import { spacing, typography } from "@modules/theme";
+import React, { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { Text } from "react-native-paper";
+import { Text, useTheme } from "react-native-paper";
+
+const createDemographicsStyles = (theme) => StyleSheet.create({
+  container: {
+    margin: spacing.lg,
+  },
+  labels: {
+    marginTop: spacing.lg,
+    ...typography.body1,
+    color: theme.colors.textSecondary,
+  },
+  topLabel: {
+    ...typography.body1,
+    color: theme.colors.textSecondary,
+  },
+});
 
 function Demographics({ dob, community, province, city, license }) {
+  const theme = useTheme();
+  const styles = useMemo(() => createDemographicsStyles(theme), [theme]);
   return <View style={styles.container}>
     <Text style={styles.topLabel}>
       {I18n.t("findResident.residentPage.demographics.dob")}
@@ -27,19 +45,5 @@ function Demographics({ dob, community, province, city, license }) {
     </Text>
   </View>
 }
-const styles = StyleSheet.create({
-  container: {
-    margin: 20,
-  },
-  labels: {
-    marginTop: 20,
-    fontSize: 17,
-    color: "#696969",
-  },
-  topLabel: {
-    fontSize: 17,
-    color: "#696969",
-  },
-});
 
 export default Demographics;

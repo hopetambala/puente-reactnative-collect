@@ -1,46 +1,70 @@
+import { GlassView } from "@impacto-design-system/Base";
 import I18n from "@modules/i18n";
-// STYLING
-import { theme } from "@modules/theme";
+import { spacing } from "@modules/theme";
+import PropTypes from "prop-types";
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { Button, Headline, Modal, Portal, Text } from "react-native-paper";
+import { Button, Modal, Portal, Text, useTheme } from "react-native-paper";
 
-export default function TermsModal(props) {
-  const { visible, setVisible } = props;
+const createStyles = (theme) =>
+  StyleSheet.create({
+    modal: {
+      backgroundColor: "transparent",
+      padding: 0,
+      margin: spacing.xl,
+      borderRadius: spacing.radiusLarge,
+    },
+    glassContainer: {
+      padding: spacing.xl,
+      borderRadius: spacing.radiusLarge,
+      overflow: "hidden",
+    },
+    button: {
+      marginTop: spacing.xl,
+    },
+  });
+
+function TermsModal({ visible, setVisible }) {
+  const theme = useTheme();
+  const styles = createStyles(theme);
+
   return (
-    <Portal theme={theme}>
+    <Portal>
       <Modal
         visible={visible}
-        theme={theme}
         contentContainerStyle={styles.modal}
         dismissable={false}
       >
-        <ScrollView>
-          <Headline theme={theme}>{I18n.t("termsModal.termsService")}</Headline>
-          <Text>{I18n.t("termsModal.policy")}</Text>
-          <Button
-            mode="contained"
-            theme={theme}
-            color="#3E81FD"
-            style={styles.button}
-            onPress={() => setVisible(false)}
-          >
-            {I18n.t("termsModal.ok")}
-          </Button>
-        </ScrollView>
+        <GlassView
+          style={styles.glassContainer}
+          glassEffectStyle="regular"
+          tintColor="rgba(200, 200, 200, 0.2)"
+        >
+          <ScrollView>
+            <Text variant="headlineMedium" style={{ marginBottom: spacing.md }}>
+              {I18n.t("termsModal.termsService")}
+            </Text>
+            <Text style={{ marginBottom: spacing.lg }}>
+              {I18n.t("termsModal.policy")}
+            </Text>
+            <Button
+              mode="contained"
+              style={styles.button}
+              onPress={() => setVisible(false)}
+            >
+              {I18n.t("termsModal.ok")}
+            </Button>
+          </ScrollView>
+        </GlassView>
       </Modal>
     </Portal>
   );
 }
 
-const styles = StyleSheet.create({
-  modal: {
-    backgroundColor: "white",
-    padding: 30,
-    margin: 30,
-  },
-  button: {
-    marginTop: 30,
-  },
-});
+TermsModal.propTypes = {
+  visible: PropTypes.bool.isRequired,
+  setVisible: PropTypes.func.isRequired,
+};
+
+export default TermsModal;

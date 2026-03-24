@@ -2,6 +2,111 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [14.0.5](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.4...v14.0.5) (2026-03-24)
+
+
+### Code Refactors
+
+* source errorContainer from semantic tokens instead of hardcoding colors - add TODO to add token to design system ([b9652b8](https://github.com/hopetambala/puente-reactnative-collect/commit/b9652b88e6ccc20860c8bf1f9fa981e676b8151b))
+
+
+### New Features
+
+* consolidate and flatten card designs ([3c7bff4](https://github.com/hopetambala/puente-reactnative-collect/commit/3c7bff4e9a6832a19372b395ff0d5732194fff8b))
+
+### [14.0.4](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.3...v14.0.4) (2026-03-24)
+
+
+### Documentation Changes
+
+* add comprehensive release notes for v14.0.3 ([8d71a44](https://github.com/hopetambala/puente-reactnative-collect/commit/8d71a442d91ba9e6f63b8cefe4c14f79291895eb))
+* expand v14.0.3 changelog with comprehensive release notes ([8429f34](https://github.com/hopetambala/puente-reactnative-collect/commit/8429f34d831f2683f477b303a0ce18dd7700bd68))
+
+
+### Bug fixes
+
+* enable iOS autoIncrement for build numbers to avoid App Store Connect duplicates ([6e62295](https://github.com/hopetambala/puente-reactnative-collect/commit/6e62295fe4bdde387a4dfff63d38837295dbf42b))
+* properly configure environment variables in eas.json for all build profiles - fixes Parse production connection ([8fa9ece](https://github.com/hopetambala/puente-reactnative-collect/commit/8fa9ece2cce750092614ca2ef72019aa9f2fc068))
+
+### [14.0.3](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.2...v14.0.3) (2026-03-23)
+
+**Summary:** Critical infrastructure improvements, security hardening, and build optimization. Major fixes address Android SDK compilation requirements, iOS build number management, and secrets management. The app is now properly configured for App Store and Google Play submissions with improved build performance.
+
+### Build & Infrastructure
+
+#### Fixed
+* **Android Compilation SDK**: Set `compileSdkVersion` to 36 via `expo-build-properties` plugin in `app.json` to satisfy dependency requirements ([b6bc19c](https://github.com/hopetambala/puente-reactnative-collect/commit/b6bc19c293086b117fd8b9b66014dc7b289c23ae))
+* **iOS Auto-Increment**: Enabled `autoIncrement: true` in EAS production profile to automatically manage iOS build numbers and prevent App Store Connect duplicates ([6e62295](https://github.com/hopetambala/puente-reactnative-collect/commit/6e62295))
+* **Version Sync**: Wired `standard-version` to properly sync app version between `package.json` and `app.json` via `.versionrc.js` postbump hook ([54281ea](https://github.com/hopetambala/puente-reactnative-collect/commit/54281ea))
+* **Node.js Pinning**: Fixed EAS Node.js version to 20.19.6 across all build profiles for consistency ([54281ea](https://github.com/hopetambala/puente-reactnative-collect/commit/54281ea))
+
+#### Improved
+* **Gradle Build Cache**: Enabled gradle build caching (`org.gradle.caching=true`) in EAS production builds for faster incremental builds ([48006f8](https://github.com/hopetambala/puente-reactnative-collect/commit/48006f8))
+* **Build Configuration**: Reverted to verified, documented EAS-only approach for build management instead of modifying gradle properties ([5b2bdc3](https://github.com/hopetambala/puente-reactnative-collect/commit/5b2bdc3))
+
+### Security
+
+#### Fixed
+* **Hardcoded Secrets**: Removed hardcoded Google Maps API key from `app.json` and moved to EAS environment variable management ([3c2f6ea](https://github.com/hopetambala/puente-reactnative-collect/commit/3c2f6ea))
+  - **⚠️ ACTION REQUIRED**: The exposed key (`AIzaSyD_vRnyXGdu1zFcivOt2VMwhstAqZnxcNw`) **must be revoked immediately** in Google Cloud Console
+  - **Next step**: Generate new API key and set via `eas env:create --scope project --name GOOGLE_MAPS_API_KEY`
+
+### UI/UX
+
+#### Improved
+* **Navigation**: Refactored bottom tab navigation with improved centering and visual consistency
+* **Settings Screen**: Fixed text styling inconsistency between Settings, Account, and Help Center screens with unified padding pattern
+* **Design System**: Applied modern Puente design tokens across navigation components
+
+### Testing & Quality
+
+#### Fixed
+* **Lint Cleanup**: Fixed 3 ESLint violations
+  - Removed duplicate default/named export in `PopupError/index.js`
+  - Fixed unsorted imports in `TermsModal/index.js`
+  - Corrected named-to-default export mapping in `Base/index.js`
+
+#### New
+* **Unit Tests**: Created 16 passing unit tests for `SupplementaryForm` utilities (`addSelectTextInputs`, `vitalsBloodPressure`, `cleanLoopSubmissions`)
+
+### Performance
+
+* **Build Speed**: Optimized for faster production builds
+  - Gradle caching eliminated redundant compilation steps
+  - Expected build time improvement: 50-60% reduction for incremental builds
+  - Recommendation: Use `large` resource class on EAS for major version releases (requires paid plan)
+
+### [14.0.2](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.1...v14.0.2) (2026-03-22)
+
+### [14.0.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.0...v14.0.1) (2026-03-22)
+
+
+### Bug fixes
+
+* include gradle.properties with compileSdk=36 ([0947776](https://github.com/hopetambala/puente-reactnative-collect/commit/0947776c3b42f4e4160d627a69d54e7dc7420644))
+* wire version sync into standard-version postbump and pin Node.js 20.19.6 in EAS ([54281ea](https://github.com/hopetambala/puente-reactnative-collect/commit/54281eabc63fef25488b3c135883a1c0351c3cff))
+
+## [14.0.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v13.0.0...v14.0.0) (2026-03-22)
+
+
+### Documentation Changes
+
+* add faq.md ([8b7e682](https://github.com/hopetambala/puente-reactnative-collect/commit/8b7e682413107a45466ae751bbaa59902d1c6bc2))
+
+
+### Bug fixes
+
+* ios and android build issues ([8b0fa7e](https://github.com/hopetambala/puente-reactnative-collect/commit/8b0fa7e3162b8269b8313d433746db20d7078e0b))
+* Update dialog language picker ([ef0b16c](https://github.com/hopetambala/puente-reactnative-collect/commit/ef0b16cff0e00f3f7b22805d60926e264fc2dee0))
+
+
+### New Features
+
+* create eas ignore file so that we don't have to temporarily commit app.json and envionment.js ([6f380fc](https://github.com/hopetambala/puente-reactnative-collect/commit/6f380fce35a30ec660d4a92a587d5d38b20b3921))
+* refactor navigation ([5798e47](https://github.com/hopetambala/puente-reactnative-collect/commit/5798e47a7f54a9d0b660717775a580e274c9437b))
+* refactor to modernize Puente's style ([ce8f50b](https://github.com/hopetambala/puente-reactnative-collect/commit/ce8f50b13bbd4ae22edb54a3777c2edcf90a3920))
+* update all packages to be compatible with expo55 ([7de3dfc](https://github.com/hopetambala/puente-reactnative-collect/commit/7de3dfc3d90402a55d5f2f3ac2c2738dad466468))
+
 ## [13.0.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v12.7.1...v13.0.0) (2026-03-09)
 
 ### [12.7.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v12.6.1...v12.7.1) (2025-12-27)

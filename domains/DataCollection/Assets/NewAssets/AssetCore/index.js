@@ -1,5 +1,6 @@
 import { cleanLoopSubmissions } from "@app/domains/DataCollection/Forms/SupplementaryForm/utils";
 import surveyingUserFailsafe from "@app/domains/DataCollection/Forms/utils";
+import { AlertContext } from "@context/alert.context";
 import { Button as PaperButton, PopupError } from "@impacto-design-system/Base";
 import {
   ErrorPicker,
@@ -11,9 +12,9 @@ import I18n from "@modules/i18n";
 import { isEmpty } from "@modules/utils";
 import { Formik } from "formik";
 import _ from "lodash";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Platform, ScrollView, View } from "react-native";
-import { Provider } from "react-native-paper";
+import { Provider, useTheme } from "react-native-paper";
 
 import configArray from "./config/config";
 import styles from "./index.styles";
@@ -26,6 +27,8 @@ function AssetCore({
   surveyingOrganization,
   setPage,
 }) {
+  const theme = useTheme();
+  const { alert } = useContext(AlertContext);
   const [inputs, setInputs] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState(false);
@@ -40,43 +43,42 @@ function AssetCore({
         <Formik
           initialValues={{}}
           onSubmit={async (values, { resetForm }) => {
-            const formObject = values;
-            const user = await getData("currentUser");
             setSubmitting(true);
-            formObject.surveyingUser = await surveyingUserFailsafe(
-              user,
-              surveyingUser,
-              isEmpty
-            );
-            formObject.surveyingOrganization = surveyingOrganization;
-            formObject.appVersion = (await getData("appVersion")) || "";
-            formObject.phoneOS = Platform.OS || "";
-            formObject.latitude = values.location?.latitude || 0;
-            formObject.longitude = values.location?.longitude || 0;
-            formObject.altitude = values.location?.altitude || 0;
+            try {
+              const formObject = values;
+              const user = await getData("currentUser");
+              formObject.surveyingUser = await surveyingUserFailsafe(
+                user,
+                surveyingUser,
+                isEmpty
+              );
+              formObject.surveyingOrganization = surveyingOrganization;
+              formObject.appVersion = (await getData("appVersion")) || "";
+              formObject.phoneOS = Platform.OS || "";
+              formObject.latitude = values.location?.latitude || 0;
+              formObject.longitude = values.location?.longitude || 0;
+              formObject.altitude = values.location?.altitude || 0;
 
-            // add any looped values to formObject
-            const formObjectUpdated = cleanLoopSubmissions(values, formObject);
+              const formObjectUpdated = cleanLoopSubmissions(values, formObject);
 
-            const postParams = {
-              parseClass: "Assets",
-              parseUser: user.objectId,
-              signature: "Asset Signature",
-              photoFile: "photo",
-              localObject: formObjectUpdated,
-            };
+              const postParams = {
+                parseClass: "Assets",
+                parseUser: user.objectId,
+                signature: "Asset Signature",
+                photoFile: "photo",
+                localObject: formObjectUpdated,
+              };
 
-            postAssetForm(postParams)
-              .then((e) => {
-                const asset = JSON.parse(JSON.stringify(e));
-                setSelectedAsset(asset);
-              })
-              .then(() => resetForm())
-              .catch((e) => {
-                console.log(e); //eslint-disable-line
-                setSubmissionError(true);
-              });
-            setSubmitting(false);
+              const asset = await postAssetForm(postParams);
+              setSelectedAsset(JSON.parse(JSON.stringify(asset)));
+              resetForm();
+              setSubmitting(false);
+            } catch (e) {
+              console.log(e); //eslint-disable-line
+              setSubmitting(false);
+              setSubmissionError(true);
+              alert(I18n.t("submissionError.error"));
+            }
           }}
         >
           {(formikProps) => (
@@ -111,8 +113,8 @@ function AssetCore({
                   }
                   style={{
                     backgroundColor: _.isEmpty(formikProps.values)
-                      ? "red"
-                      : "green",
+                      ? theme.colors.error
+                      : theme.colors.success,
                   }}
                 />
               )}

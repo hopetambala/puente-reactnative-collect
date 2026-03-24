@@ -134,7 +134,7 @@ const createAssetMockData = (numberOfRecords, userObjectId) => {
     const postParams = {
       parseClass: "Assets",
       parseUser: userObjectId,
-      photoFile: faker.image.imageUrl(),
+      photoFile: faker.image.url(),
       signature: "Asset Signature",
       localObject: {
         name: faker.word.noun(),

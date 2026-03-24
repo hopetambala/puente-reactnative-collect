@@ -1,9 +1,7 @@
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
-  LogBox,
   Platform,
   StyleSheet,
   Text,
@@ -11,15 +9,55 @@ import {
   View,
 } from "react-native";
 import Autocomplete from "react-native-autocomplete-input";
-import { Chip, TextInput } from "react-native-paper";
+import { Chip, TextInput, useTheme } from "react-native-paper";
 import uuid from "react-native-uuid";
 
-import { stylesDefault, stylesPaper } from "../index.style";
+import createPaperInputPickerStyles from "../index.style";
 
-// LogBox.ignoreWarnings(['VirtualizedLists should never be nested']);
-LogBox.ignoreAllLogs(true);
+const createAutoFillMSStyles = (theme) => StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingLeft: 15,
+    paddingRight: 15,
+    paddingTop: 10,
+    marginBottom: 75,
+  },
+  textInputContainer: {
+    borderColor: theme.colors.primary,
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingBottom: 8,
+    paddingTop: 8,
+    paddingLeft: 10,
+    backgroundColor: theme.colors.surfaceSunken,
+  },
+  itemText: {
+    fontSize: 15,
+    margin: 2,
+    flex: 1,
+    padding: 5,
+    color: theme.colors.onSurface,
+  },
+  listContainer: {
+    height: 80,
+    borderBottomRightRadius: 4,
+    borderBottomLeftRadius: 4,
+  },
+  chipRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 10,
+  },
+  chip: {
+    marginRight: 5,
+    marginBottom: 5,
+  },
+});
 
 function AutoFillMS(props) {
+  const theme = useTheme();
+  const styles = useMemo(() => createAutoFillMSStyles(theme), [theme]);
+  const { stylesDefault, stylesPaper } = useMemo(() => createPaperInputPickerStyles(theme), [theme]);
   const [fields, setFields] = useState([]);
   const [query, setQuery] = useState("");
   const [values, setValues] = useState(null);
@@ -98,7 +136,7 @@ function AutoFillMS(props) {
               setQuery(text);
             }}
             placeholder={placeholder}
-            placeholderTextColor="black"
+            placeholderTextColor={theme.colors.onSurface}
             listStyle={styles.listContainer}
             keyExtractor={() => uuid.v4()}
             onStartShouldSetResponderCapture={() => {
@@ -139,7 +177,7 @@ function AutoFillMS(props) {
               setQuery(text);
             }}
             placeholder={placeholder}
-            placeholderTextColor="black"
+            placeholderTextColor={theme.colors.onSurface}
             listStyle={styles.listContainer}
             keyExtractor={() => uuid.v4()}
             renderItem={({ item }) => (
@@ -164,36 +202,5 @@ function AutoFillMS(props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingLeft: 15,
-    paddingRight: 15,
-    paddingTop: 10,
-    marginBottom: 75,
-  },
-  textInputContainer: {
-    borderColor: theme.colors.primary,
-    borderWidth: 1,
-    borderRadius: 4,
-    paddingBottom: 8,
-    paddingTop: 8,
-    paddingLeft: 10,
-    backgroundColor: "#FFFFFF",
-  },
-  itemText: {
-    fontSize: 15,
-    margin: 2,
-    flex: 1,
-    padding: 5,
-    color: "#000000",
-  },
-  listContainer: {
-    height: 80,
-    borderBottomRightRadius: 4,
-    borderBottomLeftRadius: 4,
-  },
-});
 
 export default AutoFillMS;

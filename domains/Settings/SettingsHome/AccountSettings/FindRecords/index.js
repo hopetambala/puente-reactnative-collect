@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
 import {
   Button,
-  Headline,
   IconButton,
   Text,
   TextInput,
@@ -103,7 +102,7 @@ function FindRecords() {
 
   return (
     <View>
-      <Headline>{I18n.t("findRecordSettings.findRecords")}</Headline>
+      <Text variant="headlineMedium">{I18n.t("findRecordSettings.findRecords")}</Text>
       <View style={styles.horizontalLinePrimary} />
       {inputs.length > 0 &&
         inputs.map((result) => (

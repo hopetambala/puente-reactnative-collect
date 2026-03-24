@@ -3,12 +3,13 @@ import { assetDataQuery } from "@modules/cached-resources/index";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator , FlatList, Text, View } from "react-native";
-import { Button, Headline, Searchbar } from "react-native-paper";
+import { ActivityIndicator, FlatList, View } from "react-native";
+import { Button, Searchbar, Text, useTheme } from "react-native-paper";
 
 import styles from "./index.styles";
 
 function AssetSearchbar({ setSelectedAsset, surveyingOrganization }) {
+  const theme = useTheme();
   const [query, setQuery] = useState("");
   const [assetData, setAssetData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -110,7 +111,7 @@ function AssetSearchbar({ setSelectedAsset, surveyingOrganization }) {
 
         <View
           style={{
-            backgroundColor: "#f8380e",
+            backgroundColor: theme.colors.error,
             width: 1,
             height: 10,
             paddingLeft: 10,
@@ -125,9 +126,9 @@ function AssetSearchbar({ setSelectedAsset, surveyingOrganization }) {
 
   return (
     <View>
-      <Headline style={styles.header}>
+      <Text variant="headlineMedium" style={styles.header}>
         {I18n.t("assetSearchbar.searchIndividual")}
-      </Headline>
+      </Text>
       <Searchbar
         placeholder={I18n.t("assetSearchbar.placeholder")}
         onChangeText={onChangeSearch}
@@ -138,7 +139,7 @@ function AssetSearchbar({ setSelectedAsset, surveyingOrganization }) {
           {I18n.t("global.refresh")}
         </Button>
       )}
-      {loading && <ActivityIndicator color="blue" />}
+      {loading && <ActivityIndicator color={theme.colors.primary} />}
       {query !== "" && (
         <FlatList
           data={filterOfflineList(assetData)}

@@ -1,11 +1,13 @@
 import I18n from "@modules/i18n";
-import { layout } from "@modules/theme";
+import { createLayoutStyles } from "@modules/theme";
 import React from "react";
 import { View } from "react-native";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import { Text, Title } from "react-native-paper";
+import { Text, Title,useTheme  } from "react-native-paper";
 
 function SelectedAsset({ selectedMarker, switchAssetPage }) {
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
   return <TouchableWithoutFeedback
     onPress={
       switchAssetPage

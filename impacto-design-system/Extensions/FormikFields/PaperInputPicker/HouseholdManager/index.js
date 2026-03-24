@@ -1,20 +1,22 @@
 import ResidentIdSearchbar from "@impacto-design-system/Extensions/ResidentIdSearchbar";
 import { postHousehold } from "@modules/cached-resources";
 import I18n from "@modules/i18n";
-import { layout, theme } from "@modules/theme";
+import { createLayoutStyles } from "@modules/theme";
 import React, { useState } from "react";
 import { Modal, View } from "react-native";
-import {
-  Appbar,
+import {   Appbar,
   Button,
   RadioButton,
   Text,
   TextInput,
+useTheme ,
 } from "react-native-paper";
 
 import styles from "./index.style";
 
 function HouseholdManager(props) {
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
   const { formikProps, formikKey, surveyingOrganization, values } = props;
   const { setFieldValue, handleBlur, handleChange, errors } = formikProps;
   const [relationships] = useState([
@@ -65,9 +67,15 @@ function HouseholdManager(props) {
       },
     };
 
-    postHousehold(postParams).then((household) => {
-      const { objectId } = household;
+    postHousehold(postParams).then((result) => {
+      // Online: result is a string id; Offline: result is an array of household objects
+      const objectId = typeof result === "string"
+        ? result
+        : result[result.length - 1]?.localObject?.objectId;
       setFieldValue(formikKey, objectId);
+    }).catch((e) => {
+      console.log(e); //eslint-disable-line
+      alert(I18n.t("submissionError.error")); //eslint-disable-line
     });
   };
 
@@ -80,9 +88,15 @@ function HouseholdManager(props) {
         longitude: 0,
       },
     };
-    postHousehold(postParams).then((household) => {
-      const { objectId } = household;
+    postHousehold(postParams).then((result) => {
+      // Online: result is a string id; Offline: result is an array of household objects
+      const objectId = typeof result === "string"
+        ? result
+        : result[result.length - 1]?.localObject?.objectId;
       setFieldValue(formikKey, objectId);
+    }).catch((e) => {
+      console.log(e); //eslint-disable-line
+      alert(I18n.t("submissionError.error")); //eslint-disable-line
     });
     setHouseholdSet(true);
   };
@@ -141,7 +155,7 @@ function HouseholdManager(props) {
 
       {modalView === "second" && (
         <Modal animationType="slide" visible>
-          <Appbar.Header style={{ backgroundColor: theme.colors.accent }}>
+          <Appbar.Header style={{ backgroundColor: theme.colors.surfaceRaised }}>
             <Appbar.BackAction onPress={() => setModalView("first")} />
             <Appbar.Content
               title={I18n.t("householdManager.householdManager")}
@@ -190,10 +204,10 @@ function HouseholdManager(props) {
                   mode="outlined"
                   theme={{
                     colors: { placeholder: theme.colors.primary },
-                    text: "black",
+                    text: theme.colors.textPrimary,
                   }}
                 />
-                <Text style={{ color: "red" }}>{errors.other}</Text>
+                <Text style={{ color: theme.colors.error }}>{errors.other}</Text>
               </View>
             )}
             {selectPerson ? (

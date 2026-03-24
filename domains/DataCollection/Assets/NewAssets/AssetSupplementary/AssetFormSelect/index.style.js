@@ -1,35 +1,36 @@
-import { theme } from "@modules/theme";
+// Default export with light theme for backwards compatibility
+import { spacing, theme, typography } from "@modules/theme";
 import { StyleSheet } from "react-native";
 
-const styles = StyleSheet.create({
-  cardContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    margin: 10,
-  },
-  textContainer: {
-    flexDirection: "row",
-  },
-  text: {
-    flexShrink: 1,
-    textAlign: "center",
-    color: theme.colors.primary,
-    fontWeight: "bold",
-    marginVertical: 7,
-  },
-  header: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  componentContainer: {
-    borderRadius: 10,
-    backgroundColor: "#ccc",
-    shadowColor: "#000",
-    // shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
-  },
-});
-
-export default styles;
+// Factory function to create dynamic styles with theme
+export const createAssetFormSelectStyles = (appTheme) => StyleSheet.create({
+    cardContainer: {
+      alignItems: "center",
+      justifyContent: "center",
+      padding: spacing.lg,
+    },
+    textContainer: {
+      flexDirection: "row",
+      justifyContent: "center",
+    },
+    text: {
+      ...typography.label1,
+      flexShrink: 1,
+      textAlign: "center",
+      color: appTheme.colors.onSurface,
+      fontWeight: "600",
+      marginVertical: spacing.sm,
+    },
+    header: {
+      ...typography.title1,
+      color: appTheme.colors.onSurface,
+      fontWeight: "600",
+      marginBottom: spacing.sm,
+    },
+    componentContainer: {
+      borderRadius: 12,
+      backgroundColor: appTheme.colors.surfaceBase,
+    },
+  });
+const defaultStyles = createAssetFormSelectStyles(theme);
+export default defaultStyles;

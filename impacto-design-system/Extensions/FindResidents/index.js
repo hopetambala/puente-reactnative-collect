@@ -3,11 +3,11 @@ import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
 import React, { useContext, useEffect, useState } from "react";
-import { ActivityIndicator , FlatList, View } from "react-native";
-import { Button, Headline, Searchbar } from "react-native-paper";
+import { ActivityIndicator, FlatList, View } from "react-native";
+import { Button, Searchbar, Text, useTheme } from "react-native-paper";
 
 import parseSearch from "./_utils";
-import styles from "./index.styles";
+import createStyles from "./index.styles";
 import ResidentCard from "./Resident/ResidentCard";
 import ResidentPage from "./Resident/ResidentPage";
 
@@ -21,6 +21,8 @@ function FindResidents({
   setSurveyee,
   setView,
 }) {
+  const theme = useTheme();
+  const styles = createStyles(theme);
   const [query, setQuery] = useState("");
   const [residentsData, setResidentsData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -110,36 +112,34 @@ function FindResidents({
   );
 
   return (
-    <View>
-      <View style={styles.container}>
-        {!selectPerson && (
-          <>
-            <Headline style={styles.header}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      {!selectPerson && (
+        <View style={styles.container}>
+          <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+            <Text style={styles.header}>
               {I18n.t("findResident.searchIndividual")}
-            </Headline>
-            <Searchbar
-              placeholder={I18n.t("findResident.typeHere")}
-              onChangeText={onChangeSearch}
-              value={query}
-            />
-          </>
-        )}
+            </Text>
+          </View>
+          <Searchbar
+            placeholder={I18n.t("findResident.typeHere")}
+            onChangeText={onChangeSearch}
+            value={query}
+          />
 
-        {!online && (
-          <Button onPress={() => fetchData(false, "")}>
-            {I18n.t("global.refresh")}
-          </Button>
-        )}
-        {loading && <ActivityIndicator color="blue" />}
+          {!online && (
+            <Button onPress={() => fetchData(false, "")}>
+              {I18n.t("global.refresh")}
+            </Button>
+          )}
+          {loading && <ActivityIndicator color={theme.colors.primary} />}
 
-        {!selectPerson && (
           <FlatList
             data={online ? residentsData : filterOfflineList(residentsData)}
             renderItem={renderItem}
             keyExtractor={(item) => item.objectId}
           />
-        )}
-      </View>
+        </View>
+      )}
 
       {selectPerson && (
         <ResidentPage
@@ -155,7 +155,7 @@ function FindResidents({
           navigateToNewRecord={navigateToNewRecord}
           surveyee={surveyee}
           setSurveyee={setSurveyee}
-          setView={setView}
+          setView={setView || (() => {})}
         />
       )}
     </View>

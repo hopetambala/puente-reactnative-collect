@@ -3,19 +3,19 @@ import FormInput from "@impacto-design-system/Extensions/FormikFields/FormInput"
 import Autofill from "@impacto-design-system/Extensions/FormikFields/PaperInputPicker/AutoFill";
 import TermsModal from "@impacto-design-system/Extensions/TermsModal";
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
+import { spacing, typography } from "@modules/theme";
 import { Formik } from "formik";
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   StyleSheet,
   View,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { Checkbox, Text } from "react-native-paper";
+import { Checkbox, Text, useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 import * as yup from "yup";
 
 import { UserContext } from "../../../context/auth.context";
@@ -41,8 +41,9 @@ const validationSchema = yup.object().shape({
     .min(4, "Seems a bit short..."),
 });
 
-// export default () => (
+
 export default function SignUp({ navigation }) {
+  const theme = useTheme();
   const [checked, setChecked] = useState(false);
   const [visible, setVisible] = useState(false);
   const [scrollViewScroll, setScrollViewScroll] = useState();
@@ -50,11 +51,56 @@ export default function SignUp({ navigation }) {
 
   const { register } = useContext(UserContext);
 
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        checkbox: {
+          flex: 1,
+          borderRadius: 5,
+          marginLeft: spacing.lg,
+          backgroundColor: theme.colors.surfaceRaised,
+        },
+        container: {
+          flexDirection: "row",
+          marginHorizontal: spacing.xl,
+          marginBottom: spacing.sm,
+        },
+        serviceText: {
+          flex: 5,
+          ...typography.caption,
+          color: theme.colors.textSecondary,
+        },
+        submitButton: {
+          marginHorizontal: spacing.lg,
+          marginTop: spacing.sm,
+          marginBottom: 100,
+        },
+        serviceButton: {
+          marginHorizontal: spacing.lg,
+          marginTop: spacing.sm,
+        },
+        footerContainer: {
+          flexDirection: "row",
+          marginLeft: "auto",
+          marginRight: "auto",
+          backgroundColor: theme.colors.background,
+          marginBottom: 35,
+        },
+        loginText: {
+          ...typography.body1,
+          color: theme.colors.onSurface,
+          marginTop: "auto",
+          marginBottom: "auto",
+        },
+      }),
+    [theme]
+  );
+
   return (
     <KeyboardAvoidingView
       enabled
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ backgroundColor: theme.colors.accent, flex: 1 }}
+      style={{ backgroundColor: theme.colors.background, flex: 1 }}
     >
       <View>
         <Button
@@ -64,7 +110,7 @@ export default function SignUp({ navigation }) {
           style={[styles.serviceButton, { marginTop: 60 }]}
         />
         <ScrollView
-          style={{ backgroundColor: theme.colors.accent }}
+          style={{ backgroundColor: theme.colors.background }}
           keyboardShouldPersistTaps="never"
           scrollEnabled={scrollViewScroll}
         >
@@ -203,44 +249,4 @@ export default function SignUp({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  checkbox: {
-    flex: 1,
-    borderRadius: 5,
-    marginLeft: 20,
-    backgroundColor: "white",
-  },
-  container: {
-    flexDirection: "row",
-    marginLeft: 90,
-    marginRight: 90,
-    marginBottom: 5,
-  },
-  serviceText: {
-    flex: 5,
-    fontSize: 10,
-  },
-  submitButton: {
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 10,
-    marginBottom: 100,
-  },
-  serviceButton: {
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 10,
-  },
-  footerContainer: {
-    flexDirection: "row",
-    marginLeft: "auto",
-    marginRight: "auto",
-    backgroundColor: theme.colors.accent,
-    marginBottom: 35,
-  },
-  loginText: {
-    fontSize: 15,
-    marginTop: "auto",
-    marginBottom: "auto",
-  },
-});
+

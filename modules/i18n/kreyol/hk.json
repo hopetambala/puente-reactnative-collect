@@ -371,6 +371,8 @@
     "continueToForm": "Kontinye nan Fòm lan"
   },
   "dataCollection": {
+    "collectData": "Kolekte done yo",
+    "manageAssets": "Jere byen yo",
     "newRecord": "Nouvo Fòm",
     "newAsset": "Nouvo Byen",
     "findRecord": "Chèche dosye yo",
@@ -405,7 +407,9 @@
     "typeHere": "Tape isit la...",
     "residentCard": {
       "city": "Vil",
-      "community": "Katye"
+      "community": "Katye",
+      "sex": "Sèks",
+      "educationLevel": "Edikasyon"
     },
     "residentPage": {
       "demographics": {

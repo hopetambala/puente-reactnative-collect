@@ -1,13 +1,16 @@
+import { spacing, typography } from "@modules/theme";
 import { StyleSheet } from "react-native";
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
   header: {
+    ...typography.heading2,
     fontWeight: "bold",
-    marginTop: 10,
+    color: theme.colors.onSurface,
+    marginTop: spacing.sm,
   },
   container: {
-    marginHorizontal: 10,
+    flex: 1,
   },
 });
 
-export default styles;
+export default createStyles;

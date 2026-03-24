@@ -7,21 +7,21 @@ import TermsModal from "@impacto-design-system/Extensions/TermsModal";
 import { deleteData, getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
-import { theme } from "@modules/theme";
+import { spacing, typography } from "@modules/theme";
 import { Formik } from "formik";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   View,
 } from "react-native";
-import { Button, Checkbox, Text } from "react-native-paper";
+import { Button, Checkbox, Text, useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 import * as yup from "yup";
 
 import { UserContext } from "../../../context/auth.context";
@@ -37,12 +37,70 @@ const validationSchema = yup.object().shape({
 });
 
 function SignIn({ navigation }) {
+  const theme = useTheme();
   const [checked, setChecked] = useState(false);
   const [language, setLanguage] = useState("en");
   const [visible, setVisible] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
   const { onlineLogin, offlineLogin, isLoading, error } =
     useContext(UserContext);
+
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          flexDirection: "row",
+          flex: 1,
+          marginLeft: 15,
+        },
+        passwordText: {
+          flex: 7,
+          ...typography.body1,
+          marginLeft: spacing.sm,
+          marginTop: "auto",
+          marginBottom: "auto",
+          color: theme.colors.onSurface,
+        },
+        checkbox: {
+          flex: 2,
+          borderRadius: 5,
+          backgroundColor: theme.colors.surfaceRaised,
+        },
+        submitButton: {
+          marginHorizontal: spacing.lg,
+          marginTop: spacing.md,
+          marginBottom: spacing.sm,
+        },
+        footer: {
+          flex: 1,
+        },
+        termsContainer: {
+          flexDirection: "row",
+          marginLeft: "auto",
+          marginRight: "auto",
+        },
+        puenteText: {
+          ...typography.body1,
+          color: theme.colors.textSecondary,
+          marginTop: "auto",
+          marginBottom: "auto",
+        },
+        accountText: {
+          ...typography.body1,
+          fontWeight: "600",
+          color: theme.colors.onSurface,
+          marginTop: "auto",
+          marginBottom: "auto",
+        },
+        logoContainer: {
+          marginTop: spacing.lg,
+          justifyContent: "center",
+          alignItems: "center",
+          marginBottom: spacing.xl,
+        },
+      }),
+    [theme]
+  );
 
   useEffect(() => {
     async function checkLanguage() {
@@ -96,6 +154,7 @@ function SignIn({ navigation }) {
 
   const deleteCreds = () => {
     deleteData("currentUser");
+    deleteData("pinnedForms");
   };
 
   const signin = async (enteredValues, actions) => {
@@ -123,7 +182,7 @@ function SignIn({ navigation }) {
     <KeyboardAvoidingView
       enabled
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ backgroundColor: theme.colors.accent, flex: 1 }}
+      style={{ backgroundColor: theme.colors.background, flex: 1 }}
     >
       {!forgotPassword && (
         <SafeAreaView style={{ flex: 9 }}>
@@ -221,7 +280,7 @@ function SignIn({ navigation }) {
             <Button
               mode="text"
               theme={theme}
-              color="#3E81FD"
+              color={theme.colors.link}
               onPress={handleSignUp}
               labelStyle={{ marginLeft: 5 }}
             >
@@ -244,56 +303,5 @@ function SignIn({ navigation }) {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    flex: 1,
-    marginLeft: 15,
-  },
-  passwordText: {
-    flex: 7,
-    fontSize: 15,
-    marginLeft: 10,
-    marginTop: "auto",
-    marginBottom: "auto",
-  },
-  checkbox: {
-    flex: 2,
-    borderRadius: 5,
-    // marginLeft: 0,
-    backgroundColor: "white",
-  },
-  submitButton: {
-    marginLeft: 20,
-    marginRight: 20,
-    marginTop: 15,
-    marginBottom: 10,
-  },
-  footer: {
-    flex: 1,
-  },
-  termsContainer: {
-    flexDirection: "row",
-    marginLeft: "auto",
-    marginRight: "auto",
-  },
-  puenteText: {
-    fontSize: 15,
-    marginTop: "auto",
-    marginBottom: "auto",
-  },
-  accountText: {
-    fontSize: 18,
-    marginTop: "auto",
-    marginBottom: "auto",
-  },
-  logoContainer: {
-    marginTop: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 40,
-  },
-});
 
 export default SignIn;

@@ -1,11 +1,11 @@
+import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import I18n from "@modules/i18n";
-import { layout } from "@modules/theme";
+import { createLayoutStyles } from "@modules/theme";
 import React from "react";
 import { ScrollView, View } from "react-native";
-import { Card, Text } from "react-native-paper";
-import uuid from "react-native-uuid";
+import { Text, useTheme } from "react-native-paper";
 
-import styles from "../index.styles";
+import createStyles from "../index.styles";
 
 function FormsHorizontalView({
   forms,
@@ -13,7 +13,9 @@ function FormsHorizontalView({
   navigateToCustomForm,
   pinForm,
 }) {
-  return <View key={() => uuid.v4()} style={layout.screenRow}>
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
+  const styles = createStyles(theme);  return <View style={layout.screenRow}>
     {header && (
       <View style={{ flexDirection: "row" }}>
         <Text style={styles.mediumHeader}>{header}</Text>
@@ -21,28 +23,31 @@ function FormsHorizontalView({
     )}
     <ScrollView horizontal>
       {forms.map((form) => (
-          <Card
-            style={layout.cardSmallStyle}
-            onPress={() => navigateToCustomForm(form)}
-            onLongPress={() => pinForm(form)}
-          >
-            <View style={styles.cardContainer}>
-              <View style={styles.textContainer}>
-                <Text style={styles.text}>{form.name}</Text>
-              </View>
+        <ModernCard
+          key={form.objectId || form.name}
+          style={layout.cardSmallStyle}
+          onPress={() => navigateToCustomForm(form)}
+          onLongPress={pinForm ? () => pinForm(form) : undefined}
+        >
+          <View style={styles.cardContainer}>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>{form.name}</Text>
             </View>
-          </Card>
-        ))}
+          </View>
+        </ModernCard>
+      ))}
       {forms?.length < 1 && (
         <View style={layout.screenRow}>
-          <Card key={() => uuid.v4()}>
-            <Card.Title title={I18n.t("formsGallery.noCustomForms")} />
+          <ModernCard key="no-custom-forms">
+            <View style={{ padding: 16 }}>
+              <Text>{I18n.t("formsGallery.noCustomForms")}</Text>
+            </View>
             {/* To be used when marketplace is available */}
             {/* <Card.Content>
                 <Text>{I18n.t('formsGallery.checkOutMarketplace')}</Text>
                 <Button>{I18n.t('formsGallery.viewMarketplace')}</Button>
             </Card.Content> */}
-          </Card>
+          </ModernCard>
         </View>
       )}
     </ScrollView>

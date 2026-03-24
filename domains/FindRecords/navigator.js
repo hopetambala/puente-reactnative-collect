@@ -1,0 +1,26 @@
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import React from "react";
+
+import FindRecordsFormsScreen from "./FindRecordsFormsScreen";
+import FindRecordsHomeScreen from "./FindRecordsHomeScreen";
+
+const Stack = createNativeStackNavigator();
+
+function FindRecordsNavigator() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="FindRecordsHome"
+        component={FindRecordsHomeScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="FindRecordsForms"
+        component={FindRecordsFormsScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+export default FindRecordsNavigator;

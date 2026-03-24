@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
   },
   mapStyle: {
     width: Dimensions.get("window").width * 0.95,
-    height: Dimensions.get("window").height * 0.6,
+    height: Dimensions.get("window").height * 0.5,
     marginTop: 10,
     borderRadius: 10,
   },

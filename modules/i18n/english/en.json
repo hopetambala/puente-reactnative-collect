@@ -372,6 +372,8 @@
     "continueToForm": "Continue to Form"
   },
   "dataCollection": {
+    "collectData": "Collect Data",
+    "manageAssets": "Manage Assets",
     "newRecord": "New Record",
     "newAsset": "New Asset",
     "findRecord": "Find Record",
@@ -406,7 +408,9 @@
     "typeHere": "Type Here...",
     "residentCard": {
       "city": "City",
-      "community": "Community"
+      "community": "Community",
+      "sex": "Sex",
+      "educationLevel": "Education"
     },
     "residentPage": {
       "demographics": {

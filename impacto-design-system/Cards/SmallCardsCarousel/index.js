@@ -1,8 +1,10 @@
+import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import I18n from "@modules/i18n";
 import { theme } from "@modules/theme";
-import React from "react";
+import { getTokens } from "@modules/theme/tokens";
+import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Card, Text } from "react-native-paper";
+import { Text, useTheme } from "react-native-paper";
 
 /**
  * Carousel of Forms that are used for Form Navigation
@@ -30,58 +32,50 @@ function SmallCardsCarousel({
   setUser,
   pinForm,
 }) {
+  const currentTheme = useTheme();
+  const isDark = currentTheme.dark;
+  const tokens = getTokens(isDark ? "dark" : "light");
+  
+  const styles = useMemo(() => StyleSheet.create({
+    cardSmallStyle: {
+      height: 110,
+      width: 150,
+      margin: theme.spacing.sm,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    text: {
+      textAlign: "center",
+      color: tokens.tkDliteSemanticColorTextPrimary,
+      fontWeight: "700",
+      fontSize: 12,
+    },
+  }), [currentTheme]);
+
   return <ScrollView horizontal>
     {puenteForms.map((form) => (
-      <Card
+      <ModernCard
         key={form.tag}
-        style={styles.cardSmallStyle}
+        style={[
+          styles.cardSmallStyle,
+          { backgroundColor: tokens[isDark ? form.colorTokenDark : form.colorTokenLight] }
+        ]}
         onPress={() => {
           if (setUser) {
-            setView("Forms");
+            if (setView) {
+              setView("Forms");
+            }
             navigateToNewRecord(form.tag, surveyee);
           } else {
             navigateToNewRecord(form.tag);
           }
         }}
-        onLongPress={pinForm ? () => pinForm(form) : null}
+        onLongPress={pinForm ? () => pinForm(form) : undefined}
       >
-        <View style={styles.cardContainer}>
-          <form.image height={40} style={styles.svg} />
-          <View style={styles.textContainer}>
             <Text style={styles.text}>{I18n.t(form.name)}</Text>
-          </View>
-        </View>
-      </Card>
+      </ModernCard>
     ))}
   </ScrollView>
 }
-
-const styles = StyleSheet.create({
-  cardSmallStyle: {
-    height: 110,
-    width: 150,
-    marginHorizontal: 7,
-    marginVertical: 7,
-  },
-  svg: {
-    marginLeft: "auto",
-    marginRight: "auto",
-  },
-  cardContainer: {
-    alignItems: "center",
-    marginHorizontal: 14,
-    marginVertical: 14,
-  },
-  textContainer: {
-    flexDirection: "row",
-  },
-  text: {
-    flexShrink: 1,
-    textAlign: "center",
-    color: theme.colors.primary,
-    fontWeight: "bold",
-    marginVertical: 7,
-  },
-});
 
 export default SmallCardsCarousel;

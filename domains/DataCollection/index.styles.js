@@ -1,7 +1,7 @@
-import { theme } from "@modules/theme";
+
 import { StyleSheet } from "react-native";
 
-const styles = StyleSheet.create({
+export const createStyles = (theme) => StyleSheet.create({
   map: {
     marginVertical: 10,
     marginHorizontal: 10,
@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   horizontalLine: {
-    borderBottomColor: theme.colors.primary,
+    borderBottomColor: theme.colors.link,
     borderBottomWidth: 1,
     marginVertical: 10,
   },
@@ -54,10 +54,10 @@ const styles = StyleSheet.create({
   text: {
     flexShrink: 1,
     textAlign: "center",
-    color: theme.colors.primary,
+    color: theme.colors.link,
     fontWeight: "bold",
     marginVertical: 20,
   },
 });
 
-export default styles;
+export default createStyles;

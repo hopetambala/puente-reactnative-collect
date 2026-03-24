@@ -1,6 +1,7 @@
 import selectedENV from "@app/environment";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
+import { getTokens } from "@modules/theme/tokens";
 import Constants from "expo-constants";
 import * as Notifications from "expo-notifications";
 import { toInteger } from "lodash";
@@ -38,11 +39,12 @@ const registerForPushNotificationsAsync = async () => {
   });
 
   if (Platform.OS === "android") {
+    const lightTokens = getTokens("light");
     Notifications.setNotificationChannelAsync("default", {
       name: "default",
       importance: Notifications.AndroidImportance.MAX,
       vibrationPattern: [0, 250, 250, 250],
-      lightColor: "#FF231F7C",
+      lightColor: lightTokens.tkDliteSemanticColorActionSecondary,
     });
   }
   await checkAppVersionAndSendPush(token);

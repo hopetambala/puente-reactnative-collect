@@ -1,8 +1,7 @@
 // STYLING
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
 import { Camera } from "expo-camera";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -10,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Button, Modal, Portal, Text } from "react-native-paper";
+import { Button, Modal, Portal, Text, useTheme } from "react-native-paper";
 
 export default function UseCamera({
   cameraVisible,
@@ -19,10 +18,49 @@ export default function UseCamera({
   formikKey,
   setImage,
 }) {
+  const appTheme = useTheme();
   const [hasPermission, setHasPermission] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
   const [cameraImage, setCameraImage] = useState(null);
   const [zoom, setZoom] = useState(0);
+
+  // Create styles dynamically based on theme
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        modal: {
+          backgroundColor: appTheme.colors.surfaceRaised,
+          width: Dimensions.get("window").width,
+          height: Dimensions.get("window").height,
+        },
+        button: {
+          marginTop: 30,
+        },
+        cameraButtonContainer: {
+          flex: 1,
+          backgroundColor: "rgba(0,0,0,0)",
+          flexDirection: "row",
+        },
+        flipContainer: {
+          flex: 0.2,
+          alignSelf: "flex-end",
+          alignItems: "center",
+        },
+        zoomContainer: {
+          flex: 1,
+          alignSelf: "flex-end",
+          alignItems: "flex-end",
+          alignContent: "flex-end",
+        },
+        cameraButtonText: {
+          fontSize: 24,
+          marginBottom: 10,
+          color: appTheme.colors.onSurface,
+          marginRight: 10,
+        },
+      }),
+    [appTheme.colors]
+  );
 
   useEffect(() => {
     (async () => {
@@ -62,10 +100,10 @@ export default function UseCamera({
     return <Text>{I18n.t("camera.noAccess")}</Text>;
   }
   return (
-    <Portal theme={theme}>
+    <Portal theme={appTheme}>
       <Modal
         visible={cameraVisible}
-        theme={theme}
+        theme={appTheme}
         contentContainerStyle={styles.modal}
         dismissable={false}
       >
@@ -142,36 +180,3 @@ export default function UseCamera({
     </Portal>
   );
 }
-
-const styles = StyleSheet.create({
-  modal: {
-    backgroundColor: "white",
-    width: Dimensions.get("window").width,
-    height: Dimensions.get("window").height,
-  },
-  button: {
-    marginTop: 30,
-  },
-  cameraButtonContainer: {
-    flex: 1,
-    backgroundColor: "transparent",
-    flexDirection: "row",
-  },
-  flipContainer: {
-    flex: 0.2,
-    alignSelf: "flex-end",
-    alignItems: "center",
-  },
-  zoomContainer: {
-    flex: 1,
-    alignSelf: "flex-end",
-    alignItems: "flex-end",
-    alignContent: "flex-end",
-  },
-  cameraButtonText: {
-    fontSize: 24,
-    marginBottom: 10,
-    color: "white",
-    marginRight: 10,
-  },
-});

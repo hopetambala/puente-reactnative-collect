@@ -13,7 +13,6 @@ import { getData } from "@modules/async-storage";
 import { postSupplementaryAssetForm } from "@modules/cached-resources";
 import { storeAppVersion } from "@modules/cached-resources/populate-cache";
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
 import { isEmpty } from "@modules/utils";
 import { Formik } from "formik";
 import React, { useState } from "react";
@@ -24,6 +23,7 @@ import {
   View,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
+import { useTheme } from "react-native-paper";
 
 import AssetFormSelect from "./AssetFormSelect";
 import styles from "./index.styles";
@@ -35,6 +35,7 @@ function AssetSupplementary({
   surveyingUser,
   setPage,
 }) {
+  const theme = useTheme();
   const [selectedForm, setSelectedForm] = useState();
   const [submitting, setSubmitting] = useState(false);
   const [photoFile, setPhotoFile] = useState("State Photo String");
@@ -148,7 +149,7 @@ function AssetSupplementary({
                   <PaperButton
                     disabled={!validForm()}
                     style={{
-                      backgroundColor: validForm() ? "green" : "#f75231",
+                      backgroundColor: validForm() ? theme.colors.success : theme.colors.error,
                     }}
                     onPress={() => formikProps.handleSubmit()}
                     icon={validForm() ? "plus" : "alert-octagon"}

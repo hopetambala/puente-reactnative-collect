@@ -1,26 +1,19 @@
 import ComingSoonSVG from "@app/assets/graphics/static/Adventurer.svg";
-import Header from "@impacto-design-system/Extensions/Header";
-import { getTasksAsync } from "@modules/cached-resources";
+import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import I18n from "@modules/i18n";
-import { layout } from "@modules/theme";
-import React, { useState } from "react";
-import { Text, View } from "react-native";
+import { createLayoutStyles, spacing, typography } from "@modules/theme";
+import React from "react";
+import { View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { Button, Card, Paragraph, Title } from "react-native-paper";
+import { Button, Card, Paragraph, Text, Title, useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function HomeScreen() {
-  const [tasks, setTasks] = useState(null);
-  // const { navigation } = props;
-
-  const showTasks = async () => {
-    await getTasksAsync().then((result) => {
-      setTasks(result);
-    });
-  };
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
 
   return (
-    <View style={layout.screenContainer}>
-      <Header />
+    <SafeAreaView edges={["top"]} style={layout.screenContainer}>
       <ScrollView>
         <View style={layout.screenRow}>
           <Title>{I18n.t("home.myTasks")}</Title>
@@ -28,7 +21,7 @@ function HomeScreen() {
             <Card.Content>
               <ComingSoonSVG width={200} height={200} />
               <Paragraph>{I18n.t("home.comingSoon")}</Paragraph>
-              <Button onPress={showTasks} mode="contained">
+              {/* <Button onPress={showTasks} mode="contained">
                 <Text>{I18n.t("home.tasks")}</Text>
               </Button>
               {tasks != null &&
@@ -36,7 +29,7 @@ function HomeScreen() {
                   <View key={task.task_id}>
                     <Text>{task.name}</Text>
                   </View>
-                ))}
+                ))} */}
             </Card.Content>
           </Card>
         </View>
@@ -54,7 +47,7 @@ function HomeScreen() {
           </Card>
         </View> */}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 

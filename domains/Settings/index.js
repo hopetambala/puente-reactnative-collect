@@ -1,5 +1,11 @@
-import React, { useState } from "react";
+import { UserContext } from "@context/auth.context";
+import I18n from "@modules/i18n";
+import { createLayoutStyles } from "@modules/theme";
+import { CommonActions } from "@react-navigation/native";
+import React, { useContext, useState } from "react";
 import { View } from "react-native";
+import { Text, useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import SettingsHome from "./SettingsHome";
 import SupportHome from "./SupportHome";
@@ -7,20 +13,52 @@ import SupportHome from "./SupportHome";
 function SettingsView({
   logOut,
   setSettings,
+  onClose,
+  navigation,
   surveyingOrganization,
   scrollViewScroll,
   setScrollViewScroll,
 }) {
+  const theme = useTheme();
+  const layout = createLayoutStyles(theme);
+  const { onLogout } = useContext(UserContext);
   const [settingsView, setSettingsView] = useState("Settings");
+
+  const closeSettings = () => {
+    if (onClose) {
+      onClose();
+      return;
+    }
+    if (setSettings) {
+      setSettings(false);
+      return;
+    }
+    if (navigation) {
+      navigation.goBack();
+    }
+  };
+
+  const logoutAction =
+    logOut ||
+    (() =>
+      onLogout().then(() =>
+        navigation?.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: "Sign In" }],
+          })
+        )
+      ));
+
   return (
-    <View>
-      <View style={{ paddingTop: "7%" }}>
+    <SafeAreaView edges={["top"]} style={layout.screenContainer}>
+      <View>
         {settingsView === "Settings" && (
           <SettingsHome
-            logOut={logOut}
+            logOut={logoutAction}
             settingsView={settingsView}
             setSettingsView={setSettingsView}
-            setSettings={setSettings}
+            onClose={closeSettings}
             surveyingOrganization={surveyingOrganization}
             scrollViewScroll={scrollViewScroll}
             setScrollViewScroll={setScrollViewScroll}
@@ -30,12 +68,12 @@ function SettingsView({
           <SupportHome
             settingsView={settingsView}
             setSettingsView={setSettingsView}
-            logOut={logOut}
-            setSettings={setSettings}
+            logOut={logoutAction}
+            onClose={closeSettings}
           />
         )}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

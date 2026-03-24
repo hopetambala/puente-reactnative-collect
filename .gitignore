@@ -30,5 +30,6 @@ environment.js
 app.json
 
 android/ 
+!android/gradle.properties
 # ios/
 
