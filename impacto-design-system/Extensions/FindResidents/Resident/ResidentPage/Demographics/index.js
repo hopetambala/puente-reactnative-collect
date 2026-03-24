@@ -1,19 +1,20 @@
 import I18n from "@modules/i18n";
+import { spacing, typography } from "@modules/theme";
 import React, { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 
 const createDemographicsStyles = (theme) => StyleSheet.create({
   container: {
-    margin: 20,
+    margin: spacing.lg,
   },
   labels: {
-    marginTop: 20,
-    fontSize: 17,
+    marginTop: spacing.lg,
+    ...typography.body1,
     color: theme.colors.textSecondary,
   },
   topLabel: {
-    fontSize: 17,
+    ...typography.body1,
     color: theme.colors.textSecondary,
   },
 });

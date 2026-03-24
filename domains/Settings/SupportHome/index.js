@@ -1,13 +1,14 @@
 import ENV from "@app/environment";
 import { UserContext } from "@context/auth.context";
 import I18n from "@modules/i18n";
+import { spacing, typography } from "@modules/theme";
 import * as Linking from "expo-linking";
 import * as StoreReview from "expo-store-review";
 import React, { useContext, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 import { Button, IconButton, Text, useTheme } from "react-native-paper";
 
-import styles from "../index.styles";
+import { createSettingsStyles } from "../index.styles";
 import SupportSettings from "./SupportSettings";
 
 function SupportHome({
@@ -17,6 +18,7 @@ function SupportHome({
   onClose,
 }) {
   const theme = useTheme();
+  const styles = createSettingsStyles(theme);
   const { PUENTE_MANAGE_URL } = ENV;
   const { user } = useContext(UserContext);
   const [supportView, setSupportView] = useState("");
@@ -54,10 +56,8 @@ function SupportHome({
       {settingsView === "Support" && supportView === "" && (
         <View>
        
-          <View
-            style={{ paddingHorizontal: 16, paddingVertical: 12 }}
-          >
-            <Text variant="headlineMedium" style={{ fontWeight: "bold", marginTop: 10 }}>
+          <View style={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.md }}>
+            <Text style={{ ...typography.heading2, fontWeight: "bold", color: theme.colors.onSurface, marginTop: spacing.sm }}>
               {I18n.t("supportHome.helpCenter")}
             </Text>
                <View

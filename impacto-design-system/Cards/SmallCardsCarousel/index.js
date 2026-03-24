@@ -1,7 +1,9 @@
 import I18n from "@modules/i18n";
+import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { Card, Text, useTheme } from "react-native-paper";
+import { Text, useTheme } from "react-native-paper";
+import { theme } from "@modules/theme";
 
 /**
  * Carousel of Forms that are used for Form Navigation
@@ -35,8 +37,7 @@ function SmallCardsCarousel({
     cardSmallStyle: {
       height: 110,
       width: 150,
-      marginHorizontal: 7,
-      marginVertical: 7,
+     margin: theme.spacing.sm
     },
     svg: {
       marginLeft: "auto",
@@ -45,23 +46,21 @@ function SmallCardsCarousel({
     cardContainer: {
       alignItems: "center",
       justifyContent: "center",
-      margin: 20,
+      flex: 1,
     },
     textContainer: {
-      flexDirection: "row",
+      marginTop: 8,
     },
     text: {
-      flexShrink: 1,
       textAlign: "center",
       color: currentTheme.colors.link,
-      fontWeight: "bold",
-      marginVertical: 7,
+      fontWeight: "600",
     },
   }), [currentTheme]);
 
   return <ScrollView horizontal>
     {puenteForms.map((form) => (
-      <Card
+      <ModernCard
         key={form.tag}
         style={styles.cardSmallStyle}
         onPress={() => {
@@ -74,7 +73,7 @@ function SmallCardsCarousel({
             navigateToNewRecord(form.tag);
           }
         }}
-        onLongPress={pinForm ? () => pinForm(form) : null}
+        onLongPress={pinForm ? () => pinForm(form) : undefined}
       >
         <View style={styles.cardContainer}>
           <form.image height={40} style={styles.svg} />
@@ -82,7 +81,7 @@ function SmallCardsCarousel({
             <Text style={styles.text}>{I18n.t(form.name)}</Text>
           </View>
         </View>
-      </Card>
+      </ModernCard>
     ))}
   </ScrollView>
 }

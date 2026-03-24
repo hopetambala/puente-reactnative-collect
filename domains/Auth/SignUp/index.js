@@ -3,6 +3,7 @@ import FormInput from "@impacto-design-system/Extensions/FormikFields/FormInput"
 import Autofill from "@impacto-design-system/Extensions/FormikFields/PaperInputPicker/AutoFill";
 import TermsModal from "@impacto-design-system/Extensions/TermsModal";
 import I18n from "@modules/i18n";
+import { spacing, typography } from "@modules/theme";
 import { Formik } from "formik";
 import React, { useContext, useMemo, useState } from "react";
 import {
@@ -56,29 +57,27 @@ export default function SignUp({ navigation }) {
         checkbox: {
           flex: 1,
           borderRadius: 5,
-          marginLeft: 20,
-          backgroundColor: theme.colors.surfaceSunken,
+          marginLeft: spacing.lg,
+          backgroundColor: theme.colors.surfaceRaised,
         },
         container: {
           flexDirection: "row",
-          marginLeft: 90,
-          marginRight: 90,
-          marginBottom: 5,
+          marginHorizontal: spacing.xl,
+          marginBottom: spacing.sm,
         },
         serviceText: {
           flex: 5,
-          fontSize: 10,
+          ...typography.caption,
+          color: theme.colors.textSecondary,
         },
         submitButton: {
-          marginLeft: 20,
-          marginRight: 20,
-          marginTop: 10,
+          marginHorizontal: spacing.lg,
+          marginTop: spacing.sm,
           marginBottom: 100,
         },
         serviceButton: {
-          marginLeft: 20,
-          marginRight: 20,
-          marginTop: 10,
+          marginHorizontal: spacing.lg,
+          marginTop: spacing.sm,
         },
         footerContainer: {
           flexDirection: "row",
@@ -88,7 +87,8 @@ export default function SignUp({ navigation }) {
           marginBottom: 35,
         },
         loginText: {
-          fontSize: 15,
+          ...typography.body1,
+          color: theme.colors.onSurface,
           marginTop: "auto",
           marginBottom: "auto",
         },

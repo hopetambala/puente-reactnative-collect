@@ -1,4 +1,5 @@
 import I18n from "@modules/i18n";
+import { spacing, typography } from "@modules/theme";
 import React, { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { Card, Text, useTheme } from "react-native-paper";
@@ -12,34 +13,35 @@ function ResidentCard({ resident, onSelectPerson }) {
     () =>
       StyleSheet.create({
         card: {
-          marginHorizontal: 15,
-          marginVertical: 8,
+          marginHorizontal: spacing.md,
+          marginVertical: spacing.sm,
+          backgroundColor: theme.colors.surfaceRaised,
         },
         content: {
-          padding: 14,
+          padding: spacing.md,
         },
         name: {
-          fontSize: 16,
-          fontWeight: "bold",
+          ...typography.title2,
+          fontWeight: "700",
           color: theme.colors.textPrimary,
         },
         nickname: {
-          fontSize: 13,
+          ...typography.body2,
           color: theme.colors.textSecondary,
-          marginTop: 2,
+          marginTop: spacing.xs,
         },
         meta: {
           flexDirection: "row",
           flexWrap: "wrap",
-          marginTop: 8,
-          gap: 12,
+          marginTop: spacing.sm,
+          gap: spacing.md,
         },
         metaLabel: {
-          fontSize: 12,
+          ...typography.caption,
           color: theme.colors.textTertiary,
         },
         metaValue: {
-          fontSize: 12,
+          ...typography.caption,
           color: theme.colors.textSecondary,
           fontWeight: "500",
         },

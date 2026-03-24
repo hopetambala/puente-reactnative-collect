@@ -1,6 +1,6 @@
 import { ThemeContext } from "@context/theme.context";
 import I18n from "@modules/i18n";
-import { spacing } from "@modules/theme";
+import { spacing, typography } from "@modules/theme";
 import React, { useContext, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import {
@@ -11,7 +11,7 @@ import {
   useTheme,
 } from "react-native-paper";
 
-import styles from "../index.styles";
+import { createSettingsStyles } from "../index.styles";
 import AccountSettings from "./AccountSettings";
 
 // Safe defaults in case spacing is undefined
@@ -27,19 +27,18 @@ const createStyles = (theme) => {
   return StyleSheet.create({
     settingsContainer: {
       paddingHorizontal: safeSpacing.lg,
-      paddingVertical: 12,
+      paddingVertical: safeSpacing.md,
     },
     themeContainer: {
-      paddingLeft: safeSpacing.md,
-      paddingRight: safeSpacing.md,
+      paddingHorizontal: safeSpacing.md,
       paddingTop: safeSpacing.lg,
       marginBottom: safeSpacing.xl,
     },
     themeLabel: {
-      fontSize: 16,
+      ...typography.title3,
       fontWeight: "600",
       marginBottom: safeSpacing.md,
-      color: theme.colors.textPrimary,
+      color: theme.colors.onSurface,
     },
   });
 };
@@ -56,6 +55,7 @@ function SettingsHome({
   const paperTheme = useTheme();
   const themeContext = useContext(ThemeContext);
   const settingsStyles = useMemo(() => createStyles(paperTheme), [paperTheme]);
+  const styles = useMemo(() => createSettingsStyles(paperTheme), [paperTheme]);
   const [accountSettingsView, setAccountSettingsView] = useState("");
 
   const inputs = [
@@ -96,7 +96,7 @@ function SettingsHome({
       {settingsView === "Settings" && accountSettingsView === "" && (
         <View>
           <View style={settingsStyles.settingsContainer}>
-            <Text variant="headlineMedium" style={{ fontWeight: "bold", marginTop: 10 }}>
+            <Text style={{ ...typography.heading2, fontWeight: "bold", color: paperTheme.colors.onSurface, marginTop: spacing.sm }}>
               {I18n.t("accountSettings.accountSettings")}
             </Text>
                       <View

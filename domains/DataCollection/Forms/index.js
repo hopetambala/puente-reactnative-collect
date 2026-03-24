@@ -1,6 +1,7 @@
 import PostSubmissionSVG from "@app/assets/graphics/static/Submission-Page-Icon.svg";
 import GdprCompliance from "@app/domains/DataCollection/GdprCompliance";
 import ResidentIdSearchbar from "@impacto-design-system/Extensions/ResidentIdSearchbar";
+import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
 import React, { useState } from "react";
@@ -10,7 +11,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { Button, Card, Text,useTheme  } from "react-native-paper";
+import { Button, Text, useTheme } from "react-native-paper";
 
 import IdentificationForm from "./IdentificationForm";
 import createStyles from "./index.styles";
@@ -122,7 +123,7 @@ function Forms(props) {
                   } = form;
                   const formName = isCustomForm ? name : I18n.t(name);
                   return (
-                    <Card
+                    <ModernCard
                       key={objectId ?? tag}
                       style={layout.cardSmallStyle}
                       onPress={() => {
@@ -135,14 +136,16 @@ function Forms(props) {
                           <Text style={styles.text}>{formName}</Text>
                         </View>
                       </View>
-                    </Card>
+                    </ModernCard>
                   );
                 })}
               {pinnedForms.length < 1 && (
                 <View style={layout.screenRow}>
-                  <Card>
-                    <Card.Title title={I18n.t("formsGallery.noPinnedForms")} />
-                  </Card>
+                  <ModernCard>
+                    <View style={{ padding: 16 }}>
+                      <Text>{I18n.t("formsGallery.noPinnedForms")}</Text>
+                    </View>
+                  </ModernCard>
                 </View>
               )}
             </ScrollView>

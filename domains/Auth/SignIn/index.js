@@ -7,6 +7,7 @@ import TermsModal from "@impacto-design-system/Extensions/TermsModal";
 import { deleteData, getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
+import { spacing, typography } from "@modules/theme";
 import { Formik } from "formik";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
@@ -54,22 +55,21 @@ function SignIn({ navigation }) {
         },
         passwordText: {
           flex: 7,
-          fontSize: 15,
-          marginLeft: 10,
+          ...typography.body1,
+          marginLeft: spacing.sm,
           marginTop: "auto",
           marginBottom: "auto",
+          color: theme.colors.onSurface,
         },
         checkbox: {
           flex: 2,
           borderRadius: 5,
-          // marginLeft: 0,
-          backgroundColor: theme.colors.surface,
+          backgroundColor: theme.colors.surfaceRaised,
         },
         submitButton: {
-          marginLeft: 20,
-          marginRight: 20,
-          marginTop: 15,
-          marginBottom: 10,
+          marginHorizontal: spacing.lg,
+          marginTop: spacing.md,
+          marginBottom: spacing.sm,
         },
         footer: {
           flex: 1,
@@ -80,20 +80,23 @@ function SignIn({ navigation }) {
           marginRight: "auto",
         },
         puenteText: {
-          fontSize: 15,
+          ...typography.body1,
+          color: theme.colors.textSecondary,
           marginTop: "auto",
           marginBottom: "auto",
         },
         accountText: {
-          fontSize: 18,
+          ...typography.body1,
+          fontWeight: "600",
+          color: theme.colors.onSurface,
           marginTop: "auto",
           marginBottom: "auto",
         },
         logoContainer: {
-          marginTop: 20,
+          marginTop: spacing.lg,
           justifyContent: "center",
           alignItems: "center",
-          marginBottom: 40,
+          marginBottom: spacing.xl,
         },
       }),
     [theme]
@@ -151,6 +154,7 @@ function SignIn({ navigation }) {
 
   const deleteCreds = () => {
     deleteData("currentUser");
+    deleteData("pinnedForms");
   };
 
   const signin = async (enteredValues, actions) => {

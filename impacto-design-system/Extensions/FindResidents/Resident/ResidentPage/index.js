@@ -1,4 +1,5 @@
 import I18n from "@modules/i18n";
+import { spacing, typography } from "@modules/theme";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
@@ -136,20 +137,21 @@ const createStyles = (theme) =>
       width: 100,
       height: 100,
       borderWidth: 1,
-      borderRadius: 10,
-      borderColor: theme.colors.border,
+      borderRadius: 12,
+      borderColor: theme.colors.outline,
     },
     picNameContainer: {
       flexDirection: "row",
-      margin: 14,
+      margin: spacing.md,
     },
     nameContainer: {
       flexDirection: "row",
     },
     name: {
-      color: theme.colors.textTertiary,
+      ...typography.body1,
+      color: theme.colors.textSecondary,
       flexShrink: 1,
-      marginVertical: 7,
+      marginVertical: spacing.sm,
     },
     button: {
       width: 120,
@@ -159,7 +161,7 @@ const createStyles = (theme) =>
       marginLeft: 0,
     },
     horizontalLine: {
-      borderBottomColor: theme.colors.primary,
+      borderBottomColor: theme.colors.outline,
       borderBottomWidth: 1,
     },
     navigationButtonsContainer: {
@@ -170,7 +172,9 @@ const createStyles = (theme) =>
       flex: 1,
     },
     navigationButtonText: {
-      fontWeight: "bold",
+      ...typography.label1,
+      fontWeight: "600",
+      color: theme.colors.onSurface,
     },
   });
 

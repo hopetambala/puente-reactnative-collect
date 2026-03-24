@@ -1,9 +1,10 @@
 import { assetFormsQuery } from "@modules/cached-resources";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
+import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, ScrollView, View } from "react-native";
-import { Card, IconButton, Text,useTheme  } from "react-native-paper";
+import { IconButton, Text, useTheme } from "react-native-paper";
 
 import { createAssetFormSelectStyles } from "./index.style";
 
@@ -51,7 +52,7 @@ function AssetFormSelect({ setSelectedForm, surveyingOrganization }) {
       <ScrollView horizontal style={styles.componentContainer}>
         {assetForms &&
           assetForms.map((form) => (
-            <Card
+            <ModernCard
               key={form.objectId}
               style={layout.cardSmallStyle}
               onPress={() => selectForm(form)}
@@ -61,7 +62,7 @@ function AssetFormSelect({ setSelectedForm, surveyingOrganization }) {
                   <Text style={styles.text}>{form.name}</Text>
                 </View>
               </View>
-            </Card>
+            </ModernCard>
           ))}
       </ScrollView>
     </View>

@@ -104,6 +104,18 @@ const createTheme = (mode = "light") => {
 
     // Layout factory
     createLayoutStyles,
+
+    // Dark Mode Support Documentation:
+    // All color tokens are automatically switched by dlite design system based on mode
+    // The following tokens update their values for dark mode:
+    // - tkDliteSemanticColorBackground (light: #f7f7f7, dark: darker shade)
+    // - tkDliteSemanticColorSurfaceBase/SurfaceSunken/SurfaceRaised (adjust contrast)
+    // - tkDliteSemanticColorTextPrimary/Secondary/Tertiary (light: dark text, dark: light text)
+    // - tkDliteSemanticColorBorder (light: #d4d4d4, dark: lighter for contrast)
+    // - All feedback colors (error, success, warning) remain consistent but with adjusted transparency
+    // 
+    // To ensure dark mode works: Always use colors.* tokens, never hardcode colors.
+    // Dlite tokens handle the switching automatically per light/dark mode.
   };
 
   return theme;

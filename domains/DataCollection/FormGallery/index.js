@@ -1,5 +1,6 @@
 import ComingSoonSVG from "@app/assets/graphics/static/Adventurer.svg";
 import SmallCardsCarousel from "@impacto-design-system/Cards/SmallCardsCarousel";
+import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import { getData, storeData } from "@modules/async-storage";
 import { customFormsQuery } from "@modules/cached-resources";
 import I18n from "@modules/i18n";
@@ -7,7 +8,6 @@ import { createLayoutStyles } from "@modules/theme";
 import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import {   Button,
-  Card,
   IconButton,
   Paragraph,
   Text,
@@ -79,9 +79,26 @@ function FormGallery({
   };
 
   const pinForm = async (form) => {
+    // Prevent duplicate pinning - Puente and custom forms are pinned differently
+    // Puente forms: identified by tag (no objectId)
+    // Custom forms: identified by objectId
+    const isDuplicate = pinnedForms.some((pinnedForm) => {
+      // Both are Puente forms - compare by tag
+      if (!form.objectId && !pinnedForm.objectId) {
+        return pinnedForm.tag === form.tag;
+      }
+      // Both are custom forms - compare by objectId
+      if (form.objectId && pinnedForm.objectId) {
+        return pinnedForm.objectId === form.objectId;
+      }
+      // Different form types are never duplicates
+      return false;
+    });
+    if (isDuplicate) return;
+    
     const newPinnedForms = [...pinnedForms, form];
     setPinnedForms(newPinnedForms);
-    storeData(newPinnedForms, "pinnedForms");
+    await storeData(newPinnedForms, "pinnedForms");
   };
 
   const removePinnedForm = async (form) => {
@@ -89,7 +106,7 @@ function FormGallery({
       (pinnedForm) => pinnedForm !== form
     );
     setPinnedForms(filteredPinnedForms);
-    storeData(filteredPinnedForms, "pinnedForms");
+    await storeData(filteredPinnedForms, "pinnedForms");
   };
 
   return (
@@ -107,7 +124,7 @@ function FormGallery({
         <Text style={styles.header}>{I18n.t("formsGallery.pinnedForms")}</Text>
         <ScrollView horizontal>
           {pinnedForms?.map((form) => (
-            <Card
+            <ModernCard
               key={form.objectId ?? form.tag}
               style={layout.cardSmallStyle}
               onPress={() => {
@@ -117,22 +134,21 @@ function FormGallery({
               onLongPress={() => removePinnedForm(form)}
             >
               <View style={styles.cardContainer}>
-                {form.image !== undefined && (
-                  <form.image height={40} style={styles.svg} />
-                )}
                 <View style={styles.textContainer}>
                   <Text style={styles.text}>
                     {form.customForm === false ? I18n.t(form.name) : form.name}
                   </Text>
                 </View>
               </View>
-            </Card>
+            </ModernCard>
           ))}
           {pinnedForms?.length < 1 && (
             <View style={layout.screenRow}>
-              <Card>
-                <Card.Title title={I18n.t("formsGallery.noPinnedForms")} />
-              </Card>
+              <ModernCard>
+                <View style={{ padding: 16 }}>
+                  <Text>{I18n.t("formsGallery.noPinnedForms")}</Text>
+                </View>
+              </ModernCard>
             </View>
           )}
         </ScrollView>

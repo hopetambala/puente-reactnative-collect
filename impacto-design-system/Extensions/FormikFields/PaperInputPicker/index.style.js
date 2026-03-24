@@ -2,8 +2,9 @@ import { spacing, typography } from "@modules/theme";
 import { StyleSheet } from "react-native";
 
 // Factory function to create dynamic styles with theme colors
+// All colors automatically switch between light/dark based on theme.mode
 const createPaperInputPickerStyles = (theme) => {
-  const { colors } = theme;
+  const { colors, isDark } = theme;
 
   const stylesDefault = StyleSheet.create({
     horizontalLine: {
@@ -27,17 +28,20 @@ const createPaperInputPickerStyles = (theme) => {
     header: {
       ...typography.title1,
       marginTop: spacing.md,
+      color: colors.textPrimary, // Dark mode aware
     },
     label: {
       ...typography.label1,
       color: colors.onSurface,
       backgroundColor: colors.background,
+      fontWeight: "600",
     },
     labelImage: {
       ...typography.label1,
       color: colors.onSurface,
       backgroundColor: colors.background,
       paddingBottom: spacing.md,
+      fontWeight: "600",
     },
   });
 
@@ -63,18 +67,26 @@ const createPaperInputPickerStyles = (theme) => {
       color: colors.error,
       fontSize: 12,
       marginTop: 4,
+      fontWeight: "500",
     },
     redText: {
       color: colors.error,
     },
-    whiteText: {
+    // Use semantic text colors (NOT hardcoded black/white) for dark mode support
+    primaryText: {
+      color: colors.textPrimary,
+    },
+    secondaryText: {
+      color: colors.textSecondary,
+    },
+    tertiaryText: {
+      color: colors.textTertiary,
+    },
+    onPrimaryText: {
       color: colors.onPrimary,
     },
-    blackText: {
+    onSurfaceText: {
       color: colors.onSurface,
-    },
-    primaryText: {
-      color: colors.primary,
     },
   });
 
@@ -85,6 +97,7 @@ const createPaperInputPickerStyles = (theme) => {
       marginBottom: "auto",
       padding: spacing.md,
       ...typography.body1,
+      color: colors.onSurface, // Dark mode aware
     },
     textSplit: {
       ...typography.heading1,
@@ -92,6 +105,7 @@ const createPaperInputPickerStyles = (theme) => {
       marginRight: "auto",
       marginTop: "auto",
       marginBottom: spacing.lg,
+      color: colors.textPrimary, // Dark mode aware
     },
   });
 
@@ -100,19 +114,27 @@ const createPaperInputPickerStyles = (theme) => {
       backgroundColor: colors.primary,
       borderColor: colors.primary,
       borderWidth: 1,
-      borderRadius: spacing.radiusMedium,
+      borderRadius: 8, // dlite semantic border radius md
       alignItems: "center",
       paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.xs,
+      paddingVertical: spacing.sm,
       margin: spacing.xs,
     },
     unselected: {
       borderWidth: 1,
       borderColor: colors.outline,
-      borderRadius: spacing.radiusMedium,
+      borderRadius: 8, // dlite semantic border radius md
       paddingHorizontal: spacing.lg,
-      paddingVertical: spacing.xs,
+      paddingVertical: spacing.sm,
       margin: spacing.xs,
+      backgroundColor: colors.surfaceSunken, // Dark mode aware background
+    },
+    unselectedText: {
+      color: colors.onSurface, // Dark mode aware text
+    },
+    selectedText: {
+      color: colors.onPrimary, // Dark mode aware text
+      fontWeight: "600",
     },
   });
 
@@ -120,3 +142,4 @@ const createPaperInputPickerStyles = (theme) => {
 };
 
 export default createPaperInputPickerStyles;
+

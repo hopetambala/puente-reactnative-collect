@@ -1,62 +1,49 @@
 import Assets from "@app/domains/DataCollection/Assets";
 import ResearchSVG from "@assets/graphics/static/Research.svg";
+import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import { UserContext } from "@context/auth.context";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
-import { createLayoutStyles } from "@modules/theme";
+import { createLayoutStyles, spacing, typography } from "@modules/theme";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useContext, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   View,
 } from "react-native";
-import { Button, Card, Text, useTheme } from "react-native-paper";
+import { Button, Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const createStyles = (colors) =>
+const createStyles = (theme) =>
   StyleSheet.create({
     cardContainer: {
-      flexDirection: "row",
-      justifyContent: "space-around",
-      marginTop: 10,
-      marginBottom: 20,
-      marginHorizontal: 8,
-    },
-    cardPressable: {
-      width: "95%",
-    },
-    cardSmallStyle: {
-      width: "100%",
-      minHeight: 150,
-      justifyContent: "center",
-      alignItems: "center",
-      paddingVertical: 14,
+      marginHorizontal: spacing.sm,
+      marginTop: spacing.sm,
+      marginBottom: spacing.lg,
     },
     svg: {
       alignSelf: "center",
     },
     backContainer: {
-      marginHorizontal: 8,
-      marginVertical: 8,
+      marginHorizontal: spacing.sm,
+      marginVertical: spacing.sm,
     },
     text: {
-      marginTop: 10,
+      ...typography.label1,
+      marginTop: spacing.sm,
       textAlign: "center",
-      color: colors.primary,
-      fontWeight: "bold",
-      marginHorizontal: 8,
+      color: theme.colors.onSurface,
+      fontWeight: "600",
     },
   });
 
 function AssetsScreen({ navigation }) {
   const theme = useTheme();
   const layout = createLayoutStyles(theme);
-  const { colors } = useTheme();
-  const styles = createStyles(colors);
+  const styles = createStyles(theme);
   const [selectedAsset, setSelectedAsset] = useState(null);
   const [scrollViewScroll, setScrollViewScroll] = useState();
   const [surveyingOrganization, setSurveyingOrganization] = useState("");
@@ -90,8 +77,8 @@ function AssetsScreen({ navigation }) {
           scrollEnabled={scrollViewScroll}
           style={layout.screenContainer}
         >
-          <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
-            <Text variant="headlineMedium" style={{ fontWeight: "bold", marginTop: 10 }}>
+          <View style={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.md }}>
+            <Text style={{ ...typography.heading2, fontWeight: "bold", color: theme.colors.onSurface, marginTop: spacing.sm }}>
               {I18n.t("dataCollection.manageAssets")}
             </Text>
           </View>
@@ -112,16 +99,10 @@ function AssetsScreen({ navigation }) {
             setScrollViewScroll={setScrollViewScroll}
           />
           <View style={styles.cardContainer}>
-            <Pressable
-              style={styles.cardPressable}
-              onPress={() => setSelectedAsset({})}
-              hitSlop={8}
-            >
-              <Card style={styles.cardSmallStyle}>
-                <ResearchSVG height={70} width={70} style={styles.svg} />
-                <Text style={styles.text}>{I18n.t("dataCollection.newAsset")}</Text>
-              </Card>
-            </Pressable>
+            <ModernCard onPress={() => setSelectedAsset({})}>
+              <ResearchSVG height={70} width={70} style={styles.svg} />
+              <Text style={styles.text}>{I18n.t("dataCollection.newAsset")}</Text>
+            </ModernCard>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

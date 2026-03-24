@@ -46,7 +46,17 @@ function DataCollectionFormsScreen({ navigation, route }) {
       });
 
       getData("pinnedForms").then((forms) => {
-        if (forms) setPinnedForms(forms);
+        if (forms) {
+          // Deduplicate forms
+          const seen = new Set();
+          const dedupedForms = forms.filter((form) => {
+            const key = form.objectId || form.tag;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+          setPinnedForms(dedupedForms);
+        }
       });
     }, [route?.params, user])
   );

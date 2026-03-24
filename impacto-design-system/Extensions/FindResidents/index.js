@@ -7,7 +7,7 @@ import { ActivityIndicator, FlatList, View } from "react-native";
 import { Button, Searchbar, Text, useTheme } from "react-native-paper";
 
 import parseSearch from "./_utils";
-import styles from "./index.styles";
+import { createStyles } from "./index.styles";
 import ResidentCard from "./Resident/ResidentCard";
 import ResidentPage from "./Resident/ResidentPage";
 
@@ -22,6 +22,7 @@ function FindResidents({
   setView,
 }) {
   const theme = useTheme();
+  const styles = createStyles(theme);
   const [query, setQuery] = useState("");
   const [residentsData, setResidentsData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -115,7 +116,7 @@ function FindResidents({
       {!selectPerson && (
         <View style={styles.container}>
           <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
-            <Text variant="headlineMedium" style={styles.header}>
+            <Text style={styles.header}>
               {I18n.t("findResident.searchIndividual")}
             </Text>
           </View>

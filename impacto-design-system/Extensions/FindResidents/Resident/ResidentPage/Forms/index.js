@@ -1,6 +1,7 @@
 import ComingSoonSVG from "@assets/graphics/static/Adventurer.svg";
 import I18n from "@modules/i18n";
-import SmallCardsCarousel from "impacto-design-system/Cards/SmallCardsCarousel";
+import SmallCardsCarousel from "@impacto-design-system/Cards/SmallCardsCarousel";
+import { spacing, typography } from "@modules/theme";
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { Text, Title, useTheme } from "react-native-paper";
@@ -34,20 +35,22 @@ function Forms({ puenteForms, navigateToNewRecord, surveyee, setView }) {
 const createStyles = (theme) =>
   StyleSheet.create({
     container: {
-      margin: 20,
+      margin: spacing.lg,
     },
     title: {
-      fontWeight: "bold",
-      fontSize: 25,
+      ...typography.title1,
+      fontWeight: "700",
+      color: theme.colors.onSurface,
     },
     category: {
-      fontWeight: "bold",
-      fontSize: 15,
-      marginTop: 10,
-      marginBottom: 10,
+      ...typography.label1,
+      fontWeight: "600",
+      color: theme.colors.textSecondary,
+      marginTop: spacing.sm,
+      marginBottom: spacing.sm,
     },
     horizontalLine: {
-      borderBottomColor: theme.colors.primary,
+      borderBottomColor: theme.colors.outline,
       borderBottomWidth: 1,
     },
   });

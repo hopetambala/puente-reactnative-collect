@@ -1,33 +1,32 @@
 // Default export with light theme for backwards compatibility
-import { theme } from "@modules/theme";
+import { spacing, theme, typography } from "@modules/theme";
 import { StyleSheet } from "react-native";
 
 // Factory function to create dynamic styles with theme
 export const createSettingsStyles = (appTheme) => StyleSheet.create({
   text: {
     flexShrink: 1,
-    fontSize: 16,
-    color: appTheme.colors.textSecondary,
-    marginVertical: 7,
+    ...typography.body1,
+    color: appTheme.colors.onSurface,
+    marginVertical: spacing.sm,
   },
   horizontalLineGray: {
     borderBottomColor: appTheme.colors.outline,
     borderBottomWidth: 1,
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
   },
   horizontalLinePrimary: {
-    borderBottomColor: appTheme.colors.info,
+    borderBottomColor: appTheme.colors.primary,
     borderBottomWidth: 1,
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: spacing.sm,
+    marginBottom: spacing.sm,
   },
   mainContainer: {
-    paddingLeft: "5%",
-    paddingRight: "5%",
+    paddingHorizontal: spacing.lg,
   },
   lineContainer: {
-    marginBottom: 30,
+    marginBottom: spacing.xxl,
   },
   textContainer: {
     flexDirection: "row",
@@ -45,7 +44,7 @@ export const createSettingsStyles = (appTheme) => StyleSheet.create({
     marginBottom: -5,
   },
   languageContainer: {
-    paddingTop: 10,
+    paddingTop: spacing.sm,
   },
 });
 const defaultStyles = createSettingsStyles(theme);

@@ -3,7 +3,7 @@ import { puenteForms } from "@app/domains/DataCollection/formsConfig";
 import { UserContext } from "@context/auth.context";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
-import { createLayoutStyles } from "@modules/theme";
+import { createLayoutStyles, spacing, typography } from "@modules/theme";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useContext, useState } from "react";
 import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
@@ -66,8 +66,8 @@ function DataCollectionGalleryScreen({ navigation }) {
           scrollEnabled={scrollViewScroll}
           style={layout.screenContainer}
         >
-          <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
-            <Text variant="headlineMedium" style={{ fontWeight: "bold", marginTop: 10 }}>
+          <View style={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.md }}>
+            <Text style={{ ...typography.heading2, fontWeight: "bold", color: theme.colors.onSurface, marginTop: spacing.sm }}>
               {I18n.t("dataCollection.collectData")}
             </Text>
           </View>
