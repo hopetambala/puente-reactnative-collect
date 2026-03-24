@@ -1,7 +1,7 @@
 import PostSubmissionSVG from "@app/assets/graphics/static/Submission-Page-Icon.svg";
 import GdprCompliance from "@app/domains/DataCollection/GdprCompliance";
-import ResidentIdSearchbar from "@impacto-design-system/Extensions/ResidentIdSearchbar";
 import ModernCard from "@impacto-design-system/Cards/ModernCard";
+import ResidentIdSearchbar from "@impacto-design-system/Extensions/ResidentIdSearchbar";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
 import React, { useState } from "react";

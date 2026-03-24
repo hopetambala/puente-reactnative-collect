@@ -1,9 +1,9 @@
-import I18n from "@modules/i18n";
 import ModernCard from "@impacto-design-system/Cards/ModernCard";
+import I18n from "@modules/i18n";
+import { theme } from "@modules/theme";
 import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
-import { theme } from "@modules/theme";
 
 /**
  * Carousel of Forms that are used for Form Navigation

@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useEffect,useRef } from "react";
 import { Animated } from "react-native";
 
 /**
@@ -181,9 +181,7 @@ export function usePulseAnimation(options = {}) {
   };
 
   // Auto-start on mount, stop on unmount
-  useEffect(() => {
-    return () => stop();
-  }, []);
+  useEffect(() => () => stop(), []);
 
   return {
     scale,

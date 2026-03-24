@@ -146,5 +146,10 @@ FormInput.propTypes = {
   showSuccessOn: PropTypes.bool,
 };
 
+FormInput.defaultProps = {
+  isLoading: false,
+  showSuccessOn: false,
+};
+
 export default FormInput;
 

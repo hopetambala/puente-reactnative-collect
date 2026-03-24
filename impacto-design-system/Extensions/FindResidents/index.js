@@ -7,7 +7,7 @@ import { ActivityIndicator, FlatList, View } from "react-native";
 import { Button, Searchbar, Text, useTheme } from "react-native-paper";
 
 import parseSearch from "./_utils";
-import { createStyles } from "./index.styles";
+import createStyles from "./index.styles";
 import ResidentCard from "./Resident/ResidentCard";
 import ResidentPage from "./Resident/ResidentPage";
 

@@ -5,7 +5,7 @@ import { createLayoutStyles, spacing, typography } from "@modules/theme";
 import React from "react";
 import { View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { Text, useTheme } from "react-native-paper";
+import { Button, Card, Paragraph, Text, Title, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 function HomeScreen() {
@@ -21,7 +21,7 @@ function HomeScreen() {
             <Card.Content>
               <ComingSoonSVG width={200} height={200} />
               <Paragraph>{I18n.t("home.comingSoon")}</Paragraph>
-              <Button onPress={showTasks} mode="contained">
+              {/* <Button onPress={showTasks} mode="contained">
                 <Text>{I18n.t("home.tasks")}</Text>
               </Button>
               {tasks != null &&
@@ -29,7 +29,7 @@ function HomeScreen() {
                   <View key={task.task_id}>
                     <Text>{task.name}</Text>
                   </View>
-                ))}
+                ))} */}
             </Card.Content>
           </Card>
         </View>

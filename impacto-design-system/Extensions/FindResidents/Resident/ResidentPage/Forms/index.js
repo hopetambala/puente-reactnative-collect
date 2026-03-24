@@ -1,6 +1,6 @@
 import ComingSoonSVG from "@assets/graphics/static/Adventurer.svg";
-import I18n from "@modules/i18n";
 import SmallCardsCarousel from "@impacto-design-system/Cards/SmallCardsCarousel";
+import I18n from "@modules/i18n";
 import { spacing, typography } from "@modules/theme";
 import React from "react";
 import { StyleSheet, View } from "react-native";

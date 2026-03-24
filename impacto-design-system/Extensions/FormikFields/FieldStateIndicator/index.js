@@ -1,7 +1,7 @@
+import { usePulseAnimation } from "@modules/utils/animations";
 import React, { useEffect } from "react";
 import { Animated, View } from "react-native";
 import { ActivityIndicator, Icon, useTheme } from "react-native-paper";
-import { usePulseAnimation } from "@modules/utils/animations";
 
 /**
  * Reusable component for displaying field states
@@ -50,7 +50,7 @@ function FieldStateIndicator({ state, visible, size = 24, style }) {
           <ActivityIndicator
             size={size}
             color={theme.colors.primary}
-            animating={true}
+            animating
           />
         </Animated.View>
       </View>

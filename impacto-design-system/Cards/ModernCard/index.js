@@ -109,4 +109,13 @@ ModernCard.propTypes = {
   testID: PropTypes.string,
 };
 
+ModernCard.defaultProps = {
+  onPress: undefined,
+  onLongPress: undefined,
+  style: undefined,
+  variant: "default",
+  disabled: false,
+  testID: undefined,
+};
+
 export default ModernCard;

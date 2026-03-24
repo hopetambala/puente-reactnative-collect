@@ -1,6 +1,6 @@
 import ComingSoonSVG from "@app/assets/graphics/static/Adventurer.svg";
-import SmallCardsCarousel from "@impacto-design-system/Cards/SmallCardsCarousel";
 import ModernCard from "@impacto-design-system/Cards/ModernCard";
+import SmallCardsCarousel from "@impacto-design-system/Cards/SmallCardsCarousel";
 import { getData, storeData } from "@modules/async-storage";
 import { customFormsQuery } from "@modules/cached-resources";
 import I18n from "@modules/i18n";

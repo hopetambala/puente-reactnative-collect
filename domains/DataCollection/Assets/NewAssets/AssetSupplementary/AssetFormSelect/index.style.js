@@ -1,5 +1,5 @@
 // Default export with light theme for backwards compatibility
-import { theme, spacing, typography } from "@modules/theme";
+import { spacing, theme, typography } from "@modules/theme";
 import { StyleSheet } from "react-native";
 
 // Factory function to create dynamic styles with theme

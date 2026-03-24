@@ -1,5 +1,5 @@
-import I18n from "@modules/i18n";
 import ModernCard from "@impacto-design-system/Cards/ModernCard";
+import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
 import React from "react";
 import { ScrollView, View } from "react-native";
