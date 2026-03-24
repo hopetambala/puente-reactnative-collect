@@ -42,6 +42,21 @@ function ModernCard({
     duration: 150,
   });
 
+  // Extract backgroundColor from style if provided (takes precedence)
+  let customBackgroundColor = null;
+  let styleWithoutBg = style;
+  if (style && !Array.isArray(style) && style.backgroundColor) {
+    customBackgroundColor = style.backgroundColor;
+    const { backgroundColor, ...rest } = style;
+    styleWithoutBg = Object.keys(rest).length > 0 ? rest : undefined;
+  } else if (Array.isArray(style)) {
+    const bgColor = style.reduce((acc, s) => s?.backgroundColor || acc, null);
+    if (bgColor) {
+      customBackgroundColor = bgColor;
+      styleWithoutBg = style.filter(s => !s?.backgroundColor);
+    }
+  }
+
   const baseStyles = StyleSheet.create({
     card: {
       borderWidth: 1,
@@ -67,7 +82,7 @@ function ModernCard({
 
   if (!isInteractive || disabled) {
     return (
-      <View style={[cardStyle, style]} testID={testID}>
+      <View style={[cardStyle, styleWithoutBg, customBackgroundColor ? { backgroundColor: customBackgroundColor } : undefined]} testID={testID}>
         <View style={baseStyles.content}>
           {children}
         </View>
@@ -87,7 +102,8 @@ function ModernCard({
       <Animated.View
         style={[
           cardStyle,
-          style,
+          styleWithoutBg,
+          customBackgroundColor ? { backgroundColor: customBackgroundColor } : undefined,
           pressAnimation.animatedStyle,
         ]}
       >

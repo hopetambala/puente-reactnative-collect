@@ -1,31 +1,31 @@
-import MedEvalSVG from "@assets/icons/Heart-Icon.svg";
-import EnvSVG from "@assets/icons/Home-icon.svg";
-import NewRecordSVG from "@assets/icons/New-Record-icon.svg";
-
 export const puenteForms = [
   {
     tag: "id",
     name: "puenteForms.ResidentID",
     customForm: false,
-    image: NewRecordSVG,
+    colorTokenLight: "tkDlitePrimitiveColorBlue600",
+    colorTokenDark: "tkDlitePrimitiveColorBlue1000",
   },
   {
     tag: "env",
     name: "puenteForms.EnvironmentalHealth",
     customForm: false,
-    image: EnvSVG,
+    colorTokenLight: "tkDlitePrimitiveColorGreen600",
+    colorTokenDark: "tkDlitePrimitiveColorGreen1000",
   },
   {
     tag: "med-eval",
     name: "puenteForms.MedicalEvaluation",
     customForm: false,
-    image: MedEvalSVG,
+    colorTokenLight: "tkDlitePrimitiveColorOrange600",
+    colorTokenDark: "tkDlitePrimitiveColorOrange1000",
   },
   {
     tag: "vitals",
     name: "puenteForms.Vitals",
     customForm: false,
-    image: NewRecordSVG,
+    colorTokenLight: "tkDlitePrimitiveColorRed600",
+    colorTokenDark: "tkDlitePrimitiveColorRed1000",
   },
 ];
 

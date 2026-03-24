@@ -1,6 +1,7 @@
 import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import I18n from "@modules/i18n";
 import { theme } from "@modules/theme";
+import { getTokens } from "@modules/theme/tokens";
 import React, { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
@@ -32,29 +33,22 @@ function SmallCardsCarousel({
   pinForm,
 }) {
   const currentTheme = useTheme();
+  const isDark = currentTheme.dark;
+  const tokens = getTokens(isDark ? "dark" : "light");
   
   const styles = useMemo(() => StyleSheet.create({
     cardSmallStyle: {
       height: 110,
       width: 150,
-     margin: theme.spacing.sm
-    },
-    svg: {
-      marginLeft: "auto",
-      marginRight: "auto",
-    },
-    cardContainer: {
-      alignItems: "center",
+      margin: theme.spacing.sm,
       justifyContent: "center",
-      flex: 1,
-    },
-    textContainer: {
-      marginTop: 8,
+      alignItems: "center",
     },
     text: {
       textAlign: "center",
-      color: currentTheme.colors.link,
-      fontWeight: "600",
+      color: tokens.tkDliteSemanticColorTextPrimary,
+      fontWeight: "700",
+      fontSize: 12,
     },
   }), [currentTheme]);
 
@@ -62,7 +56,10 @@ function SmallCardsCarousel({
     {puenteForms.map((form) => (
       <ModernCard
         key={form.tag}
-        style={styles.cardSmallStyle}
+        style={[
+          styles.cardSmallStyle,
+          { backgroundColor: tokens[isDark ? form.colorTokenDark : form.colorTokenLight] }
+        ]}
         onPress={() => {
           if (setUser) {
             if (setView) {
@@ -75,12 +72,7 @@ function SmallCardsCarousel({
         }}
         onLongPress={pinForm ? () => pinForm(form) : undefined}
       >
-        <View style={styles.cardContainer}>
-          <form.image height={40} style={styles.svg} />
-          <View style={styles.textContainer}>
             <Text style={styles.text}>{I18n.t(form.name)}</Text>
-          </View>
-        </View>
       </ModernCard>
     ))}
   </ScrollView>
