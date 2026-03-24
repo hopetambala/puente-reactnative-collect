@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [14.0.4](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.3...v14.0.4) (2026-03-24)
+
+
+### Documentation Changes
+
+* add comprehensive release notes for v14.0.3 ([8d71a44](https://github.com/hopetambala/puente-reactnative-collect/commit/8d71a442d91ba9e6f63b8cefe4c14f79291895eb))
+* expand v14.0.3 changelog with comprehensive release notes ([8429f34](https://github.com/hopetambala/puente-reactnative-collect/commit/8429f34d831f2683f477b303a0ce18dd7700bd68))
+
+
+### Bug fixes
+
+* enable iOS autoIncrement for build numbers to avoid App Store Connect duplicates ([6e62295](https://github.com/hopetambala/puente-reactnative-collect/commit/6e62295fe4bdde387a4dfff63d38837295dbf42b))
+* properly configure environment variables in eas.json for all build profiles - fixes Parse production connection ([8fa9ece](https://github.com/hopetambala/puente-reactnative-collect/commit/8fa9ece2cce750092614ca2ef72019aa9f2fc068))
+
 ### [14.0.3](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.2...v14.0.3) (2026-03-23)
 
 **Summary:** Critical infrastructure improvements, security hardening, and build optimization. Major fixes address Android SDK compilation requirements, iOS build number management, and secrets management. The app is now properly configured for App Store and Google Play submissions with improved build performance.
