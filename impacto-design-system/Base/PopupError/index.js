@@ -3,9 +3,10 @@ import I18n from "@modules/i18n";
 import { spacing, typography } from "@modules/theme";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text } from "react-native";
-import { Snackbar } from "react-native-paper";
+import { Snackbar, useTheme } from "react-native-paper";
 
 function PopupError({ error, setError, errorMessage }) {
+  const theme = useTheme();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ function PopupError({ error, setError, errorMessage }) {
     text: {
       fontSize: typography.label1.fontSize,
       fontWeight: typography.label1.fontWeight,
-      color: "#fff",
+      color: theme.colors.onPrimary,
     },
   });
 

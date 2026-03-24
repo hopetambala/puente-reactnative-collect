@@ -64,7 +64,6 @@ function Button({
       paddingVertical: spacing.md,
       paddingHorizontal: spacing.lg,
       borderRadius: spacing.radiusMedium,
-      transform: [{ scale: scaleAnim }],
     },
     style,
   ];

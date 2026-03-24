@@ -59,7 +59,7 @@ function MainNavigation() {
             options={{ headerShown: false, gestureEnabled: false }}
           />
           <Stack.Screen
-            name="Settings"
+            name="SettingsModal"
             component={SettingsView}
             options={{ headerShown: false, presentation: "modal" }}
           />

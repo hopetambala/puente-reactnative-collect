@@ -52,7 +52,7 @@ function FindRecordsFormsScreen({ navigation, route }) {
     }, [route?.params, user])
   );
 
-  const openSettings = () => navigation.navigate("Settings");
+  const openSettings = () => navigation.navigate("SettingsModal");
 
   const navigateToGallery = () => {
     navigation.navigate("FindRecordsHome");

@@ -16,8 +16,10 @@ const postIdentificationForm = async (postParams) => {
       postObjectsToClass(postParams),
       null
     );
-    if (!result) throw new Error("postIdentificationForm timed out or returned null");
-    return JSON.parse(JSON.stringify(result));
+    if (result.timedOut) throw new Error("postIdentificationForm timed out");
+    if (result.error) throw result.error;
+    if (!result.value) throw new Error("postIdentificationForm returned null");
+    return JSON.parse(JSON.stringify(result.value));
   }
 
   return getData("offlineIDForms").then(async (offlineIDForms) => {

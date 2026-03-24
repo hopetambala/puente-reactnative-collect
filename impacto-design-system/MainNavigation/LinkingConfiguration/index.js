@@ -15,7 +15,7 @@ export default {
           GetPincode: "get_pincode",
         },
       },
-      Settings: "settings",
+      SettingsModal: "settings",
     },
   },
 };

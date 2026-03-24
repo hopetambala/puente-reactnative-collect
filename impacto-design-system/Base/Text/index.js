@@ -1,7 +1,7 @@
 import { typography } from "@modules/theme";
 import PropTypes from "prop-types";
 import * as React from "react";
-import { Text as RNText } from "react-native";
+import { StyleSheet, Text as RNText } from "react-native";
 import { useTheme } from "react-native-paper";
 
 function Text(props) {
@@ -13,7 +13,9 @@ function Text(props) {
 
   // Get text color based on variant and theme
   const getTextColor = () => {
-    if (style?.color) return style.color;
+    // Handle both object and array styles by flattening
+    const flattenedStyle = StyleSheet.flatten(style);
+    if (flattenedStyle?.color) return flattenedStyle.color;
     switch (variant) {
       case "heading1":
       case "heading2":

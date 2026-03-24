@@ -33,12 +33,12 @@ function Geolocation({ errors, formikKey, setFieldValue }) {
       null
     );
 
-    if (!currentLocation) {
+    if (currentLocation.timedOut || currentLocation.error || !currentLocation.value) {
       setFieldValue("location", { latitude: 0, longitude: 0, altitude: 0 });
       setLocationLoading(false);
       setSubmissionError(true);
     } else {
-      const { latitude, longitude, altitude } = currentLocation.coords;
+      const { latitude, longitude, altitude } = currentLocation.value.coords;
       setFieldValue("location", { latitude, longitude, altitude });
       setLocation({ latitude, longitude, altitude });
       setLocationLoading(false);
