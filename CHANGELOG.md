@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [14.0.5](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.4...v14.0.5) (2026-03-24)
+
+
+### Code Refactors
+
+* source errorContainer from semantic tokens instead of hardcoding colors - add TODO to add token to design system ([b9652b8](https://github.com/hopetambala/puente-reactnative-collect/commit/b9652b88e6ccc20860c8bf1f9fa981e676b8151b))
+
+
+### New Features
+
+* consolidate and flatten card designs ([3c7bff4](https://github.com/hopetambala/puente-reactnative-collect/commit/3c7bff4e9a6832a19372b395ff0d5732194fff8b))
+
 ### [14.0.4](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.3...v14.0.4) (2026-03-24)
 
 
