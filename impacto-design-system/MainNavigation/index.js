@@ -5,6 +5,7 @@ import SignUp from "@app/domains/Auth/SignUp";
 import SettingsView from "@app/domains/Settings";
 import { AlertContext } from "@context/alert.context";
 import Toast from "@impacto-design-system/Base/Toast";
+import { SCREEN_TRANSITIONS } from "@modules/utils/animations";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useContext } from "react";
@@ -32,7 +33,11 @@ function MainNavigation() {
       <NavigationContainer
         linking={LinkingConfiguration}
       >
-        <Stack.Navigator>
+        <Stack.Navigator
+          screenOptions={{
+            ...SCREEN_TRANSITIONS.slideRight,
+          }}
+        >
           <Stack.Screen
             name="Sign In"
             component={SignIn}
@@ -61,7 +66,11 @@ function MainNavigation() {
           <Stack.Screen
             name="SettingsModal"
             component={SettingsView}
-            options={{ headerShown: false, presentation: "modal" }}
+            options={{
+              headerShown: false,
+              presentation: "modal",
+              ...SCREEN_TRANSITIONS.slideUp,
+            }}
           />
         </Stack.Navigator>
       </NavigationContainer>

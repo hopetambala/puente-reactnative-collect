@@ -2,8 +2,14 @@ import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import I18n from "@modules/i18n";
 import { theme } from "@modules/theme";
 import { getTokens } from "@modules/theme/tokens";
-import React, { useMemo } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ANIMATION_TIMINGS } from "@modules/utils/animations";
+import React, { useEffect, useMemo } from "react";
+import {
+  Animated,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import { Text, useTheme } from "react-native-paper";
 
 /**
@@ -25,7 +31,7 @@ import { Text, useTheme } from "react-native-paper";
  */
 
 function SmallCardsCarousel({
-  puenteForms,
+  puenteForms = [],
   navigateToNewRecord,
   setView,
   surveyee,
@@ -35,6 +41,46 @@ function SmallCardsCarousel({
   const currentTheme = useTheme();
   const isDark = currentTheme.dark;
   const tokens = getTokens(isDark ? "dark" : "light");
+  
+  // Guard: ensure puenteForms is always an array
+  const safePuenteForms = Array.isArray(puenteForms) ? puenteForms : [];
+  
+  // Create a stable reference for animated values - use useMemo to prevent recreation on every render
+  const animatedValuesRef = React.useRef(null);
+  
+  // Initialize or recreate animated values when forms change
+  if (!animatedValuesRef.current || animatedValuesRef.current.length !== safePuenteForms.length) {
+    animatedValuesRef.current = safePuenteForms.map(() => ({
+      translateX: new Animated.Value(50),
+      opacity: new Animated.Value(0),
+    }));
+  }
+  
+  const animatedValues = animatedValuesRef.current;
+
+  useEffect(() => {
+    // Only trigger animation if there are forms to animate
+    if (animatedValues.length === 0) return;
+
+    // Trigger staggered entrance animation
+    const animations = animatedValues.map((anim, index) =>
+      Animated.parallel([
+        Animated.timing(anim.translateX, {
+          toValue: 0,
+          duration: ANIMATION_TIMINGS.DURATION_GLOBAL,
+          delay: index * ANIMATION_TIMINGS.STAGGER_DELAY,
+          useNativeDriver: true,
+        }),
+        Animated.timing(anim.opacity, {
+          toValue: 1,
+          duration: ANIMATION_TIMINGS.DURATION_GLOBAL,
+          delay: index * ANIMATION_TIMINGS.STAGGER_DELAY,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    Animated.stagger(0, animations).start();
+  }, [safePuenteForms.length]);
   
   const styles = useMemo(() => StyleSheet.create({
     cardSmallStyle: {
@@ -50,31 +96,40 @@ function SmallCardsCarousel({
       fontWeight: "700",
       fontSize: 12,
     },
-  }), [currentTheme]);
+  }), [currentTheme, tokens]);
 
   return <ScrollView horizontal>
-    {puenteForms.map((form) => (
-      <ModernCard
+    {safePuenteForms.map((form, index) => (
+      <Animated.View
         key={form.tag}
-        style={[
-          styles.cardSmallStyle,
-          { backgroundColor: tokens[isDark ? form.colorTokenDark : form.colorTokenLight] }
-        ]}
-        onPress={() => {
-          if (setUser) {
-            if (setView) {
-              setView("Forms");
-            }
-            navigateToNewRecord(form.tag, surveyee);
-          } else {
-            navigateToNewRecord(form.tag);
-          }
+        style={{
+          transform: [{ translateX: animatedValues[index].translateX }],
+          opacity: animatedValues[index].opacity,
         }}
-        onLongPress={pinForm ? () => pinForm(form) : undefined}
       >
-            <Text style={styles.text}>{I18n.t(form.name)}</Text>
-      </ModernCard>
-    ))}
+        <ModernCard
+          style={[
+            styles.cardSmallStyle,
+            { 
+              backgroundColor: tokens[isDark ? form.colorTokenDark : form.colorTokenLight] 
+            }
+          ]}
+          onPress={() => {
+            if (setUser) {
+              if (setView) {
+                setView("Forms");
+              }
+              navigateToNewRecord(form.tag, surveyee);
+            } else {
+              navigateToNewRecord(form.tag);
+            }
+          }}
+          onLongPress={pinForm ? () => pinForm(form) : undefined}
+        >
+          <Text style={styles.text}>{I18n.t(form.name)}</Text>
+        </ModernCard>
+        </Animated.View>
+      ))}
   </ScrollView>
 }
 

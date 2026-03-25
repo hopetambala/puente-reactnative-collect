@@ -193,8 +193,167 @@ export function usePulseAnimation(options = {}) {
   };
 }
 
+/**
+ * Spring physics configuration for playful, bouncy animations
+ * Used for screen transitions, button presses, modal entrances
+ */
+export const SPRING_CONFIG = {
+  // Bouncy spring (playful feel with overshoot)
+  PLAYFUL: {
+    tension: 40,
+    friction: 7,
+    speed: 12,
+    bounciness: 1.2,
+  },
+  // Smooth spring (elegant transitions)
+  SMOOTH: {
+    tension: 30,
+    friction: 8,
+    speed: 10,
+    bounciness: 0.8,
+  },
+  // Snappy spring (quick responsive feedback)
+  SNAPPY: {
+    tension: 60,
+    friction: 5,
+    speed: 15,
+    bounciness: 1.1,
+  },
+};
+
+/**
+ * Screen transition configurations with spring physics
+ * Presets for different navigation flows
+ */
+export const SCREEN_TRANSITIONS = {
+  // Default: Slide from right with spring bounce
+  slideRight: {
+    cardStyleInterpolator: ({ current, layouts }) => ({
+      cardStyle: {
+        transform: [
+          {
+            translateX: current.progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [layouts.screen.width, 0],
+            }),
+          },
+        ],
+      },
+    }),
+    gestureDirection: "horizontal",
+    transitionSpec: {
+      open: {
+        animation: "spring",
+        config: SPRING_CONFIG.PLAYFUL,
+      },
+      close: {
+        animation: "spring",
+        config: SPRING_CONFIG.PLAYFUL,
+      },
+    },
+  },
+
+  // Modal: Slide from bottom with backdrop fade
+  slideUp: {
+    cardStyleInterpolator: ({ current, layouts }) => ({
+      cardStyle: {
+        transform: [
+          {
+            translateY: current.progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [layouts.screen.height, 0],
+            }),
+          },
+        ],
+      },
+      overlayStyle: {
+        opacity: current.progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 0.5],
+        }),
+      },
+    }),
+    gestureDirection: "vertical",
+    transitionSpec: {
+      open: {
+        animation: "spring",
+        config: SPRING_CONFIG.PLAYFUL,
+      },
+      close: {
+        animation: "spring",
+        config: SPRING_CONFIG.PLAYFUL,
+      },
+    },
+  },
+
+  // Fade in (simple overlay)
+  fadeIn: {
+    cardStyleInterpolator: ({ current }) => ({
+      cardStyle: {
+        opacity: current.progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 1],
+        }),
+      },
+    }),
+    transitionSpec: {
+      open: {
+        animation: "timing",
+        config: { duration: 300 },
+      },
+      close: {
+        animation: "timing",
+        config: { duration: 300 },
+      },
+    },
+  },
+
+  // Combined: Slide + Fade for smooth entry
+  slideAndFade: {
+    cardStyleInterpolator: ({ current, layouts }) => ({
+      cardStyle: {
+        opacity: current.progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 1],
+        }),
+        transform: [
+          {
+            translateX: current.progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [50, 0],
+            }),
+          },
+        ],
+      },
+    }),
+    gestureDirection: "horizontal",
+    transitionSpec: {
+      open: {
+        animation: "spring",
+        config: SPRING_CONFIG.SMOOTH,
+      },
+      close: {
+        animation: "spring",
+        config: SPRING_CONFIG.SMOOTH,
+      },
+    },
+  },
+};
+
+/**
+ * Global animation timings (300ms for everything)
+ */
+export const ANIMATION_TIMINGS = {
+  DURATION_GLOBAL: 300,
+  TAB_TRANSITION: 300,
+  STAGGER_DELAY: 50,
+};
+
 export default {
   ANIMATION_CONFIG,
+  SPRING_CONFIG,
+  SCREEN_TRANSITIONS,
+  ANIMATION_TIMINGS,
   usePressAnimation,
   useFocusAnimation,
   usePulseAnimation,
