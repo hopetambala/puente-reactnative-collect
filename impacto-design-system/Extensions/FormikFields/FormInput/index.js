@@ -1,8 +1,9 @@
 import FieldStateIndicator from "@impacto-design-system/Extensions/FormikFields/FieldStateIndicator";
 import { spacing, typography } from "@modules/theme";
+import { ANIMATION_TIMINGS,SPRING_CONFIG } from "@modules/utils/animations";
 import PropTypes from "prop-types";
-import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { Animated, StyleSheet, Text, View } from "react-native";
 import { TextInput, useTheme } from "react-native-paper";
 
 const createStyles = (theme) =>
@@ -49,7 +50,7 @@ const createStyles = (theme) =>
 /**
  * Modern form input component with enhanced styling and state indicators
  * Uses dlite semantic tokens for flat, minimal design (no shadows)
- * Includes loading, success, and error state indicators
+ * Includes loading, success, and error state indicators with animations
  */
 function FormInput({
   label,
@@ -67,6 +68,68 @@ function FormInput({
   const hasValue = value && value.toString().trim().length > 0;
   const showSuccess = showSuccessOn && hasValue && !error && !isLoading;
 
+  // Animation refs
+  const labelScaleAnim = useRef(new Animated.Value(hasValue || isFocused ? 0.8 : 1)).current;
+  const labelTranslateYAnim = useRef(new Animated.Value(hasValue || isFocused ? -12 : 0)).current;
+  const shakeAnim = useRef(new Animated.Value(0)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
+
+  // Animate label float on focus or when value exists
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(labelScaleAnim, {
+        toValue: hasValue || isFocused ? 0.8 : 1,
+        tension: SPRING_CONFIG.PLAYFUL.tension,
+        friction: SPRING_CONFIG.PLAYFUL.friction,
+        useNativeDriver: true,
+      }),
+      Animated.spring(labelTranslateYAnim, {
+        toValue: hasValue || isFocused ? -12 : 0,
+        tension: SPRING_CONFIG.PLAYFUL.tension,
+        friction: SPRING_CONFIG.PLAYFUL.friction,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [isFocused, hasValue, labelScaleAnim, labelTranslateYAnim]);
+
+  // Animate glow on focus
+  useEffect(() => {
+    Animated.timing(glowAnim, {
+      toValue: isFocused ? 1 : 0,
+      duration: ANIMATION_TIMINGS.DURATION_GLOBAL,
+      useNativeDriver: false,
+    }).start();
+  }, [isFocused, glowAnim]);
+
+  // Shake animation on error
+  useEffect(() => {
+    if (error) {
+      // Shake: -5, +5, -2, 0
+      Animated.sequence([
+        Animated.timing(shakeAnim, {
+          toValue: -5,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 5,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: -2,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shakeAnim, {
+          toValue: 0,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [error, shakeAnim]);
+
   const handleBlur = () => {
     setIsFocused(false);
     formikProps.setFieldTouched(formikKey, true);
@@ -83,15 +146,48 @@ function FormInput({
     return theme.colors.outline;
   };
 
+  // Glow shadow effect on focus
+  const glowOpacity = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 0.3],
+  });
+
   return (
     <View style={styles.container}>
       {label && (
-        <View style={styles.labelContainer}>
+        <Animated.View
+          style={[
+            styles.labelContainer,
+            {
+              transform: [
+                { scale: labelScaleAnim },
+                { translateY: labelTranslateYAnim },
+              ],
+            },
+          ]}
+        >
           <Text style={styles.label}>{label}</Text>
-        </View>
+        </Animated.View>
       )}
-      <View style={styles.inputWrapper}>
+      <Animated.View
+        style={[
+          styles.inputWrapper,
+          { transform: [{ translateX: shakeAnim }] },
+        ]}
+      >
         <View style={styles.inputContainer}>
+          <Animated.View
+            style={[
+              {
+                position: "absolute",
+                inset: -3,
+                borderRadius: 8,
+                backgroundColor: theme.colors.primary,
+                opacity: glowOpacity,
+                pointerEvents: "none",
+              },
+            ]}
+          />
           <TextInput
             onChangeText={formikProps.handleChange(formikKey)}
             onBlur={handleBlur}
@@ -123,7 +219,7 @@ function FormInput({
             <FieldStateIndicator state="error" size={20} />
           )}
         </View>
-      </View>
+      </Animated.View>
 
       {/* Error message below input */}
       {error && <Text style={styles.errorText}>{error}</Text>}

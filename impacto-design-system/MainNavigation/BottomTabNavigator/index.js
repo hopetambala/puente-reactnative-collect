@@ -3,6 +3,7 @@ import DataCollectionNavigator from "@app/domains/DataCollection/navigator";
 import FindRecordsNavigator from "@app/domains/FindRecords/navigator";
 import SettingsView from "@app/domains/Settings";
 import { TabBarIcon } from "@impacto-design-system/Extensions";
+import AnimatedTabBar from "@impacto-design-system/MainNavigation/BottomTabNavigator/AnimatedTabBar";
 import I18n from "@modules/i18n";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React, { useMemo } from "react";
@@ -45,6 +46,7 @@ export default function BottomTabNavigator() {
     <BottomTab.Navigator
       initialRouteName={INITIAL_ROUTE_NAME}
       screenOptions={screenOptions}
+      tabBar={(props) => <AnimatedTabBar {...props} />}
     >
       <BottomTab.Screen
         name="Find_Records"
