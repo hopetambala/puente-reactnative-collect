@@ -1,10 +1,11 @@
 import FieldStateIndicator from "@impacto-design-system/Extensions/FormikFields/FieldStateIndicator";
 import { spacing, typography } from "@modules/theme";
-import { ANIMATION_TIMINGS } from "@modules/utils/animations";
+import { ANIMATION_CONFIG, useShakeAnimation } from "@modules/utils/animations";
 import PropTypes from "prop-types";
-import React, { useEffect, useRef } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { TextInput, useTheme } from "react-native-paper";
+import Animated from "react-native-reanimated";
 
 const createStyles = (theme) =>
   StyleSheet.create({
@@ -55,22 +56,18 @@ function FormInput({
   const hasValue = value && value.toString().trim().length > 0;
   const showSuccess = showSuccessOn && hasValue && !error && !isLoading;
 
-  // Animation refs
-  const shakeAnim = useRef(new Animated.Value(0)).current;
-
   // Shake animation on error
+  const { shakeStyle, triggerShake } = useShakeAnimation({
+    amplitude: ANIMATION_CONFIG.SHAKE_SMALL,
+    axis: "translateX",
+    duration: ANIMATION_CONFIG.DURATION_FAST,
+  });
+
   useEffect(() => {
     if (error) {
-      shakeAnim.stopAnimation();
-      shakeAnim.setValue(0);
-      Animated.sequence([
-        Animated.timing(shakeAnim, { toValue: -5, duration: 100, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: 5, duration: 100, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: -2, duration: 100, useNativeDriver: true }),
-        Animated.timing(shakeAnim, { toValue: 0, duration: 100, useNativeDriver: true }),
-      ]).start();
+      triggerShake();
     }
-  }, [error, shakeAnim]);
+  }, [error, triggerShake]);
 
   const handleBlur = () => {
     // Mark field as touched but do NOT trigger validation on blur.
@@ -83,7 +80,7 @@ function FormInput({
       <Animated.View
         style={[
           styles.inputWrapper,
-          { transform: [{ translateX: shakeAnim }] },
+          shakeStyle,
         ]}
       >
         <View style={styles.inputContainer}>

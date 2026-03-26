@@ -3,14 +3,13 @@ import I18n from "@modules/i18n";
 import { theme } from "@modules/theme";
 import { getTokens } from "@modules/theme/tokens";
 import { ANIMATION_TIMINGS } from "@modules/utils/animations";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
-  Animated,
   ScrollView,
   StyleSheet,
-  View,
 } from "react-native";
 import { Text, useTheme } from "react-native-paper";
+import Animated, { SlideInRight } from "react-native-reanimated";
 
 /**
  * Carousel of Forms that are used for Form Navigation
@@ -45,43 +44,6 @@ function SmallCardsCarousel({
   // Guard: ensure puenteForms is always an array
   const safePuenteForms = Array.isArray(puenteForms) ? puenteForms : [];
   
-  // Create a stable reference for animated values - use useMemo to prevent recreation on every render
-  const animatedValuesRef = React.useRef(null);
-  
-  // Initialize or recreate animated values when forms change
-  if (!animatedValuesRef.current || animatedValuesRef.current.length !== safePuenteForms.length) {
-    animatedValuesRef.current = safePuenteForms.map(() => ({
-      translateX: new Animated.Value(50),
-      opacity: new Animated.Value(0),
-    }));
-  }
-  
-  const animatedValues = animatedValuesRef.current;
-
-  useEffect(() => {
-    // Only trigger animation if there are forms to animate
-    if (animatedValues.length === 0) return;
-
-    // Trigger staggered entrance animation
-    const animations = animatedValues.map((anim, index) =>
-      Animated.parallel([
-        Animated.timing(anim.translateX, {
-          toValue: 0,
-          duration: ANIMATION_TIMINGS.DURATION_GLOBAL,
-          delay: index * ANIMATION_TIMINGS.STAGGER_DELAY,
-          useNativeDriver: true,
-        }),
-        Animated.timing(anim.opacity, {
-          toValue: 1,
-          duration: ANIMATION_TIMINGS.DURATION_GLOBAL,
-          delay: index * ANIMATION_TIMINGS.STAGGER_DELAY,
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    Animated.stagger(0, animations).start();
-  }, [safePuenteForms.length]);
-  
   const styles = useMemo(() => StyleSheet.create({
     cardSmallStyle: {
       height: 110,
@@ -102,10 +64,9 @@ function SmallCardsCarousel({
     {safePuenteForms.map((form, index) => (
       <Animated.View
         key={form.tag}
-        style={{
-          transform: [{ translateX: animatedValues[index].translateX }],
-          opacity: animatedValues[index].opacity,
-        }}
+        entering={SlideInRight.delay(index * ANIMATION_TIMINGS.STAGGER_DELAY)
+          .duration(ANIMATION_TIMINGS.DURATION_GLOBAL)
+          .withInitialValues({ transform: [{ translateX: 50 }], opacity: 0 })}
       >
         <ModernCard
           style={[

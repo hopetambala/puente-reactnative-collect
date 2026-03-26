@@ -1,7 +1,13 @@
 import { ANIMATION_TIMINGS, SPRING_CONFIG, usePulseAnimation } from "@modules/utils/animations";
-import React, { useEffect, useRef } from "react";
-import { Animated, View } from "react-native";
+import React, { useEffect } from "react";
+import { View } from "react-native";
 import { ActivityIndicator, Icon, useTheme } from "react-native-paper";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
 /**
  * Reusable component for displaying field states
@@ -19,9 +25,9 @@ function FieldStateIndicator({ state, visible, size = 24, style }) {
   const theme = useTheme();
   const pulseAnimation = usePulseAnimation({ duration: 1000, scaleRange: 1.1 });
   
-  // Entrance animation refs for success and error states
-  const scaleAnim = useRef(new Animated.Value(0)).current;
-  const opacityAnim = useRef(new Animated.Value(0)).current;
+  // Entrance animation values for success and error states
+  const scaleAnim = useSharedValue(0);
+  const opacityAnim = useSharedValue(0);
 
   // Auto-start pulse animation for loading state
   useEffect(() => {
@@ -37,24 +43,18 @@ function FieldStateIndicator({ state, visible, size = 24, style }) {
   // Trigger entrance animation when success or error state appears
   useEffect(() => {
     if (state === "success" || state === "error") {
-      Animated.parallel([
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: SPRING_CONFIG.PLAYFUL.tension,
-          friction: SPRING_CONFIG.PLAYFUL.friction,
-          useNativeDriver: true,
-        }),
-        Animated.timing(opacityAnim, {
-          toValue: 1,
-          duration: ANIMATION_TIMINGS.DURATION_GLOBAL,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      scaleAnim.value = withSpring(1, SPRING_CONFIG.PLAYFUL);
+      opacityAnim.value = withTiming(1, { duration: ANIMATION_TIMINGS.DURATION_GLOBAL });
     } else {
-      scaleAnim.setValue(0);
-      opacityAnim.setValue(0);
+      scaleAnim.value = 0;
+      opacityAnim.value = 0;
     }
   }, [state, scaleAnim, opacityAnim]);
+
+  const entranceStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scaleAnim.value }],
+    opacity: opacityAnim.value,
+  }));
 
   if (!state) return null;
   if (visible === false) return null;
@@ -91,9 +91,8 @@ function FieldStateIndicator({ state, visible, size = 24, style }) {
           {
             backgroundColor: theme.colors.success,
             borderRadius: size / 2,
-            transform: [{ scale: scaleAnim }],
-            opacity: opacityAnim,
           },
+          entranceStyle,
         ]}
       >
         <Icon
@@ -113,9 +112,8 @@ function FieldStateIndicator({ state, visible, size = 24, style }) {
           {
             backgroundColor: theme.colors.error,
             borderRadius: size / 2,
-            transform: [{ scale: scaleAnim }],
-            opacity: opacityAnim,
           },
+          entranceStyle,
         ]}
       >
         <Icon

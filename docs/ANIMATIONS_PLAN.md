@@ -2,7 +2,7 @@
 
 **Status**: In Implementation  
 **Aesthetic**: Playful & Bouncy (Spring Physics)  
-**Global Timing**: 300ms  
+**Global Timing**: 700ms (DURATION_GLOBAL), 300ms (TAB_TRANSITION), 400ms (SECTION_DELAY)  
 **Performance**: GPU-accelerated, older device compatible  
 **Accessibility**: Full animations for all users
 
