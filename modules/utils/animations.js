@@ -341,10 +341,10 @@ export const SCREEN_TRANSITIONS = {
 };
 
 /**
- * Global animation timings (300ms for everything)
+ * Global animation timings (700ms for everything)
  */
 export const ANIMATION_TIMINGS = {
-  DURATION_GLOBAL: 300,
+  DURATION_GLOBAL: 700,
   TAB_TRANSITION: 300,
   STAGGER_DELAY: 50,
 };

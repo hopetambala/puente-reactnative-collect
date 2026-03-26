@@ -20,7 +20,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { Button, Checkbox, Text, useTheme } from "react-native-paper";
+import { Button, Text, TextInput, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as yup from "yup";
 
@@ -220,25 +220,17 @@ function SignIn({ navigation }) {
                     placeholder={I18n.t("signIn.password")}
                     secureTextEntry={!checked}
                     value={formikProps.values.password}
+                    right={
+                      <TextInput.Icon
+                        icon={checked ? "eye-off" : "eye"}
+                        onPress={() => setChecked(!checked)}
+                        color={theme.colors.textSecondary}
+                      />
+                    }
                   />
 
-                  <View style={{ flexDirection: "row" }}>
-                    <View style={styles.container}>
-                      <View style={styles.checkbox}>
-                        <Checkbox
-                          disabled={false}
-                          color={theme.colors.primary}
-                          status={checked ? "checked" : "unchecked"}
-                          onPress={() => {
-                            setChecked(!checked);
-                          }}
-                        />
-                      </View>
-                      <Text style={styles.passwordText}>
-                        {I18n.t("signIn.showPassword")}
-                      </Text>
-                    </View>
-                    <Button style={{ flex: 1 }} onPress={handleForgotPassword}>
+                  <View style={{ flexDirection: "row", justifyContent: "flex-end", marginHorizontal: spacing.lg }}>
+                    <Button onPress={handleForgotPassword}>
                       {I18n.t("signIn.forgotPassword.label")}
                     </Button>
                   </View>
