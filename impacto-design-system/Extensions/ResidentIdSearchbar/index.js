@@ -128,9 +128,6 @@ function ResidentIdSearchbar({
 
   return (
     <View>
-      <Text variant="headlineMedium" style={styles.header}>
-        {I18n.t("residentIdSearchbar.searchIndividual")}
-      </Text>
       <Searchbar
         placeholder={I18n.t("findResident.typeHere")}
         onChangeText={onChangeSearch}

@@ -14,7 +14,7 @@ import { Formik } from "formik";
 import _ from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Platform, ScrollView, View } from "react-native";
-import { Provider, useTheme } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 
 import configArray from "./config/config";
 import styles from "./index.styles";
@@ -39,8 +39,7 @@ function AssetCore({
 
   return (
     <ScrollView>
-      <Provider>
-        <Formik
+      <Formik
           initialValues={{}}
           onSubmit={async (values, { resetForm }) => {
             setSubmitting(true);
@@ -131,7 +130,6 @@ function AssetCore({
             </View>
           )}
         </Formik>
-      </Provider>
     </ScrollView>
   );
 }

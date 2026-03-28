@@ -39,7 +39,7 @@ function FormGallery({
       setCustomForms(forms || []);
       filterWorkflows(forms || []);
     });
-  }, [customForms]);
+  }, []);
 
   const filterWorkflows = (forms) => {
     const tableDataByCategory = {};

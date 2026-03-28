@@ -5,16 +5,30 @@ import SignUp from "@app/domains/Auth/SignUp";
 import SettingsView from "@app/domains/Settings";
 import { AlertContext } from "@context/alert.context";
 import Toast from "@impacto-design-system/Base/Toast";
+import { ROOT_ENTERING } from "@modules/utils/animations";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useContext } from "react";
 import { Platform, StatusBar, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
+import Animated from "react-native-reanimated";
 
 import BottomTabNavigator from "./BottomTabNavigator";
 import LinkingConfiguration from "./LinkingConfiguration";
 
 const Stack = createNativeStackNavigator();
+
+/**
+ * Wrapper component that animates Root (tabs) entrance with Reanimated layout animation
+ * Applies when transitioning from sign-in screen
+ */
+function RootScreenWrapper(props) {
+  return (
+    <Animated.View style={{ flex: 1 }} entering={ROOT_ENTERING}>
+      <BottomTabNavigator {...props} />
+    </Animated.View>
+  );
+}
 
 function MainNavigation() {
   const theme = useTheme();
@@ -32,7 +46,8 @@ function MainNavigation() {
       <NavigationContainer
         linking={LinkingConfiguration}
       >
-        <Stack.Navigator>
+        <Stack.Navigator
+        >
           <Stack.Screen
             name="Sign In"
             component={SignIn}
@@ -55,13 +70,19 @@ function MainNavigation() {
           />
           <Stack.Screen
             name="Root"
-            component={BottomTabNavigator}
+            component={RootScreenWrapper}
             options={{ headerShown: false, gestureEnabled: false }}
           />
           <Stack.Screen
             name="SettingsModal"
             component={SettingsView}
-            options={{ headerShown: false, presentation: "modal" }}
+            options={{
+              headerShown: false,
+              presentation: "modal",
+              animation: "slide_from_bottom",
+              gestureDirection: "vertical",
+              gestureEnabled: true,
+            }}
           />
         </Stack.Navigator>
       </NavigationContainer>

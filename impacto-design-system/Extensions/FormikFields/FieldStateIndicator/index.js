@@ -1,7 +1,13 @@
-import { usePulseAnimation } from "@modules/utils/animations";
+import { ANIMATION_TIMINGS, SPRING_CONFIG, usePulseAnimation } from "@modules/utils/animations";
 import React, { useEffect } from "react";
-import { Animated, View } from "react-native";
+import { View } from "react-native";
 import { ActivityIndicator, Icon, useTheme } from "react-native-paper";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
 /**
  * Reusable component for displaying field states
@@ -18,6 +24,10 @@ import { ActivityIndicator, Icon, useTheme } from "react-native-paper";
 function FieldStateIndicator({ state, visible, size = 24, style }) {
   const theme = useTheme();
   const pulseAnimation = usePulseAnimation({ duration: 1000, scaleRange: 1.1 });
+  
+  // Entrance animation values for success and error states
+  const scaleAnim = useSharedValue(0);
+  const opacityAnim = useSharedValue(0);
 
   // Auto-start pulse animation for loading state
   useEffect(() => {
@@ -29,6 +39,22 @@ function FieldStateIndicator({ state, visible, size = 24, style }) {
 
     return () => pulseAnimation.stop();
   }, [state]);
+
+  // Trigger entrance animation when success or error state appears
+  useEffect(() => {
+    if (state === "success" || state === "error") {
+      scaleAnim.value = withSpring(1, SPRING_CONFIG.PLAYFUL);
+      opacityAnim.value = withTiming(1, { duration: ANIMATION_TIMINGS.DURATION_GLOBAL });
+    } else {
+      scaleAnim.value = 0;
+      opacityAnim.value = 0;
+    }
+  }, [state, scaleAnim, opacityAnim]);
+
+  const entranceStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scaleAnim.value }],
+    opacity: opacityAnim.value,
+  }));
 
   if (!state) return null;
   if (visible === false) return null;
@@ -59,13 +85,14 @@ function FieldStateIndicator({ state, visible, size = 24, style }) {
 
   if (state === "success") {
     return (
-      <View
+      <Animated.View
         style={[
           containerStyle,
           {
             backgroundColor: theme.colors.success,
             borderRadius: size / 2,
           },
+          entranceStyle,
         ]}
       >
         <Icon
@@ -73,19 +100,20 @@ function FieldStateIndicator({ state, visible, size = 24, style }) {
           size={size * 0.6}
           color={theme.colors.onSurface}
         />
-      </View>
+      </Animated.View>
     );
   }
 
   if (state === "error") {
     return (
-      <View
+      <Animated.View
         style={[
           containerStyle,
           {
             backgroundColor: theme.colors.error,
             borderRadius: size / 2,
           },
+          entranceStyle,
         ]}
       >
         <Icon
@@ -93,7 +121,7 @@ function FieldStateIndicator({ state, visible, size = 24, style }) {
           size={size * 0.6}
           color={theme.colors.onSurface}
         />
-      </View>
+      </Animated.View>
     );
   }
 

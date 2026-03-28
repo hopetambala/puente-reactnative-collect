@@ -2,8 +2,9 @@ import { spacing } from "@modules/theme";
 import { usePressAnimation } from "@modules/utils/animations";
 import PropTypes from "prop-types";
 import React from "react";
-import { Animated, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { useTheme } from "react-native-paper";
+import Animated from "react-native-reanimated";
 
 /**
  * Modern flat card component with borders, animations, and dark mode support

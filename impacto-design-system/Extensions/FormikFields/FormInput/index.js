@@ -1,9 +1,11 @@
 import FieldStateIndicator from "@impacto-design-system/Extensions/FormikFields/FieldStateIndicator";
 import { spacing, typography } from "@modules/theme";
+import { ANIMATION_CONFIG, useShakeAnimation } from "@modules/utils/animations";
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { TextInput, useTheme } from "react-native-paper";
+import Animated from "react-native-reanimated";
 
 const createStyles = (theme) =>
   StyleSheet.create({
@@ -21,10 +23,6 @@ const createStyles = (theme) =>
     },
     input: {
       backgroundColor: theme.colors.surfaceSunken,
-      // Modern flat design: Use border, not shadow
-      borderWidth: 1,
-      borderColor: theme.colors.outline,
-      borderRadius: 8, // Using dlite semantic border radius token value
     },
     errorText: {
       color: theme.colors.error,
@@ -33,14 +31,6 @@ const createStyles = (theme) =>
       marginLeft: spacing.sm,
       fontWeight: "500",
     },
-    labelContainer: {
-      marginBottom: spacing.xs,
-    },
-    label: {
-      ...typography.label1,
-      color: theme.colors.onSurface,
-      fontWeight: "600",
-    },
     successIndicator: {
       marginRight: spacing.xs,
     },
@@ -48,8 +38,8 @@ const createStyles = (theme) =>
 
 /**
  * Modern form input component with enhanced styling and state indicators
- * Uses dlite semantic tokens for flat, minimal design (no shadows)
- * Includes loading, success, and error state indicators
+ * Uses dlite semantic tokens for flat, minimal design
+ * Includes error shake animation and state indicators
  */
 function FormInput({
   label,
@@ -61,45 +51,48 @@ function FormInput({
 }) {
   const theme = useTheme();
   const styles = createStyles(theme);
-  const [isFocused, setIsFocused] = useState(false);
   const error = formikProps.touched[formikKey] && formikProps.errors[formikKey];
   const value = formikProps.values[formikKey];
   const hasValue = value && value.toString().trim().length > 0;
   const showSuccess = showSuccessOn && hasValue && !error && !isLoading;
 
+  // Shake animation on error
+  const { shakeStyle, triggerShake } = useShakeAnimation({
+    amplitude: ANIMATION_CONFIG.SHAKE_SMALL,
+    axis: "translateX",
+    duration: ANIMATION_CONFIG.DURATION_FAST,
+  });
+
+  useEffect(() => {
+    if (error) {
+      triggerShake();
+    }
+  }, [error, triggerShake]);
+
   const handleBlur = () => {
-    setIsFocused(false);
-    formikProps.setFieldTouched(formikKey, true);
-  };
-
-  const handleFocus = () => {
-    setIsFocused(true);
-  };
-
-  // Determine border color based on state
-  const getBorderColor = () => {
-    if (error) return theme.colors.error;
-    if (isFocused) return theme.colors.primary;
-    return theme.colors.outline;
+    // Mark field as touched but do NOT trigger validation on blur.
+    // Validation only runs on submit to prevent premature shake/error animations.
+    formikProps.setFieldTouched(formikKey, true, false);
   };
 
   return (
     <View style={styles.container}>
-      {label && (
-        <View style={styles.labelContainer}>
-          <Text style={styles.label}>{label}</Text>
-        </View>
-      )}
-      <View style={styles.inputWrapper}>
+      <Animated.View
+        style={[
+          styles.inputWrapper,
+          shakeStyle,
+        ]}
+      >
         <View style={styles.inputContainer}>
           <TextInput
+            label={label}
             onChangeText={formikProps.handleChange(formikKey)}
             onBlur={handleBlur}
-            onFocus={handleFocus}
             value={value || ""}
             {...rest}
             mode="outlined"
-            style={[styles.input, { borderColor: getBorderColor() }]}
+            style={styles.input}
+            error={!!error}
             theme={{
               colors: {
                 placeholder: theme.colors.textTertiary,
@@ -113,17 +106,11 @@ function FormInput({
 
         {/* State indicator: loading, success, or error */}
         <View style={styles.successIndicator}>
-          {isLoading && (
-            <FieldStateIndicator state="loading" size={20} />
-          )}
-          {showSuccess && (
-            <FieldStateIndicator state="success" size={20} />
-          )}
-          {error && (
-            <FieldStateIndicator state="error" size={20} />
-          )}
+          {isLoading && <FieldStateIndicator state="loading" size={20} />}
+          {showSuccess && <FieldStateIndicator state="success" size={20} />}
+          {error && <FieldStateIndicator state="error" size={20} />}
         </View>
-      </View>
+      </Animated.View>
 
       {/* Error message below input */}
       {error && <Text style={styles.errorText}>{error}</Text>}

@@ -1,11 +1,10 @@
 import { createLayoutStyles, spacing, typography } from "@modules/theme";
+import { usePressAnimation } from "@modules/utils/animations";
 import PropTypes from "prop-types";
 import * as React from "react";
-import {
-  Animated,
-  Pressable,
-} from "react-native";
-import { Button as PaperButton,useTheme  } from "react-native-paper";
+import { Pressable } from "react-native";
+import { Button as PaperButton, useTheme } from "react-native-paper";
+import Animated from "react-native-reanimated";
 
 function Button({
   onPress,
@@ -20,23 +19,10 @@ function Button({
 }) {
   const theme = useTheme();
   const layout = createLayoutStyles(theme);
-  const scaleAnim = React.useRef(new Animated.Value(1)).current;
-
-  const handlePressIn = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.95,
-      useNativeDriver: true,
-      speed: 20,
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      useNativeDriver: true,
-      speed: 20,
-    }).start();
-  };
+  const { animatedStyle, onPressIn, onPressOut } = usePressAnimation({
+    scaleTo: 0.95,
+    opacityTo: 0.9,
+  });
 
   const getColor = () => {
     if (disabled) return theme.colors.placeholder;
@@ -69,11 +55,14 @@ function Button({
   ];
 
   return (
-    <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut}>
+    <Pressable onPressIn={onPressIn} onPressOut={onPressOut} disabled={disabled}>
       <Animated.View
-        style={{
-          transform: [{ scale: scaleAnim }],
-        }}
+        style={[
+          {
+            transform: [{ scale: 1 }],
+          },
+          animatedStyle,
+        ]}
       >
         <PaperButton
           icon={icon || ""}

@@ -1,9 +1,11 @@
 import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
+import { ANIMATION_TIMINGS } from "@modules/utils/animations";
 import React from "react";
 import { ScrollView, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
+import Animated, { Easing, FadeInRight } from "react-native-reanimated";
 
 import createStyles from "../index.styles";
 
@@ -15,38 +17,45 @@ function FormsHorizontalView({
 }) {
   const theme = useTheme();
   const layout = createLayoutStyles(theme);
-  const styles = createStyles(theme);  return <View style={layout.screenRow}>
+  const styles = createStyles(theme);
+
+  const safeForms = Array.isArray(forms) ? forms : [];
+
+  return <View style={layout.screenRow}>
     {header && (
       <View style={{ flexDirection: "row" }}>
         <Text style={styles.mediumHeader}>{header}</Text>
       </View>
     )}
     <ScrollView horizontal>
-      {forms.map((form) => (
-        <ModernCard
+      {safeForms.map((form, index) => (
+        <Animated.View
           key={form.objectId || form.name}
-          style={layout.cardSmallStyle}
-          onPress={() => navigateToCustomForm(form)}
-          onLongPress={pinForm ? () => pinForm(form) : undefined}
+          entering={FadeInRight
+            .delay(ANIMATION_TIMINGS.SECTION_DELAY + index * ANIMATION_TIMINGS.STAGGER_DELAY)
+            .duration(ANIMATION_TIMINGS.DURATION_GLOBAL)
+            .easing(Easing.inOut(Easing.ease))
+            .withInitialValues({ transform: [{ translateX: 50 }] })}
         >
-          <View style={styles.cardContainer}>
-            <View style={styles.textContainer}>
-              <Text style={styles.text}>{form.name}</Text>
+          <ModernCard
+            style={layout.cardSmallStyle}
+            onPress={() => navigateToCustomForm(form)}
+            onLongPress={pinForm ? () => pinForm(form) : undefined}
+          >
+            <View style={styles.cardContainer}>
+              <View style={styles.textContainer}>
+                <Text style={styles.text}>{form.name}</Text>
+              </View>
             </View>
-          </View>
-        </ModernCard>
+          </ModernCard>
+        </Animated.View>
       ))}
-      {forms?.length < 1 && (
+      {safeForms.length < 1 && (
         <View style={layout.screenRow}>
           <ModernCard key="no-custom-forms">
             <View style={{ padding: 16 }}>
               <Text>{I18n.t("formsGallery.noCustomForms")}</Text>
             </View>
-            {/* To be used when marketplace is available */}
-            {/* <Card.Content>
-                <Text>{I18n.t('formsGallery.checkOutMarketplace')}</Text>
-                <Button>{I18n.t('formsGallery.viewMarketplace')}</Button>
-            </Card.Content> */}
           </ModernCard>
         </View>
       )}

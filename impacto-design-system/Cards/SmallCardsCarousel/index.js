@@ -2,9 +2,14 @@ import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import I18n from "@modules/i18n";
 import { theme } from "@modules/theme";
 import { getTokens } from "@modules/theme/tokens";
+import { ANIMATION_TIMINGS } from "@modules/utils/animations";
 import React, { useMemo } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+} from "react-native";
 import { Text, useTheme } from "react-native-paper";
+import Animated, { Easing, FadeInRight } from "react-native-reanimated";
 
 /**
  * Carousel of Forms that are used for Form Navigation
@@ -25,7 +30,7 @@ import { Text, useTheme } from "react-native-paper";
  */
 
 function SmallCardsCarousel({
-  puenteForms,
+  puenteForms = [],
   navigateToNewRecord,
   setView,
   surveyee,
@@ -35,6 +40,9 @@ function SmallCardsCarousel({
   const currentTheme = useTheme();
   const isDark = currentTheme.dark;
   const tokens = getTokens(isDark ? "dark" : "light");
+  
+  // Guard: ensure puenteForms is always an array
+  const safePuenteForms = Array.isArray(puenteForms) ? puenteForms : [];
   
   const styles = useMemo(() => StyleSheet.create({
     cardSmallStyle: {
@@ -50,31 +58,41 @@ function SmallCardsCarousel({
       fontWeight: "700",
       fontSize: 12,
     },
-  }), [currentTheme]);
+  }), [currentTheme, tokens]);
 
   return <ScrollView horizontal>
-    {puenteForms.map((form) => (
-      <ModernCard
+    {safePuenteForms.map((form, index) => (
+      <Animated.View
         key={form.tag}
-        style={[
-          styles.cardSmallStyle,
-          { backgroundColor: tokens[isDark ? form.colorTokenDark : form.colorTokenLight] }
-        ]}
-        onPress={() => {
-          if (setUser) {
-            if (setView) {
-              setView("Forms");
-            }
-            navigateToNewRecord(form.tag, surveyee);
-          } else {
-            navigateToNewRecord(form.tag);
-          }
-        }}
-        onLongPress={pinForm ? () => pinForm(form) : undefined}
+        entering={FadeInRight
+          .delay(index * ANIMATION_TIMINGS.STAGGER_DELAY)
+          .duration(ANIMATION_TIMINGS.DURATION_GLOBAL)
+          .easing(Easing.inOut(Easing.ease))
+          .withInitialValues({ transform: [{ translateX: 50 }] })}
       >
-            <Text style={styles.text}>{I18n.t(form.name)}</Text>
-      </ModernCard>
-    ))}
+        <ModernCard
+          style={[
+            styles.cardSmallStyle,
+            { 
+              backgroundColor: tokens[isDark ? form.colorTokenDark : form.colorTokenLight] 
+            }
+          ]}
+          onPress={() => {
+            if (setUser) {
+              if (setView) {
+                setView("Forms");
+              }
+              navigateToNewRecord(form.tag, surveyee);
+            } else {
+              navigateToNewRecord(form.tag);
+            }
+          }}
+          onLongPress={pinForm ? () => pinForm(form) : undefined}
+        >
+          <Text style={styles.text}>{I18n.t(form.name)}</Text>
+        </ModernCard>
+        </Animated.View>
+      ))}
   </ScrollView>
 }
 
