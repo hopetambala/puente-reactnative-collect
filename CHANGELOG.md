@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [14.1.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.5...v14.1.0) (2026-03-28)
+
+
+### New Features
+
+* Add animations! ([85ceffa](https://github.com/hopetambala/puente-reactnative-collect/commit/85ceffa9f41edcad7a3e8e5955b2cca2a1c2e747))
+* standardize animations across application ([6c979de](https://github.com/hopetambala/puente-reactnative-collect/commit/6c979de4b84eedae51c0adbb9c8a811390718572))
+
+
+### Bug fixes
+
+* Consolidate to React Reanimated for animation handling ([d6002d6](https://github.com/hopetambala/puente-reactnative-collect/commit/d6002d6619b6762d2d5c64a57aad3cd5dbada574))
+* dark mode for asset form ([1bd37e8](https://github.com/hopetambala/puente-reactnative-collect/commit/1bd37e8acd276eafc184a03944e67e20dca47c3e))
+
 ### [14.0.5](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.4...v14.0.5) (2026-03-24)
 
 
