@@ -9,7 +9,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { Text, useTheme } from "react-native-paper";
-import Animated, { SlideInRight } from "react-native-reanimated";
+import Animated, { Easing, FadeInRight } from "react-native-reanimated";
 
 /**
  * Carousel of Forms that are used for Form Navigation
@@ -64,9 +64,11 @@ function SmallCardsCarousel({
     {safePuenteForms.map((form, index) => (
       <Animated.View
         key={form.tag}
-        entering={SlideInRight.delay(index * ANIMATION_TIMINGS.STAGGER_DELAY)
+        entering={FadeInRight
+          .delay(index * ANIMATION_TIMINGS.STAGGER_DELAY)
           .duration(ANIMATION_TIMINGS.DURATION_GLOBAL)
-          .withInitialValues({ transform: [{ translateX: 50 }], opacity: 0 })}
+          .easing(Easing.inOut(Easing.ease))
+          .withInitialValues({ transform: [{ translateX: 50 }] })}
       >
         <ModernCard
           style={[

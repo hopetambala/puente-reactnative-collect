@@ -5,7 +5,7 @@ import { ANIMATION_TIMINGS } from "@modules/utils/animations";
 import React from "react";
 import { ScrollView, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
-import Animated, { SlideInRight } from "react-native-reanimated";
+import Animated, { Easing, FadeInRight } from "react-native-reanimated";
 
 import createStyles from "../index.styles";
 
@@ -31,11 +31,11 @@ function FormsHorizontalView({
       {safeForms.map((form, index) => (
         <Animated.View
           key={form.objectId || form.name}
-          entering={SlideInRight.delay(
-            ANIMATION_TIMINGS.SECTION_DELAY + index * ANIMATION_TIMINGS.STAGGER_DELAY
-          )
+          entering={FadeInRight
+            .delay(ANIMATION_TIMINGS.SECTION_DELAY + index * ANIMATION_TIMINGS.STAGGER_DELAY)
             .duration(ANIMATION_TIMINGS.DURATION_GLOBAL)
-            .withInitialValues({ transform: [{ translateX: 50 }], opacity: 0 })}
+            .easing(Easing.inOut(Easing.ease))
+            .withInitialValues({ transform: [{ translateX: 50 }] })}
         >
           <ModernCard
             style={layout.cardSmallStyle}
