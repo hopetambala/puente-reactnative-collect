@@ -198,7 +198,7 @@ function HouseholdManager(props) {
             {relationship === "Other" && (
               <View style={styles}>
                 <TextInput
-                  label="Other"
+                  label={I18n.t("global.other")}
                   onChangeText={handleChange("other")}
                   onBlur={handleBlur("other")}
                   mode="outlined"

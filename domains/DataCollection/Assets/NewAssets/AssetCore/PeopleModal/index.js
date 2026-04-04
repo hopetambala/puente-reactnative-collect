@@ -18,7 +18,7 @@ function PeopleModal({
     <Appbar.Header style={{ backgroundColor: theme.colors.surfaceRaised }}>
       <Appbar.Action icon="chevron-down" onPress={toggleModal} />
       <Appbar.Content
-        title="People Manager"
+        title={I18n.t("peopleModal.title")}
         subtitle=""
         titleStyle={{ fontSize: 20, fontWeight: "bold" }}
       />

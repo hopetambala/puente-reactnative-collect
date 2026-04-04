@@ -24,9 +24,18 @@ import Animated from "react-native-reanimated";
  * @param {string} props.variant Card style variant: 'default' | 'elevated' (default: 'default')
  * @param {boolean} props.disabled Disable press feedback (default: false)
  * @param {string} props.testID Test ID for testing
+ * @param {boolean} props.shadow Apply a very faint drop shadow (default: false)
  * 
  * @returns JSX element
  */
+const FAINT_SHADOW = {
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 5 },
+  shadowOpacity: 0.025,
+  shadowRadius: 10.84,
+  elevation: 5,
+};
+
 function ModernCard({
   children,
   onPress,
@@ -35,6 +44,7 @@ function ModernCard({
   variant = "default",
   disabled = false,
   testID,
+  shadow = true,
 }) {
   const theme = useTheme();
   const pressAnimation = usePressAnimation({
@@ -60,17 +70,16 @@ function ModernCard({
 
   const baseStyles = StyleSheet.create({
     card: {
-      borderWidth: 1,
-      borderColor: theme.colors.outline,
-      borderRadius: 12, // dlite semantic border radius lg
-      backgroundColor: theme.colors.surfaceRaised,
-      overflow: "hidden",
-    },
-    cardElevated: {
-      borderWidth: 2,
-      borderColor: theme.colors.primary,
       borderRadius: 12,
       backgroundColor: theme.colors.surfaceRaised,
+    },
+    cardElevated: {
+      borderRadius: 12,
+      backgroundColor: theme.colors.surfaceRaised,
+    },
+    // Inner wrapper handles border-radius clipping separately from shadow
+    clipWrapper: {
+      borderRadius: 12,
       overflow: "hidden",
     },
     content: {
@@ -79,13 +88,16 @@ function ModernCard({
   });
 
   const cardStyle = variant === "elevated" ? baseStyles.cardElevated : baseStyles.card;
+  const shadowStyle = shadow ? FAINT_SHADOW : undefined;
   const isInteractive = onPress || onLongPress;
 
   if (!isInteractive || disabled) {
     return (
-      <View style={[cardStyle, styleWithoutBg, customBackgroundColor ? { backgroundColor: customBackgroundColor } : undefined]} testID={testID}>
-        <View style={baseStyles.content}>
-          {children}
+      <View style={[cardStyle, shadowStyle, styleWithoutBg, customBackgroundColor ? { backgroundColor: customBackgroundColor } : undefined]} testID={testID}>
+        <View style={baseStyles.clipWrapper}>
+          <View style={baseStyles.content}>
+            {children}
+          </View>
         </View>
       </View>
     );
@@ -103,13 +115,16 @@ function ModernCard({
       <Animated.View
         style={[
           cardStyle,
+          shadowStyle,
           styleWithoutBg,
           customBackgroundColor ? { backgroundColor: customBackgroundColor } : undefined,
           pressAnimation.animatedStyle,
         ]}
       >
-        <View style={baseStyles.content}>
-          {children}
+        <View style={baseStyles.clipWrapper}>
+          <View style={baseStyles.content}>
+            {children}
+          </View>
         </View>
       </Animated.View>
     </Pressable>
@@ -124,6 +139,7 @@ ModernCard.propTypes = {
   variant: PropTypes.oneOf(["default", "elevated"]),
   disabled: PropTypes.bool,
   testID: PropTypes.string,
+  shadow: PropTypes.bool,
 };
 
 ModernCard.defaultProps = {
@@ -133,6 +149,7 @@ ModernCard.defaultProps = {
   variant: "default",
   disabled: false,
   testID: undefined,
+  shadow: false,
 };
 
 export default ModernCard;
