@@ -1,6 +1,7 @@
 import AssetsNavigator from "@app/domains/Assets/navigator";
 import DataCollectionNavigator from "@app/domains/DataCollection/navigator";
 import FindRecordsNavigator from "@app/domains/FindRecords/navigator";
+import HomeScreen from "@app/domains/HomeScreen";
 import SettingsView from "@app/domains/Settings";
 import { TabBarIcon } from "@impacto-design-system/Extensions";
 import AnimatedTabBar from "@impacto-design-system/MainNavigation/BottomTabNavigator/AnimatedTabBar";
@@ -17,7 +18,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 const BottomTab = createBottomTabNavigator();
-const INITIAL_ROUTE_NAME = "Data_Collection";
+const INITIAL_ROUTE_NAME = "Home";
 const tabIcon = (iconName) => ({ focused }) => (
   <TabBarIcon focused={focused} name={iconName} />
 );
@@ -107,6 +108,20 @@ export default function BottomTabNavigator() {
         {(props) => (
           <TabScreenWrapper>
             <DataCollectionNavigator {...props} />
+          </TabScreenWrapper>
+        )}
+      </BottomTab.Screen>
+      <BottomTab.Screen
+        name="Home"
+        options={{
+          title: "Home",
+          headerShown: false,
+          tabBarIcon: tabIcon("home-outline"),
+        }}
+      >
+        {(props) => (
+          <TabScreenWrapper>
+            <HomeScreen {...props} />
           </TabScreenWrapper>
         )}
       </BottomTab.Screen>
