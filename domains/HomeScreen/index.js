@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme, SegmentedButtons } from 'react-native-paper';
 import Text from '@app/impacto-design-system/Base/Text';
 import { spacing, typography } from '@modules/theme';
+import I18n from '@modules/i18n';
 import StatCard from './components/StatCard';
 import StatDetailModal from './components/StatDetailModal';
 import useHomeStats from './hooks/useHomeStats';
@@ -89,7 +90,7 @@ function HomeScreen() {
       <SafeAreaView edges={['top']} style={styles.container}>
         <View style={styles.scrollContent}>
           <Text style={[styles.greeting, { color: theme.colors.onBackground }]}>
-            Loading...
+            {I18n.t('home.loading')}
           </Text>
         </View>
       </SafeAreaView>
@@ -107,14 +108,14 @@ function HomeScreen() {
         {/* Title Header */}
         <View style={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.sm }}>
           <Text style={[typography.heading2, { fontWeight: 'bold', color: theme.colors.onSurface, marginTop: spacing.sm }]}>
-            Home
+            {I18n.t('home.title')}
           </Text>
         </View>
 
         {/* Welcome Section */}
         <View style={styles.welcomeSection}>
           <Text style={[styles.greeting, { color: theme.colors.onSurfaceVariant }]}>
-            Welcome back, {user.firstname}
+            {I18n.t('home.welcomeBack', { name: user.firstname })}
           </Text>
           <Text
             style={[
@@ -130,7 +131,7 @@ function HomeScreen() {
         {isOffline && (
           <View style={styles.offlineBanner}>
             <Text style={[styles.offlineText, { color: '#f57c00' }]}>
-              📱 Showing cached data
+              {I18n.t('home.offlineCached')}
             </Text>
           </View>
         )}
@@ -141,9 +142,9 @@ function HomeScreen() {
             value={timeFilter}
             onValueChange={setTimeFilter}
             buttons={[
-              { value: 'today', label: 'Today' },
-              { value: 'week', label: 'This Week' },
-              { value: 'all', label: 'All Time' },
+              { value: 'today', label: I18n.t('home.today') },
+              { value: 'week', label: I18n.t('home.thisWeek') },
+              { value: 'all', label: I18n.t('home.allTime') },
             ]}
           />
         </View>
@@ -153,7 +154,7 @@ function HomeScreen() {
           <>
             <View style={styles.recentActivityRow}>
               <StatCard
-                title="Recent Activity"
+                title={I18n.t('home.recentActivity')}
                 icon="history"
                 count={stats.recentActivity?.count ?? 0}
                 previous={undefined}
@@ -167,7 +168,7 @@ function HomeScreen() {
             {/* 2x2 Grid */}
             <View style={styles.grid}>
               <StatCard
-                title="My Surveys"
+                title={I18n.t('home.mySurveys')}
                 icon="clipboard-check"
                 count={stats.mySurveys?.count ?? 0}
                 previous={stats.mySurveys?.previous}
@@ -177,7 +178,7 @@ function HomeScreen() {
                 fullWidth={false}
               />
               <StatCard
-                title="Org Surveys"
+                title={I18n.t('home.orgSurveys')}
                 icon="office-building"
                 count={stats.orgSurveys?.count ?? 0}
                 previous={stats.orgSurveys?.previous}
@@ -187,7 +188,7 @@ function HomeScreen() {
                 fullWidth={false}
               />
               <StatCard
-                title="My Vitals"
+                title={I18n.t('home.myVitals')}
                 icon="pulse"
                 count={stats.myVitals?.count ?? 0}
                 previous={stats.myVitals?.previous}
@@ -197,7 +198,7 @@ function HomeScreen() {
                 fullWidth={false}
               />
               <StatCard
-                title="Org Vitals"
+                title={I18n.t('home.orgVitals')}
                 icon="hospital-box"
                 count={stats.orgVitals?.count ?? 0}
                 previous={stats.orgVitals?.previous}

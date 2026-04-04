@@ -35,7 +35,9 @@
     "toSpanish": "Chanje lang pou Espanol",
     "errorTerms": "Erè, tèm ak sèvis yo bezwen dakò.",
     "errorPassword": "Erè, modpas ou pa matche ak.",
-    "usernameError": "Tantativ enskri echwe. \n nOu te ka eseye enskri ak yon non itilizatè (imèl / nimewo telefòn) ki te deja anrejistre ak yon lòt kont. \n nTanpri kontakte sipèvizè ou si ou kwè sa se yon erè."
+    "usernameError": "Tantativ enskri echwe. \n nOu te ka eseye enskri ak yon non itilizatè (imèl / nimewo telefòn) ki te deja anrejistre ak yon lòt kont. \n nTanpri kontakte sipèvizè ou si ou kwè sa se yon erè.",
+    "confirmViaEmail": "Voye konfirmasyon pa imèl?",
+    "confirmViaText": "Voye konfirmasyon pa tèks?"
   },
   "signIn": {
     "user":"Non itilizatè",
@@ -64,6 +66,7 @@
     },
     "unableLogin": "Kapab konekte",
     "usernamePasswordIncorrect": "Non itilizatè ou an oswa modpas ou ka kòrèk, tanpri eseye ankò.",
+    "offlineLoginError": "Pa kapab konekte san entennèt, tanpri vérifye kalifikasyon ou.",
     "credentials": "Credentials",
     "saveLoginCreds": "Èske ou ta renmen sove kalifikasyon login ou pou itilize nan lavni?"
   },
@@ -384,7 +387,19 @@
     "myTasks": "Travay mwen yo",
     "comingSoon": "Vini Talè",
     "tasks": "Travay",
-    "logOut": "Dekonekte"
+    "logOut": "Dekonekte",
+    "title": "Kay",
+    "loading": "Chajman...",
+    "offlineCached": "Montre done ki nan kache",
+    "today": "Jodi",
+    "thisWeek": "Semèn sa",
+    "allTime": "Tout Tan",
+    "welcomeBack": "Benveni tounen, %{name}",
+    "recentActivity": "Aktivite Resan",
+    "mySurveys": "Sondaj Mwen yo",
+    "orgSurveys": "Sondaj Òganizasyon",
+    "myVitals": "Siy Vital Mwen yo",
+    "orgVitals": "Siy Vital Òganizasyon"
   },
   "components": {
     "autofill": {
@@ -498,7 +513,9 @@
     "offlineData": "Done Offline",
     "language": "Lang",
     "back": "Retounen",
-    "logout": "Dekonekte"
+    "logout": "Dekonekte",
+    "populateIdForms": "Ranpli tout Fòm ID",
+    "clearCachedIdForms": "Efase Fòm ID ki nan kache"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Dosye aktyèl ki estoke",
@@ -565,6 +582,7 @@
     "sorryAlert":"Nou bezwen otorizasyon woulo liv kamera pou fè travay sa a!"
   },
   "peopleModal": {
+    "title": "Manadjè Moun",
     "fname": "Premye Non",
     "enterFname": "Mete Premye Non",
     "lname": "Siyati",
@@ -590,6 +608,9 @@
     "error": "ERÈ!\n\nFòm ou pa te soumèt. Tanpri eseye ankò oswa kontakte sipèvizè ou a si pwoblèm nan kontinye.",
     "geolocation":"DELÉ!\n\nGeolokalizasyon telefòn ou an pa t 'kapab jwenn nan aparèy ou an. Tanpri eseye ankò"
   },
+  "dataAnalysis": {
+    "welcome": "Byenveni nan paj analiz done yo."
+  },
   "formCounts": {
     "surveysCollected": "Sondaj kolekte",
     "error": "Te gen yon erè ap resevwa done ou. Tcheke koneksyon entènèt ou an epi eseye ankò.",
@@ -600,5 +621,11 @@
     "customForms": "Fòm Custom",
     "assetForms": "Fòm Byen",
     "back": "Retounen"
+  },
+  "theme": {
+    "title": "Tèm",
+    "light": "Limyè",
+    "dark": "Fènwa",
+    "auto": "Otomatik"
   }
 }

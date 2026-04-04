@@ -106,7 +106,7 @@ export default function SignUp({ navigation }) {
         <Button
           icon="arrow-left"
           onPress={() => navigation.navigate("Sign In")}
-          buttonText="Back"
+          buttonText={I18n.t("global.back")}
           style={[styles.serviceButton, { marginTop: 60 }]}
         />
         <ScrollView
@@ -190,13 +190,13 @@ export default function SignUp({ navigation }) {
                   <Button
                     color={notificationType === "email" ? "primary" : "empty"}
                     onPress={() => setNotificationType("email")}
-                    buttonText="Send confirmation via email?"
+                    buttonText={I18n.t("signUp.confirmViaEmail")}
                     style={styles.serviceButton}
                   />
                   <Button
                     color={notificationType === "text" ? "primary" : "empty"}
                     onPress={() => setNotificationType("text")}
-                    buttonText="Send confirmation via text?"
+                    buttonText={I18n.t("signUp.confirmViaText")}
                     style={styles.serviceButton}
                   />
                   <Autofill
