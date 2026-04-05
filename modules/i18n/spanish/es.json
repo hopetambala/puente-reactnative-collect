@@ -59,7 +59,8 @@
       "rememberPass": "¿Recuerdas tu contraseña?",
       "signIn": "Registrarse",
       "resetSuccess": "Su enlace de restablecimiento de contraseña se ha enviado a su correo electrónico. Por favor revise su correo electrónico para cambiar su contraseña.",
-      "resetError": "Hubo un error al enviar el enlace para restablecer la contraseña. Asegúrese de haber ingresado su correo electrónico correctamente. Puede intentarlo de nuevo haciendo clic en el botón de abajo. Si cree que el correo electrónico es correcto, comuníquese con su gerente."
+      "resetError": "Hubo un error al enviar el enlace para restablecer la contraseña. Asegúrese de haber ingresado su correo electrónico correctamente. Puede intentarlo de nuevo haciendo clic en el botón de abajo. Si cree que el correo electrónico es correcto, comuníquese con su gerente.",
+      "tryAgain": "Intentar de nuevo"
     },
     "credentialsModal": {
       "useCreds": "¿Le gustaría guardar su usuario y contraseña?"
@@ -67,8 +68,11 @@
     "unableLogin": "No puede iniciar sesión",
     "usernamePasswordIncorrect": "Su nombre de usuario o contraseña pueden ser incorrectos. Vuelva a intentarlo.",
     "offlineLoginError": "No se puede iniciar sesión sin conexión, por favor verifique sus credenciales.",
+    "invalidSessionToken": "Su sesión ha expirado. Inicie sesión de nuevo.",
     "credentials": "Usuario y contraseña",
-    "saveLoginCreds": "¿Le gustaría guardar su usuario y contraseña de inicio de sesión para uso futuro?"
+    "saveLoginCreds": "¿Le gustaría guardar su usuario y contraseña de inicio de sesión para uso futuro?",
+    "registrationSuccess": "¡Cuenta creada!",
+    "registrationSuccessMessage": "Tu cuenta ha sido creada exitosamente. Por favor inicia sesión con tus credenciales."
   },
   "pinCode": {
     "getPinCode": {

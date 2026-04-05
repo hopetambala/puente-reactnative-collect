@@ -59,7 +59,8 @@
       "rememberPass": "Remember Password?",
       "signIn": "Sign In",
       "resetSuccess": "Your password reset link has been sent to your email. Please Check your email to change your password.",
-      "resetError": "There was an error sending the password reset link. Please ensure that you entered your email correctly. You can try again by clicking the button below. If you believe the email is correct, please contact your manager."
+      "resetError": "There was an error sending the password reset link. Please ensure that you entered your email correctly. You can try again by clicking the button below. If you believe the email is correct, please contact your manager.",
+      "tryAgain": "Try Again"
     },
     "credentialsModal": {
       "useCreds": "Would you like to use your saved login credentials?"
@@ -67,8 +68,11 @@
     "unableLogin": "Unable to login",
     "usernamePasswordIncorrect": "Your username or password may be incorrect, please try again.",
     "offlineLoginError": "Unable to login offline, please check your credentials.",
+    "invalidSessionToken": "Your session has expired. Please log in again.",
     "credentials": "Credentials",
-    "saveLoginCreds": "Would you like to save your login credentials for future use?"
+    "saveLoginCreds": "Would you like to save your login credentials for future use?",
+    "registrationSuccess": "Account Created!",
+    "registrationSuccessMessage": "Your account has been successfully created. Please sign in with your credentials."
   },
   "pinCode": {
     "getPinCode": {

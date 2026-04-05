@@ -100,9 +100,10 @@ export default function ForgotPassword({ navigation, setForgotPassword }) {
             <Button
               style={{ marginTop: 10 }}
               mode="contained"
+              theme={theme}
               onPress={() => setEmailError(false)}
             >
-              Try Again
+              {I18n.t("signIn.forgotPassword.tryAgain")}
             </Button>
           </View>
         )}
