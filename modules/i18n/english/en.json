@@ -35,7 +35,9 @@
     "toSpanish": "Change Language to Spanish",
     "errorTerms": "Error, terms and service need to be agreed to.",
     "errorPassword": "Error, your passwords do not match.",
-    "usernameError": "Sign up attempt failed.\n\nYou might have attempted to sign up with a username (email/phone number) that has been previously registered with another account.\n\nPlease contact your supervisor if you believe this is an error."
+    "usernameError": "Sign up attempt failed.\n\nYou might have attempted to sign up with a username (email/phone number) that has been previously registered with another account.\n\nPlease contact your supervisor if you believe this is an error.",
+    "confirmViaEmail": "Send confirmation via email?",
+    "confirmViaText": "Send confirmation via text?"
   },
   "signIn": {
     "user":"Username",
@@ -57,15 +59,20 @@
       "rememberPass": "Remember Password?",
       "signIn": "Sign In",
       "resetSuccess": "Your password reset link has been sent to your email. Please Check your email to change your password.",
-      "resetError": "There was an error sending the password reset link. Please ensure that you entered your email correctly. You can try again by clicking the button below. If you believe the email is correct, please contact your manager."
+      "resetError": "There was an error sending the password reset link. Please ensure that you entered your email correctly. You can try again by clicking the button below. If you believe the email is correct, please contact your manager.",
+      "tryAgain": "Try Again"
     },
     "credentialsModal": {
       "useCreds": "Would you like to use your saved login credentials?"
     },
     "unableLogin": "Unable to login",
     "usernamePasswordIncorrect": "Your username or password may be incorrect, please try again.",
+    "offlineLoginError": "Unable to login offline, please check your credentials.",
+    "invalidSessionToken": "Your session has expired. Please log in again.",
     "credentials": "Credentials",
-    "saveLoginCreds": "Would you like to save your login credentials for future use?"
+    "saveLoginCreds": "Would you like to save your login credentials for future use?",
+    "registrationSuccess": "Account Created!",
+    "registrationSuccessMessage": "Your account has been successfully created. Please sign in with your credentials."
   },
   "pinCode": {
     "getPinCode": {
@@ -385,7 +392,19 @@
     "myTasks": "My Tasks",
     "comingSoon": "Coming Soon",
     "tasks": "Tasks",
-    "logOut": "Log Out"
+    "logOut": "Log Out",
+    "title": "Home",
+    "loading": "Loading...",
+    "offlineCached": "Showing cached data",
+    "today": "Today",
+    "thisWeek": "This Week",
+    "allTime": "All Time",
+    "welcomeBack": "Welcome back, %{name}",
+    "recentActivity": "Recent Activity",
+    "mySurveys": "My Surveys",
+    "orgSurveys": "Org Surveys",
+    "myVitals": "My Vitals",
+    "orgVitals": "Org Vitals"
   },
   "components": {
     "autofill": {
@@ -500,7 +519,9 @@
     "language": "Language",
     "back": "Back",
     "logout": "Log out",
-    "deleteUser":"Delete user?"
+    "deleteUser":"Delete user?",
+    "populateIdForms": "Populate all ID Forms",
+    "clearCachedIdForms": "Clear Cached ID Forms"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Current records stored",
@@ -568,6 +589,7 @@
  
   },
   "peopleModal": {
+    "title": "People Manager",
     "fname": "First Name",
     "enterFname": "Enter First Name",
     "lname": "Last Name",
@@ -600,6 +622,9 @@
     "error": "ERROR!\n\nYour form has not been submitted. Please try again or contact your supervisor if the issue persits.",
     "geolocation":"TIMEOUT!\n\nYour phone's geolocation wasn't able to be retrieved from your device. Please try again"
   },
+  "dataAnalysis": {
+    "welcome": "Welcome to the data analysis page."
+  },
   "formCounts": {
     "surveysCollected": "Surveys Collected",
     "error": "There has been an error getting your data. Check your internet connection and try again.",
@@ -610,5 +635,11 @@
     "customForms": "Custom Forms",
     "assetForms": "Asset Forms",
     "back": "Back"
+  },
+  "theme": {
+    "title": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "auto": "Auto"
   }
 }

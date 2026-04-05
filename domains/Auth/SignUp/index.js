@@ -1,3 +1,4 @@
+import { CommonActions } from "@react-navigation/native";
 import { Button } from "@impacto-design-system/Base";
 import FormInput from "@impacto-design-system/Extensions/FormikFields/FormInput";
 import Autofill from "@impacto-design-system/Extensions/FormikFields/PaperInputPicker/AutoFill";
@@ -47,7 +48,6 @@ export default function SignUp({ navigation }) {
   const [checked, setChecked] = useState(false);
   const [visible, setVisible] = useState(false);
   const [scrollViewScroll, setScrollViewScroll] = useState();
-  const [notificationType, setNotificationType] = useState("email");
 
   const { register } = useContext(UserContext);
 
@@ -106,7 +106,7 @@ export default function SignUp({ navigation }) {
         <Button
           icon="arrow-left"
           onPress={() => navigation.navigate("Sign In")}
-          buttonText="Back"
+          buttonText={I18n.t("global.back")}
           style={[styles.serviceButton, { marginTop: 60 }]}
         />
         <ScrollView
@@ -128,20 +128,43 @@ export default function SignUp({ navigation }) {
               onSubmit={(values, actions) => {
                 if (!checked) {
                   alert(I18n.t("signUp.errorTerms")); // eslint-disable-line
+                  actions.setSubmitting(false);
                 } else if (values.password !== values.password2) {
                   alert(I18n.t("signUp.errorPassword")); // eslint-disable-line
+                  actions.setSubmitting(false);
                 } else {
-                  register(values, notificationType)
-                    .then(() => navigation.navigate("Root"))
+                  register(values)
+                    .then(() => {
+                      // Signup successful - navigate to SignIn
+                      actions.setSubmitting(false);
+                      navigation.dispatch(
+                        CommonActions.reset({
+                          index: 0,
+                          routes: [{ name: "Sign In", params: { registered: true } }],
+                        })
+                      );
+                    })
                     .catch((error) => {
-                      // sign up failed alert user
-                      console.log(`Error: ${error.code} ${error.message}`); // eslint-disable-line
-                      alert(I18n.t("signUp.usernameError")); // eslint-disable-line
+                      // Signup failed - show detailed error and stay on form
+                      actions.setSubmitting(false);
+                      console.log(`Signup Error: ${error.code} ${error.message}`); // eslint-disable-line
+                      
+                      // Map Parse error codes to user-friendly messages
+                      let errorMessage = I18n.t("signUp.usernameError");
+                      
+                      if (error.code === 101) {
+                        errorMessage = "Email or phone already in use, or invalid format";
+                      } else if (error.code === 125) {
+                        errorMessage = "Email address format is invalid";
+                      } else if (error.code === 200) {
+                        errorMessage = "Connection error - please try again";
+                      } else if (error.message) {
+                        errorMessage = error.message;
+                      }
+                      
+                      alert(`Signup failed: ${errorMessage}`); // eslint-disable-line
                     });
                 }
-                setTimeout(() => {
-                  actions.setSubmitting(false);
-                }, 1000);
               }}
               validationSchema={validationSchema}
             >
@@ -187,18 +210,6 @@ export default function SignUp({ navigation }) {
                     placeholder="Password Here"
                     secureTextEntry
                   />
-                  <Button
-                    color={notificationType === "email" ? "primary" : "empty"}
-                    onPress={() => setNotificationType("email")}
-                    buttonText="Send confirmation via email?"
-                    style={styles.serviceButton}
-                  />
-                  <Button
-                    color={notificationType === "text" ? "primary" : "empty"}
-                    onPress={() => setNotificationType("text")}
-                    buttonText="Send confirmation via text?"
-                    style={styles.serviceButton}
-                  />
                   <Autofill
                     parameter="organization"
                     formikProps={formikProps}
@@ -207,6 +218,7 @@ export default function SignUp({ navigation }) {
                     translatedLabel={I18n.t("signUp.organization")}
                     scrollViewScroll={scrollViewScroll}
                     setScrollViewScroll={setScrollViewScroll}
+                    theme={theme}
                   />
                   <Button
                     onPress={() => setVisible(true)}
@@ -232,6 +244,7 @@ export default function SignUp({ navigation }) {
                     <ActivityIndicator />
                   ) : (
                     <Button
+                      disabled={formikProps.isSubmitting}
                       onPress={formikProps.handleSubmit}
                       buttonText={I18n.t("signUp.submit")}
                       style={styles.serviceButton}

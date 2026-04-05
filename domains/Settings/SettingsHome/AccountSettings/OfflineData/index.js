@@ -55,7 +55,7 @@ function OfflineData({
             <View style={layout.formContainer}>
               <PaperButton
                 onPress={repopulateAllData}
-                buttonText="Populate all ID Forms"
+                buttonText={I18n.t("accountSettings.populateIdForms")}
                 loading={!!isLoading}
                 style={{ backgroundColor: theme.colors.info }}
               />
@@ -89,7 +89,7 @@ function OfflineData({
               />
               <PaperButton
                 onPress={() => deleteData("residentData")}
-                buttonText="Clear Cached ID Forms"
+                buttonText={I18n.t("accountSettings.clearCachedIdForms")}
                 icon="delete"
                 style={{ backgroundColor: theme.colors.error }}
               />

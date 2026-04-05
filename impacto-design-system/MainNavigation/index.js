@@ -6,6 +6,7 @@ import SettingsView from "@app/domains/Settings";
 import { AlertContext } from "@context/alert.context";
 import Toast from "@impacto-design-system/Base/Toast";
 import { ROOT_ENTERING } from "@modules/utils/animations";
+import I18n from "@modules/i18n";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import React, { useContext } from "react";
@@ -90,7 +91,7 @@ function MainNavigation() {
         text={message}
         visible={visible}
         onClick={dismiss}
-        onClickLabel="OK"
+        onClickLabel={I18n.t("global.ok")}
       />
     </View>
   );
