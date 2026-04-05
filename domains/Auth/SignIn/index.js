@@ -36,7 +36,7 @@ const validationSchema = yup.object().shape({
     .min(4, "Seems a bit short..."),
 });
 
-function SignIn({ navigation }) {
+function SignIn({ navigation, route }) {
   const theme = useTheme();
   const [checked, setChecked] = useState(false);
   const [language, setLanguage] = useState("en");
@@ -116,6 +116,20 @@ function SignIn({ navigation }) {
     }
     checkLanguage();
   }, []);
+
+  useEffect(() => {
+    // Show success message if user just registered
+    if (route?.params?.registered) {
+      Alert.alert(
+        I18n.t("signIn.registrationSuccess"),
+        I18n.t("signIn.registrationSuccessMessage"),
+        [{ text: I18n.t("global.ok") }],
+        { cancelable: true }
+      );
+      // Clear the param to avoid showing on subsequent visits
+      navigation.setParams({ registered: false });
+    }
+  }, [route?.params?.registered, navigation]);
 
   const handleFailedAttempt = (err) => {
     // error from context may be a translation key (e.g. "signIn.usernamePasswordIncorrect")

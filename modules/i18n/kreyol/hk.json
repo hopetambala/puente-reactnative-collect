@@ -59,7 +59,8 @@
       "rememberPass": "Sonje modpas ou?",
       "signIn": "Ouvè sesion",
       "resetSuccess": "Lyen Reyajiste modpas ou te voye nan imèl ou. Tanpri Tcheke imèl ou a chanje modpas ou.",
-	    "resetError": "Te gen yon erè nan voye lyen an Reyajiste modpas. Tanpri asire ke ou te antre nan imèl ou kòrèkteman. Ou ka eseye ankò pa klike sou bouton ki anba a. Si ou kwè imèl la kòrèk, tanpri kontakte manadjè ou."
+	    "resetError": "Te gen yon erè nan voye lyen an Reyajiste modpas. Tanpri asire ke ou te antre nan imèl ou kòrèkteman. Ou ka eseye ankò pa klike sou bouton ki anba a. Si ou kwè imèl la kòrèk, tanpri kontakte manadjè ou.",
+	    "tryAgain": "Eseye ankò"
     },
     "credentialsModal": {
       "useCreds": "Èske ou ta renmen itilize kalifikasyon login ou sove?"
@@ -67,8 +68,11 @@
     "unableLogin": "Kapab konekte",
     "usernamePasswordIncorrect": "Non itilizatè ou an oswa modpas ou ka kòrèk, tanpri eseye ankò.",
     "offlineLoginError": "Pa kapab konekte san entennèt, tanpri vérifye kalifikasyon ou.",
+    "invalidSessionToken": "Sesyon ou expere. Tanpri konekte ankò.",
     "credentials": "Credentials",
-    "saveLoginCreds": "Èske ou ta renmen sove kalifikasyon login ou pou itilize nan lavni?"
+    "saveLoginCreds": "Èske ou ta renmen sove kalifikasyon login ou pou itilize nan lavni?",
+    "registrationSuccess": "Kont Kreye!",
+    "registrationSuccessMessage": "Kont ou a te kreye avèk siksè. Tanpri konektje avèk kredansyal ou."
   },
   "pinCode": {
     "getPinCode": {

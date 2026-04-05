@@ -2,7 +2,7 @@ import selectedENV from "@app/environment";
 import client from "@app/services/parse/client";
 import { getData } from "@modules/async-storage";
 
-import notificationTypeRestParams from "./_signupHelper";
+// notificationTypeRestParams removed - online-only mode, no email/SMS confirmation
 
 const { parseAppId, parseJavascriptKey, parseServerUrl, TEST_MODE } =
   selectedENV;
@@ -15,11 +15,10 @@ function initialize() {
   console.log(`Initialize Parse for server: ${parseServerUrl}`);
 }
 
-function retrieveSignUpFunction(params, type) {
+function retrieveSignUpFunction(params) {
   const signupParams = params;
-  const restParamsData = notificationTypeRestParams(type, signupParams);
-  if (restParamsData) signupParams.restParams = restParamsData;
-
+  // Don't add notification params - online-only mode, no confirmation
+  
   return new Promise((resolve, reject) => {
     Parse.Cloud.run("signup", signupParams).then(
       (u) => {
@@ -33,7 +32,7 @@ function retrieveSignUpFunction(params, type) {
           organization: u.get("organization"),
           role: u.get("role"),
           createdAt: `${u.get("createdAt")}`,
-          password: params.password,
+          // NOTE: Password NOT stored - Parse SDK manages session token securely
         };
         resolve(user);
       },

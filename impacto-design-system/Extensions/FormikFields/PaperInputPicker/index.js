@@ -378,6 +378,7 @@ function PaperInputPicker({
             translatedLabel={translatedLabel}
             scrollViewScroll={scrollViewScroll}
             setScrollViewScroll={setScrollViewScroll}
+            theme={theme}
           />
           <Text style={styles.redText}>{errors[formikKey]}</Text>
         </View>
