@@ -1,31 +1,49 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import StatCard from '../index';
+
+// Mock design system Text component to avoid theme loading
+jest.mock('@app/impacto-design-system/Base/Text', () => {
+  return function MockText({ children, ...props }) {
+    const React = require('react');
+    return React.createElement('text', props, children);
+  };
+});
 
 // Mock dependencies
-jest.mock('../../../../impacto-design-system/Base/ModernCard', () => ({
+jest.mock('@app/impacto-design-system/Cards/ModernCard', () => ({
   __esModule: true,
-  default: ({ children, ...props }) => <>{children}</>,
+  default: ({ children, ...props }) => {
+    const React = require('react');
+    return React.createElement(React.Fragment, null, children);
+  },
 }));
 
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
-jest.mock('react-native-reanimated', () => ({
-  __esModule: true,
-  Animated: {
-    View: ({ children, ...props }) => <>{children}</>,
-    Text: ({ children, ...props }) => <>{children}</>,
-  },
-  useAnimatedStyle: () => ({}),
-  useSharedValue: () => ({ value: 0 }),
-  withSpring: (val) => val,
-  withTiming: (val) => val,
-}));
+jest.mock('react-native-reanimated', () => {
+  const React = require('react');
+  return {
+    __esModule: true,
+    default: {
+      View: ({ children, ...props }) => React.createElement(React.Fragment, null, children),
+      Text: ({ children, ...props }) => React.createElement(React.Fragment, null, children),
+    },
+    Animated: {
+      View: ({ children, ...props }) => React.createElement(React.Fragment, null, children),
+      Text: ({ children, ...props }) => React.createElement(React.Fragment, null, children),
+    },
+    createAnimatedComponent: (Component) => Component,
+    useAnimatedStyle: () => ({}),
+    useSharedValue: () => ({ value: 0 }),
+    withSpring: (val) => val,
+    withTiming: (val) => val,
+  };
+});
 
 jest.mock('react-native-vector-icons/MaterialCommunityIcons', () => ({
   __esModule: true,
-  default: ({ name, size, color }) => (
-    <text>{`Icon: ${name} (${size}, ${color})`}</text>
-  ),
+  default: ({ name, size, color }) => {
+    const React = require('react');
+    return React.createElement('text', {}, `Icon: ${name} (${size}, ${color})`);
+  },
 }));
 
 jest.mock('react-native-paper', () => ({
@@ -45,6 +63,8 @@ jest.mock('react-native-paper', () => ({
     },
   }),
 }));
+
+import StatCard from '../index';
 
 describe('StatCard Component - Snapshots', () => {
   test('renders StatCard with count data', () => {

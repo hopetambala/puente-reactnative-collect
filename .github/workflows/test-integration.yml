@@ -1,0 +1,39 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test-integration:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+      
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      
+      - name: Run integration tests with live Parse server
+        run: yarn test:integration
+        env:
+          # MongoDB Memory Server binary caching
+          MONGOMS_PREFER_GLOBAL_PATH: 1
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          flags: integration
+          fail_ci_if_error: false

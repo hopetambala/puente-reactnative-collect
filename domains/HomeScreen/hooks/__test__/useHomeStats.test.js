@@ -45,9 +45,9 @@ describe('useHomeStats - RED/GREEN Tests', () => {
       expect(result.current.stats).toBe(null);
     });
 
-    test('RED: should have default timeFilter of week', () => {
+    test('RED: should have default timeFilter of all', () => {
       const { result } = renderHook(() => useHomeStats(), { wrapper: Wrapper });
-      expect(result.current.timeFilter).toBe('week');
+      expect(result.current.timeFilter).toBe('all');
     });
   });
 

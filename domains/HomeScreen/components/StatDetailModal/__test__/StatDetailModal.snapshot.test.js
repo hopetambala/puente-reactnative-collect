@@ -1,16 +1,37 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
+
+// Mock design system components to avoid theme loading issues
+jest.mock('@app/impacto-design-system/Base/Text', () => {
+  return function MockText({ children, ...props }) {
+    const React = require('react');
+    return React.createElement('text', props, children);
+  };
+});
+
+jest.mock('@app/impacto-design-system/Cards/ModernCard', () => {
+  return function MockModernCard({ children, ...props }) {
+    const React = require('react');
+    return React.createElement('view', props, children);
+  };
+});
+
+jest.mock('react-native-paper', () => ({
+  Button: ({ children, onPress, ...props }) => {
+    const React = require('react');
+    return React.createElement('button', { onPress }, children);
+  },
+}));
+
 import StatDetailModal from '../index';
 
 // Mock dependencies
-jest.mock('react-native-paper', () => ({
-  Button: ({ children, onPress, ...props }) => (
-    <button onPress={onPress}>{children}</button>
-  ),
-}));
 
 jest.mock('@gorhom/bottom-sheet', () => ({
-  BottomSheetModal: ({ children, ...props }) => <>{children}</>,
+  BottomSheetModal: ({ children, ...props }) => {
+    const React = require('react');
+    return React.createElement(React.Fragment, null, children);
+  },
   useBottomSheetModalInternal: () => ({
     dismiss: jest.fn(),
   }),
@@ -38,6 +59,15 @@ const mockItems = [
   { objectId: '2', label: 'Jane Smith', _parseClass: 'SurveyData', createdAt: new Date('2026-04-09') },
   { objectId: '3', label: 'Dr. Brown', _parseClass: 'Vitals', createdAt: new Date('2026-04-08') },
 ];
+
+// Mock UserContext to provide user data
+jest.mock('@app/context/auth.context', () => {
+  const React = require('react');
+  return {
+    UserContext: React.createContext({ user: { id: 'test-user', organization: { id: 'test-org' } } }),
+    useUserContext: () => ({ user: { id: 'test-user', organization: { id: 'test-org' } } }),
+  };
+});
 
 describe('StatDetailModal Component - Snapshots', () => {
   const mockModalRef = React.createRef();

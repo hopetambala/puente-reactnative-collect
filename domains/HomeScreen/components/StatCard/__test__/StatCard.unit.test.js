@@ -12,11 +12,13 @@ jest.mock('@app/impacto-design-system/Cards/ModernCard', () => {
 });
 
 jest.mock('react-native-reanimated', () => ({
+  __esModule: true,
+  default: { View: (props) => <>{props.children}</>, Text: (props) => <>{props.children}</> },
   createAnimatedComponent: (Component) => Component,
   useSharedValue: () => ({ value: 0 }),
   useAnimatedStyle: () => ({}),
   withSpring: (val) => val,
-  Animated: { View: (props) => <>{props.children}</> },
+  Animated: { View: (props) => <>{props.children}</>, Text: (props) => <>{props.children}</> },
 }));
 
 jest.mock('@expo/vector-icons/MaterialCommunityIcons', () => {
@@ -30,8 +32,10 @@ jest.mock('react-native-paper', () => ({
 }));
 
 jest.mock('@app/impacto-design-system/Base/Text', () => {
+  const { Text } = require('react-native');
   return function MockText(props) {
-    return <text>{props.children}</text>;
+    // Return text that getByText can find
+    return require('react').createElement(Text, props, props.children);
   };
 });
 
@@ -64,10 +68,10 @@ describe('StatCard - RED/GREEN Tests', () => {
     });
 
     test('RED: should handle loading state', () => {
-      const { container } = render(
+      const { root } = render(
         <StatCard {...defaultProps} isLoading={true} />
       );
-      expect(container.firstChild).toBeTruthy();
+      expect(root).toBeTruthy();
     });
   });
 

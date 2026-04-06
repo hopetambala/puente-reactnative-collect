@@ -138,10 +138,10 @@ const createAssetMockData = (numberOfRecords, userObjectId) => {
       signature: "Asset Signature",
       localObject: {
         name: faker.word.noun(),
-        location: faker.address.nearbyGPSCoordinate(),
-        communityname: faker.address.cityName(),
-        province: faker.address.state(),
-        country: faker.address.country(),
+        location: faker.location.nearbyGPSCoordinate(),
+        communityname: faker.location.city(),
+        province: faker.location.state(),
+        country: faker.location.country(),
       },
     };
 

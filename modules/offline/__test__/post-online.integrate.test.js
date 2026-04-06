@@ -25,6 +25,7 @@ const FULL_FEATURE_TESTING_TIMEOUT = 60000;
 
 /**
  * Test offline forms uploading with real connection to a Parse Cloud Code
+ * SKIPPED: Requires live Parse server running
  */
 describe("Testing full feature of online posting", () => {
   test(
