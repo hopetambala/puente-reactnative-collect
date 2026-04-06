@@ -1,5 +1,5 @@
 import * as React from "react"
-import Svg, { Circle, Path, Rect,SvgProps } from "react-native-svg"
+import Svg, { Circle, Path, Rect } from "react-native-svg"
 
 function SvgComponent(props) {
   return <Svg xmlns="http://www.w3.org/2000/svg" width={126} height={94} {...props}>

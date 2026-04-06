@@ -1,20 +1,21 @@
-import React, { useState, useContext } from 'react';
+import { UserContext } from '@app/context/auth.context';
+import Text from '@app/impacto-design-system/Base/Text';
+import I18n from '@modules/i18n';
+import { spacing, typography } from '@modules/theme';
+import React, { useContext,useState } from 'react';
 import {
-  View,
+  RefreshControl,
   ScrollView,
   StyleSheet,
-  RefreshControl,
   useColorScheme,
+  View,
 } from 'react-native';
+import { SegmentedButtons,useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme, SegmentedButtons } from 'react-native-paper';
-import Text from '@app/impacto-design-system/Base/Text';
-import { spacing, typography } from '@modules/theme';
-import I18n from '@modules/i18n';
+
 import StatCard from './components/StatCard';
 import StatDetailModal from './components/StatDetailModal';
 import useHomeStats from './hooks/useHomeStats';
-import { UserContext } from '@app/context/auth.context';
 
 function HomeScreen() {
   const theme = useTheme();
@@ -212,16 +213,14 @@ function HomeScreen() {
         )}
       </ScrollView>
 
-      {/* Detail Modal */}
-      {selectedCard && (
-        <StatDetailModal
-          visible={!!selectedCard}
-          onClose={() => setSelectedCard(null)}
-          title={selectedCard ? selectedCard.replace(/([A-Z])/g, ' $1').trim() : ''}
-          cardType={selectedCard}
-          timeFilter={timeFilter}
-        />
-      )}
+      {/* Detail Modal - always mounted, visible prop controls display */}
+      <StatDetailModal
+        visible={!!selectedCard}
+        onClose={() => setSelectedCard(null)}
+        title={selectedCard ? selectedCard.replace(/([A-Z])/g, ' $1').trim() : ''}
+        cardType={selectedCard}
+        timeFilter={timeFilter}
+      />
     </SafeAreaView>
   );
 }

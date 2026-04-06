@@ -1,6 +1,6 @@
-import { useState, useContext } from 'react';
-import statsService from '@app/services/parse/stats/stats.service';
 import { UserContext } from '@app/context/auth.context';
+import statsService from '@app/services/parse/stats/stats.service';
+import { useContext,useState } from 'react';
 
 const ITEMS_PER_PAGE = 10;
 

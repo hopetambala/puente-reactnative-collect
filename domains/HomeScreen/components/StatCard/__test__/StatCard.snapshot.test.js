@@ -1,20 +1,30 @@
-import React from 'react';
+import StatCard from '@app/domains/HomeScreen/components/StatCard/index';
 import { render } from '@testing-library/react-native';
-import StatCard from '../index';
+import React from 'react';
+
+// Mock design system Text component to avoid theme loading
+jest.mock('@app/impacto-design-system/Base/Text', () => function MockText({ children, ...props }) {
+  // eslint-disable-next-line global-require
+  return require('react').createElement('text', props, children);
+});
 
 // Mock dependencies
-jest.mock('../../../../impacto-design-system/Base/ModernCard', () => ({
+jest.mock('@app/impacto-design-system/Cards/ModernCard', () => ({
   __esModule: true,
-  default: ({ children, ...props }) => <>{children}</>,
+  default: ({ children }) => children || null,
 }));
 
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
 jest.mock('react-native-reanimated', () => ({
   __esModule: true,
-  Animated: {
-    View: ({ children, ...props }) => <>{children}</>,
-    Text: ({ children, ...props }) => <>{children}</>,
+  default: {
+    View: ({ children }) => children || null,
+    Text: ({ children }) => children || null,
   },
+  Animated: {
+    View: ({ children }) => children || null,
+    Text: ({ children }) => children || null,
+  },
+  createAnimatedComponent: (Component) => Component,
   useAnimatedStyle: () => ({}),
   useSharedValue: () => ({ value: 0 }),
   withSpring: (val) => val,
@@ -24,7 +34,8 @@ jest.mock('react-native-reanimated', () => ({
 jest.mock('react-native-vector-icons/MaterialCommunityIcons', () => ({
   __esModule: true,
   default: ({ name, size, color }) => (
-    <text>{`Icon: ${name} (${size}, ${color})`}</text>
+    // eslint-disable-next-line global-require
+    require('react').createElement('text', {}, `Icon: ${name} (${size}, ${color})`)
   ),
 }));
 
@@ -68,7 +79,7 @@ describe('StatCard Component - Snapshots', () => {
         cardType="mySurveys"
         count={0}
         previous={0}
-        isLoading={true}
+        isLoading
         onPress={jest.fn()}
         timeFilter="today"
       />
@@ -86,7 +97,7 @@ describe('StatCard Component - Snapshots', () => {
         isLoading={false}
         onPress={jest.fn()}
         timeFilter="today"
-        fullWidth={true}
+        fullWidth
       />
     );
 
@@ -162,7 +173,7 @@ describe('StatCard Component - Snapshots', () => {
         isLoading={false}
         onPress={jest.fn()}
         timeFilter="today"
-        fullWidth={true}
+        fullWidth
       />
     );
 

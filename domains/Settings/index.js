@@ -1,10 +1,9 @@
 import { UserContext } from "@context/auth.context";
-import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
 import { CommonActions } from "@react-navigation/native";
 import React, { useContext, useState } from "react";
 import { View } from "react-native";
-import { Text, useTheme } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import SettingsHome from "./SettingsHome";

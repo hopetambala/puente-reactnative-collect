@@ -1,0 +1,883 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`StatCard Component - Snapshots renders StatCard hidden with "all" timeFilter 1`] = `
+<View
+  style={
+    {
+      "marginVertical": 8,
+      "paddingHorizontal": 6,
+      "width": "50%",
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "marginBottom": 12,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "flex": 1,
+          "minWidth": 0,
+        }
+      }
+    >
+      <text
+        numberOfLines={0}
+        style={
+          [
+            {
+              "flexWrap": "wrap",
+              "fontSize": 12,
+              "fontWeight": "500",
+              "marginBottom": 4,
+            },
+            {
+              "color": undefined,
+            },
+          ]
+        }
+      />
+    </View>
+    <View
+      style={
+        {
+          "marginLeft": 8,
+        }
+      }
+    >
+      <text>
+        Icon: undefined (24, #007AFF)
+      </text>
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "marginBottom": 8,
+      }
+    }
+  >
+    <text
+      numberOfLines={0}
+      style={
+        [
+          {
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "lineHeight": 40,
+            "marginBottom": 4,
+          },
+          {
+            "color": undefined,
+          },
+        ]
+      }
+    >
+      42
+    </text>
+  </View>
+</View>
+`;
+
+exports[`StatCard Component - Snapshots renders StatCard in loading state 1`] = `
+<View
+  style={
+    {
+      "marginVertical": 8,
+      "paddingHorizontal": 6,
+      "width": "50%",
+    }
+  }
+>
+  <View
+    style={
+      {
+        "gap": 8,
+      }
+    }
+  />
+</View>
+`;
+
+exports[`StatCard Component - Snapshots renders StatCard with count data 1`] = `
+<View
+  style={
+    {
+      "marginVertical": 8,
+      "paddingHorizontal": 6,
+      "width": "50%",
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "marginBottom": 12,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "flex": 1,
+          "minWidth": 0,
+        }
+      }
+    >
+      <text
+        numberOfLines={0}
+        style={
+          [
+            {
+              "flexWrap": "wrap",
+              "fontSize": 12,
+              "fontWeight": "500",
+              "marginBottom": 4,
+            },
+            {
+              "color": undefined,
+            },
+          ]
+        }
+      />
+    </View>
+    <View
+      style={
+        {
+          "marginLeft": 8,
+        }
+      }
+    >
+      <text>
+        Icon: undefined (24, #007AFF)
+      </text>
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "marginBottom": 8,
+      }
+    }
+  >
+    <text
+      numberOfLines={0}
+      style={
+        [
+          {
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "lineHeight": 40,
+            "marginBottom": 4,
+          },
+          {
+            "color": undefined,
+          },
+        ]
+      }
+    >
+      42
+    </text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "height": 20,
+      }
+    }
+  >
+    <text>
+      Icon: trending-up (16, #4caf50)
+    </text>
+    <text
+      style={
+        [
+          {
+            "fontSize": 12,
+            "fontWeight": "600",
+            "marginLeft": 4,
+          },
+          {
+            "color": "#4caf50",
+          },
+        ]
+      }
+    >
+      +5%
+    </text>
+  </View>
+</View>
+`;
+
+exports[`StatCard Component - Snapshots renders StatCard with full width 1`] = `
+<View
+  style={
+    {
+      "marginVertical": 8,
+      "paddingHorizontal": 0,
+      "width": "100%",
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "marginBottom": 12,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "flex": 1,
+          "minWidth": 0,
+        }
+      }
+    >
+      <text
+        numberOfLines={0}
+        style={
+          [
+            {
+              "flexWrap": "wrap",
+              "fontSize": 12,
+              "fontWeight": "500",
+              "marginBottom": 4,
+            },
+            {
+              "color": undefined,
+            },
+          ]
+        }
+      />
+    </View>
+    <View
+      style={
+        {
+          "marginLeft": 8,
+        }
+      }
+    >
+      <text>
+        Icon: undefined (24, #007AFF)
+      </text>
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "marginBottom": 8,
+      }
+    }
+  >
+    <text
+      numberOfLines={0}
+      style={
+        [
+          {
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "lineHeight": 40,
+            "marginBottom": 4,
+          },
+          {
+            "color": undefined,
+          },
+        ]
+      }
+    >
+      227
+    </text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "height": 20,
+      }
+    }
+  >
+    <text>
+      Icon: trending-up (16, #4caf50)
+    </text>
+    <text
+      style={
+        [
+          {
+            "fontSize": 12,
+            "fontWeight": "600",
+            "marginLeft": 4,
+          },
+          {
+            "color": "#4caf50",
+          },
+        ]
+      }
+    >
+      +14%
+    </text>
+  </View>
+</View>
+`;
+
+exports[`StatCard Component - Snapshots renders StatCard with high count numbers 1`] = `
+<View
+  style={
+    {
+      "marginVertical": 8,
+      "paddingHorizontal": 0,
+      "width": "100%",
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "marginBottom": 12,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "flex": 1,
+          "minWidth": 0,
+        }
+      }
+    >
+      <text
+        numberOfLines={0}
+        style={
+          [
+            {
+              "flexWrap": "wrap",
+              "fontSize": 12,
+              "fontWeight": "500",
+              "marginBottom": 4,
+            },
+            {
+              "color": undefined,
+            },
+          ]
+        }
+      />
+    </View>
+    <View
+      style={
+        {
+          "marginLeft": 8,
+        }
+      }
+    >
+      <text>
+        Icon: undefined (24, #007AFF)
+      </text>
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "marginBottom": 8,
+      }
+    }
+  >
+    <text
+      numberOfLines={0}
+      style={
+        [
+          {
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "lineHeight": 40,
+            "marginBottom": 4,
+          },
+          {
+            "color": undefined,
+          },
+        ]
+      }
+    >
+      9999
+    </text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "height": 20,
+      }
+    }
+  >
+    <text>
+      Icon: trending-up (16, #4caf50)
+    </text>
+    <text
+      style={
+        [
+          {
+            "fontSize": 12,
+            "fontWeight": "600",
+            "marginLeft": 4,
+          },
+          {
+            "color": "#4caf50",
+          },
+        ]
+      }
+    >
+      +100%
+    </text>
+  </View>
+</View>
+`;
+
+exports[`StatCard Component - Snapshots renders StatCard with negative trend 1`] = `
+<View
+  style={
+    {
+      "marginVertical": 8,
+      "paddingHorizontal": 6,
+      "width": "50%",
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "marginBottom": 12,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "flex": 1,
+          "minWidth": 0,
+        }
+      }
+    >
+      <text
+        numberOfLines={0}
+        style={
+          [
+            {
+              "flexWrap": "wrap",
+              "fontSize": 12,
+              "fontWeight": "500",
+              "marginBottom": 4,
+            },
+            {
+              "color": undefined,
+            },
+          ]
+        }
+      />
+    </View>
+    <View
+      style={
+        {
+          "marginLeft": 8,
+        }
+      }
+    >
+      <text>
+        Icon: undefined (24, #007AFF)
+      </text>
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "marginBottom": 8,
+      }
+    }
+  >
+    <text
+      numberOfLines={0}
+      style={
+        [
+          {
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "lineHeight": 40,
+            "marginBottom": 4,
+          },
+          {
+            "color": undefined,
+          },
+        ]
+      }
+    >
+      8
+    </text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "height": 20,
+      }
+    }
+  >
+    <text>
+      Icon: trending-down (16, #f44336)
+    </text>
+    <text
+      style={
+        [
+          {
+            "fontSize": 12,
+            "fontWeight": "600",
+            "marginLeft": 4,
+          },
+          {
+            "color": "#f44336",
+          },
+        ]
+      }
+    >
+      -47%
+    </text>
+  </View>
+</View>
+`;
+
+exports[`StatCard Component - Snapshots renders StatCard with positive trend 1`] = `
+<View
+  style={
+    {
+      "marginVertical": 8,
+      "paddingHorizontal": 6,
+      "width": "50%",
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "marginBottom": 12,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "flex": 1,
+          "minWidth": 0,
+        }
+      }
+    >
+      <text
+        numberOfLines={0}
+        style={
+          [
+            {
+              "flexWrap": "wrap",
+              "fontSize": 12,
+              "fontWeight": "500",
+              "marginBottom": 4,
+            },
+            {
+              "color": undefined,
+            },
+          ]
+        }
+      />
+    </View>
+    <View
+      style={
+        {
+          "marginLeft": 8,
+        }
+      }
+    >
+      <text>
+        Icon: undefined (24, #007AFF)
+      </text>
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "marginBottom": 8,
+      }
+    }
+  >
+    <text
+      numberOfLines={0}
+      style={
+        [
+          {
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "lineHeight": 40,
+            "marginBottom": 4,
+          },
+          {
+            "color": undefined,
+          },
+        ]
+      }
+    >
+      150
+    </text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "height": 20,
+      }
+    }
+  >
+    <text>
+      Icon: trending-up (16, #4caf50)
+    </text>
+    <text
+      style={
+        [
+          {
+            "fontSize": 12,
+            "fontWeight": "600",
+            "marginLeft": 4,
+          },
+          {
+            "color": "#4caf50",
+          },
+        ]
+      }
+    >
+      +50%
+    </text>
+  </View>
+</View>
+`;
+
+exports[`StatCard Component - Snapshots renders StatCard with zero count 1`] = `
+<View
+  style={
+    {
+      "marginVertical": 8,
+      "paddingHorizontal": 6,
+      "width": "50%",
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "marginBottom": 12,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "flex": 1,
+          "minWidth": 0,
+        }
+      }
+    >
+      <text
+        numberOfLines={0}
+        style={
+          [
+            {
+              "flexWrap": "wrap",
+              "fontSize": 12,
+              "fontWeight": "500",
+              "marginBottom": 4,
+            },
+            {
+              "color": undefined,
+            },
+          ]
+        }
+      />
+    </View>
+    <View
+      style={
+        {
+          "marginLeft": 8,
+        }
+      }
+    >
+      <text>
+        Icon: undefined (24, #007AFF)
+      </text>
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "marginBottom": 8,
+      }
+    }
+  >
+    <text
+      numberOfLines={0}
+      style={
+        [
+          {
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "lineHeight": 40,
+            "marginBottom": 4,
+          },
+          {
+            "color": undefined,
+          },
+        ]
+      }
+    >
+      0
+    </text>
+  </View>
+</View>
+`;
+
+exports[`StatCard Component - Snapshots renders StatCard with zero trend (identical counts) 1`] = `
+<View
+  style={
+    {
+      "marginVertical": 8,
+      "paddingHorizontal": 6,
+      "width": "50%",
+    }
+  }
+>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "justifyContent": "space-between",
+        "marginBottom": 12,
+      }
+    }
+  >
+    <View
+      style={
+        {
+          "flex": 1,
+          "minWidth": 0,
+        }
+      }
+    >
+      <text
+        numberOfLines={0}
+        style={
+          [
+            {
+              "flexWrap": "wrap",
+              "fontSize": 12,
+              "fontWeight": "500",
+              "marginBottom": 4,
+            },
+            {
+              "color": undefined,
+            },
+          ]
+        }
+      />
+    </View>
+    <View
+      style={
+        {
+          "marginLeft": 8,
+        }
+      }
+    >
+      <text>
+        Icon: undefined (24, #007AFF)
+      </text>
+    </View>
+  </View>
+  <View
+    style={
+      {
+        "marginBottom": 8,
+      }
+    }
+  >
+    <text
+      numberOfLines={0}
+      style={
+        [
+          {
+            "fontSize": 32,
+            "fontWeight": "bold",
+            "lineHeight": 40,
+            "marginBottom": 4,
+          },
+          {
+            "color": undefined,
+          },
+        ]
+      }
+    >
+      50
+    </text>
+  </View>
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "row",
+        "height": 20,
+      }
+    }
+  >
+    <text>
+      Icon: trending-up (16, #4caf50)
+    </text>
+    <text
+      style={
+        [
+          {
+            "fontSize": 12,
+            "fontWeight": "600",
+            "marginLeft": 4,
+          },
+          {
+            "color": "#4caf50",
+          },
+        ]
+      }
+    >
+      +0%
+    </text>
+  </View>
+</View>
+`;

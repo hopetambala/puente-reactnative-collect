@@ -1,4 +1,3 @@
-import ComingSoonSVG from "@app/assets/graphics/static/Adventurer.svg";
 import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import SmallCardsCarousel from "@impacto-design-system/Cards/SmallCardsCarousel";
 import { getData, storeData } from "@modules/async-storage";
@@ -7,12 +6,9 @@ import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
 import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
-import {   Button,
-  IconButton,
-  Paragraph,
+import { IconButton,
   Text,
-  Title,
-useTheme ,
+  useTheme ,
 } from "react-native-paper";
 
 import FormsHorizontalView from "./FormsHorizontalView";

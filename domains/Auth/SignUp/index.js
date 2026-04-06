@@ -1,10 +1,10 @@
-import { CommonActions } from "@react-navigation/native";
 import { Button } from "@impacto-design-system/Base";
 import FormInput from "@impacto-design-system/Extensions/FormikFields/FormInput";
 import Autofill from "@impacto-design-system/Extensions/FormikFields/PaperInputPicker/AutoFill";
 import TermsModal from "@impacto-design-system/Extensions/TermsModal";
 import I18n from "@modules/i18n";
 import { spacing, typography } from "@modules/theme";
+import { CommonActions } from "@react-navigation/native";
 import { Formik } from "formik";
 import React, { useContext, useMemo, useState } from "react";
 import {

@@ -24,6 +24,7 @@ jest.mock("..", () => jest.fn());
 
 /**
  * Test offline forms uploading with real connection to a Parse Cloud Code
+ * Uses real Parse Server instance managed by Jest
  */
 describe("Testing full feature of offline posting", () => {
   test("Testing Resident and Supplmentary Forms stored", async () => {

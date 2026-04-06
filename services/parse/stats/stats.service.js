@@ -3,8 +3,8 @@
  * Aggregates and fetches statistics from Parse Server
  */
 
-import client from '@app/services/parse/client';
 import selectedENV from '@app/environment';
+import client from '@app/services/parse/client';
 
 const { TEST_MODE } = selectedENV;
 const Parse = client(TEST_MODE);
@@ -26,7 +26,7 @@ function buildDateRange(timeFilter) {
   const startOfLastWeek = new Date(startOfThisWeek);
   startOfLastWeek.setDate(startOfLastWeek.getDate() - 7);
 
-  let start, end, prevStart, prevEnd;
+  let start; let end; let prevStart; let prevEnd;
 
   if (timeFilter === 'today') {
     start = today;

@@ -6,8 +6,7 @@ import {
 } from "@app/services/parse/auth/index";
 import { deleteData, getData, storeData } from "@modules/async-storage";
 import checkOnlineStatus from "@modules/offline";
-import I18n from "@modules/i18n";
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useMemo, useState } from "react";
 
 export const UserContext = createContext();
 
@@ -58,7 +57,7 @@ export function UserContextProvider({ children }) {
         return true;
       })
       .catch(async (e) => {
-        const errorCode = e.code ? parseInt(e.code) : null;
+        const errorCode = e.code ? parseInt(e.code, 10) : null;
         // Handle invalid session token error (code 209)
         if (errorCode === 209) {
           setError("signIn.invalidSessionToken");
@@ -73,7 +72,7 @@ export function UserContextProvider({ children }) {
       });
   };
 
-  const offlineLogin = (enteredCredentials) => {
+  const offlineLogin = () => {
     // Online-only mode: offline login is no longer supported
     // User must have internet connection to authenticate
     setIsLoading(true);
@@ -156,19 +155,22 @@ export function UserContextProvider({ children }) {
     return true;
   };
 
+  const contextValue = useMemo(
+    () => ({
+      isAuthenticated: !!user,
+      user,
+      isLoading,
+      error,
+      onlineLogin,
+      offlineLogin,
+      register,
+      onLogout,
+    }),
+    [user, isLoading, error]
+  );
+
   return (
-    <UserContext.Provider
-      value={{
-        isAuthenticated: !!user,
-        user,
-        isLoading,
-        error,
-        onlineLogin,
-        offlineLogin,
-        register,
-        onLogout,
-      }}
-    >
+    <UserContext.Provider value={contextValue}>
       {children}
     </UserContext.Provider>
   );
