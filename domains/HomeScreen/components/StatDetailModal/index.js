@@ -1,12 +1,12 @@
+import useModalItems from '@app/domains/HomeScreen/hooks/useModalItems';
+import Text from '@app/impacto-design-system/Base/Text';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import React, { useEffect } from 'react';
 import {
-  Modal, View, FlatList, StyleSheet, useColorScheme, Pressable,
-} from 'react-native';
+FlatList,   Modal, Pressable,
+StyleSheet, useColorScheme, View, } from 'react-native';
+import { Button,useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme, Button } from 'react-native-paper';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import Text from '@app/impacto-design-system/Base/Text';
-import useModalItems from '../../hooks/useModalItems';
 
 /**
  * StatDetailModal Component
@@ -110,6 +110,7 @@ function StatDetailModal({
   const renderItem = ({ item }) => {
     let metaText = '';
     if (cardType === 'recentActivity') {
+      // eslint-disable-next-line no-underscore-dangle
       metaText = `${item._parseClass} • ${item.label} • ${formatDate(item.createdAt)}`;
     } else {
       metaText = `${formatDate(item.createdAt)}`;

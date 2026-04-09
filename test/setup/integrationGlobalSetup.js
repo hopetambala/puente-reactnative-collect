@@ -1,5 +1,5 @@
 const { MongoMemoryServer } = require('mongodb-memory-server'); // eslint-disable-line import/no-extraneous-dependencies
-const express = require('express');
+const express = require('express'); // eslint-disable-line import/no-extraneous-dependencies
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -51,7 +51,7 @@ async function waitForServer(url, retries = 30, delay = 500) {
       });
       return;
     } catch (e) {
-      await new Promise((r) => setTimeout(r, delay)); // eslint-disable-line no-await-in-loop
+      await new Promise((r) => { setTimeout(r, delay); }); // eslint-disable-line no-await-in-loop
     }
   }
   throw new Error('Parse Server did not become healthy in time');
@@ -66,7 +66,7 @@ module.exports = async function globalSetup() {
   // Prevent cloud error.js from routing errors to Slack (read at module-load time)
   process.env.PUENTE_ENV = 'dev';
 
-  const { ParseServer } = require('parse-server'); // eslint-disable-line global-require
+  const { ParseServer } = require('parse-server'); // eslint-disable-line global-require, import/no-extraneous-dependencies
   const parseServer = new ParseServer({
     databaseURI: mongod.getUri(),
     appId: APP_ID,

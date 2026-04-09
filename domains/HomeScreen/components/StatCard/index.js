@@ -1,12 +1,12 @@
-import React, { useMemo } from 'react';
-import {
-  View, StyleSheet, useColorScheme,
-} from 'react-native';
-import { useTheme } from 'react-native-paper';
-import Animated from 'react-native-reanimated';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import Text from '@app/impacto-design-system/Base/Text';
 import ModernCard from '@app/impacto-design-system/Cards/ModernCard';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import React, { useMemo } from 'react';
+import {
+StyleSheet, useColorScheme,
+  View, } from 'react-native';
+import { useTheme } from 'react-native-paper';
+import Animated from 'react-native-reanimated';
 
 /**
  * StatCard Component

@@ -1,16 +1,15 @@
 /**
  * useHomeStats Hook Tests - RED/GREEN TDD
  */
-import { renderHook, act, waitFor } from '@testing-library/react-native';
+import { UserContext } from '@app/context/auth.context';
+import useHomeStats from '@app/domains/HomeScreen/hooks/useHomeStats';
+import statsService from '@app/services/parse/stats/stats.service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { act, renderHook, waitFor } from '@testing-library/react-native';
+import React, { useMemo } from 'react';
 
 jest.mock('@app/services/parse/stats/stats.service');
 jest.mock('@react-native-async-storage/async-storage');
-
-import useHomeStats from '../useHomeStats';
-import statsService from '@app/services/parse/stats/stats.service';
-import React from 'react';
-import { UserContext } from '@app/context/auth.context';
 
 const mockStats = {
   mySurveys: { count: 42, previous: 40 },
@@ -28,11 +27,14 @@ describe('useHomeStats - RED/GREEN Tests', () => {
     statsService.aggregateStats.mockResolvedValue(mockStats);
   });
 
-  const Wrapper = ({ children }) => (
-    <UserContext.Provider value={{ user: { id: 'user1', organization: 'test' } }}>
-      {children}
-    </UserContext.Provider>
-  );
+  const Wrapper = ({ children }) => {
+    const value = useMemo(() => ({ user: { id: 'user1', organization: 'test' } }), []);
+    return (
+      <UserContext.Provider value={value}>
+        {children}
+      </UserContext.Provider>
+    );
+  };
 
   describe('RED: Initial State', () => {
     test('RED: should start with isLoading true', () => {
@@ -53,7 +55,7 @@ describe('useHomeStats - RED/GREEN Tests', () => {
 
   describe('RED: Data Fetching', () => {
     test('RED: should call aggregateStats', async () => {
-      const { result } = renderHook(() => useHomeStats(), { wrapper: Wrapper });
+      renderHook(() => useHomeStats(), { wrapper: Wrapper });
 
       await waitFor(() => {
         expect(statsService.aggregateStats).toHaveBeenCalled();

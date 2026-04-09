@@ -182,6 +182,7 @@ function IdentificationFormWrapper({
       setSelectedForm("");
 
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.error(e);
       setSubmitting(false);
       setSubmissionError(true);

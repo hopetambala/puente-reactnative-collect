@@ -1,4 +1,4 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useMemo, useState } from "react";
 
 export const AlertContext = createContext();
 
@@ -15,15 +15,13 @@ export function AlertContextProvider({ children }) {
     setVisible(!visible);
   };
 
+  const contextValue = useMemo(
+    () => ({ message, visible, alert, dismiss }),
+    [message, visible]
+  );
+
   return (
-    <AlertContext.Provider
-      value={{
-        message,
-        visible,
-        alert,
-        dismiss,
-      }}
-    >
+    <AlertContext.Provider value={contextValue}>
       {children}
     </AlertContext.Provider>
   );

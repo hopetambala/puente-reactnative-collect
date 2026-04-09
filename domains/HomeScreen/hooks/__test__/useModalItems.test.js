@@ -1,21 +1,18 @@
-import React from 'react';
-import { render, waitFor, act } from '@testing-library/react-native';
-import useModalItems from '../useModalItems';
+import useModalItems from '@app/domains/HomeScreen/hooks/useModalItems';
 import * as CrudService from '@app/services/parse/crud';
+import { act,render, waitFor } from '@testing-library/react-native';
+import React from 'react';
 
 jest.mock('@app/services/parse/crud');
 
-jest.mock('@app/context/auth.context', () => {
-  const React = require('react');
-  return {
-    UserContext: React.createContext({
-      user: { id: 'test-user', organization: 'test-org' },
-    }),
-    useUserContext: () => ({
-      user: { id: 'test-user', organization: { id: 'test-org' } },
-    }),
-  };
-});
+jest.mock('@app/context/auth.context', () => ({
+  UserContext: React.createContext({
+    user: { id: 'test-user', organization: 'test-org' },
+  }),
+  useUserContext: () => ({
+    user: { id: 'test-user', organization: { id: 'test-org' } },
+  }),
+}));
 
 const mockItems = [
   { objectId: '1', label: 'Item 1', _parseClass: 'SurveyData' },
@@ -157,7 +154,7 @@ describe.skip('useModalItems Hook', () => {
       .mockResolvedValueOnce({ items: mockItems, hasMore: true })
       .mockResolvedValueOnce({ items: mockItems, hasMore: true });
 
-    let loadMoreFn, resetFn;
+    let loadMoreFn; let resetFn;
     const TestComponent = () => {
       const { items, loadMore, reset } = useModalItems('mySurveys', 'today');
       loadMoreFn = loadMore;
@@ -203,7 +200,7 @@ describe.skip('useModalItems Hook', () => {
       return <text>{error || 'No error'}</text>;
     };
 
-    const { getByText } = render(<TestComponent />);
+    render(<TestComponent />);
 
     await waitFor(() => {
       expect(error).toBeTruthy();
@@ -306,6 +303,7 @@ describe.skip('useModalItems Hook', () => {
     });
 
     // Verify we have items from multiple classes
+    // eslint-disable-next-line no-underscore-dangle
     const classes = items.map((item) => item._parseClass);
     expect(new Set(classes).size).toBeGreaterThan(1);
   });

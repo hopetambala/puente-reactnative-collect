@@ -8,6 +8,7 @@ process.env.NODE_ENV = 'test';
 
 // Mock SafeAreaContext for all tests
 jest.mock('react-native-safe-area-context', () => {
+  // eslint-disable-next-line global-require
   const React = require('react');
   return {
     SafeAreaProvider: ({ children }) => React.createElement(React.Fragment, null, children),
@@ -50,12 +51,11 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 }));
 
 // Suppress console logs during tests - suppress act() warnings more aggressively
-const originalError = console.error;
-const originalWarn = console.warn;
+const originalError = console.error; // eslint-disable-line no-console
 
 global.console = {
   ...console,
-  error: (...args) => {
+  error: (...args) => { // eslint-disable-line no-console
     // Suppress act() warnings but allow other errors
     const message = JSON.stringify(args);
     if (message.includes('act(') || message.includes('not wrapped in act')) {

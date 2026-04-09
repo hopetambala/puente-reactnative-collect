@@ -6,7 +6,6 @@ import Svg, {
   Mask,
   Path,
   Stop,
-  SvgProps,
   Use,
 } from "react-native-svg"
 

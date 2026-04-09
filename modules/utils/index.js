@@ -36,6 +36,7 @@ async function withTimeoutAbort(asyncFn, timeoutMs, fallbackValue) {
     return await asyncFn(controller.signal);
   } catch (err) {
     if (err.name === "AbortError") {
+      // eslint-disable-next-line no-console
       console.warn("Operation aborted due to timeout");
       return fallbackValue;
     }

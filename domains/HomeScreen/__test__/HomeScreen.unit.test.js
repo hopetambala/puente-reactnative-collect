@@ -1,79 +1,65 @@
 /**
  * HomeScreen Integration Tests - RED/GREEN TDD
  */
+import { UserContext } from '@app/context/auth.context';
+import HomeScreen from '@app/domains/HomeScreen/index';
+import { render } from '@testing-library/react-native';
+import React, { useMemo } from 'react';
+
 jest.mock('react-native-paper', () => ({
   useTheme: () => ({ colors: { onSurfaceVariant: '#666' } }),
-  SegmentedButtons: () => {
-    const React = require('react');
-    return React.createElement('text', {}, 'Filter');
-  },
+  SegmentedButtons: () => React.createElement('text', {}, 'Filter'),
 }));
 
-jest.mock('@app/impacto-design-system/Base/Text', () => {
-  return function MockText(props) {
-    const React = require('react');
-    return React.createElement('text', {}, props.children);
-  };
+jest.mock('@app/impacto-design-system/Base/Text', () => function MockText({ children }) {
+  return React.createElement('text', {}, children);
 });
 
-jest.mock('@app/impacto-design-system/Base/GlassContainer', () => {
-  return function MockGlassContainer(props) {
-    const React = require('react');
-    return React.createElement(React.Fragment, null, props.children);
-  };
+jest.mock('@app/impacto-design-system/Base/GlassContainer', () => function MockGlassContainer({ children }) {
+  return React.createElement(React.Fragment, null, children);
 });
 
-jest.mock('../components/StatCard', () => {
-  return function MockStatCard({ title, count }) {
-    const React = require('react');
-    return React.createElement('text', {}, `${title}: ${count}`);
-  };
+jest.mock('../components/StatCard', () => function MockStatCard({ title, count }) {
+  return React.createElement('text', {}, `${title}: ${count}`);
 });
 
-jest.mock('../components/StatDetailModal', () => {
-  return function MockStatDetailModal() {
-    const React = require('react');
-    return React.createElement('text', {}, 'Modal');
-  };
+jest.mock('../components/StatDetailModal', () => function MockStatDetailModal() {
+  return React.createElement('text', {}, 'Modal');
 });
 
-jest.mock('../hooks/useHomeStats', () => {
-  return function useHomeStats() {
-    return {
-      stats: {
-        mySurveys: { count: 42, previous: 40 },
-        orgSurveys: { count: 120, previous: 100 },
-        myVitals: { count: 15, previous: 14 },
-        orgVitals: { count: 50, previous: 45 },
-        recentActivity: { count: 227 },
-      },
-      isLoading: false,
-      isOffline: false,
-      timeFilter: 'week',
-      setTimeFilter: jest.fn(),
-      refresh: jest.fn(),
-    };
+jest.mock('../hooks/useHomeStats', () => function useHomeStats() {
+  return {
+    stats: {
+      mySurveys: { count: 42, previous: 40 },
+      orgSurveys: { count: 120, previous: 100 },
+      myVitals: { count: 15, previous: 14 },
+      orgVitals: { count: 50, previous: 45 },
+      recentActivity: { count: 227 },
+    },
+    isLoading: false,
+    isOffline: false,
+    timeFilter: 'week',
+    setTimeFilter: jest.fn(),
+    refresh: jest.fn(),
   };
 });
 
 // Mock HomeScreen component to avoid loading the entire theme/component tree
-jest.mock('../index', () => {
-  return function MockHomeScreen() {
-    const React = require('react');
-    return React.createElement('view', {}, 'Mock HomeScreen');
-  };
+jest.mock('../index', () => function MockHomeScreen() {
+  return React.createElement('view', {}, 'Mock HomeScreen');
 });
 
-import React from 'react';
-import { render } from '@testing-library/react-native';
-import HomeScreen from '../index';
-import { UserContext } from '@app/context/auth.context';
-
-const UserContextWrapper = ({ children }) => (
-  <UserContext.Provider value={{ user: { id: 'user1', firstname: 'John', organization: 'TestOrg' } }}>
-    {children}
-  </UserContext.Provider>
-);
+const UserContextWrapper = ({ children }) => {
+  const value = useMemo(
+    () => ({ user: { id: 'user1', firstname: 'John', organization: 'TestOrg' } }),
+    []
+  );
+  return (
+    <UserContext.Provider value={value}>
+      {children}
+    </UserContext.Provider>
+  );
+};
 
 describe.skip('HomeScreen - RED/GREEN Tests', () => {
   describe('RED: Rendering', () => {

@@ -1,4 +1,7 @@
 // Mock for react-native-paper
+// eslint-disable-next-line global-require
+const React = require('react');
+
 module.exports = {
   DefaultTheme: {
     colors: {
@@ -34,10 +37,7 @@ module.exports = {
       onSurfaceVariant: '#AAAAAA',
     },
   },
-  Button: ({ children, onPress, ...props }) => {
-    const React = require('react');
-    return React.createElement('button', { onPress }, children);
-  },
+  Button: ({ children, onPress }) => React.createElement('button', { onPress, type: 'button' }, children),
   useTheme: () => ({
     colors: {
       primary: '#007AFF',

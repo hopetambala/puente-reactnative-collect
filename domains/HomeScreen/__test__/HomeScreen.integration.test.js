@@ -1,52 +1,42 @@
+import HomeScreen from '@app/domains/HomeScreen/index';
+import * as CrudService from '@app/services/parse/crud';
+import { fireEvent,render, waitFor } from '@testing-library/react-native';
 import React from 'react';
-import { render, waitFor, fireEvent } from '@testing-library/react-native';
+
+// eslint-disable-next-line import/named
+import { useUserContext } from '../../../context/auth.context';
+// eslint-disable-next-line import/named
+import { useOfflineContext } from '../../../context/offline.context';
 
 // Mock Text component early to prevent theme loading errors
-jest.mock('@app/impacto-design-system/Base/Text', () => {
-  return function MockText({ children, ...props }) {
-    const React = require('react');
-    return React.createElement('text', props, children);
-  };
+jest.mock('@app/impacto-design-system/Base/Text', () => function MockText({ children, ...props }) {
+  return React.createElement('text', props, children);
 });
 
 // Mock HomeScreen component to avoid loading the entire theme/component tree
-jest.mock('../index', () => {
-  return function MockHomeScreen() {
-    const React = require('react');
-    return React.createElement('view', {}, 'Mock HomeScreen');
-  };
+jest.mock('../index', () => function MockHomeScreen() {
+  return React.createElement('view', {}, 'Mock HomeScreen');
 });
-
-import HomeScreen from '../index';
-import * as CrudService from '../../../services/parse/crud';
-import { useOfflineContext } from '../../../context/offline.context';
-import { useUserContext } from '../../../context/auth.context';
 
 jest.mock('../../../services/parse/crud');
 
-jest.mock('../../../context/offline.context', () => {
-  const React = require('react');
-  return {
-    OfflineContext: React.createContext({}),
-    useOfflineContext: jest.fn(() => ({
-      isOnline: true,
-    })),
-  };
-});
+jest.mock('../../../context/offline.context', () => ({
+  OfflineContext: React.createContext({}),
+  useOfflineContext: jest.fn(() => ({
+    isOnline: true,
+  })),
+}));
 
-jest.mock('../../../context/auth.context', () => {
-  const React = require('react');
-  return {
-    UserContext: React.createContext({}),
-    useUserContext: jest.fn(() => ({
-      user: {
-        id: 'test-user',
-        fname: 'Test',
-        organization: { id: 'test-org', name: 'Test Organization' },
-      },
-    })),
-  };
-});
+jest.mock('../../../context/auth.context', () => ({
+  UserContext: React.createContext({}),
+  useUserContext: jest.fn(() => ({
+    user: {
+      id: 'test-user',
+      fname: 'Test',
+      organization: { id: 'test-org', name: 'Test Organization' },
+    },
+  })),
+}));
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn().mockResolvedValue(null),
@@ -56,24 +46,18 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 
 jest.mock('@app/impacto-design-system/Cards/ModernCard', () => ({
   __esModule: true,
-  default: ({ children, onPress, ...props }) => {
-    const React = require('react');
-    return React.createElement('view', { onPress }, children);
-  },
+  default: ({ children, onPress }) => React.createElement('view', { onPress }, children),
 }));
 
 jest.mock('react-native-reanimated', () => ({
   __esModule: true,
   Animated: {
-    View: ({ children, ...props }) => {
-      const React = require('react');
-      return React.createElement(React.Fragment, null, children);
-    },
+    View: ({ children }) => React.createElement(React.Fragment, null, children),
   },
 }));
 
 jest.mock('@gorhom/bottom-sheet', () => ({
-  BottomSheetModal: ({ children, ...props }) => <>{children}</>,
+  BottomSheetModal: ({ children }) => children || null,
   useBottomSheetModalInternal: () => ({
     dismiss: jest.fn(),
   }),
@@ -145,6 +129,7 @@ describe.skip('HomeScreen Component', () => {
 
   test('defaults to "Today" time filter on mount', async () => {
     CrudService.aggregateStats.mockResolvedValue(mockStatsData);
+    // eslint-disable-next-line camelcase, no-unused-vars
     const { UNSAFE_getByType } = render(<HomeScreen />);
 
     await waitFor(() => {
@@ -217,9 +202,7 @@ describe.skip('HomeScreen Component', () => {
   });
 
   test('calls refresh when pull-to-refresh is triggered', async () => {
-    const { getByTestId } = render(<HomeScreen />);
-
-    const initialCallCount = CrudService.aggregateStats.mock.calls.length;
+    render(<HomeScreen />);
 
     // Simulate refresh (this is implementation-specific to the test setup)
     await waitFor(() => {
@@ -228,17 +211,17 @@ describe.skip('HomeScreen Component', () => {
   });
 
   test('renders StatDetailModal', async () => {
-    const { getByText } = render(<HomeScreen />);
+    render(<HomeScreen />);
 
     await waitFor(() => {
       // Modal should be rendered but initially hidden
       // This verifies modal component integration
-      expect(getByText || true).toBeDefined();
+      expect(true).toBeDefined();
     });
   });
 
   test('opens StatDetailModal when stat card is pressed', async () => {
-    const { getByText, getAllByTestId } = render(<HomeScreen />);
+    render(<HomeScreen />);
 
     await waitFor(() => {
       expect(CrudService.aggregateStats).toHaveBeenCalled();
@@ -246,7 +229,6 @@ describe.skip('HomeScreen Component', () => {
 
     // There should be a stat card to press
     // This test verifies the modal interaction
-    expect(getByText || true).toBeDefined();
   });
 
   test('closes StatDetailModal on back button press', async () => {
@@ -275,7 +257,7 @@ describe.skip('HomeScreen Component', () => {
   });
 
   test('updates card data after fetch completes', async () => {
-    const { getByText } = render(<HomeScreen />);
+    render(<HomeScreen />);
 
     await waitFor(() => {
       // Should show actual data after fetch

@@ -1,49 +1,38 @@
-import React from 'react';
+import StatCard from '@app/domains/HomeScreen/components/StatCard/index';
 import { render } from '@testing-library/react-native';
+import React from 'react';
 
 // Mock design system Text component to avoid theme loading
-jest.mock('@app/impacto-design-system/Base/Text', () => {
-  return function MockText({ children, ...props }) {
-    const React = require('react');
-    return React.createElement('text', props, children);
-  };
+jest.mock('@app/impacto-design-system/Base/Text', () => function MockText({ children, ...props }) {
+  return React.createElement('text', props, children);
 });
 
 // Mock dependencies
 jest.mock('@app/impacto-design-system/Cards/ModernCard', () => ({
   __esModule: true,
-  default: ({ children, ...props }) => {
-    const React = require('react');
-    return React.createElement(React.Fragment, null, children);
-  },
+  default: ({ children }) => children || null,
 }));
 
-jest.mock('react-native-reanimated', () => {
-  const React = require('react');
-  return {
-    __esModule: true,
-    default: {
-      View: ({ children, ...props }) => React.createElement(React.Fragment, null, children),
-      Text: ({ children, ...props }) => React.createElement(React.Fragment, null, children),
-    },
-    Animated: {
-      View: ({ children, ...props }) => React.createElement(React.Fragment, null, children),
-      Text: ({ children, ...props }) => React.createElement(React.Fragment, null, children),
-    },
-    createAnimatedComponent: (Component) => Component,
-    useAnimatedStyle: () => ({}),
-    useSharedValue: () => ({ value: 0 }),
-    withSpring: (val) => val,
-    withTiming: (val) => val,
-  };
-});
+jest.mock('react-native-reanimated', () => ({
+  __esModule: true,
+  default: {
+    View: ({ children }) => children || null,
+    Text: ({ children }) => children || null,
+  },
+  Animated: {
+    View: ({ children }) => children || null,
+    Text: ({ children }) => children || null,
+  },
+  createAnimatedComponent: (Component) => Component,
+  useAnimatedStyle: () => ({}),
+  useSharedValue: () => ({ value: 0 }),
+  withSpring: (val) => val,
+  withTiming: (val) => val,
+}));
 
 jest.mock('react-native-vector-icons/MaterialCommunityIcons', () => ({
   __esModule: true,
-  default: ({ name, size, color }) => {
-    const React = require('react');
-    return React.createElement('text', {}, `Icon: ${name} (${size}, ${color})`);
-  },
+  default: ({ name, size, color }) => React.createElement('text', {}, `Icon: ${name} (${size}, ${color})`),
 }));
 
 jest.mock('react-native-paper', () => ({
@@ -63,8 +52,6 @@ jest.mock('react-native-paper', () => ({
     },
   }),
 }));
-
-import StatCard from '../index';
 
 describe('StatCard Component - Snapshots', () => {
   test('renders StatCard with count data', () => {
@@ -88,7 +75,7 @@ describe('StatCard Component - Snapshots', () => {
         cardType="mySurveys"
         count={0}
         previous={0}
-        isLoading={true}
+        isLoading
         onPress={jest.fn()}
         timeFilter="today"
       />
@@ -106,7 +93,7 @@ describe('StatCard Component - Snapshots', () => {
         isLoading={false}
         onPress={jest.fn()}
         timeFilter="today"
-        fullWidth={true}
+        fullWidth
       />
     );
 
@@ -182,7 +169,7 @@ describe('StatCard Component - Snapshots', () => {
         isLoading={false}
         onPress={jest.fn()}
         timeFilter="today"
-        fullWidth={true}
+        fullWidth
       />
     );
 

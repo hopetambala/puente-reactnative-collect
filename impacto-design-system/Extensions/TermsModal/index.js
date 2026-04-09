@@ -3,11 +3,11 @@ import I18n from "@modules/i18n";
 import { spacing } from "@modules/theme";
 import PropTypes from "prop-types";
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { Button, Modal, Portal, Text, useTheme } from "react-native-paper";
+import { Button, Modal, Portal, Text } from "react-native-paper";
 
-const createStyles = (theme) =>
+const createStyles = () =>
   StyleSheet.create({
     modal: {
       backgroundColor: "transparent",
@@ -26,8 +26,7 @@ const createStyles = (theme) =>
   });
 
 function TermsModal({ visible, setVisible }) {
-  const theme = useTheme();
-  const styles = createStyles(theme);
+  const styles = createStyles();
 
   return (
     <Portal>

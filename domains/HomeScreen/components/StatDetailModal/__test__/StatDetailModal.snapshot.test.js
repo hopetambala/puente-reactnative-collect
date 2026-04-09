@@ -1,37 +1,25 @@
-import React from 'react';
+/* eslint-disable no-underscore-dangle */
+import StatDetailModal from '@app/domains/HomeScreen/components/StatDetailModal/index';
 import { render } from '@testing-library/react-native';
+import React from 'react';
 
 // Mock design system components to avoid theme loading issues
-jest.mock('@app/impacto-design-system/Base/Text', () => {
-  return function MockText({ children, ...props }) {
-    const React = require('react');
-    return React.createElement('text', props, children);
-  };
+jest.mock('@app/impacto-design-system/Base/Text', () => function MockText({ children, ...props }) {
+  return React.createElement('text', props, children);
 });
 
-jest.mock('@app/impacto-design-system/Cards/ModernCard', () => {
-  return function MockModernCard({ children, ...props }) {
-    const React = require('react');
-    return React.createElement('view', props, children);
-  };
+jest.mock('@app/impacto-design-system/Cards/ModernCard', () => function MockModernCard({ children, ...props }) {
+  return React.createElement('view', props, children);
 });
 
 jest.mock('react-native-paper', () => ({
-  Button: ({ children, onPress, ...props }) => {
-    const React = require('react');
-    return React.createElement('button', { onPress }, children);
-  },
+  Button: ({ children, onPress }) => React.createElement('button', { onPress, type: 'button' }, children),
 }));
-
-import StatDetailModal from '../index';
 
 // Mock dependencies
 
 jest.mock('@gorhom/bottom-sheet', () => ({
-  BottomSheetModal: ({ children, ...props }) => {
-    const React = require('react');
-    return React.createElement(React.Fragment, null, children);
-  },
+  BottomSheetModal: ({ children }) => React.createElement(React.Fragment, null, children),
   useBottomSheetModalInternal: () => ({
     dismiss: jest.fn(),
   }),
@@ -61,13 +49,10 @@ const mockItems = [
 ];
 
 // Mock UserContext to provide user data
-jest.mock('@app/context/auth.context', () => {
-  const React = require('react');
-  return {
-    UserContext: React.createContext({ user: { id: 'test-user', organization: { id: 'test-org' } } }),
-    useUserContext: () => ({ user: { id: 'test-user', organization: { id: 'test-org' } } }),
-  };
-});
+jest.mock('@app/context/auth.context', () => ({
+  UserContext: React.createContext({ user: { id: 'test-user', organization: { id: 'test-org' } } }),
+  useUserContext: () => ({ user: { id: 'test-user', organization: { id: 'test-org' } } }),
+}));
 
 describe('StatDetailModal Component - Snapshots', () => {
   const mockModalRef = React.createRef();
@@ -85,7 +70,7 @@ describe('StatDetailModal Component - Snapshots', () => {
         title="My Surveys"
         items={mockItems.filter((i) => i._parseClass === 'SurveyData')}
         isLoading={false}
-        hasMore={true}
+        hasMore
         onLoadMore={mockLoadMore}
       />
     );
@@ -100,7 +85,7 @@ describe('StatDetailModal Component - Snapshots', () => {
         cardType="mySurveys"
         title="My Surveys"
         items={[]}
-        isLoading={true}
+        isLoading
         hasMore={false}
         onLoadMore={mockLoadMore}
       />
@@ -133,7 +118,7 @@ describe('StatDetailModal Component - Snapshots', () => {
         title="Organization Vitals"
         items={mockItems.filter((i) => i._parseClass === 'Vitals')}
         isLoading={false}
-        hasMore={true}
+        hasMore
         onLoadMore={mockLoadMore}
       />
     );
@@ -188,7 +173,7 @@ describe('StatDetailModal Component - Snapshots', () => {
         title="My Surveys"
         items={manyItems}
         isLoading={false}
-        hasMore={true}
+        hasMore
         onLoadMore={mockLoadMore}
       />
     );
@@ -281,7 +266,7 @@ describe('StatDetailModal Component - Snapshots', () => {
         title="Recent Activity"
         items={envItems}
         isLoading={false}
-        hasMore={true}
+        hasMore
         onLoadMore={mockLoadMore}
       />
     );

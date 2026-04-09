@@ -1,41 +1,44 @@
 /**
  * StatCard Component Tests - RED/GREEN TDD
  */
-import React from 'react';
+import StatCard from '@app/domains/HomeScreen/components/StatCard/index';
 import { render } from '@testing-library/react-native';
-import StatCard from '../index';
+import React from 'react';
 
-jest.mock('@app/impacto-design-system/Cards/ModernCard', () => {
-  return function MockModernCard({ children }) {
-    return <>{children}</>;
-  };
+jest.mock('@app/impacto-design-system/Cards/ModernCard', () => function MockModernCard({ children }) {
+  return children || null;
 });
 
 jest.mock('react-native-reanimated', () => ({
   __esModule: true,
-  default: { View: (props) => <>{props.children}</>, Text: (props) => <>{props.children}</> },
+  default: {
+    View: ({ children }) => children || null,
+    Text: ({ children }) => children || null,
+  },
   createAnimatedComponent: (Component) => Component,
   useSharedValue: () => ({ value: 0 }),
   useAnimatedStyle: () => ({}),
   withSpring: (val) => val,
-  Animated: { View: (props) => <>{props.children}</>, Text: (props) => <>{props.children}</> },
+  Animated: {
+    View: ({ children }) => children || null,
+    Text: ({ children }) => children || null,
+  },
 }));
 
-jest.mock('@expo/vector-icons/MaterialCommunityIcons', () => {
-  return function MockIcon() {
+jest.mock('@expo/vector-icons/MaterialCommunityIcons', () => function MockIcon() {
     return <text>Icon</text>;
-  };
-});
+  });
 
 jest.mock('react-native-paper', () => ({
   useTheme: () => ({ colors: { primary: '#fff' } }),
 }));
 
 jest.mock('@app/impacto-design-system/Base/Text', () => {
+  // eslint-disable-next-line global-require
   const { Text } = require('react-native');
-  return function MockText(props) {
-    // Return text that getByText can find
-    return require('react').createElement(Text, props, props.children);
+  return function MockText({ children, ...props }) {
+    // eslint-disable-next-line global-require
+    return require('react').createElement(Text, props, children);
   };
 });
 
@@ -69,7 +72,7 @@ describe('StatCard - RED/GREEN Tests', () => {
 
     test('RED: should handle loading state', () => {
       const { root } = render(
-        <StatCard {...defaultProps} isLoading={true} />
+        <StatCard {...defaultProps} isLoading />
       );
       expect(root).toBeTruthy();
     });

@@ -7,23 +7,21 @@ import statsService from '../stats.service';
 // Mock minimal Parse client
 const mockQuery = {
   constraints: {},
-  equalTo: jest.fn(function(key, val) { this.constraints[key] = val; return this; }),
-  greaterThanOrEqualTo: jest.fn(function(key, val) { this.constraints[`${key}__gte`] = val; return this; }),
-  lessThan: jest.fn(function(key, val) { this.constraints[`${key}__lt`] = val; return this; }),
-  select: jest.fn(function() { return this; }),
-  skip: jest.fn(function() { return this; }),
-  limit: jest.fn(function() { return this; }),
-  descending: jest.fn(function() { return this; }),
+  equalTo: jest.fn(function equalTo(key, val) { this.constraints[key] = val; return this; }),
+  greaterThanOrEqualTo: jest.fn(function greaterThanOrEqualTo(key, val) { this.constraints[`${key}__gte`] = val; return this; }),
+  lessThan: jest.fn(function lessThan(key, val) { this.constraints[`${key}__lt`] = val; return this; }),
+  select: jest.fn(function select() { return this; }),
+  skip: jest.fn(function skip() { return this; }),
+  limit: jest.fn(function limit() { return this; }),
+  descending: jest.fn(function descending() { return this; }),
   count: jest.fn(() => Promise.resolve(10)),
   find: jest.fn(() => Promise.resolve([])),
 };
 
-jest.mock('@app/services/parse/client', () => {
-  return jest.fn(() => ({
+jest.mock('@app/services/parse/client', () => jest.fn(() => ({
     Object: { extend: jest.fn(() => class MockModel {}) },
     Query: jest.fn(() => mockQuery),
-  }));
-});
+  })));
 
 jest.mock('@app/environment', () => ({ default: { TEST_MODE: true } }));
 

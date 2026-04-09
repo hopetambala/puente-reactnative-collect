@@ -2,7 +2,8 @@
  * Jest mock for ModernCard component
  */
 
-import React from 'react';
+// eslint-disable-next-line global-require
+const React = require('react');
 
 module.exports = {
   __esModule: true,
