@@ -9,27 +9,45 @@ on:
 jobs:
   test-integration:
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x]
-    
+
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Setup Node.js ${{ matrix.node-version }}
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20.x'
           cache: 'yarn'
-      
+
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-      
-      - name: Run integration tests with live Parse server
+
+      - name: Create app.json
+        run: mv app-example.json app.json
+
+      - name: Create environment.js
+        run: |
+          touch environment.js
+          echo "const selectedEnv = {
+            TEST_MODE: true,
+            parseAppId: 'test-app-id',
+            parseJavascriptKey: 'test-key',
+            parseServerUrl: 'https://parseapi.back4app.com/',
+            taskyUrlApi: 'https://puente-tasky-dev.herokuapp.com/',
+            AWS_LAMBDA_URL: 'https://test-lambda-url.com',
+            cloudWatchLogging: {
+              logGroupName: 'puente-test-logs',
+              logStreamName: 'test-log-stream',
+              accessKeyId: 'test-access-key',
+              secretAccessKey: 'test-secret-key',
+              region: 'us-east-1'
+            }
+          };
+          export default selectedEnv;" >> environment.js
+
+      - name: Run integration tests
         run: yarn test:integration
         env:
-          # MongoDB Memory Server binary caching
           MONGOMS_PREFER_GLOBAL_PATH: 1
       
       - name: Upload coverage
