@@ -6,17 +6,29 @@ import HomeScreen from '@app/domains/HomeScreen/index';
 import { render } from '@testing-library/react-native';
 import React, { useMemo } from 'react';
 
-jest.mock('react-native-paper', () => ({
-  useTheme: () => ({ colors: { onSurfaceVariant: '#666' } }),
-  SegmentedButtons: () => (
-    // eslint-disable-next-line global-require
-    require('react').createElement('text', {}, 'Filter')
-  ),
-}));
+jest.mock('react-native-paper', () => {
+  const mockColors = {
+    primary: '#007AFF', onPrimary: '#FFFFFF', secondary: '#5AC8FA',
+    onSecondary: '#000000', error: '#FF3B30', background: '#FFFFFF',
+    surface: '#F5F5F5', onSurface: '#000000', onSurfaceVariant: '#666666',
+    outline: '#CCCCCC', outlineVariant: '#DDDDDD', surfaceVariant: '#F5F5F5',
+  };
+  return {
+    DefaultTheme: { colors: mockColors },
+    MD3DarkTheme: { colors: { ...mockColors, background: '#121212', surface: '#1E1E1E', onSurface: '#FFFFFF' } },
+    useTheme: () => ({ colors: mockColors }),
+    SegmentedButtons: () => (
+      // eslint-disable-next-line global-require
+      require('react').createElement('text', {}, 'Filter')
+    ),
+  };
+});
 
-jest.mock('@app/impacto-design-system/Base/Text', () => function MockText({ children }) {
+jest.mock('@app/impacto-design-system/Base/Text', () => function MockText({ children, style }) {
   // eslint-disable-next-line global-require
-  return require('react').createElement('text', {}, children);
+  const { Text } = require('react-native');
+  // eslint-disable-next-line global-require
+  return require('react').createElement(Text, { style }, children);
 });
 
 jest.mock('@app/impacto-design-system/Base/GlassContainer', () => function MockGlassContainer({ children }) {
@@ -27,12 +39,16 @@ jest.mock('@app/impacto-design-system/Base/GlassContainer', () => function MockG
 
 jest.mock('../components/StatCard', () => function MockStatCard({ title, count }) {
   // eslint-disable-next-line global-require
-  return require('react').createElement('text', {}, `${title}: ${count}`);
+  const { Text } = require('react-native');
+  // eslint-disable-next-line global-require
+  return require('react').createElement(Text, {}, `${title}: ${count}`);
 });
 
 jest.mock('../components/StatDetailModal', () => function MockStatDetailModal() {
   // eslint-disable-next-line global-require
-  return require('react').createElement('text', {}, 'Modal');
+  const { Text } = require('react-native');
+  // eslint-disable-next-line global-require
+  return require('react').createElement(Text, {}, 'Modal');
 });
 
 jest.mock('../hooks/useHomeStats', () => function useHomeStats() {
@@ -52,12 +68,6 @@ jest.mock('../hooks/useHomeStats', () => function useHomeStats() {
   };
 });
 
-// Mock HomeScreen component to avoid loading the entire theme/component tree
-jest.mock('../index', () => function MockHomeScreen() {
-  // eslint-disable-next-line global-require
-  return require('react').createElement('view', {}, 'Mock HomeScreen');
-});
-
 const UserContextWrapper = ({ children }) => {
   const value = useMemo(
     () => ({ user: { id: 'user1', firstname: 'John', organization: 'TestOrg' } }),
@@ -70,7 +80,7 @@ const UserContextWrapper = ({ children }) => {
   );
 };
 
-describe.skip('HomeScreen - RED/GREEN Tests', () => {
+describe('HomeScreen - RED/GREEN Tests', () => {
   describe('RED: Rendering', () => {
     test('RED: should render greeting', () => {
       const { getByText } = render(

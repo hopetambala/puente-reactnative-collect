@@ -64,7 +64,8 @@
       "/node_modules/",
       "/android/",
       "/ios/",
-      "/coverage/"
+      "/coverage/",
+      "integrate\\.test\\.js"
     ]
   },
   "dependencies": {

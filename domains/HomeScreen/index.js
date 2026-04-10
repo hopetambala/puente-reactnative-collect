@@ -213,16 +213,14 @@ function HomeScreen() {
         )}
       </ScrollView>
 
-      {/* Detail Modal */}
-      {selectedCard && (
-        <StatDetailModal
-          visible={!!selectedCard}
-          onClose={() => setSelectedCard(null)}
-          title={selectedCard ? selectedCard.replace(/([A-Z])/g, ' $1').trim() : ''}
-          cardType={selectedCard}
-          timeFilter={timeFilter}
-        />
-      )}
+      {/* Detail Modal - always mounted, visible prop controls display */}
+      <StatDetailModal
+        visible={!!selectedCard}
+        onClose={() => setSelectedCard(null)}
+        title={selectedCard ? selectedCard.replace(/([A-Z])/g, ' $1').trim() : ''}
+        cardType={selectedCard}
+        timeFilter={timeFilter}
+      />
     </SafeAreaView>
   );
 }

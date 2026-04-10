@@ -91,15 +91,26 @@ module.exports = async function globalSetup() {
   });
 
   await waitForServer(SERVER_URL);
+  console.log('✓ Parse Server is healthy and ready at', SERVER_URL);
 
   // Initialize Parse to seed test data
   const Parse = require('parse/node'); // eslint-disable-line global-require, import/no-extraneous-dependencies
   Parse.initialize(APP_ID);
   Parse.serverURL = SERVER_URL;
   Parse.masterKey = MASTER_KEY;
+  console.log('✓ Parse Client initialized with:');
+  console.log('  - App ID:', APP_ID);
+  console.log('  - Server URL:', Parse.serverURL);
+  console.log('  - Master Key:', MASTER_KEY ? '[set]' : '[not set]');
 
   // Seed test data (create test users)
+  console.log('🌱 Creating test users...');
   const testUsers = await seedTestData(APP_ID, SERVER_URL, MASTER_KEY);
+
+  if (!testUsers || Object.keys(testUsers).length === 0) {
+    throw new Error('Failed to seed test data - no users created');
+  }
+  console.log('✓ Test users created:', Object.keys(testUsers).join(', '));
 
   // Store test credentials in global for tests to access
   global.__TEST_APP_ID__ = APP_ID; // eslint-disable-line no-underscore-dangle
@@ -108,7 +119,12 @@ module.exports = async function globalSetup() {
   global.__TEST_USERS__ = testUsers; // eslint-disable-line no-underscore-dangle
   global.__TEST_USER__ = testUsers.regularUser; // Default test user // eslint-disable-line no-underscore-dangle
 
+  // Set environment variables BEFORE tests import modules (critical for Parse initialization)
+  process.env.APP_ENV = 'test';
   process.env.PARSE_APP_ID = APP_ID;
   process.env.PARSE_SERVER_URL = SERVER_URL;
-  process.env.PARSE_ENV = 'test';
+  process.env.PARSE_JAVASCRIPT_KEY = 'test-js-key';
+  process.env.PARSE_MASTER_KEY = MASTER_KEY;
+
+  console.log('✓ Global setup complete - Parse Server ready for integration tests');
 };

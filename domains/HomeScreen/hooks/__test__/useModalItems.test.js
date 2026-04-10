@@ -1,22 +1,17 @@
+/**
+ * useModalItems Hook Tests
+ * Tests the paginated modal items hook using its actual public API:
+ *   useModalItems() → { items, isLoading, hasMore, error, loadMore, reset }
+ * Loading is triggered by calling loadMore() or reset(), not on mount.
+ * Uses statsService.fetchCardItems internally (not CrudService).
+ */
+import { UserContext } from '@app/context/auth.context';
 import useModalItems from '@app/domains/HomeScreen/hooks/useModalItems';
-import * as CrudService from '@app/services/parse/crud';
-import { act,render, waitFor } from '@testing-library/react-native';
-import React from 'react';
+import statsService from '@app/services/parse/stats/stats.service';
+import { act, renderHook, waitFor } from '@testing-library/react-native';
+import React, { useMemo } from 'react';
 
-jest.mock('@app/services/parse/crud');
-
-jest.mock('@app/context/auth.context', () => {
-  // eslint-disable-next-line global-require, no-shadow
-  const ReactModule = require('react');
-  return {
-    UserContext: ReactModule.createContext({
-      user: { id: 'test-user', organization: 'test-org' },
-    }),
-    useUserContext: () => ({
-      user: { id: 'test-user', organization: { id: 'test-org' } },
-    }),
-  };
-});
+jest.mock('@app/services/parse/stats/stats.service');
 
 const mockItems = [
   { objectId: '1', label: 'Item 1', _parseClass: 'SurveyData' },
@@ -36,56 +31,57 @@ const mockMoreItems = [
   { objectId: '12', label: 'Item 12', _parseClass: 'SurveyData' },
 ];
 
-describe.skip('useModalItems Hook', () => {
+describe('useModalItems Hook', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('returns initial loading state', () => {
-    CrudService.aggregateStatsItems.mockResolvedValue({
-      items: mockItems,
-      hasMore: true,
-    });
+  const Wrapper = ({ children }) => {
+    const value = useMemo(
+      () => ({
+        user: {
+          id: 'test-user',
+          firstname: 'Test',
+          lastname: 'User',
+          username: 'test.user',
+          organization: 'test-org',
+        },
+      }),
+      []
+    );
+    return (
+      <UserContext.Provider value={value}>
+        {children}
+      </UserContext.Provider>
+    );
+  };
 
-    const TestComponent = () => {
-      const { items, isLoading } = useModalItems('mySurveys', 'today');
-      return (
-        <>
-          {isLoading && <text>Loading</text>}
-          {items && items.length > 0 && <text>{items.length}</text>}
-        </>
-      );
-    };
-
-    const { getByText } = render(<TestComponent />);
-    expect(getByText('Loading')).toBeDefined();
+  test('starts with empty state', () => {
+    const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
+    expect(result.current.items).toEqual([]);
+    expect(result.current.isLoading).toBe(false);
+    expect(result.current.hasMore).toBe(true);
+    expect(result.current.error).toBeNull();
   });
 
-  test('fetches initial page on mount', async () => {
-    CrudService.aggregateStatsItems.mockResolvedValue({
-      items: mockItems,
-      hasMore: true,
+  test('fetches items when loadMore is called', async () => {
+    statsService.fetchCardItems.mockResolvedValue({ items: mockItems, hasMore: true });
+
+    const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.loadMore('mySurveys', 'today');
     });
-
-    const TestComponent = () => {
-      const { items, isLoading } = useModalItems('mySurveys', 'today');
-      return (
-        <>
-          {isLoading && <text>Loading</text>}
-          {items && items.length > 0 && <text>{items.length}</text>}
-        </>
-      );
-    };
-
-    const { getByText, queryByText } = render(<TestComponent />);
 
     await waitFor(() => {
-      expect(queryByText('Loading')).toBeNull();
+      expect(result.current.items).toHaveLength(10);
+      expect(result.current.isLoading).toBe(false);
     });
 
-    expect(getByText('10')).toBeDefined();
-    expect(CrudService.aggregateStatsItems).toHaveBeenCalledWith(
+    expect(statsService.fetchCardItems).toHaveBeenCalledWith(
       'mySurveys',
+      expect.any(String),
+      expect.any(String),
       'today',
       0,
       10
@@ -93,40 +89,32 @@ describe.skip('useModalItems Hook', () => {
   });
 
   test('loadMore fetches next page', async () => {
-    CrudService.aggregateStatsItems
+    statsService.fetchCardItems
       .mockResolvedValueOnce({ items: mockItems, hasMore: true })
       .mockResolvedValueOnce({ items: mockMoreItems, hasMore: false });
 
-    let loadMoreFn;
-    const TestComponent = () => {
-      const { items, isLoading, loadMore } = useModalItems('mySurveys', 'today');
-      loadMoreFn = loadMore;
-      return (
-        <>
-          {isLoading && <text>Loading</text>}
-          {items && items.length > 0 && <text>{items.length}</text>}
-        </>
-      );
-    };
+    const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
 
-    const { getByText } = render(<TestComponent />);
-
+    await act(async () => {
+      result.current.loadMore('mySurveys', 'today');
+    });
     await waitFor(() => {
-      expect(getByText('10')).toBeDefined();
+      expect(result.current.items).toHaveLength(10);
     });
 
     await act(async () => {
-      await loadMoreFn();
+      result.current.loadMore('mySurveys', 'today');
     });
-
     await waitFor(() => {
-      expect(getByText('12')).toBeDefined();
+      expect(result.current.items).toHaveLength(12);
     });
 
-    expect(CrudService.aggregateStatsItems).toHaveBeenCalledTimes(2);
-    expect(CrudService.aggregateStatsItems).toHaveBeenNthCalledWith(
+    expect(statsService.fetchCardItems).toHaveBeenCalledTimes(2);
+    expect(statsService.fetchCardItems).toHaveBeenNthCalledWith(
       2,
       'mySurveys',
+      expect.any(String),
+      expect.any(String),
       'today',
       10,
       10
@@ -134,145 +122,128 @@ describe.skip('useModalItems Hook', () => {
   });
 
   test('sets hasMore to false when no more items', async () => {
-    CrudService.aggregateStatsItems.mockResolvedValue({
-      items: [mockItems[0]],
-      hasMore: false,
+    statsService.fetchCardItems.mockResolvedValue({ items: [mockItems[0]], hasMore: false });
+
+    const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.loadMore('mySurveys', 'today');
     });
 
-    let hasMore;
-    const TestComponent = () => {
-      const state = useModalItems('mySurveys', 'today');
-      hasMore = state.hasMore;
-      return <text>Test</text>;
-    };
-
-    render(<TestComponent />);
-
     await waitFor(() => {
-      expect(hasMore).toBe(false);
+      expect(result.current.hasMore).toBe(false);
     });
   });
 
   test('reset clears items and resets offset', async () => {
-    CrudService.aggregateStatsItems
+    statsService.fetchCardItems
       .mockResolvedValueOnce({ items: mockItems, hasMore: true })
+      .mockResolvedValueOnce({ items: mockMoreItems, hasMore: true })
       .mockResolvedValueOnce({ items: mockItems, hasMore: true });
 
-    let loadMoreFn; let resetFn;
-    const TestComponent = () => {
-      const { items, loadMore, reset } = useModalItems('mySurveys', 'today');
-      loadMoreFn = loadMore;
-      resetFn = reset;
-      return <text>{items.length}</text>;
-    };
+    const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
 
-    const { getByText } = render(<TestComponent />);
-
-    await waitFor(() => {
-      expect(getByText('10')).toBeDefined();
-    });
-
-    // Load more items
     await act(async () => {
-      await loadMoreFn();
+      result.current.loadMore('mySurveys', 'today');
     });
-
-    // Reset
-    await act(async () => {
-      await resetFn();
-    });
-
     await waitFor(() => {
-      // Should re-fetch first page
-      expect(CrudService.aggregateStatsItems).toHaveBeenLastCalledWith(
-        'mySurveys',
-        'today',
-        0,
-        10
-      );
+      expect(result.current.items).toHaveLength(10);
     });
+
+    await act(async () => {
+      result.current.loadMore('mySurveys', 'today');
+    });
+    await waitFor(() => {
+      expect(result.current.items).toHaveLength(12);
+    });
+
+    await act(async () => {
+      result.current.reset('mySurveys', 'today');
+    });
+    await waitFor(() => {
+      expect(result.current.items).toHaveLength(10);
+    });
+
+    // Third call should be from offset 0 (reset)
+    expect(statsService.fetchCardItems).toHaveBeenNthCalledWith(
+      3,
+      'mySurveys',
+      expect.any(String),
+      expect.any(String),
+      'today',
+      0,
+      10
+    );
   });
 
   test('handles fetch errors', async () => {
-    const errorMessage = 'Network error';
-    CrudService.aggregateStatsItems.mockRejectedValue(new Error(errorMessage));
+    statsService.fetchCardItems.mockRejectedValue(new Error('Network error'));
 
-    let error;
-    const TestComponent = () => {
-      const state = useModalItems('mySurveys', 'today');
-      error = state.error;
-      return <text>{error || 'No error'}</text>;
-    };
+    const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
 
-    render(<TestComponent />);
+    await act(async () => {
+      result.current.loadMore('mySurveys', 'today');
+    });
 
     await waitFor(() => {
-      expect(error).toBeTruthy();
+      expect(result.current.error).toBeTruthy();
+      expect(result.current.isLoading).toBe(false);
     });
   });
 
   test('does not attempt loadMore when hasMore is false', async () => {
-    CrudService.aggregateStatsItems.mockResolvedValue({
-      items: [mockItems[0]],
-      hasMore: false,
-    });
+    statsService.fetchCardItems.mockResolvedValue({ items: [mockItems[0]], hasMore: false });
 
-    let loadMoreFn;
-    const TestComponent = () => {
-      const { items, loadMore } = useModalItems('mySurveys', 'today');
-      loadMoreFn = loadMore;
-      return <text>{items.length}</text>;
-    };
-
-    render(<TestComponent />);
-
-    await waitFor(() => {
-      expect(CrudService.aggregateStatsItems).toHaveBeenCalledTimes(1);
-    });
+    const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
 
     await act(async () => {
-      await loadMoreFn();
+      result.current.loadMore('mySurveys', 'today');
+    });
+    await waitFor(() => {
+      expect(result.current.hasMore).toBe(false);
     });
 
-    // Should still be 1 call since hasMore is false
-    expect(CrudService.aggregateStatsItems).toHaveBeenCalledTimes(1);
+    // Attempt to load more - should be no-op
+    await act(async () => {
+      result.current.loadMore('mySurveys', 'today');
+    });
+
+    // Still only 1 call
+    expect(statsService.fetchCardItems).toHaveBeenCalledTimes(1);
   });
 
   test('uses correct limit of 10 items per page', async () => {
-    CrudService.aggregateStatsItems.mockResolvedValue({
-      items: mockItems,
-      hasMore: true,
+    statsService.fetchCardItems.mockResolvedValue({ items: mockItems, hasMore: true });
+
+    const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.loadMore('orgVitals', 'week');
     });
-
-    const TestComponent = () => {
-      useModalItems('orgVitals', 'week');
-      return <text>Test</text>;
-    };
-
-    render(<TestComponent />);
 
     await waitFor(() => {
-      const lastCall = CrudService.aggregateStatsItems.mock.calls[0];
-      expect(lastCall[3]).toBe(10); // limit parameter
+      expect(statsService.fetchCardItems).toHaveBeenCalled();
     });
+
+    // Limit is the 6th argument (index 5)
+    const [, , , , , limit] = statsService.fetchCardItems.mock.calls[0];
+    expect(limit).toBe(10);
   });
 
   test('passes cardType and timeFilter through to service', async () => {
-    CrudService.aggregateStatsItems.mockResolvedValue({
-      items: [],
-      hasMore: false,
+    statsService.fetchCardItems.mockResolvedValue({ items: [], hasMore: false });
+
+    const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.loadMore('recentActivity', 'all');
     });
 
-    const TestComponent = () => {
-      useModalItems('recentActivity', 'all');
-      return <text>Test</text>;
-    };
-
-    render(<TestComponent />);
-
     await waitFor(() => {
-      expect(CrudService.aggregateStatsItems).toHaveBeenCalledWith(
+      expect(statsService.fetchCardItems).toHaveBeenCalledWith(
         'recentActivity',
+        expect.any(String),
+        expect.any(String),
         'all',
         0,
         10
@@ -288,27 +259,21 @@ describe.skip('useModalItems Hook', () => {
       { objectId: '4', label: 'Env Record', _parseClass: 'HistoryEnvironmentalHealth' },
     ];
 
-    CrudService.aggregateStatsItems.mockResolvedValue({
-      items: mixedItems,
-      hasMore: false,
+    statsService.fetchCardItems.mockResolvedValue({ items: mixedItems, hasMore: false });
+
+    const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
+
+    await act(async () => {
+      result.current.loadMore('recentActivity', 'all');
     });
-
-    let items;
-    const TestComponent = () => {
-      const state = useModalItems('recentActivity', 'all');
-      items = state.items;
-      return <text>Test</text>;
-    };
-
-    render(<TestComponent />);
 
     await waitFor(() => {
-      expect(items).toEqual(mixedItems);
+      expect(result.current.items).toEqual(mixedItems);
     });
 
-    // Verify we have items from multiple classes
+    // Verify items from multiple classes are preserved
     // eslint-disable-next-line no-underscore-dangle
-    const classes = items.map((item) => item._parseClass);
+    const classes = result.current.items.map((item) => item._parseClass);
     expect(new Set(classes).size).toBeGreaterThan(1);
   });
 });

@@ -21,7 +21,11 @@ async function seedTestData(parseAppId, parseServerUrl, parseMasterKey) {
   Parse.serverURL = parseServerUrl;
   Parse.masterKey = parseMasterKey;
 
-  console.log('🌱 Seeding test data...');
+  console.log('🌱 Seeding test data with Parse server:', parseServerUrl);
+
+  if (!Parse.serverURL) {
+    throw new Error('Parse.serverURL is not set - cannot connect to test Parse Server');
+  }
 
   const createdUsers = {};
 
