@@ -9,10 +9,11 @@ export default function hooks() {
 
     // CRITICAL: For integration tests, override Parse.serverURL to use the test Parse Server
     // This is set by jest.integration.config.js globalSetup
-    if (global.__TEST_SERVER_URL__) {
+    const { testParseConfig } = global;
+    if (testParseConfig) {
       const Parse = require('parse'); // eslint-disable-line global-require
-      Parse.serverURL = global.__TEST_SERVER_URL__;
-      console.log('✓ Test hooks: Parse.serverURL set to', global.__TEST_SERVER_URL__);
+      Parse.serverURL = testParseConfig.serverUrl;
+      console.log('✓ Test hooks: Parse.serverURL set to', testParseConfig.serverUrl);
     }
   });
 }

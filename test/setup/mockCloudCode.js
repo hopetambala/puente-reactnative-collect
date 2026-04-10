@@ -10,7 +10,6 @@ module.exports = function mockCloudCode(Parse) {
   }
 
   console.log('📝 Registering Mock Cloud Code functions...');
-  let functionCount = 0;
 
   /**
    * Cloud function: postObjectsToClass
@@ -236,47 +235,32 @@ module.exports = function mockCloudCode(Parse) {
 
       // Upload resident forms
       if (offlineForms.residentForms && Array.isArray(offlineForms.residentForms)) {
-        for (const form of offlineForms.residentForms) {
-          try {
-            const SurveyData = Parse.Object.extend('SurveyData');
-            const surveyData = new SurveyData();
+        uploadedForms.residentForms = await Promise.all(offlineForms.residentForms.map(async (form) => {
+          const SurveyData = Parse.Object.extend('SurveyData');
+          const surveyData = new SurveyData();
 
-            // Only save the actual form data from localObject, minimal fields
-            if (form.localObject) {
-              // Only set core form fields, skip anything that might be a reference
-              const { fname, lname, nickname, dob, sex, objectId } = form.localObject;
-              if (fname) surveyData.set('fname', fname);
-              if (lname) surveyData.set('lname', lname);
-              if (nickname) surveyData.set('nickname', nickname);
-              if (dob) surveyData.set('dob', dob);
-              if (sex) surveyData.set('sex', sex);
-              if (objectId) surveyData.set('patientObjectId', objectId);
-            }
-
-            const result = await surveyData.save(null, { useMasterKey: true });
-            uploadedForms.residentForms.push({
-              objectId: result.id,
-              ...result.toJSON(),
-            });
-          } catch (err) {
-            console.error('❌ Error uploading resident form:', {
-              error: err.message,
-              code: err.code,
-              stack: err.stack?.split('\n').slice(0, 3),
-            });
-            throw err;
+          if (form.localObject) {
+            const { fname, lname, nickname, dob, sex, objectId } = form.localObject;
+            if (fname) surveyData.set('fname', fname);
+            if (lname) surveyData.set('lname', lname);
+            if (nickname) surveyData.set('nickname', nickname);
+            if (dob) surveyData.set('dob', dob);
+            if (sex) surveyData.set('sex', sex);
+            if (objectId) surveyData.set('patientObjectId', objectId);
           }
-        }
+
+          const result = await surveyData.save(null, { useMasterKey: true });
+          return { objectId: result.id, ...result.toJSON() };
+        }));
       }
 
       // Upload supplementary forms
       if (offlineForms.residentSupplementaryForms && Array.isArray(offlineForms.residentSupplementaryForms)) {
-        for (const form of offlineForms.residentSupplementaryForms) {
-          try {
+        uploadedForms.residentSupplementaryForms = await Promise.all(
+          offlineForms.residentSupplementaryForms.map(async (form) => {
             const SupplementaryForm = Parse.Object.extend('SupplementaryForm');
             const suppForm = new SupplementaryForm();
 
-            // Only save the actual form data from localObject
             if (form.localObject) {
               const { title, description, formSpecificationsId, fields, surveyingUser, surveyingOrganization } = form.localObject;
               if (title) suppForm.set('title', title);
@@ -288,82 +272,57 @@ module.exports = function mockCloudCode(Parse) {
             }
 
             const result = await suppForm.save(null, { useMasterKey: true });
-            uploadedForms.residentSupplementaryForms.push({
-              objectId: result.id,
-              ...result.toJSON(),
-            });
-          } catch (err) {
-            console.error('❌ Error uploading supplementary form:', err.message);
-            throw err;
-          }
-        }
+            return { objectId: result.id, ...result.toJSON() };
+          })
+        );
       }
 
       // Upload households
       if (offlineForms.households && Array.isArray(offlineForms.households)) {
-        for (const form of offlineForms.households) {
-          try {
-            const Household = Parse.Object.extend('Household');
-            const household = new Household();
+        uploadedForms.households = await Promise.all(offlineForms.households.map(async (form) => {
+          const Household = Parse.Object.extend('Household');
+          const household = new Household();
 
-            // Only save the actual form data from localObject
-            if (form.localObject) {
-              const { latitude, longitude, objectId } = form.localObject;
-              if (latitude !== undefined && latitude !== null) household.set('latitude', latitude);
-              if (longitude !== undefined && longitude !== null) household.set('longitude', longitude);
-              if (objectId) household.set('householdObjectId', objectId);
-            }
-
-            const result = await household.save(null, { useMasterKey: true });
-            uploadedForms.households.push({
-              objectId: result.id,
-              ...result.toJSON(),
-            });
-          } catch (err) {
-            console.error('❌ Error uploading household:', err.message);
-            throw err;
+          if (form.localObject) {
+            const { latitude, longitude, objectId } = form.localObject;
+            if (latitude !== undefined && latitude !== null) household.set('latitude', latitude);
+            if (longitude !== undefined && longitude !== null) household.set('longitude', longitude);
+            if (objectId) household.set('householdObjectId', objectId);
           }
-        }
+
+          const result = await household.save(null, { useMasterKey: true });
+          return { objectId: result.id, ...result.toJSON() };
+        }));
       }
 
       // Upload asset forms
       if (offlineForms.assetForms && Array.isArray(offlineForms.assetForms)) {
-        for (const form of offlineForms.assetForms) {
-          try {
-            const AssetForm = Parse.Object.extend('AssetForm');
-            const assetForm = new AssetForm();
+        uploadedForms.assetForms = await Promise.all(offlineForms.assetForms.map(async (form) => {
+          const AssetForm = Parse.Object.extend('AssetForm');
+          const assetForm = new AssetForm();
 
-            // Only save the actual form data from localObject
-            if (form.localObject) {
-              const { name, location, communityname, province, country, objectId } = form.localObject;
-              if (name) assetForm.set('name', name);
-              if (location) assetForm.set('location', location);
-              if (communityname) assetForm.set('communityname', communityname);
-              if (province) assetForm.set('province', province);
-              if (country) assetForm.set('country', country);
-              if (objectId) assetForm.set('assetObjectId', objectId);
-            }
-
-            const result = await assetForm.save(null, { useMasterKey: true });
-            uploadedForms.assetForms.push({
-              objectId: result.id,
-              ...result.toJSON(),
-            });
-          } catch (err) {
-            console.error('❌ Error uploading asset form:', err.message);
-            throw err;
+          if (form.localObject) {
+            const { name, location, communityname, province, country, objectId } = form.localObject;
+            if (name) assetForm.set('name', name);
+            if (location) assetForm.set('location', location);
+            if (communityname) assetForm.set('communityname', communityname);
+            if (province) assetForm.set('province', province);
+            if (country) assetForm.set('country', country);
+            if (objectId) assetForm.set('assetObjectId', objectId);
           }
-        }
+
+          const result = await assetForm.save(null, { useMasterKey: true });
+          return { objectId: result.id, ...result.toJSON() };
+        }));
       }
 
       // Upload asset supplementary forms
       if (offlineForms.assetSupplementaryForms && Array.isArray(offlineForms.assetSupplementaryForms)) {
-        for (const form of offlineForms.assetSupplementaryForms) {
-          try {
+        uploadedForms.assetSupplementaryForms = await Promise.all(
+          offlineForms.assetSupplementaryForms.map(async (form) => {
             const AssetSuppForm = Parse.Object.extend('AssetSupplementaryForm');
             const assetSuppForm = new AssetSuppForm();
 
-            // Only save the actual form data from localObject
             if (form.localObject) {
               const { title, description, formSpecificationsId, fields, surveyingUser, surveyingOrganization } = form.localObject;
               if (title) assetSuppForm.set('title', title);
@@ -375,15 +334,9 @@ module.exports = function mockCloudCode(Parse) {
             }
 
             const result = await assetSuppForm.save(null, { useMasterKey: true });
-            uploadedForms.assetSupplementaryForms.push({
-              objectId: result.id,
-              ...result.toJSON(),
-            });
-          } catch (err) {
-            console.error('❌ Error uploading asset supplementary form:', err.message);
-            throw err;
-          }
-        }
+            return { objectId: result.id, ...result.toJSON() };
+          })
+        );
       }
 
       console.log('📤 uploadOfflineForms returning:', {

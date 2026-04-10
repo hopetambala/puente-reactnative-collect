@@ -3,6 +3,7 @@
  * Called after Parse Server starts during globalSetup
  */
 
+// eslint-disable-next-line module-resolver/use-alias
 const testUsers = require('../fixtures/users');
 
 /**
@@ -30,21 +31,16 @@ async function seedTestData(parseAppId, parseServerUrl, parseMasterKey) {
   const createdUsers = {};
 
   try {
-    // Create each test user
-    for (const [userType, userData] of Object.entries(testUsers)) {
-      try {
-        // Check if user already exists
+    const userEntries = await Promise.all(
+      Object.entries(testUsers).map(async ([userType, userData]) => {
         const query = new Parse.Query(Parse.User);
         query.equalTo('username', userData.username);
         const existingUser = await query.first({ useMasterKey: true });
 
-        let user;
         if (existingUser) {
-          user = existingUser;
           console.log(`  ℹ User already exists: ${userData.username}`);
         } else {
-          // Create new user
-          user = new Parse.User();
+          const user = new Parse.User();
           user.set('username', userData.username);
           user.set('password', userData.password);
           user.set('email', userData.email);
@@ -56,19 +52,17 @@ async function seedTestData(parseAppId, parseServerUrl, parseMasterKey) {
           console.log(`  ✓ Created user: ${userData.username}`);
         }
 
-        // Get fresh session token
         const loginResult = await Parse.User.logIn(userData.username, userData.password);
-        createdUsers[userType] = {
+        return [userType, {
           objectId: loginResult.id,
           username: loginResult.getUsername(),
           sessionToken: loginResult.getSessionToken(),
           ...userData,
-        };
-      } catch (err) {
-        console.error(`  ✗ Failed to create user ${userType}:`, err.message);
-        throw err;
-      }
-    }
+        }];
+      })
+    );
+
+    Object.assign(createdUsers, Object.fromEntries(userEntries));
 
     console.log('✓ Test data seeded successfully');
 

@@ -1,5 +1,5 @@
+import useHomeStats from '@app/domains/HomeScreen/hooks/useHomeStats';
 import HomeScreen from '@app/domains/HomeScreen/index';
-import useHomeStats from '../hooks/useHomeStats';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
@@ -103,12 +103,12 @@ jest.mock('react-native-paper', () => {
       // eslint-disable-next-line global-require
       const { Text } = require('react-native');
       // eslint-disable-next-line global-require
-      const React = require('react');
-      return React.createElement(
-        React.Fragment,
+      const ReactLib = require('react');
+      return ReactLib.createElement(
+        ReactLib.Fragment,
         null,
         ...(buttons || []).map(({ value: v, label }) =>
-          React.createElement(Text, { key: v, onPress: () => onValueChange(v) }, label)
+          ReactLib.createElement(Text, { key: v, onPress: () => onValueChange(v) }, label)
         )
       );
     },

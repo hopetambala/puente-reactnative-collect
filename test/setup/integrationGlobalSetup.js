@@ -113,11 +113,13 @@ module.exports = async function globalSetup() {
   console.log('✓ Test users created:', Object.keys(testUsers).join(', '));
 
   // Store test credentials in global for tests to access
-  global.__TEST_APP_ID__ = APP_ID; // eslint-disable-line no-underscore-dangle
-  global.__TEST_SERVER_URL__ = SERVER_URL; // eslint-disable-line no-underscore-dangle
-  global.__TEST_MASTER_KEY__ = MASTER_KEY; // eslint-disable-line no-underscore-dangle
-  global.__TEST_USERS__ = testUsers; // eslint-disable-line no-underscore-dangle
-  global.__TEST_USER__ = testUsers.regularUser; // Default test user // eslint-disable-line no-underscore-dangle
+  global.testParseConfig = {
+    appId: APP_ID,
+    serverUrl: SERVER_URL,
+    masterKey: MASTER_KEY,
+    users: testUsers,
+    user: testUsers.regularUser,
+  };
 
   // Set environment variables BEFORE tests import modules (critical for Parse initialization)
   process.env.APP_ENV = 'test';
