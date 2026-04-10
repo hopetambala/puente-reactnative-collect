@@ -4,7 +4,8 @@ import React from 'react';
 
 // Mock design system Text component to avoid theme loading
 jest.mock('@app/impacto-design-system/Base/Text', () => function MockText({ children, ...props }) {
-  return React.createElement('text', props, children);
+  // eslint-disable-next-line global-require
+  return require('react').createElement('text', props, children);
 });
 
 // Mock dependencies
@@ -32,7 +33,10 @@ jest.mock('react-native-reanimated', () => ({
 
 jest.mock('react-native-vector-icons/MaterialCommunityIcons', () => ({
   __esModule: true,
-  default: ({ name, size, color }) => React.createElement('text', {}, `Icon: ${name} (${size}, ${color})`),
+  default: ({ name, size, color }) => (
+    // eslint-disable-next-line global-require
+    require('react').createElement('text', {}, `Icon: ${name} (${size}, ${color})`)
+  ),
 }));
 
 jest.mock('react-native-paper', () => ({

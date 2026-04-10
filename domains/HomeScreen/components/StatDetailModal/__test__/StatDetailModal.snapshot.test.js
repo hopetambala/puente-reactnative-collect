@@ -5,21 +5,30 @@ import React from 'react';
 
 // Mock design system components to avoid theme loading issues
 jest.mock('@app/impacto-design-system/Base/Text', () => function MockText({ children, ...props }) {
-  return React.createElement('text', props, children);
+  // eslint-disable-next-line global-require
+  return require('react').createElement('text', props, children);
 });
 
 jest.mock('@app/impacto-design-system/Cards/ModernCard', () => function MockModernCard({ children, ...props }) {
-  return React.createElement('view', props, children);
+  // eslint-disable-next-line global-require
+  return require('react').createElement('view', props, children);
 });
 
 jest.mock('react-native-paper', () => ({
-  Button: ({ children, onPress }) => React.createElement('button', { onPress, type: 'button' }, children),
+  Button: ({ children, onPress }) => (
+    // eslint-disable-next-line global-require
+    require('react').createElement('button', { onPress, type: 'button' }, children)
+  ),
 }));
 
 // Mock dependencies
 
 jest.mock('@gorhom/bottom-sheet', () => ({
-  BottomSheetModal: ({ children }) => React.createElement(React.Fragment, null, children),
+  BottomSheetModal: ({ children }) => {
+    // eslint-disable-next-line global-require, no-shadow
+    const ReactModule = require('react');
+    return ReactModule.createElement(ReactModule.Fragment, null, children);
+  },
   useBottomSheetModalInternal: () => ({
     dismiss: jest.fn(),
   }),
@@ -49,10 +58,14 @@ const mockItems = [
 ];
 
 // Mock UserContext to provide user data
-jest.mock('@app/context/auth.context', () => ({
-  UserContext: React.createContext({ user: { id: 'test-user', organization: { id: 'test-org' } } }),
-  useUserContext: () => ({ user: { id: 'test-user', organization: { id: 'test-org' } } }),
-}));
+jest.mock('@app/context/auth.context', () => {
+  // eslint-disable-next-line global-require, no-shadow
+  const ReactModule = require('react');
+  return {
+    UserContext: ReactModule.createContext({ user: { id: 'test-user', organization: { id: 'test-org' } } }),
+    useUserContext: () => ({ user: { id: 'test-user', organization: { id: 'test-org' } } }),
+  };
+});
 
 describe('StatDetailModal Component - Snapshots', () => {
   const mockModalRef = React.createRef();

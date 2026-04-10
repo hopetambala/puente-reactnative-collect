@@ -10,33 +10,43 @@ import { useOfflineContext } from '../../../context/offline.context';
 
 // Mock Text component early to prevent theme loading errors
 jest.mock('@app/impacto-design-system/Base/Text', () => function MockText({ children, ...props }) {
-  return React.createElement('text', props, children);
+  // eslint-disable-next-line global-require
+  return require('react').createElement('text', props, children);
 });
 
 // Mock HomeScreen component to avoid loading the entire theme/component tree
 jest.mock('../index', () => function MockHomeScreen() {
-  return React.createElement('view', {}, 'Mock HomeScreen');
+  // eslint-disable-next-line global-require
+  return require('react').createElement('view', {}, 'Mock HomeScreen');
 });
 
 jest.mock('../../../services/parse/crud');
 
-jest.mock('../../../context/offline.context', () => ({
-  OfflineContext: React.createContext({}),
-  useOfflineContext: jest.fn(() => ({
-    isOnline: true,
-  })),
-}));
+jest.mock('../../../context/offline.context', () => {
+  // eslint-disable-next-line global-require, no-shadow
+  const ReactModule = require('react');
+  return {
+    OfflineContext: ReactModule.createContext({}),
+    useOfflineContext: jest.fn(() => ({
+      isOnline: true,
+    })),
+  };
+});
 
-jest.mock('../../../context/auth.context', () => ({
-  UserContext: React.createContext({}),
-  useUserContext: jest.fn(() => ({
-    user: {
-      id: 'test-user',
-      fname: 'Test',
-      organization: { id: 'test-org', name: 'Test Organization' },
-    },
-  })),
-}));
+jest.mock('../../../context/auth.context', () => {
+  // eslint-disable-next-line global-require, no-shadow
+  const ReactModule = require('react');
+  return {
+    UserContext: ReactModule.createContext({}),
+    useUserContext: jest.fn(() => ({
+      user: {
+        id: 'test-user',
+        fname: 'Test',
+        organization: { id: 'test-org', name: 'Test Organization' },
+      },
+    })),
+  };
+});
 
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn().mockResolvedValue(null),
@@ -46,13 +56,20 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 
 jest.mock('@app/impacto-design-system/Cards/ModernCard', () => ({
   __esModule: true,
-  default: ({ children, onPress }) => React.createElement('view', { onPress }, children),
+  default: ({ children, onPress }) => (
+    // eslint-disable-next-line global-require
+    require('react').createElement('view', { onPress }, children)
+  ),
 }));
 
 jest.mock('react-native-reanimated', () => ({
   __esModule: true,
   Animated: {
-    View: ({ children }) => React.createElement(React.Fragment, null, children),
+    View: ({ children }) => {
+      // eslint-disable-next-line global-require, no-shadow
+      const ReactModule = require('react');
+      return ReactModule.createElement(ReactModule.Fragment, null, children);
+    },
   },
 }));
 

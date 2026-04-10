@@ -4,6 +4,8 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
+const seedTestData = require('./seedTestData'); // eslint-disable-line import/no-extraneous-dependencies
+
 const APP_ID = 'test-app-id';
 const MASTER_KEY = 'test-master-key';
 const PORT = 1337;
@@ -67,12 +69,13 @@ module.exports = async function globalSetup() {
   process.env.PUENTE_ENV = 'dev';
 
   const { ParseServer } = require('parse-server'); // eslint-disable-line global-require, import/no-extraneous-dependencies
+
   const parseServer = new ParseServer({
     databaseURI: mongod.getUri(),
     appId: APP_ID,
     masterKey: MASTER_KEY,
     serverURL: SERVER_URL,
-    cloud: path.resolve(__dirname, '../../../puente-node-cloudcode/cloud/main.js'),
+    cloud: path.resolve(__dirname, './cloudCode.js'),
     silent: true,
     logLevel: 'error',
   });
@@ -88,6 +91,22 @@ module.exports = async function globalSetup() {
   });
 
   await waitForServer(SERVER_URL);
+
+  // Initialize Parse to seed test data
+  const Parse = require('parse/node'); // eslint-disable-line global-require, import/no-extraneous-dependencies
+  Parse.initialize(APP_ID);
+  Parse.serverURL = SERVER_URL;
+  Parse.masterKey = MASTER_KEY;
+
+  // Seed test data (create test users)
+  const testUsers = await seedTestData(APP_ID, SERVER_URL, MASTER_KEY);
+
+  // Store test credentials in global for tests to access
+  global.__TEST_APP_ID__ = APP_ID; // eslint-disable-line no-underscore-dangle
+  global.__TEST_SERVER_URL__ = SERVER_URL; // eslint-disable-line no-underscore-dangle
+  global.__TEST_MASTER_KEY__ = MASTER_KEY; // eslint-disable-line no-underscore-dangle
+  global.__TEST_USERS__ = testUsers; // eslint-disable-line no-underscore-dangle
+  global.__TEST_USER__ = testUsers.regularUser; // Default test user // eslint-disable-line no-underscore-dangle
 
   process.env.PARSE_APP_ID = APP_ID;
   process.env.PARSE_SERVER_URL = SERVER_URL;

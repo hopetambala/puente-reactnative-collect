@@ -5,14 +5,18 @@ import React from 'react';
 
 jest.mock('@app/services/parse/crud');
 
-jest.mock('@app/context/auth.context', () => ({
-  UserContext: React.createContext({
-    user: { id: 'test-user', organization: 'test-org' },
-  }),
-  useUserContext: () => ({
-    user: { id: 'test-user', organization: { id: 'test-org' } },
-  }),
-}));
+jest.mock('@app/context/auth.context', () => {
+  // eslint-disable-next-line global-require, no-shadow
+  const ReactModule = require('react');
+  return {
+    UserContext: ReactModule.createContext({
+      user: { id: 'test-user', organization: 'test-org' },
+    }),
+    useUserContext: () => ({
+      user: { id: 'test-user', organization: { id: 'test-org' } },
+    }),
+  };
+});
 
 const mockItems = [
   { objectId: '1', label: 'Item 1', _parseClass: 'SurveyData' },

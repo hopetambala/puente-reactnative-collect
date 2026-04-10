@@ -8,23 +8,31 @@ import React, { useMemo } from 'react';
 
 jest.mock('react-native-paper', () => ({
   useTheme: () => ({ colors: { onSurfaceVariant: '#666' } }),
-  SegmentedButtons: () => React.createElement('text', {}, 'Filter'),
+  SegmentedButtons: () => (
+    // eslint-disable-next-line global-require
+    require('react').createElement('text', {}, 'Filter')
+  ),
 }));
 
 jest.mock('@app/impacto-design-system/Base/Text', () => function MockText({ children }) {
-  return React.createElement('text', {}, children);
+  // eslint-disable-next-line global-require
+  return require('react').createElement('text', {}, children);
 });
 
 jest.mock('@app/impacto-design-system/Base/GlassContainer', () => function MockGlassContainer({ children }) {
-  return React.createElement(React.Fragment, null, children);
+  // eslint-disable-next-line global-require, no-shadow
+  const ReactModule = require('react');
+  return ReactModule.createElement(ReactModule.Fragment, null, children);
 });
 
 jest.mock('../components/StatCard', () => function MockStatCard({ title, count }) {
-  return React.createElement('text', {}, `${title}: ${count}`);
+  // eslint-disable-next-line global-require
+  return require('react').createElement('text', {}, `${title}: ${count}`);
 });
 
 jest.mock('../components/StatDetailModal', () => function MockStatDetailModal() {
-  return React.createElement('text', {}, 'Modal');
+  // eslint-disable-next-line global-require
+  return require('react').createElement('text', {}, 'Modal');
 });
 
 jest.mock('../hooks/useHomeStats', () => function useHomeStats() {
@@ -46,7 +54,8 @@ jest.mock('../hooks/useHomeStats', () => function useHomeStats() {
 
 // Mock HomeScreen component to avoid loading the entire theme/component tree
 jest.mock('../index', () => function MockHomeScreen() {
-  return React.createElement('view', {}, 'Mock HomeScreen');
+  // eslint-disable-next-line global-require
+  return require('react').createElement('view', {}, 'Mock HomeScreen');
 });
 
 const UserContextWrapper = ({ children }) => {
