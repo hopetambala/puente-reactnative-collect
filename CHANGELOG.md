@@ -4,8 +4,77 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [15.0.2](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.0.1...v15.0.2) (2026-04-11)
 
-### [15.0.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.1.0...v15.0.1) (2026-04-11)
+**Summary:** Code quality improvements, infrastructure rationalization, and critical bug fixes. Fixed 24 ESLint errors, consolidated GitHub Actions workflows, corrected type handling, and aligned mock signup to production implementation.
 
+### Code Quality & Linting
+
+#### Fixed
+* **ESLint errors**: Resolved 24 linting violations across 5 files
+  - Fixed `no-underscore-dangle` violations in test setup files by using bracket notation
+  - Converted 5 `for-of` loops to `Promise.all(map)` to resolve `no-await-in-loop` 
+  - Applied `prefer-const` to immutable variable declarations
+* **Arrow function style**: Converted block-body arrow functions to expression syntax where appropriate
+* **String formatting**: Updated string concatenation to use template literals consistently
+
+### GitHub Actions & CI/CD
+
+#### Improved
+* **Workflow consolidation**: Reduced from 7 to 5 workflows by eliminating redundancy
+  - Deleted `test.yml` and `test-all.yml` (superseded by `test-unit.yml` and `test-integration.yml`)
+  - Removed Node.js version matrix from test workflows (Node 20 only)
+  - Added consistent `app.json` and `environment.js` setup to all test jobs
+  - Restricted `eas-build.yml` to manual dispatch (removed push trigger)
+* **Workflow standardization**: Synchronized environment setup across `ci.yml`, `lint.yml`, `test-unit.yml`, `test-integration.yml`, `test-snapshot.yml`
+
+### Bug Fixes & Functional Improvements
+
+#### Core App Behavior
+* **Organization type correction**: Fixed `user.organization` handling
+  - Changed from treating as nested object (`user.organization?.name`) to scalar string
+  - Corrected HomeScreen and useHomeStats to properly render organization information
+* **Refresh functionality**: Modified `refresh()` to return promise from `fetchStats()`
+  - Enables callers to properly await pull-to-refresh operations
+  - Improves HomeScreen pull-to-refresh UX
+* **Context memoization**: Added missing `user` dependency to `useMemo` in offline.context.js
+  - Fixes stale closures over user.organization and prevents data inconsistency
+
+#### Authentication & Error Handling
+* **Auth error codes**: Correctly mapped Parse error codes (202, 203) to user-facing messages
+  - Proper i18n integration for username/email-taken errors
+  - Removed password persistence to prevent insecure storage
+
+#### Test Infrastructure
+* **Mock cloud code signup**: Aligned mock implementation to production puente-node-cloudcode
+  - Username now derived from `phonenumber` or `email` (not passed as parameter)
+  - Implements role assignment: first org user gets `administrator`, others get `contributor`
+  - Sets `adminVerified` flag based on role
+  - Properly sets ACL (public read, user+admin write)
+  - Returns enriched user object with `role` and `adminVerified` fields
+  - Uses `user.signUp()` for valid sessionToken
+
+#### UI/UX
+* **i18n improvements**: Fixed hardcoded tab titles
+  - Home tab now uses `I18n.t("bottomTab.home")` instead of hardcoded "Home"
+* **Design system**: Consolidated ModernCard defaults
+  - Removed parameter default `shadow = true`, now relies on defaultProps for centralized shadow configuration
+
+#### Logging & Security
+* **PII protection**: Gated sensitive logging behind `TEST_MODE` flag
+  - Applied to `crud.js` and `stats.service.js` to prevent PII leakage in logs
+
+#### Statistics & Organization
+* **Stats service**: Made `organization` parameter optional
+  - Only required for org-scoped card types (mySurveys, orgSurveys, myVitals, orgVitals)
+  - Improves flexibility for user-scoped queries
+
+### Testing
+
+#### Validation
+* **All tests passing**: 107 unit tests + 4 integration tests passing
+* **Snapshots validated**: 19 snapshots passing
+* **Zero lint errors**: All ESLint violations resolved
+
+### [15.0.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.1.0...v15.0.1) (2026-04-11)
 
 ### New Features
 
