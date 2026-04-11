@@ -124,7 +124,7 @@ function HomeScreen() {
               { color: theme.colors.onSurfaceVariant },
             ]}
           >
-            {user.organization}
+            {user.organization || ''}
           </Text>
         </View>
 

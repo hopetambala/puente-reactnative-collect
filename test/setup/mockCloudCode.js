@@ -148,30 +148,78 @@ module.exports = function mockCloudCode(Parse) {
 
   /**
    * Cloud function: signup
-   * Custom signup function for user registration
-   * Used for: Creating new users with specific fields
+   * Matches puente-node-cloudcode implementation:
+   * - Derives username from phonenumber or email (not a param)
+   * - Assigns roles based on org user count (first user gets admin)
+   * - Sets ACL and returns full user object
    */
   Parse.Cloud.define('signup', async (request) => {
-    const { username, password, email, firstname, lastname, organization } = request.params;
+    const {
+      firstname,
+      lastname,
+      password,
+      email,
+      phonenumber,
+      organization,
+    } = request.params;
 
-    if (!username || !password) {
-      throw new Error('username and password are required');
+    if (!password) {
+      throw new Error('password is required');
+    }
+    if (!email && !phonenumber) {
+      throw new Error('email or phonenumber is required');
     }
 
-    try {
-      const user = new Parse.User();
-      user.set('username', username);
-      user.set('password', password);
-      user.set('email', email || '');
-      user.set('firstname', firstname || '');
-      user.set('lastname', lastname || '');
-      user.set('organization', organization || '');
+    // Derive username from phonenumber or email (matching real implementation)
+    const username = phonenumber || email;
 
-      const result = await user.save(null, { useMasterKey: true });
+    try {
+      // Count existing users in organization to determine if this is the first user
+      const userQuery = new Parse.Query(Parse.User);
+      userQuery.equalTo('organization', String(organization || ''));
+      const existingUserCount = await userQuery.count({ useMasterKey: true });
+
+      // Determine role: first user gets admin, others are contributors
+      let role = 'contributor';
+      let adminVerified = false;
+      if (existingUserCount === 0) {
+        role = 'administrator';
+        adminVerified = true;
+      }
+
+      const user = new Parse.User();
+      user.set('username', String(username));
+      user.set('password', String(password));
+      if (String(email) !== '' && email) {
+        user.set('email', String(email));
+      }
+      user.set('firstname', String(firstname || ''));
+      user.set('lastname', String(lastname || ''));
+      user.set('phonenumber', String(phonenumber || ''));
+      user.set('organization', String(organization || ''));
+      user.set('role', role);
+      user.set('adminVerified', adminVerified);
+
+      // Sign up the user (creates session token)
+      const result = await user.signUp();
+
+      // Set ACL (simplified for tests)
+      const acl = new Parse.ACL();
+      acl.setPublicReadAccess(true);
+      acl.setWriteAccess(result, true);
+      acl.setRoleWriteAccess('admin', true);
+      result.setACL(acl);
+      await result.save(null, { useMasterKey: true });
+
       return {
         objectId: result.id,
         sessionToken: result.getSessionToken(),
         username: result.getUsername(),
+        firstname: result.get('firstname'),
+        email: result.get('email'),
+        organization: result.get('organization'),
+        role: result.get('role'),
+        adminVerified: result.get('adminVerified'),
       };
     } catch (error) {
       throw new Error(`Signup failed: ${error.message}`);

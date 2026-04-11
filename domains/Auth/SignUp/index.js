@@ -149,20 +149,20 @@ export default function SignUp({ navigation }) {
                       actions.setSubmitting(false);
                       console.log(`Signup Error: ${error.code} ${error.message}`); // eslint-disable-line
                       
-                      // Map Parse error codes to user-friendly messages
+                      // Map Parse signup error codes to localized user-friendly messages
                       let errorMessage = I18n.t("signUp.usernameError");
                       
-                      if (error.code === 101) {
-                        errorMessage = "Email or phone already in use, or invalid format";
-                      } else if (error.code === 125) {
-                        errorMessage = "Email address format is invalid";
-                      } else if (error.code === 200) {
-                        errorMessage = "Connection error - please try again";
+                      // 202/203 = username/email already taken
+                      // 200/201 = missing username/password
+                      if (error.code === 202 || error.code === 203) {
+                        errorMessage = I18n.t("signUp.usernameError");
+                      } else if (error.code === 200 || error.code === 201) {
+                        errorMessage = I18n.t("signUp.usernameError");
                       } else if (error.message) {
                         errorMessage = error.message;
                       }
                       
-                      alert(`Signup failed: ${errorMessage}`); // eslint-disable-line
+                      alert(errorMessage); // eslint-disable-line
                     });
                 }
               }}

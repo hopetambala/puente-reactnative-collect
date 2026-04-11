@@ -42,8 +42,8 @@ export default function useHomeStats() {
 
       // Fetch fresh data from cloud (we're assuming we're online)
       // surveyingUser in Parse is stored as "Firstname Lastname" by surveyingUserFailsafe
-      const surveyingUser = `${user?.firstname || ''} ${user?.lastname || ''}` || user?.username || '';
-      const organization = user?.organization || user?.organizationuser?.organization?.id || user?.organization?.objectId  || '';
+      const surveyingUser = `${user?.firstname || ''} ${user?.lastname || ''}`.trim() || user?.username || '';
+      const organization = user?.organization || '';
 
       const response = await statsService.aggregateStats(surveyingUser, organization, filter);
       
@@ -93,9 +93,7 @@ export default function useHomeStats() {
   /**
    * Manual refresh
    */
-  const refresh = () => {
-    fetchStats(timeFilter, true);
-  };
+  const refresh = () => fetchStats(timeFilter, true);
 
   return {
     stats,

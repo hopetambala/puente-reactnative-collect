@@ -145,9 +145,10 @@ async function fetchItemsPage(
  */
 async function aggregateStats(surveyingUser, organization, timeFilter) {
   try {
-    if (!surveyingUser || !organization || !timeFilter) {
-      throw new Error('Missing required parameters: surveyingUser, organization, timeFilter');
+    if (!surveyingUser || !timeFilter) {
+      throw new Error('Missing required parameters: surveyingUser, timeFilter');
     }
+    // organization is optional - some card types (recentActivity) don't use it
 
     const dateRange = buildDateRange(timeFilter);
     const prevDateRange = {
@@ -231,7 +232,9 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
       recentActivity: { count: recentActivityCurrent },
     };
 
-    console.log('statsService: aggregateStats result', result); // eslint-disable-line
+    if (TEST_MODE) {
+      console.log('statsService: aggregateStats result', result); // eslint-disable-line
+    }
     return result;
   } catch (error) {
     console.error('statsService: Error in aggregateStats:', error); // eslint-disable-line
@@ -242,8 +245,8 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
 /**
  * Fetch detail items for a card
  * @param {string} cardType - 'mySurveys', 'orgSurveys', 'myVitals', 'orgVitals', 'recentActivity'
- * @param {string} userId - Current user ID
- * @param {string} organization - Organization ID or name
+ * @param {string} surveyingUser - Current user name/username string
+ * @param {string} organization - Organization ID or name (optional, required only for org-scoped card types)
  * @param {string} timeFilter - 'today', 'week', or 'all'
  * @param {number} offset - pagination offset
  * @param {number} limit - pagination limit
@@ -258,8 +261,13 @@ async function fetchCardItems(
   limit,
 ) {
   try {
-    if (!cardType || !surveyingUser || !organization || !timeFilter || offset === undefined || !limit) {
+    if (!cardType || !surveyingUser || !timeFilter || offset === undefined || !limit) {
       throw new Error('Missing required parameters');
+    }
+    // organization is required only for org-scoped card types
+    const organizationRequiredCardTypes = ['mySurveys', 'orgSurveys', 'myVitals', 'orgVitals'];
+    if (organizationRequiredCardTypes.includes(cardType) && !organization) {
+      throw new Error(`Missing required parameters: organization required for ${cardType}`);
     }
 
     const dateRange = buildDateRange(timeFilter);

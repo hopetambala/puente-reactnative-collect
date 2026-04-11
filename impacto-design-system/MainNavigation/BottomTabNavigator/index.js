@@ -114,7 +114,7 @@ export default function BottomTabNavigator() {
       <BottomTab.Screen
         name="Home"
         options={{
-          title: "Home",
+          title: I18n.t("bottomTab.home"),
           headerShown: false,
           tabBarIcon: tabIcon("home-outline"),
         }}

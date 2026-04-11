@@ -146,7 +146,6 @@ function StatCard({
         <View style={styles.header}>
             <View style={styles.titleSection}>
               <Text
-                numberOfLines={0}
                 style={[
                   styles.title,
                   {
@@ -168,7 +167,6 @@ function StatCard({
 
           <View style={styles.countContainer}>
             <Text
-              numberOfLines={0}
               style={[
                 styles.count,
                 {

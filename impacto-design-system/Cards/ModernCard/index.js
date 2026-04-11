@@ -44,7 +44,7 @@ function ModernCard({
   variant = "default",
   disabled = false,
   testID,
-  shadow = true,
+  shadow,
 }) {
   const theme = useTheme();
   const pressAnimation = usePressAnimation({

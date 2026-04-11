@@ -22,16 +22,20 @@ function retrieveSignUpFunction(params) {
   return new Promise((resolve, reject) => {
     Parse.Cloud.run("signup", signupParams).then(
       (u) => {
+        // Handle both Parse.User objects and plain objects from cloud code
+        const getId = () => u.id || u.objectId;
+        const getField = (field) => typeof u.get === 'function' ? u.get(field) : u[field];
+        
         const user = {
           ...u,
-          id: u.id,
-          name: u.get("username"),
-          firstname: u.get("firstname") || "",
-          lastname: u.get("lastname") || "",
-          email: u.get("email"),
-          organization: u.get("organization"),
-          role: u.get("role"),
-          createdAt: `${u.get("createdAt")}`,
+          id: getId(),
+          name: getField("username") || getField("username"),
+          firstname: getField("firstname") || "",
+          lastname: getField("lastname") || "",
+          email: getField("email"),
+          organization: getField("organization"),
+          role: getField("role"),
+          createdAt: `${getField("createdAt")}`,
           // NOTE: Password NOT stored - Parse SDK manages session token securely
         };
         resolve(user);
@@ -44,7 +48,6 @@ function retrieveSignUpFunction(params) {
 }
 
 async function retrieveSignInFunction(usrn, pswd) {
-  const password = await getData("password");
   try {
     const u = await Parse.User.logIn(String(usrn), String(pswd));
     // eslint-disable-next-line
@@ -61,7 +64,7 @@ async function retrieveSignInFunction(usrn, pswd) {
       organization: u.get("organization"),
       role: u.get("role"),
       createdAt: `${u.get("createdAt")}`,
-      password,
+      // NOTE: Password NOT stored - Parse SDK manages session token securely
     };
     return loggedInUser;
   } catch (error) {

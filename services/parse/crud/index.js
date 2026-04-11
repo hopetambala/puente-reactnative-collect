@@ -133,15 +133,20 @@ function uploadOfflineForms(params) {
 
 function aggregateStats(params) {
   return new Promise((resolve, reject) => {
-    console.log('aggregateStats: Called with params:', params); // eslint-disable-line
+    if (TEST_MODE) {
+      console.log('aggregateStats: Called'); // eslint-disable-line
+    }
     Parse.Cloud.run("aggregateStats", params).then(
       (result) => {
-        console.log('aggregateStats: Success result:', result); // eslint-disable-line
+        if (TEST_MODE) {
+          console.log('aggregateStats: Success'); // eslint-disable-line
+        }
         resolve(result);
       },
       (error) => {
-        console.error('aggregateStats: Error:', error); // eslint-disable-line
-        console.error('aggregateStats: Error details:', { message: error?.message, code: error?.code }); // eslint-disable-line
+        if (TEST_MODE) {
+          console.error('aggregateStats: Error details:', { message: error?.message, code: error?.code }); // eslint-disable-line
+        }
         reject(error);
       }
     );

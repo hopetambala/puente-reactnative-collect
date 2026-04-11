@@ -29,7 +29,6 @@ exports[`StatCard Component - Snapshots renders StatCard hidden with "all" timeF
       }
     >
       <text
-        numberOfLines={0}
         style={
           [
             {
@@ -65,7 +64,6 @@ exports[`StatCard Component - Snapshots renders StatCard hidden with "all" timeF
     }
   >
     <text
-      numberOfLines={0}
       style={
         [
           {
@@ -135,7 +133,6 @@ exports[`StatCard Component - Snapshots renders StatCard with count data 1`] = `
       }
     >
       <text
-        numberOfLines={0}
         style={
           [
             {
@@ -171,7 +168,6 @@ exports[`StatCard Component - Snapshots renders StatCard with count data 1`] = `
     }
   >
     <text
-      numberOfLines={0}
       style={
         [
           {
@@ -250,7 +246,6 @@ exports[`StatCard Component - Snapshots renders StatCard with full width 1`] = `
       }
     >
       <text
-        numberOfLines={0}
         style={
           [
             {
@@ -286,7 +281,6 @@ exports[`StatCard Component - Snapshots renders StatCard with full width 1`] = `
     }
   >
     <text
-      numberOfLines={0}
       style={
         [
           {
@@ -365,7 +359,6 @@ exports[`StatCard Component - Snapshots renders StatCard with high count numbers
       }
     >
       <text
-        numberOfLines={0}
         style={
           [
             {
@@ -401,7 +394,6 @@ exports[`StatCard Component - Snapshots renders StatCard with high count numbers
     }
   >
     <text
-      numberOfLines={0}
       style={
         [
           {
@@ -480,7 +472,6 @@ exports[`StatCard Component - Snapshots renders StatCard with negative trend 1`]
       }
     >
       <text
-        numberOfLines={0}
         style={
           [
             {
@@ -516,7 +507,6 @@ exports[`StatCard Component - Snapshots renders StatCard with negative trend 1`]
     }
   >
     <text
-      numberOfLines={0}
       style={
         [
           {
@@ -595,7 +585,6 @@ exports[`StatCard Component - Snapshots renders StatCard with positive trend 1`]
       }
     >
       <text
-        numberOfLines={0}
         style={
           [
             {
@@ -631,7 +620,6 @@ exports[`StatCard Component - Snapshots renders StatCard with positive trend 1`]
     }
   >
     <text
-      numberOfLines={0}
       style={
         [
           {
@@ -710,7 +698,6 @@ exports[`StatCard Component - Snapshots renders StatCard with zero count 1`] = `
       }
     >
       <text
-        numberOfLines={0}
         style={
           [
             {
@@ -746,7 +733,6 @@ exports[`StatCard Component - Snapshots renders StatCard with zero count 1`] = `
     }
   >
     <text
-      numberOfLines={0}
       style={
         [
           {
@@ -796,7 +782,6 @@ exports[`StatCard Component - Snapshots renders StatCard with zero trend (identi
       }
     >
       <text
-        numberOfLines={0}
         style={
           [
             {
@@ -832,7 +817,6 @@ exports[`StatCard Component - Snapshots renders StatCard with zero trend (identi
     }
   >
     <text
-      numberOfLines={0}
       style={
         [
           {

@@ -62,7 +62,7 @@ export function OfflineContextProvider({ children }) {
       residentOnlineData,
       populateResidentDataCache,
     }),
-    [residents, isLoading]
+    [residents, isLoading, user]
   );
 
   return (
