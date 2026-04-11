@@ -1,25 +1,17 @@
-name: Run Tests on PR
+name: Unit Tests
 
 on:
-  pull_request:
-    branches:
-      - main
-      - master
-      - develop
   push:
-    branches:
-      - main
-      - master
-      - develop
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
 
 jobs:
-  test:
-    name: Run Jest Tests
+  test-unit:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -30,11 +22,10 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Create app.json for tests
-        run: |
-          mv app-example.json app.json
+      - name: Create app.json
+        run: mv app-example.json app.json
 
-      - name: Create environment.js for tests
+      - name: Create environment.js
         run: |
           touch environment.js
           echo "const selectedEnv = {
@@ -54,12 +45,11 @@ jobs:
           };
           export default selectedEnv;" >> environment.js
 
-      - name: Run tests
-        run: yarn test-run -- --testPathIgnorePatterns="integrate.test.js"
-
-      - name: Upload coverage reports
-        if: always()
-        uses: codecov/codecov-action@v4
+      - name: Run unit tests
+        run: yarn test:unit
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
         with:
-          files: ./coverage/lcov.info
+          flags: unit
           fail_ci_if_error: false

@@ -40,7 +40,7 @@ const createStyles = (theme) =>
     },
   });
 
-function AssetsScreen({ navigation }) {
+function AssetsScreen() {
   const theme = useTheme();
   const layout = createLayoutStyles(theme);
   const styles = createStyles(theme);

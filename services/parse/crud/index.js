@@ -131,7 +131,44 @@ function uploadOfflineForms(params) {
   });
 }
 
+function aggregateStats(params) {
+  return new Promise((resolve, reject) => {
+    if (TEST_MODE) {
+      console.log('aggregateStats: Called'); // eslint-disable-line
+    }
+    Parse.Cloud.run("aggregateStats", params).then(
+      (result) => {
+        if (TEST_MODE) {
+          console.log('aggregateStats: Success'); // eslint-disable-line
+        }
+        resolve(result);
+      },
+      (error) => {
+        if (TEST_MODE) {
+          console.error('aggregateStats: Error details:', { message: error?.message, code: error?.code }); // eslint-disable-line
+        }
+        reject(error);
+      }
+    );
+  });
+}
+
+function aggregateStatsItems(params) {
+  return new Promise((resolve, reject) => {
+    Parse.Cloud.run("aggregateStatsItems", params).then(
+      (result) => {
+        resolve(result);
+      },
+      (error) => {
+        reject(error);
+      }
+    );
+  });
+}
+
 export {
+  aggregateStats,
+  aggregateStatsItems,
   countService,
   customMultiParamQueryService,
   customMultiValueArrayService,

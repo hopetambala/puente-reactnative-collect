@@ -8,7 +8,7 @@ import {
   postOfflineForms,
 } from "@modules/offline/post";
 import React, { useContext, useState } from "react";
-import { ActivityIndicator , View } from "react-native";
+import { View } from "react-native";
 import Emoji from "react-native-emoji";
 import { Button, IconButton, Text, useTheme } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -60,6 +60,7 @@ function Header({ setSettings, onOpenSettings, onBack }) {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const count = async () => {
     getData("currentUser").then((user) => {
       calculateTime(user.firstname);
@@ -159,6 +160,7 @@ function Header({ setSettings, onOpenSettings, onBack }) {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const navToCounts = () => {
     setShowCounts(true);
   };

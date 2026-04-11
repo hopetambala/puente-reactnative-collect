@@ -1,6 +1,6 @@
 import { getData, storeData } from "@modules/async-storage";
 import { populateCache, residentQuery } from "@modules/cached-resources";
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useMemo, useState } from "react";
 
 import { UserContext } from "./auth.context";
 
@@ -54,16 +54,19 @@ export function OfflineContextProvider({ children }) {
       return allData.slice() || [];
     });
 
+  const contextValue = useMemo(
+    () => ({
+      residents,
+      isLoading,
+      residentOfflineData,
+      residentOnlineData,
+      populateResidentDataCache,
+    }),
+    [residents, isLoading, user]
+  );
+
   return (
-    <OfflineContext.Provider
-      value={{
-        residents,
-        isLoading,
-        residentOfflineData,
-        residentOnlineData,
-        populateResidentDataCache,
-      }}
-    >
+    <OfflineContext.Provider value={contextValue}>
       {children}
     </OfflineContext.Provider>
   );

@@ -4,7 +4,6 @@ import Svg, {
   Image,
   Path,
   Pattern,
-  SvgProps,
   Use,
 } from "react-native-svg"
 

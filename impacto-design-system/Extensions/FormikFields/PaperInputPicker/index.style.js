@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 // Factory function to create dynamic styles with theme colors
 // All colors automatically switch between light/dark based on theme.mode
 const createPaperInputPickerStyles = (theme) => {
-  const { colors, isDark } = theme;
+  const { colors } = theme;
 
   const stylesDefault = StyleSheet.create({
     horizontalLine: {

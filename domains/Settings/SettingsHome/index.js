@@ -81,7 +81,7 @@ function SettingsHome({
     },
     {
       key: "Theme",
-      label: "Theme",
+      label: I18n.t("theme.title"),
     },
   ];
 
@@ -132,17 +132,17 @@ function SettingsHome({
                         buttons={[
                           {
                             value: "light",
-                            label: "Light",
+                            label: I18n.t("theme.light"),
                             icon: "white-balance-sunny",
                           },
                           {
                             value: "dark",
-                            label: "Dark",
+                            label: I18n.t("theme.dark"),
                             icon: "moon-waning-crescent",
                           },
                           {
                             value: "auto",
-                            label: "Auto",
+                            label: I18n.t("theme.auto"),
                             icon: "auto-fix",
                           },
                         ]}

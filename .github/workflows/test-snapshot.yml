@@ -1,0 +1,67 @@
+name: Snapshot Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test-snapshot:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'yarn'
+      
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Create app.json
+        run: mv app-example.json app.json
+
+      - name: Create environment.js
+        run: |
+          touch environment.js
+          echo "const selectedEnv = {
+            TEST_MODE: true,
+            parseAppId: 'test-app-id',
+            parseJavascriptKey: 'test-key',
+            parseServerUrl: 'https://parseapi.back4app.com/',
+            taskyUrlApi: 'https://puente-tasky-dev.herokuapp.com/',
+            AWS_LAMBDA_URL: 'https://test-lambda-url.com',
+            cloudWatchLogging: {
+              logGroupName: 'puente-test-logs',
+              logStreamName: 'test-log-stream',
+              accessKeyId: 'test-access-key',
+              secretAccessKey: 'test-secret-key',
+              region: 'us-east-1'
+            }
+          };
+          export default selectedEnv;" >> environment.js
+
+      - name: Run snapshot tests
+        run: yarn test:snapshot
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          flags: snapshot
+          fail_ci_if_error: false
+      
+      - name: Comment on PR if snapshots changed
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ Snapshot tests failed. Review snapshot changes with `yarn test:snapshot -- -u` if intentional.'
+            })

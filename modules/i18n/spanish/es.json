@@ -35,7 +35,9 @@
     "toSpanish": "Cambiar el idioma al español",
     "errorTerms": "Error, se deben acordar los términos y el servicio",
     "errorPassword": "Error, sus contraseñas no coinciden.",
-    "usernameError": "Sign up attempt failed.\n\nYou might have attempted to sign up with a username (email/phone number) that has been previously registered with another account.\n\nPlease contact your supervisor if you believe this is an error."
+    "usernameError": "Sign up attempt failed.\n\nYou might have attempted to sign up with a username (email/phone number) that has been previously registered with another account.\n\nPlease contact your supervisor if you believe this is an error.",
+    "confirmViaEmail": "¿Enviar confirmación por correo electrónico?",
+    "confirmViaText": "¿Enviar confirmación por mensaje de texto?"
   },
   "signIn": {
     "user": "Nombre de usuario",
@@ -57,15 +59,20 @@
       "rememberPass": "¿Recuerdas tu contraseña?",
       "signIn": "Registrarse",
       "resetSuccess": "Su enlace de restablecimiento de contraseña se ha enviado a su correo electrónico. Por favor revise su correo electrónico para cambiar su contraseña.",
-      "resetError": "Hubo un error al enviar el enlace para restablecer la contraseña. Asegúrese de haber ingresado su correo electrónico correctamente. Puede intentarlo de nuevo haciendo clic en el botón de abajo. Si cree que el correo electrónico es correcto, comuníquese con su gerente."
+      "resetError": "Hubo un error al enviar el enlace para restablecer la contraseña. Asegúrese de haber ingresado su correo electrónico correctamente. Puede intentarlo de nuevo haciendo clic en el botón de abajo. Si cree que el correo electrónico es correcto, comuníquese con su gerente.",
+      "tryAgain": "Intentar de nuevo"
     },
     "credentialsModal": {
       "useCreds": "¿Le gustaría guardar su usuario y contraseña?"
     },
     "unableLogin": "No puede iniciar sesión",
     "usernamePasswordIncorrect": "Su nombre de usuario o contraseña pueden ser incorrectos. Vuelva a intentarlo.",
+    "offlineLoginError": "No se puede iniciar sesión sin conexión, por favor verifique sus credenciales.",
+    "invalidSessionToken": "Su sesión ha expirado. Inicie sesión de nuevo.",
     "credentials": "Usuario y contraseña",
-    "saveLoginCreds": "¿Le gustaría guardar su usuario y contraseña de inicio de sesión para uso futuro?"
+    "saveLoginCreds": "¿Le gustaría guardar su usuario y contraseña de inicio de sesión para uso futuro?",
+    "registrationSuccess": "¡Cuenta creada!",
+    "registrationSuccessMessage": "Tu cuenta ha sido creada exitosamente. Por favor inicia sesión con tus credenciales."
   },
   "pinCode": {
     "getPinCode": {
@@ -385,7 +392,19 @@
     "myTasks": "Mis tareas",
     "comingSoon": "Próximamente",
     "tasks": "Tareas",
-    "logOut": "Cerrar sesión"
+    "logOut": "Cerrar sesión",
+    "title": "Inicio",
+    "loading": "Cargando...",
+    "offlineCached": "Mostrando datos en caché",
+    "today": "Hoy",
+    "thisWeek": "Esta Semana",
+    "allTime": "Todo el Tiempo",
+    "welcomeBack": "Bienvenido de vuelta, %{name}",
+    "recentActivity": "Actividad Reciente",
+    "mySurveys": "Mis Encuestas",
+    "orgSurveys": "Encuestas de la Org",
+    "myVitals": "Mis Signos Vitales",
+    "orgVitals": "Signos Vitales de la Org"
   },
   "components": {
     "autofill": {
@@ -499,7 +518,10 @@
     "offlineData": "Datos sin conexión",
     "language": "Idioma",
     "back": "Atrás",
-    "logout":"Cerrar sesión"
+    "logout":"Cerrar sesión",
+    "deleteUser": "¿Eliminar usuario?",
+    "populateIdForms": "Poblar todos los formularios de ID",
+    "clearCachedIdForms": "Borrar formularios de ID en caché"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Registros actuales almacenados",
@@ -566,6 +588,7 @@
     "sorryAlert":"Necesitamos permisos de cámara para que esto funcione"
   },
   "peopleModal": {
+    "title": "Administrador de personas",
     "fname": "Primer nombre",
     "enterFname": "Ingrese el nombre",
     "lname": "Apellido",
@@ -575,6 +598,7 @@
     "add": "Agregar"
   },
   "assetCore": {
+    "newAsset": "Nuevo activo",
     "nameOfAssets": "Nombre de los activos",
     "addPeople": "Añadir personas",
     "getLocation": "Obtener ubicación",
@@ -598,6 +622,9 @@
     "geolocation":"SE ACABÓ EL TIEMPO!\n\nNo se pudo recuperar la geolocalización de tu teléfono. Inténtalo de nuevo"
 
   },
+  "dataAnalysis": {
+    "welcome": "Bienvenido a la página de análisis de datos."
+  },
   "formCounts": {
     "surveysCollected": "Encuestas recopiladas",
     "error": "Ha habido un error al obtener sus datos. Verifique su conexión a Internet y vuelva a intentarlo.",
@@ -608,5 +635,11 @@
     "customForms": "Formularios personalizados",
     "assetForms": "Formularios de activos",
     "back": "atrás"
+  },
+  "theme": {
+    "title": "Tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "auto": "Automático"
   }
 }

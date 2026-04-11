@@ -7,7 +7,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import { Button, Searchbar, Text, useTheme } from "react-native-paper";
 
-import styles from "./index.styles";
 import parseSearch from "./utils";
 
 function ResidentIdSearchbar({

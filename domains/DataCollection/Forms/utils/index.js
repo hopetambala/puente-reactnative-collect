@@ -1,11 +1,11 @@
 const surveyingUserFailsafe = async (user, defautValue, validationFail) => {
   const userChecks = [
     defautValue,
-    user.username,
-    user.email,
-    user.id,
-    user.firstname,
-    user.lastname,
+    user?.username,
+    user?.email,
+    user?.id,
+    user?.firstname,
+    user?.lastname,
     "N/A",
   ];
   const validIdentifiers = userChecks.filter(

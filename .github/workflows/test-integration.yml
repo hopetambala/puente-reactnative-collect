@@ -1,0 +1,57 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test-integration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Create app.json
+        run: mv app-example.json app.json
+
+      - name: Create environment.js
+        run: |
+          touch environment.js
+          echo "const selectedEnv = {
+            TEST_MODE: true,
+            parseAppId: 'test-app-id',
+            parseJavascriptKey: 'test-key',
+            parseServerUrl: 'https://parseapi.back4app.com/',
+            taskyUrlApi: 'https://puente-tasky-dev.herokuapp.com/',
+            AWS_LAMBDA_URL: 'https://test-lambda-url.com',
+            cloudWatchLogging: {
+              logGroupName: 'puente-test-logs',
+              logStreamName: 'test-log-stream',
+              accessKeyId: 'test-access-key',
+              secretAccessKey: 'test-secret-key',
+              region: 'us-east-1'
+            }
+          };
+          export default selectedEnv;" >> environment.js
+
+      - name: Run integration tests
+        run: yarn test:integration
+        env:
+          MONGOMS_PREFER_GLOBAL_PATH: 1
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          flags: integration
+          fail_ci_if_error: false
