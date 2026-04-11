@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.0.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.1.0...v15.0.1) (2026-04-11)
+
+
+### New Features
+
+* Add home screen with aggregated stats ([faa1f98](https://github.com/hopetambala/puente-reactnative-collect/commit/faa1f9826b334531f0ab5ccd55ab0b09bd7b33af))
+
 ## [15.0.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.1.0...v15.0.0) (2026-04-10)
 
 ## [14.1.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v14.0.5...v14.1.0) (2026-03-28)
