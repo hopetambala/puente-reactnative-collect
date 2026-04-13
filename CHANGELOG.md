@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.0.3](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.0.2...v15.0.3) (2026-04-13)
+
+
+### Documentation Changes
+
+* changelog.md ([5f66f4d](https://github.com/hopetambala/puente-reactnative-collect/commit/5f66f4d930692bdae36fded2741e79fa1ec8c287))
+
+
+### New Features
+
+* add form field reversal utilities for edit mode pre-population ([be61d1a](https://github.com/hopetambala/puente-reactnative-collect/commit/be61d1a23414b65214129d9539cdf6122beaa9c9))
+* add record history browsing and edit form navigation flow ([050f1f9](https://github.com/hopetambala/puente-reactnative-collect/commit/050f1f9fbe1e3f68d85aa6ae9f726c7612e58115))
+* implement edit mode in form components with pre-population and update ([589a555](https://github.com/hopetambala/puente-reactnative-collect/commit/589a55579a72ff4476ec94e0180d927b5fafef58))
+
+
+### Bug fixes
+
+* **forms:** propagate surveyingUser and surveyingOrganization to supplementary forms ([9ea9dbd](https://github.com/hopetambala/puente-reactnative-collect/commit/9ea9dbd89bbf6186ed843bcccbcbb50e934f9a50))
+* **forms:** wrap input picker in SafeAreaView for reachable back button ([8ca5c9c](https://github.com/hopetambala/puente-reactnative-collect/commit/8ca5c9c0d14546372463a2c0c07a283ca386b65d)), closes [#3](https://github.com/hopetambala/puente-reactnative-collect/issues/3)
+* **stats:** extend aggregation to include all form types ([1689b2c](https://github.com/hopetambala/puente-reactnative-collect/commit/1689b2c1bf15ab7a00487b60c390007ef238dd79)), closes [#2](https://github.com/hopetambala/puente-reactnative-collect/issues/2)
+* updateObjectInClass - use cloud function with master key to bypass ACL restrictions ([924a248](https://github.com/hopetambala/puente-reactnative-collect/commit/924a248641dd85b6e21865041c13f28c5ad8109b))
+
 ### [15.0.2](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.0.1...v15.0.2) (2026-04-11)
 
 **Summary:** Code quality improvements, infrastructure rationalization, and critical bug fixes. Fixed 24 ESLint errors, consolidated GitHub Actions workflows, corrected type handling, and aligned mock signup to production implementation.
