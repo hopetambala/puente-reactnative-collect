@@ -46,7 +46,7 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
       parseClass: 'FormResults',
       label: 'Custom Forms',
       formType: 'FormResults',
-      usePointer: false,
+      usePointer: true,
     },
   ];
 

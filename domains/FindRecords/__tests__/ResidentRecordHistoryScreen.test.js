@@ -119,6 +119,25 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
       });
     });
 
+    test('should query FormResults using client pointer, not parseParentClassID string', async () => {
+      // FormResults parent link is stored as a 'client' Parse Pointer (same as all
+      // other supplementary forms). Querying by 'parseParentClassID' string returns 0 results.
+      const mockNavigation = { goBack: jest.fn() };
+      const mockRoute = { params: { resident: mockResident } };
+
+      render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
+
+      await waitFor(() => {
+        expect(mockFind).toHaveBeenCalledTimes(4);
+      });
+
+      // All 4 queries must use equalTo('client', ...) — never equalTo('parseParentClassID', ...)
+      const equalToCalls = mockQuery.equalTo.mock.calls;
+      const usedColumns = equalToCalls.map((call) => call[0]);
+      expect(usedColumns).not.toContain('parseParentClassID');
+      expect(usedColumns.every((col) => col === 'client')).toBe(true);
+    });
+
     test('should group records by type', async () => {
       // Mock different responses for different calls
       mockFind

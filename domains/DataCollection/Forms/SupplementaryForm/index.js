@@ -68,9 +68,24 @@ function SupplementaryForm({
       setConfig(vitalsConfig);
     }
     if (selectedForm === "custom") {
-      setConfig(customForm);
+      // In edit mode, existingRecord.fields contains [{title, answer}] answer pairs,
+      // not a field config schema. Build a synthetic config for rendering.
+      if (editMode && existingRecord && Array.isArray(existingRecord.fields)) {
+        const syntheticConfig = {
+          name: existingRecord.title || "Custom Form",
+          customForm: true,
+          fields: existingRecord.fields.map((field) => ({
+            formikKey: field.title,
+            fieldType: "input",
+            label: field.title,
+          })),
+        };
+        setConfig(syntheticConfig);
+      } else {
+        setConfig(customForm);
+      }
     }
-  }, [selectedForm, config]);
+  }, [selectedForm]);
 
   // BUILD EDIT FORM VALUES (REVERSE TRANSFORMS)
   const buildEditFormValues = () => {
@@ -103,6 +118,7 @@ function SupplementaryForm({
 
   return (
     <Formik
+      enableReinitialize
       initialValues={editMode && editFormValues ? editFormValues : {}}
       onSubmit={async (values) => {
         setSubmitting(true);

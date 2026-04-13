@@ -72,6 +72,15 @@ function EditForm({ navigation, route }) {
     navigation.goBack();
   };
 
+  // Map Parse class name to the short form key expected by SupplementaryForm
+  const formTypeToSelectedForm = {
+    Vitals: 'vitals',
+    HistoryEnvironmentalHealth: 'env',
+    EvaluationMedical: 'med-eval',
+    FormResults: 'custom',
+  };
+  const mappedForm = formTypeToSelectedForm[formType] || formType;
+
   // Render appropriate form based on formType
   if (formType === 'SurveyData' || formType === 'Identification') {
     return (
@@ -128,7 +137,7 @@ function EditForm({ navigation, route }) {
             formType={formType}
             navigation={navigation}
             resident={resident}
-            selectedForm={formType}
+            selectedForm={mappedForm}
             setSelectedForm={() => {}}
             surveyee={resident}
             surveyingUser={surveyingUser}

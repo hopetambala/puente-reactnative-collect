@@ -388,4 +388,68 @@ describe('SupplementaryForm Edit Mode - RED-GREEN TDD', () => {
       });
     });
   });
+
+  describe('GREEN: Custom form - synthetic config from existingRecord fields', () => {
+    test('should build synthetic config from existingRecord.fields in edit mode', async () => {
+      // existingRecord.fields = [{title, answer}] answer pairs (NOT a schema)
+      // SupplementaryForm must build a synthetic config so PaperInputPicker can render inputs
+      const existingCustomRecord = {
+        objectId: 'form-456',
+        title: 'Health Survey',
+        fields: [
+          { title: 'waterSource', answer: 'river' },
+          { title: 'householdSize', answer: '4' },
+        ],
+      };
+
+      renderWithContext(
+        <SupplementaryForm
+          editMode
+          existingRecord={existingCustomRecord}
+          customForm={undefined}
+          selectedForm="custom"
+          surveyee={mockSurveyee}
+          surveyingUser="Test User"
+          surveyingOrganization="Test Org"
+          navigation={mockNavigation}
+        />
+      );
+
+      // Inputs for each field.title should render with field.answer as the value
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('river')).toBeDefined();
+        expect(screen.getByDisplayValue('4')).toBeDefined();
+      });
+    });
+
+    test('should render all fields from existingRecord.fields as text inputs', async () => {
+      const existingCustomRecord = {
+        objectId: 'form-789',
+        title: 'Custom Survey',
+        fields: [
+          { title: 'fieldA', answer: 'answerA' },
+          { title: 'fieldB', answer: 'answerB' },
+          { title: 'fieldC', answer: 'answerC' },
+        ],
+      };
+
+      renderWithContext(
+        <SupplementaryForm
+          editMode
+          existingRecord={existingCustomRecord}
+          selectedForm="custom"
+          surveyee={mockSurveyee}
+          surveyingUser="Test User"
+          surveyingOrganization="Test Org"
+          navigation={mockNavigation}
+        />
+      );
+
+      await waitFor(() => {
+        expect(screen.getByDisplayValue('answerA')).toBeDefined();
+        expect(screen.getByDisplayValue('answerB')).toBeDefined();
+        expect(screen.getByDisplayValue('answerC')).toBeDefined();
+      });
+    });
+  });
 });

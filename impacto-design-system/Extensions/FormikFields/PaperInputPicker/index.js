@@ -72,6 +72,7 @@ function PaperInputPicker({
             label={translatedLabel.length > 30 ? "" : translatedLabel}
             onChangeText={handleChange(formikKey)}
             onBlur={handleBlur(formikKey)}
+            value={String(values[formikKey] ?? '')}
             {...rest} //eslint-disable-line
             mode="outlined"
             theme={stylesPaper}
@@ -101,6 +102,7 @@ function PaperInputPicker({
             label={translatedLabel.length > 30 ? "" : translatedLabel}
             onChangeText={handleChange(formikKey)}
             onBlur={handleBlur(formikKey)}
+            value={String(values[formikKey] ?? '')}
             {...rest} //eslint-disable-line
             mode="outlined"
             keyboardType="numeric"
@@ -117,6 +119,7 @@ function PaperInputPicker({
               label={translatedLabel}
               onChangeText={handleChange(formikKey)}
               onBlur={handleBlur(formikKey)}
+              value={String(values[formikKey] ?? '')}
               {...rest} //eslint-disable-line
               mode="outlined"
               theme={{
@@ -136,6 +139,7 @@ function PaperInputPicker({
               label={translatedLabel}
               onChangeText={handleChange(formikKey)}
               onBlur={handleBlur(formikKey)}
+              value={String(values[formikKey] ?? '')}
               {...rest} //eslint-disable-line
               mode="outlined"
               keyboardType="numeric"
@@ -158,6 +162,7 @@ function PaperInputPicker({
             <TextInput
               onChangeText={handleChange(formikKey)}
               onBlur={handleBlur(formikKey)}
+              value={String(values[formikKey] ?? '')}
               {...rest} //eslint-disable-line
               mode="outlined"
               keyboardType="numeric"
@@ -455,6 +460,7 @@ function PaperInputPicker({
                     label={customForm ? result.label : I18n.t(result.label)}
                     onChangeText={handleChange(result.value)}
                     onBlur={handleBlur(result.value)}
+                    value={String(values[result.value] ?? '')}
                     {...rest} //eslint-disable-line
                     mode="outlined"
                     keyboardType="numeric"

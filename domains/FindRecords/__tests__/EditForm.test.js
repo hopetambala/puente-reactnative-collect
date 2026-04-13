@@ -157,12 +157,12 @@ describe('EditForm - RED-GREEN TDD', () => {
         const callArgs = SupplementaryForm.mock.calls[0][0];
         expect(callArgs.editMode).toBe(true);
         expect(callArgs.existingRecord).toEqual(mockExistingRecord);
-        expect(callArgs.selectedForm).toBe('Vitals');
+        expect(callArgs.selectedForm).toBe('vitals');
         expect(callArgs.navigation).toEqual(mockNavigation);
       });
     });
 
-    test('should render SupplementaryForm for HistoryEnvironmentalHealth', async () => {
+    test('should render SupplementaryForm for HistoryEnvironmentalHealth with selectedForm="env"', async () => {
       const mockRoute = {
         params: {
           editMode: true,
@@ -175,11 +175,17 @@ describe('EditForm - RED-GREEN TDD', () => {
       render(<EditForm navigation={mockNavigation} route={mockRoute} />);
 
       await waitFor(() => {
-        expect(screen.getByTestId('supplementary-form')).toBeDefined();
+        expect(SupplementaryForm).toHaveBeenCalled();
+        const callArgs = SupplementaryForm.mock.calls[0][0];
+        // Must map to 'env' — not the raw Parse class name 'HistoryEnvironmentalHealth'
+        // Without the mapping the env health config never loads and the form is blank
+        expect(callArgs.selectedForm).toBe('env');
+        expect(callArgs.editMode).toBe(true);
+        expect(callArgs.existingRecord).toEqual(mockExistingRecord);
       });
     });
 
-    test('should render SupplementaryForm for EvaluationMedical', async () => {
+    test('should render SupplementaryForm for EvaluationMedical with selectedForm="med-eval"', async () => {
       const mockRoute = {
         params: {
           editMode: true,
@@ -193,10 +199,15 @@ describe('EditForm - RED-GREEN TDD', () => {
 
       await waitFor(() => {
         expect(SupplementaryForm).toHaveBeenCalled();
+        const callArgs = SupplementaryForm.mock.calls[0][0];
+        // Must map to 'med-eval' — not the raw Parse class name 'EvaluationMedical'
+        expect(callArgs.selectedForm).toBe('med-eval');
+        expect(callArgs.editMode).toBe(true);
+        expect(callArgs.existingRecord).toEqual(mockExistingRecord);
       });
     });
 
-    test('should render SupplementaryForm for FormResults (custom forms)', async () => {
+    test('should render SupplementaryForm for FormResults with selectedForm="custom"', async () => {
       const mockRoute = {
         params: {
           editMode: true,
@@ -210,6 +221,10 @@ describe('EditForm - RED-GREEN TDD', () => {
 
       await waitFor(() => {
         expect(SupplementaryForm).toHaveBeenCalled();
+        const callArgs = SupplementaryForm.mock.calls[0][0];
+        // Must map to 'custom' — not the raw Parse class name 'FormResults'
+        expect(callArgs.selectedForm).toBe('custom');
+        expect(callArgs.editMode).toBe(true);
       });
     });
   });
