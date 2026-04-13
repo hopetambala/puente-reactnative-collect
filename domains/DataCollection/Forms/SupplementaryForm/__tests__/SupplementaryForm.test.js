@@ -37,23 +37,24 @@ jest.mock('@app/domains/DataCollection/Forms/utils', () =>
 );
 
 jest.mock('@context/alert.context', () => {
-  const mockReact = require('react');
+  // eslint-disable-next-line global-require
+  const { createContext } = require('react');
   return {
-    AlertContext: mockReact.createContext({ alert: jest.fn() }),
+    AlertContext: createContext({ alert: jest.fn() }),
   };
 });
 
 // Minimal mock for impacto-design-system fields — renders formikKey as testID
-jest.mock('@impacto-design-system/Extensions/FormikFields/PaperInputPicker', () => {
-  const React = require('react');
+jest.mock('@impacto-design-system/Extensions/FormikFields/PaperInputPicker', () => function PaperInputPickerMock({ data, formikProps }) {
+  // eslint-disable-next-line global-require
+  const { createElement: h } = require('react');
+  // eslint-disable-next-line global-require
   const { TextInput } = require('react-native');
-  return ({ data, formikProps }) => (
-    <TextInput
-      testID={`field-${data.formikKey}`}
-      value={String(formikProps.values[data.formikKey] ?? '')}
-      onChangeText={(v) => formikProps.setFieldValue(data.formikKey, v)}
-    />
-  );
+  return h(TextInput, {
+    testID: `field-${data.formikKey}`,
+    value: String(formikProps.values[data.formikKey] ?? ''),
+    onChangeText: (v) => formikProps.setFieldValue(data.formikKey, v),
+  });
 });
 
 jest.mock('@impacto-design-system/Extensions/FormikFields/ErrorPicker', () => () => null);

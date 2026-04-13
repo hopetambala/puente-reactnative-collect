@@ -13,6 +13,7 @@ global.alert = jest.fn();
 jest.mock('react-native-gesture-handler', () => {
   // eslint-disable-next-line global-require
   const React = require('react');
+  // eslint-disable-next-line global-require
   const { View, TouchableOpacity, ScrollView } = require('react-native');
   const PassThrough = ({ children, ...props }) => React.createElement(View, props, children);
   return {
@@ -156,6 +157,7 @@ jest.mock('react-native-worklets', () => ({
 jest.mock('@impacto-design-system/Base', () => {
   // eslint-disable-next-line global-require
   const React = require('react');
+  // eslint-disable-next-line global-require
   const { Text, TouchableOpacity } = require('react-native');
   const noop = () => null;
   const PassThrough = ({ children }) => React.createElement(React.Fragment, null, children);
@@ -176,6 +178,7 @@ jest.mock('@impacto-design-system/Base', () => {
 jest.mock('@impacto-design-system/Extensions', () => {
   // eslint-disable-next-line global-require
   const React = require('react');
+  // eslint-disable-next-line global-require
   const { TextInput, View } = require('react-native');
   const noop = () => null;
   // PaperInputPicker renders a real TextInput so getByDisplayValue works in tests
@@ -224,19 +227,23 @@ jest.mock('@impacto-design-system/Extensions', () => {
 
 // Sub-path mocks for components that import directly from deep paths
 jest.mock('@impacto-design-system/Base/PopupError', () => {
+  // eslint-disable-next-line global-require
   const React = require('react');
   const noop = () => React.createElement(React.Fragment, null);
   return { __esModule: true, default: noop };
 });
 
 jest.mock('@impacto-design-system/Extensions/FormikFields/ErrorPicker', () => {
+  // eslint-disable-next-line global-require
   const React = require('react');
   const noop = () => React.createElement(React.Fragment, null);
   return { __esModule: true, default: noop };
 });
 
 jest.mock('@impacto-design-system/Extensions/FormikFields/PaperInputPicker', () => {
+  // eslint-disable-next-line global-require
   const React = require('react');
+  // eslint-disable-next-line global-require
   const { TextInput, View } = require('react-native');
   const PaperInputPicker = ({ formikProps, data }) => {
     const fieldKey = data?.formikKey || data?.name;
@@ -267,6 +274,7 @@ jest.mock('@impacto-design-system/Extensions/FormikFields/PaperInputPicker', () 
 });
 
 jest.mock('@impacto-design-system/Extensions/FormikFields/YupValidation', () => {
+  // eslint-disable-next-line global-require
   const React = require('react');
   const noop = () => React.createElement(React.Fragment, null);
   return { __esModule: true, default: noop };
@@ -278,6 +286,7 @@ jest.mock('@impacto-design-system/Cards/ModernCard', () => {
   return {
     __esModule: true,
     default: ({ children, onPress }) => {
+      // eslint-disable-next-line global-require
       const { View } = require('react-native');
       return React.createElement(View, { onPress }, children);
     },

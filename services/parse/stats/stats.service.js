@@ -417,7 +417,7 @@ async function fetchMultiClassItems(classes, dateRange, offset, limit) {
     // Flatten and combine all items with their class info
     const combinedItems = [];
     allItemsByClass.forEach((items, classIndex) => {
-      const className = classes[classIndex].className;
+      const { className } = classes[classIndex];
       items.forEach((item) => {
         combinedItems.push({
           record: item,

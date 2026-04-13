@@ -8,11 +8,7 @@ describe('Organization Matching Integration Tests - RED/GREEN TDD', () => {
   /**
    * Helper to simulate Parse query equality check
    */
-  const doesRecordMatch = (record, queryConstraints) => {
-    return Object.keys(queryConstraints).every((key) => {
-      return record[key] === queryConstraints[key];
-    });
-  };
+  const doesRecordMatch = (record, queryConstraints) => Object.keys(queryConstraints).every((key) => record[key] === queryConstraints[key]);
 
   describe('Test Suite 1: Organization Matching in Stats Queries', () => {
     test('RED: Post Vitals with organization="testOrg", query finds record', () => {
@@ -29,7 +25,7 @@ describe('Organization Matching Integration Tests - RED/GREEN TDD', () => {
       };
 
       const queryConstraints = {
-        surveyingUser: currentUser.firstname + ' ' + currentUser.lastname,
+        surveyingUser: `${currentUser.firstname} ${currentUser.lastname}`,
         surveyingOrganization: currentUser.organization,
       };
 

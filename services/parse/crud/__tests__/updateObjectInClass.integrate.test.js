@@ -155,7 +155,8 @@ describe('updateObjectInClass - INTEGRATION', () => {
 
   describe('RED: Different Parse classes', () => {
     test('should update Vitals record', async () => {
-      const Parse = require('parse/node'); // eslint-disable-line global-release
+      // eslint-disable-next-line global-require
+      const Parse = require('parse/node');
       const Vitals = Parse.Object.extend('Vitals');
       const vitals = new Vitals();
       vitals.set('height', 180);

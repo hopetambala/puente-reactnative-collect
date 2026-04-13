@@ -4,16 +4,18 @@
  * and that stats queries can find the submitted records
  */
 
+import { postSupplementaryForm } from '@app/modules/cached-resources';
+import { updateObjectInClass } from '@app/services/parse/crud';
 import Parse from 'parse';
+
 import statsService from '../stats.service';
-import { postSupplementaryForm, updateObjectInClass } from '../../crud';
 
 /**
  * Test data factory functions
  */
 const createTestUser = (overrides = {}) => ({
-  id: 'test-user-' + Date.now(),
-  objectId: 'test-user-' + Date.now(),
+  id: `test-user-${Date.now()}`,
+  objectId: `test-user-${Date.now()}`,
   firstname: overrides.firstname || 'asdf',
   lastname: overrides.lastname || 'asdf',
   organization: overrides.organization || 'testOrg',
@@ -22,7 +24,7 @@ const createTestUser = (overrides = {}) => ({
 });
 
 const createTestSurveyData = (user) => ({
-  objectId: 'survey-' + Date.now(),
+  objectId: `survey-${Date.now()}`,
   fname: user.firstname,
   lname: user.lastname,
   surveyingUser: `${user.firstname} ${user.lastname}`.trim(),
@@ -31,7 +33,7 @@ const createTestSurveyData = (user) => ({
 });
 
 const createTestVitals = (parent, user) => ({
-  objectId: 'vitals-' + Date.now(),
+  objectId: `vitals-${Date.now()}`,
   client: { __type: 'Pointer', className: 'SurveyData', objectId: parent.objectId },
   height: '170',
   weight: '75',
@@ -42,7 +44,7 @@ const createTestVitals = (parent, user) => ({
 });
 
 const createTestEnvHealth = (parent, user) => ({
-  objectId: 'envhealth-' + Date.now(),
+  objectId: `envhealth-${Date.now()}`,
   client: { __type: 'Pointer', className: 'SurveyData', objectId: parent.objectId },
   yearsLivedinthecommunity: '5',
   waterAccess: 'Yes',
@@ -52,7 +54,7 @@ const createTestEnvHealth = (parent, user) => ({
 });
 
 const createTestMedEval = (parent, user) => ({
-  objectId: 'medevalid-' + Date.now(),
+  objectId: `medevalid-${Date.now()}`,
   client: { __type: 'Pointer', className: 'SurveyData', objectId: parent.objectId },
   seen_doctor: 'Yes',
   chronic_condition_hypertension: 'No',
@@ -62,7 +64,7 @@ const createTestMedEval = (parent, user) => ({
 });
 
 const createTestFormResult = (parent, user) => ({
-  objectId: 'formresult-' + Date.now(),
+  objectId: `formresult-${Date.now()}`,
   client: { __type: 'Pointer', className: 'SurveyData', objectId: parent.objectId },
   title: 'Test Form',
   fields: [{ title: 'field1', answer: 'value1' }],
@@ -293,7 +295,7 @@ describe('Form Submission Integration Tests - RED/GREEN TDD', () => {
         weight: '75',
       };
       
-      let formObjectUpdated = {
+      const formObjectUpdated = {
         pulse: '72',
         weight: '75',
       };
@@ -339,7 +341,7 @@ describe('Form Submission Integration Tests - RED/GREEN TDD', () => {
         ...editFormValues,
       };
       
-      let formObjectUpdated = { ...editFormValues };
+      const formObjectUpdated = { ...editFormValues };
       
       // Before fix - missing tracking fields
       expect(formObjectUpdated.surveyingUser).toBeUndefined();
