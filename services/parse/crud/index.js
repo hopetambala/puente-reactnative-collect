@@ -166,6 +166,43 @@ function aggregateStatsItems(params) {
   });
 }
 
+/**
+ * Update an existing object in a Parse class via the updateObject cloud function.
+ * Runs server-side with master key, bypassing client ACL restrictions.
+ * Audit trail (editedBy, editedAt) is added client-side before the cloud call.
+ * @param {string} parseClass - Parse class name (e.g., 'SurveyData', 'Vitals', 'FormResults')
+ * @param {string} objectId - Object ID to update
+ * @param {object} updateFields - Fields to update {fieldName: value}
+ * @param {string} surveyingUser - Current user making the edit (for audit trail)
+ * @returns {Promise<object>} Updated Parse object
+ */
+function updateObjectInClass(parseClass, objectId, updateFields, surveyingUser) {
+  return new Promise((resolve, reject) => {
+    if (!surveyingUser) {
+      reject(new Error('surveyingUser is required for audit trail'));
+      return;
+    }
+
+    // Build localObject: user fields (excluding any attempt to override audit fields) + audit trail
+    const localObject = {};
+    if (updateFields && typeof updateFields === 'object') {
+      Object.entries(updateFields).forEach(([key, value]) => {
+        if (key !== 'editedBy' && key !== 'editedAt') {
+          localObject[key] = value;
+        }
+      });
+    }
+    localObject.editedBy = surveyingUser;
+    localObject.editedAt = new Date();
+
+    Parse.Cloud.run('updateObject', {
+      parseClass,
+      parseClassID: objectId,
+      localObject,
+    }).then(resolve, reject);
+  });
+}
+
 export {
   aggregateStats,
   aggregateStatsItems,
@@ -179,5 +216,6 @@ export {
   postOfflineForms,
   residentIDQuery,
   retrieveHelloFunction,
+  updateObjectInClass,
   uploadOfflineForms,
 };
