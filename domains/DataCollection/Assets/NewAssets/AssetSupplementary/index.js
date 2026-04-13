@@ -21,6 +21,7 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   Platform,
+  SafeAreaView,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
@@ -168,7 +169,7 @@ function AssetSupplementary({
               {Object.keys(selectedAsset).length !== 0 && (
                 <SelectedAsset selectedMarker={selectedAsset} />
               )}
-              <View>
+              <SafeAreaView edges={['top']}>
                 {editMode && existingRecord?.fields?.length > 0
                   ? existingRecord.fields.map((field) => (
                     <View key={field.title}>
@@ -214,7 +215,7 @@ function AssetSupplementary({
                   buttonText={I18n.t("assetCore.tapCreateAsset")}
                   onPress={() => setPage("assetCore")}
                 />
-              </View>
+              </SafeAreaView>
               <PopupError
                 error={submissionError}
                 setError={setSubmissionError}

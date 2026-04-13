@@ -13,7 +13,7 @@ import { createLayoutStyles } from "@modules/theme";
 import { isEmpty } from "@modules/utils";
 import { Formik } from "formik";
 import React, { useContext, useEffect, useState } from "react";
-import { ActivityIndicator, Platform, View } from "react-native";
+import { ActivityIndicator, Platform, SafeAreaView, View } from "react-native";
 import { Button, Text,useTheme  } from "react-native-paper";
 
 import envConfig from "./configs/envhealth.config";
@@ -193,7 +193,7 @@ function SupplementaryForm({
       validateOnChange={false}
     >
       {(formikProps) => (
-        <View style={layout.formContainer}>
+        <SafeAreaView style={layout.formContainer} edges={['top']}>
           {config.fields &&
             config.fields.map((result) => (
               <View key={result.formikKey}>
@@ -233,7 +233,7 @@ function SupplementaryForm({
             setError={setSubmissionError}
             errorMessage="submissionError.error"
           />
-        </View>
+        </SafeAreaView>
       )}
     </Formik>
   );
