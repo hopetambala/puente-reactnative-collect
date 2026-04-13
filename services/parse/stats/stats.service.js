@@ -166,6 +166,18 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
       myVitalsPrev,
       orgVitalsCurrent,
       orgVitalsPrev,
+      myEnvHealthCurrent,
+      myEnvHealthPrev,
+      orgEnvHealthCurrent,
+      orgEnvHealthPrev,
+      myMedEvalCurrent,
+      myMedEvalPrev,
+      orgMedEvalCurrent,
+      orgMedEvalPrev,
+      myCustomFormsCurrent,
+      myCustomFormsPrev,
+      orgCustomFormsCurrent,
+      orgCustomFormsPrev,
       recentActivityCurrent,
     ] = await Promise.all([
       // My Surveys (current period)
@@ -216,6 +228,78 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
         { surveyingOrganization: organization },
         prevDateRange,
       ),
+      // My Environmental Health (current period)
+      countWithRange(
+        'HistoryEnvironmentalHealth',
+        { surveyingUser, surveyingOrganization: organization },
+        dateRange,
+      ),
+      // My Environmental Health (previous period)
+      countWithRange(
+        'HistoryEnvironmentalHealth',
+        { surveyingUser, surveyingOrganization: organization },
+        prevDateRange,
+      ),
+      // Org Environmental Health (current period)
+      countWithRange(
+        'HistoryEnvironmentalHealth',
+        { surveyingOrganization: organization },
+        dateRange,
+      ),
+      // Org Environmental Health (previous period)
+      countWithRange(
+        'HistoryEnvironmentalHealth',
+        { surveyingOrganization: organization },
+        prevDateRange,
+      ),
+      // My Medical Evaluation (current period)
+      countWithRange(
+        'EvaluationMedical',
+        { surveyingUser, surveyingOrganization: organization },
+        dateRange,
+      ),
+      // My Medical Evaluation (previous period)
+      countWithRange(
+        'EvaluationMedical',
+        { surveyingUser, surveyingOrganization: organization },
+        prevDateRange,
+      ),
+      // Org Medical Evaluation (current period)
+      countWithRange(
+        'EvaluationMedical',
+        { surveyingOrganization: organization },
+        dateRange,
+      ),
+      // Org Medical Evaluation (previous period)
+      countWithRange(
+        'EvaluationMedical',
+        { surveyingOrganization: organization },
+        prevDateRange,
+      ),
+      // My Custom Forms (current period)
+      countWithRange(
+        'FormResults',
+        { surveyingUser, surveyingOrganization: organization },
+        dateRange,
+      ),
+      // My Custom Forms (previous period)
+      countWithRange(
+        'FormResults',
+        { surveyingUser, surveyingOrganization: organization },
+        prevDateRange,
+      ),
+      // Org Custom Forms (current period)
+      countWithRange(
+        'FormResults',
+        { surveyingOrganization: organization },
+        dateRange,
+      ),
+      // Org Custom Forms (previous period)
+      countWithRange(
+        'FormResults',
+        { surveyingOrganization: organization },
+        prevDateRange,
+      ),
       // Recent Activity (all time, current user)
       countWithRange(
         'SurveyData',
@@ -229,6 +313,12 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
       orgSurveys: { count: orgSurveysCurrent, previous: orgSurveysPrev },
       myVitals: { count: myVitalsCurrent, previous: myVitalsPrev },
       orgVitals: { count: orgVitalsCurrent, previous: orgVitalsPrev },
+      myEnvironmentalHealth: { count: myEnvHealthCurrent, previous: myEnvHealthPrev },
+      orgEnvironmentalHealth: { count: orgEnvHealthCurrent, previous: orgEnvHealthPrev },
+      myMedicalEvaluation: { count: myMedEvalCurrent, previous: myMedEvalPrev },
+      orgMedicalEvaluation: { count: orgMedEvalCurrent, previous: orgMedEvalPrev },
+      myCustomForms: { count: myCustomFormsCurrent, previous: myCustomFormsPrev },
+      orgCustomForms: { count: orgCustomFormsCurrent, previous: orgCustomFormsPrev },
       recentActivity: { count: recentActivityCurrent },
     };
 

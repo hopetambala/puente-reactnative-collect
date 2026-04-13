@@ -43,12 +43,18 @@ describe('Stats Service - TDD RED/GREEN', () => {
       ).rejects.toThrow();
     });
 
-    test('should return stats object with required keys', async () => {
+    test('should return stats object with all form types', async () => {
       const result = await statsService.aggregateStats('user1', 'Test', 'week');
       expect(result).toHaveProperty('mySurveys');
       expect(result).toHaveProperty('orgSurveys');
       expect(result).toHaveProperty('myVitals');
       expect(result).toHaveProperty('orgVitals');
+      expect(result).toHaveProperty('myEnvironmentalHealth');
+      expect(result).toHaveProperty('orgEnvironmentalHealth');
+      expect(result).toHaveProperty('myMedicalEvaluation');
+      expect(result).toHaveProperty('orgMedicalEvaluation');
+      expect(result).toHaveProperty('myCustomForms');
+      expect(result).toHaveProperty('orgCustomForms');
       expect(result).toHaveProperty('recentActivity');
     });
   });
