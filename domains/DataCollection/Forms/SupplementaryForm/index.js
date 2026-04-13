@@ -130,6 +130,11 @@ function SupplementaryForm({
           // clean looped form questions
           formObjectUpdated = cleanLoopSubmissions(values, formObjectUpdated);
 
+          // Propagate surveyingUser and surveyingOrganization to formObjectUpdated
+          // (required for stats queries to find records)
+          formObjectUpdated.surveyingUser = formObject.surveyingUser;
+          formObjectUpdated.surveyingOrganization = formObject.surveyingOrganization;
+
           // EDIT MODE: Update existing record
           if (editMode && existingRecord && existingRecord.objectId) {
             const editClass = selectedForm === "custom" ? "FormResults" : config.class;

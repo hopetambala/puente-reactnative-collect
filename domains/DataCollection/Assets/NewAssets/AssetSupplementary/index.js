@@ -91,6 +91,11 @@ function AssetSupplementary({
           let formObjectUpdated = addSelectTextInputs(values, formObject);
           formObjectUpdated = cleanLoopSubmissions(values, formObjectUpdated);
 
+          // Propagate surveyingUser and surveyingOrganization to formObjectUpdated
+          // (required for stats queries to find records, especially in edit mode)
+          formObjectUpdated.surveyingUser = surveyingUserFailSafe;
+          formObjectUpdated.surveyingOrganization = surveyingOrganization || user.organization;
+
           // EDIT MODE: Update existing asset form
           if (editMode && existingRecord && existingRecord.objectId) {
             await updateObjectInClass(

@@ -179,6 +179,14 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
       orgCustomFormsCurrent,
       orgCustomFormsPrev,
       recentActivityCurrent,
+      recentActivityVitalsCurrent,
+      recentActivityEnvHealthCurrent,
+      recentActivityMedEvalCurrent,
+      recentActivityCustomFormsCurrent,
+      orgSurveysVitalsCurrent,
+      orgSurveysEnvHealthCurrent,
+      orgSurveysMedEvalCurrent,
+      orgSurveysCustomFormsCurrent,
     ] = await Promise.all([
       // My Surveys (current period)
       countWithRange(
@@ -192,13 +200,13 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
         { surveyingUser, surveyingOrganization: organization },
         prevDateRange,
       ),
-      // Org Surveys (current period)
+      // Org Surveys (current period) - SurveyData only
       countWithRange(
         'SurveyData',
         { surveyingOrganization: organization },
         dateRange,
       ),
-      // Org Surveys (previous period)
+      // Org Surveys (previous period) - SurveyData only
       countWithRange(
         'SurveyData',
         { surveyingOrganization: organization },
@@ -306,11 +314,62 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
         { surveyingUser },
         { start: new Date(0), end: new Date() },
       ),
+      // Recent Activity - Vitals (all time, current user)
+      countWithRange(
+        'Vitals',
+        { surveyingUser },
+        { start: new Date(0), end: new Date() },
+      ),
+      // Recent Activity - Environmental Health (all time, current user)
+      countWithRange(
+        'HistoryEnvironmentalHealth',
+        { surveyingUser },
+        { start: new Date(0), end: new Date() },
+      ),
+      // Recent Activity - Medical Evaluation (all time, current user)
+      countWithRange(
+        'EvaluationMedical',
+        { surveyingUser },
+        { start: new Date(0), end: new Date() },
+      ),
+      // Recent Activity - Custom Forms (all time, current user)
+      countWithRange(
+        'FormResults',
+        { surveyingUser },
+        { start: new Date(0), end: new Date() },
+      ),
+      // Org Surveys - Vitals (current period)
+      countWithRange(
+        'Vitals',
+        { surveyingOrganization: organization },
+        dateRange,
+      ),
+      // Org Surveys - Environmental Health (current period)
+      countWithRange(
+        'HistoryEnvironmentalHealth',
+        { surveyingOrganization: organization },
+        dateRange,
+      ),
+      // Org Surveys - Medical Evaluation (current period)
+      countWithRange(
+        'EvaluationMedical',
+        { surveyingOrganization: organization },
+        dateRange,
+      ),
+      // Org Surveys - Custom Forms (current period)
+      countWithRange(
+        'FormResults',
+        { surveyingOrganization: organization },
+        dateRange,
+      ),
     ]);
 
     const result = {
       mySurveys: { count: mySurveysCurrent, previous: mySurveysPrev },
-      orgSurveys: { count: orgSurveysCurrent, previous: orgSurveysPrev },
+      orgSurveys: {
+        count: orgSurveysCurrent + orgSurveysVitalsCurrent + orgSurveysEnvHealthCurrent + orgSurveysMedEvalCurrent + orgSurveysCustomFormsCurrent,
+        previous: orgSurveysPrev,
+      },
       myVitals: { count: myVitalsCurrent, previous: myVitalsPrev },
       orgVitals: { count: orgVitalsCurrent, previous: orgVitalsPrev },
       myEnvironmentalHealth: { count: myEnvHealthCurrent, previous: myEnvHealthPrev },
@@ -319,7 +378,9 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
       orgMedicalEvaluation: { count: orgMedEvalCurrent, previous: orgMedEvalPrev },
       myCustomForms: { count: myCustomFormsCurrent, previous: myCustomFormsPrev },
       orgCustomForms: { count: orgCustomFormsCurrent, previous: orgCustomFormsPrev },
-      recentActivity: { count: recentActivityCurrent },
+      recentActivity: {
+        count: recentActivityCurrent + recentActivityVitalsCurrent + recentActivityEnvHealthCurrent + recentActivityMedEvalCurrent + recentActivityCustomFormsCurrent,
+      },
     };
 
     if (TEST_MODE) {
@@ -328,6 +389,56 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
     return result;
   } catch (error) {
     console.error('statsService: Error in aggregateStats:', error); // eslint-disable-line
+    throw error;
+  }
+}
+
+/**
+ * Fetch items from multiple Parse classes, combine, sort, and paginate
+ * Used for cardTypes that should show all form types (e.g., recentActivity, orgSurveys)
+ * @param {array} classes - Array of { className, fields, equalToParams }
+ * @param {object} dateRange - { start, end }
+ * @param {number} offset - pagination offset
+ * @param {number} limit - pagination limit
+ * @returns {Promise<object>} { items, total }
+ */
+async function fetchMultiClassItems(classes, dateRange, offset, limit) {
+  try {
+    // Fetch all items from all classes in parallel (with a large limit)
+    const allItemsByClass = await Promise.all(
+      classes.map(({ className, fields, equalToParams }) =>
+        fetchItemsPage(className, fields, equalToParams, dateRange, 0, 10000),
+      ),
+    );
+
+    // Flatten and combine all items with their class info
+    const combinedItems = [];
+    allItemsByClass.forEach((items, classIndex) => {
+      const className = classes[classIndex].className;
+      items.forEach((item) => {
+        combinedItems.push({
+          record: item,
+          className,
+          createdAt: item.createdAt,
+        });
+      });
+    });
+
+    // Sort by createdAt descending
+    combinedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // Get total count
+    const totalCount = combinedItems.length;
+
+    // Apply pagination
+    const paginatedItems = combinedItems.slice(offset, offset + limit);
+
+    return {
+      items: paginatedItems,
+      total: totalCount,
+    };
+  } catch (error) {
+    console.error('statsService: Error in fetchMultiClassItems:', error); // eslint-disable-line
     throw error;
   }
 }
@@ -362,11 +473,11 @@ async function fetchCardItems(
 
     const dateRange = buildDateRange(timeFilter);
 
-    let itemsResult;
+    let formattedItems;
     let totalCount;
 
     if (cardType === 'mySurveys') {
-      itemsResult = await fetchItemsPage(
+      const itemsResult = await fetchItemsPage(
         'SurveyData',
         ['fname', 'lname', 'createdAt'],
         { surveyingUser, surveyingOrganization: organization },
@@ -379,83 +490,119 @@ async function fetchCardItems(
         { surveyingUser, surveyingOrganization: organization },
         dateRange,
       );
+      formattedItems = itemsResult.map((record) => ({
+        objectId: record.id,
+        label: `${record.get('fname')} ${record.get('lname')}`,
+        createdAt: record.createdAt,
+        _parseClass: 'SurveyData',
+      }));
     } else if (cardType === 'orgSurveys') {
-      itemsResult = await fetchItemsPage(
-        'SurveyData',
-        ['fname', 'lname', 'createdAt'],
-        { surveyingOrganization: organization },
-        dateRange,
-        offset,
-        limit,
-      );
-      totalCount = await countWithRange(
-        'SurveyData',
-        { surveyingOrganization: organization },
-        dateRange,
-      );
-    } else if (cardType === 'myVitals') {
-      itemsResult = await fetchItemsPage(
-        'Vitals',
-        ['surveyingUser', 'createdAt'],
-        { surveyingUser, surveyingOrganization: organization },
-        dateRange,
-        offset,
-        limit,
-      );
-      totalCount = await countWithRange(
-        'Vitals',
-        { surveyingUser, surveyingOrganization: organization },
-        dateRange,
-      );
-    } else if (cardType === 'orgVitals') {
-      itemsResult = await fetchItemsPage(
-        'Vitals',
-        ['surveyingUser', 'createdAt'],
-        { surveyingOrganization: organization },
-        dateRange,
-        offset,
-        limit,
-      );
-      totalCount = await countWithRange(
-        'Vitals',
-        { surveyingOrganization: organization },
-        dateRange,
-      );
-    } else if (cardType === 'recentActivity') {
-      const allTimeRange = { start: new Date(0), end: new Date() };
-      itemsResult = await fetchItemsPage(
-        'SurveyData',
-        ['fname', 'lname', 'createdAt'],
-        { surveyingUser },
+      // Fetch from all form types for organization
+      const allTimeRange = dateRange;
+      const multiClassResult = await fetchMultiClassItems(
+        [
+          { className: 'SurveyData', fields: ['fname', 'lname', 'createdAt'], equalToParams: { surveyingOrganization: organization } },
+          { className: 'Vitals', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingOrganization: organization } },
+          { className: 'HistoryEnvironmentalHealth', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingOrganization: organization } },
+          { className: 'EvaluationMedical', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingOrganization: organization } },
+          { className: 'FormResults', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingOrganization: organization } },
+        ],
         allTimeRange,
         offset,
         limit,
       );
-      totalCount = await countWithRange(
-        'SurveyData',
-        { surveyingUser },
-        allTimeRange,
-      );
-    }
-
-    // Format items
-    const formattedItems = itemsResult.map((record) => {
-      if (cardType === 'mySurveys' || cardType === 'orgSurveys' || cardType === 'recentActivity') {
+      totalCount = multiClassResult.total;
+      formattedItems = multiClassResult.items.map(({ record, className }) => {
+        if (className === 'SurveyData') {
+          return {
+            objectId: record.id,
+            label: `${record.get('fname')} ${record.get('lname')}`,
+            createdAt: record.createdAt,
+            _parseClass: className,
+          };
+        }
+        // Supplementary forms
         return {
           objectId: record.id,
-          label: `${record.get('fname')} ${record.get('lname')}`,
+          label: record.get('surveyingUser') || 'Unknown User',
           createdAt: record.createdAt,
-          _parseClass: 'SurveyData',
+          _parseClass: className,
         };
-      }
-      // Vitals
-      return {
+      });
+    } else if (cardType === 'myVitals') {
+      const itemsResult = await fetchItemsPage(
+        'Vitals',
+        ['surveyingUser', 'createdAt'],
+        { surveyingUser, surveyingOrganization: organization },
+        dateRange,
+        offset,
+        limit,
+      );
+      totalCount = await countWithRange(
+        'Vitals',
+        { surveyingUser, surveyingOrganization: organization },
+        dateRange,
+      );
+      formattedItems = itemsResult.map((record) => ({
         objectId: record.id,
         label: record.get('surveyingUser') || 'Unknown User',
         createdAt: record.createdAt,
         _parseClass: 'Vitals',
-      };
-    });
+      }));
+    } else if (cardType === 'orgVitals') {
+      const itemsResult = await fetchItemsPage(
+        'Vitals',
+        ['surveyingUser', 'createdAt'],
+        { surveyingOrganization: organization },
+        dateRange,
+        offset,
+        limit,
+      );
+      totalCount = await countWithRange(
+        'Vitals',
+        { surveyingOrganization: organization },
+        dateRange,
+      );
+      formattedItems = itemsResult.map((record) => ({
+        objectId: record.id,
+        label: record.get('surveyingUser') || 'Unknown User',
+        createdAt: record.createdAt,
+        _parseClass: 'Vitals',
+      }));
+    } else if (cardType === 'recentActivity') {
+      // Fetch from all form types for current user (all time)
+      const allTimeRange = { start: new Date(0), end: new Date() };
+      const multiClassResult = await fetchMultiClassItems(
+        [
+          { className: 'SurveyData', fields: ['fname', 'lname', 'createdAt'], equalToParams: { surveyingUser } },
+          { className: 'Vitals', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingUser } },
+          { className: 'HistoryEnvironmentalHealth', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingUser } },
+          { className: 'EvaluationMedical', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingUser } },
+          { className: 'FormResults', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingUser } },
+        ],
+        allTimeRange,
+        offset,
+        limit,
+      );
+      totalCount = multiClassResult.total;
+      formattedItems = multiClassResult.items.map(({ record, className }) => {
+        if (className === 'SurveyData') {
+          return {
+            objectId: record.id,
+            label: `${record.get('fname')} ${record.get('lname')}`,
+            createdAt: record.createdAt,
+            _parseClass: className,
+          };
+        }
+        // Supplementary forms
+        return {
+          objectId: record.id,
+          label: record.get('surveyingUser') || 'Unknown User',
+          createdAt: record.createdAt,
+          _parseClass: className,
+        };
+      });
+    }
 
     const hasMore = offset + limit < totalCount;
 
@@ -474,6 +621,7 @@ export default {
   buildDateRange,
   countWithRange,
   fetchItemsPage,
+  fetchMultiClassItems,
   aggregateStats,
   fetchCardItems,
 };
