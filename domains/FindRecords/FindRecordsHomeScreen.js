@@ -34,6 +34,15 @@ function FindRecordsHomeScreen({ navigation }) {
     });
   };
 
+  const navigateToRecordHistory = (resident) => {
+    const residentParam = resident?.toJSON ? resident.toJSON() : resident;
+    if (residentParam && residentParam.objectId) {
+      navigation.navigate("ResidentRecordHistory", {
+        resident: residentParam,
+      });
+    }
+  };
+
   return (
     <SafeAreaView
       edges={["top"]}
@@ -50,6 +59,7 @@ function FindRecordsHomeScreen({ navigation }) {
           organization={surveyingOrganization}
           puenteForms={puenteForms}
           navigateToNewRecord={navigateToNewRecord}
+          navigateToRecordHistory={navigateToRecordHistory}
           surveyee={surveyee}
           setSurveyee={setSurveyee}
         />

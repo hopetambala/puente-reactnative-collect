@@ -18,6 +18,7 @@ function ResidentPage({
   setSelectPerson,
   puenteForms,
   navigateToNewRecord,
+  navigateToRecordHistory,
   setSurveyee,
   setView,
 }) {
@@ -120,6 +121,16 @@ function ResidentPage({
         />
       )}
       {household && <Household />}
+      {navigateToRecordHistory && (
+        <Button
+          icon="history"
+          mode="outlined"
+          style={{ margin: spacing.md }}
+          onPress={() => navigateToRecordHistory(selectPerson)}
+        >
+          View Record History
+        </Button>
+      )}
       <Button onPress={() => setSelectPerson()}>
         {I18n.t("findResident.residentPage.household.goBack")}
       </Button>

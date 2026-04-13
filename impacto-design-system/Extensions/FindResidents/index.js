@@ -17,6 +17,7 @@ function FindResidents({
   organization,
   puenteForms,
   navigateToNewRecord,
+  navigateToRecordHistory,
   surveyee,
   setSurveyee,
   setView,
@@ -153,6 +154,7 @@ function FindResidents({
           setSelectPerson={setSelectPerson}
           puenteForms={puenteForms}
           navigateToNewRecord={navigateToNewRecord}
+          navigateToRecordHistory={navigateToRecordHistory}
           surveyee={surveyee}
           setSurveyee={setSurveyee}
           setView={setView || (() => {})}
