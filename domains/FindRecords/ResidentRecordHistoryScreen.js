@@ -4,13 +4,15 @@
  * Allows user to view, edit, or delete individual records
  * Part of edit forms feature - Phase 2
  */
-import { customQueryService } from '@app/services/parse/crud';
+import client from '@app/services/parse/client';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, View,
 } from 'react-native';
 import { Button } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+const Parse = client(false);
 
 const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   const { resident } = route.params;
@@ -22,30 +24,29 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   // resident arrives as a plain object via navigation params (Parse Objects serialize over navigation)
   const residentName = `${resident.fname || ''} ${resident.lname || ''}`.trim() || 'Resident';
 
-  // Define record types to query
-  // Supplementary forms (Vitals, EvaluationMedical, HistoryEnvironmentalHealth) are linked
-  // to SurveyData via a pointer column named after the parent class ("SurveyData").
-  // FormResults use a plain string field "parseParentClassID".
+  // Define record types to query.
+  // Supplementary forms link to SurveyData via a Parse pointer column named 'client'.
+  // FormResults use a plain string field 'parseParentClassID'.
   // The resident object itself IS the SurveyData (identification) record — no query needed.
   const recordTypes = [
-    { parseClass: 'Vitals', label: 'Vitals', formType: 'Vitals', column: 'SurveyData' },
+    { parseClass: 'Vitals', label: 'Vitals', formType: 'Vitals', usePointer: true },
     {
       parseClass: 'HistoryEnvironmentalHealth',
       label: 'Environmental Health',
       formType: 'HistoryEnvironmentalHealth',
-      column: 'SurveyData',
+      usePointer: true,
     },
     {
       parseClass: 'EvaluationMedical',
       label: 'Medical Evaluation',
       formType: 'EvaluationMedical',
-      column: 'SurveyData',
+      usePointer: true,
     },
     {
       parseClass: 'FormResults',
       label: 'Custom Forms',
       formType: 'FormResults',
-      column: 'parseParentClassID',
+      usePointer: false,
     },
   ];
 
@@ -63,17 +64,28 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
           },
         };
 
+        // Build a Parse pointer to the resident's SurveyData record
+        const residentPointer = new Parse.Object('SurveyData');
+        residentPointer.id = residentId;
+
         // Query each record type in parallel
         await Promise.all(
           recordTypes.map(async (type) => {
             try {
-              const records = await customQueryService(
-                0,
-                1000,
-                type.parseClass,
-                type.column,
-                residentId
-              );
+              const Model = Parse.Object.extend(type.parseClass);
+              const query = new Parse.Query(Model);
+              query.limit(1000);
+              query.descending('createdAt');
+
+              if (type.usePointer) {
+                // Supplementary forms: 'client' is a Parse pointer to SurveyData
+                query.equalTo('client', residentPointer);
+              } else {
+                // FormResults: 'parseParentClassID' is a plain string objectId
+                query.equalTo('parseParentClassID', residentId);
+              }
+
+              const records = await query.find();
 
               if (records && records.length > 0) {
                 // Serialize Parse Objects to plain JSON so .get() calls aren't needed later

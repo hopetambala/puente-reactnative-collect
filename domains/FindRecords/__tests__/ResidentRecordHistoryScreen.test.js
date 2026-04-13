@@ -4,14 +4,31 @@
  */
 
 import ResidentRecordHistoryScreen from '@app/domains/FindRecords/ResidentRecordHistoryScreen';
-import { customQueryService } from '@app/services/parse/crud';
 import { render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
-// Mock the customQueryService
-jest.mock('@app/services/parse/crud', () => ({
-  customQueryService: jest.fn(),
-}));
+// Mock Parse query
+const mockFind = jest.fn(() => Promise.resolve([]));
+const mockQuery = {
+  equalTo: jest.fn().mockReturnThis(),
+  limit: jest.fn().mockReturnThis(),
+  descending: jest.fn().mockReturnThis(),
+  find: mockFind,
+};
+
+jest.mock('@app/services/parse/client', () => {
+  function MockParseObject(className) {
+    this.className = className;
+    this.id = null;
+  }
+  MockParseObject.extend = jest.fn(() => function MockModel() {});
+  MockParseObject.fromJSON = jest.fn(() => ({}));
+
+  return jest.fn(() => ({
+    Object: MockParseObject,
+    Query: jest.fn(() => mockQuery),
+  }));
+});
 
 // Mock utilities
 jest.mock('@modules/i18n', () => ({
@@ -63,11 +80,12 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockFind.mockResolvedValue([]);
   });
 
   describe('RED: Initial state', () => {
     test('should render loading indicator when fetching records', () => {
-      customQueryService.mockImplementation(() => new Promise(() => {})); // Never resolves
+      mockFind.mockImplementation(() => new Promise(() => {})); // Never resolves
       const mockNavigation = { goBack: jest.fn() };
       const mockRoute = { params: { resident: mockResident } };
 
@@ -77,7 +95,6 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
     });
 
     test('should initialize with empty records state', () => {
-      customQueryService.mockResolvedValue([]);
       const mockNavigation = { goBack: jest.fn() };
       const mockRoute = { params: { resident: mockResident } };
 
@@ -89,21 +106,22 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
 
   describe('GREEN: Query and fetch records', () => {
     test('should query each record type in parallel', async () => {
-      customQueryService.mockResolvedValue([mockVitalsRecord, mockMedicalRecord]);
+      mockFind.mockResolvedValue([mockVitalsRecord, mockMedicalRecord]);
       const mockNavigation = { goBack: jest.fn() };
       const mockRoute = { params: { resident: mockResident } };
 
       render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
 
       await waitFor(() => {
-        // Should call customQueryService 4 times (one for each form type)
-        expect(customQueryService).toHaveBeenCalledTimes(4); // Vitals + EnvHealth + MedEval + FormResults (SurveyData is the resident itself)
+        // Should call query.find() 4 times (one for each form type)
+        // Vitals + HistoryEnvironmentalHealth + EvaluationMedical + FormResults
+        expect(mockFind).toHaveBeenCalledTimes(4);
       });
     });
 
     test('should group records by type', async () => {
       // Mock different responses for different calls
-      customQueryService
+      mockFind
         .mockResolvedValueOnce([mockVitalsRecord]) // Vitals
         .mockResolvedValueOnce([]) // Environmental Health
         .mockResolvedValueOnce([mockMedicalRecord]) // Medical
@@ -125,7 +143,7 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
       const oldRecord = { ...mockVitalsRecord, get: (f) => ({ createdAt: new Date('2026-04-01') }[f]) };
       const newRecord = { ...mockVitalsRecord, get: (f) => ({ createdAt: new Date('2026-04-12') }[f]) };
 
-      customQueryService.mockResolvedValue([oldRecord, newRecord]);
+      mockFind.mockResolvedValue([oldRecord, newRecord]);
       const mockNavigation = { goBack: jest.fn() };
       const mockRoute = { params: { resident: mockResident } };
 
@@ -143,7 +161,6 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
 
   describe('GREEN: Navigation', () => {
     test('should navigate back when back button pressed', async () => {
-      customQueryService.mockResolvedValue([]);
       const mockNavigation = { goBack: jest.fn() };
       const mockRoute = { params: { resident: mockResident } };
 
@@ -158,7 +175,7 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
     });
 
     test('should navigate to edit form when record tapped', async () => {
-      customQueryService.mockResolvedValue([mockVitalsRecord]);
+      mockFind.mockResolvedValue([mockVitalsRecord]);
       const mockNavigation = { navigate: jest.fn() };
       const mockRoute = { params: { resident: mockResident } };
 
@@ -183,7 +200,7 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
 
   describe('GREEN: Error handling', () => {
     test('should display error message if query fails', async () => {
-      customQueryService.mockRejectedValue(new Error('Query failed'));
+      mockFind.mockRejectedValue(new Error('Query failed'));
       const mockNavigation = { goBack: jest.fn() };
       const mockRoute = { params: { resident: mockResident } };
 
@@ -195,7 +212,7 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
     });
 
     test('should continue querying other types if one fails', async () => {
-      customQueryService
+      mockFind
         .mockRejectedValueOnce(new Error('Vitals query failed'))
         .mockResolvedValueOnce([])
         .mockResolvedValueOnce([mockMedicalRecord])
