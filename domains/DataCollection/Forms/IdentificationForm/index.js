@@ -1,4 +1,5 @@
 import surveyingUserFailsafe from "@app/domains/DataCollection/Forms/utils";
+import { updateObjectInClass } from "@app/services/parse/crud";
 import { AlertContext } from "@context/alert.context";
 import { Button as PaperButton, PopupError } from "@impacto-design-system/Base";
 import {
@@ -38,6 +39,8 @@ function IdentificationForm({
   submissionError,
   setSubmissionError,
   onSubmit,
+  editMode,
+  editFormValues,
 }) {
   const theme = useTheme();
   const layout = createLayoutStyles(theme);
@@ -53,7 +56,8 @@ function IdentificationForm({
     <View>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <Formik
-          initialValues={{}}
+          enableReinitialize
+          initialValues={editMode && editFormValues ? editFormValues : {}}
           validationSchema={validationSchema}
           validateOnBlur={false}
           validateOnChange={false}
@@ -61,7 +65,7 @@ function IdentificationForm({
         >
           {(formikProps) => (
             <View style={layout.formContainer}>
-              {inputs.length &&
+              {inputs.length > 0 &&
                 inputs.map((result) => (
                   <View key={result.formikKey}>
                     <PaperInputPicker
@@ -79,6 +83,7 @@ function IdentificationForm({
                 <ActivityIndicator size="large" color={theme.colors.primary} />
               ) : (
                 <PaperButton
+                  testID="formSubmit"
                   onPress={formikProps.handleSubmit}
                   buttonText={
                     _.isEmpty(formikProps.values)
@@ -115,12 +120,51 @@ function IdentificationFormWrapper({
   setSurveyee,
   surveyingUser,
   surveyingOrganization,
+  editMode,
+  existingRecord,
+  navigation,
 }) {
   const { alert } = useContext(AlertContext);
-  const [inputs, setInputs] = useState({});
+  const [inputs, setInputs] = useState([]);
   const [validationSchema, setValidationSchema] = useState();
   const [submitting, setSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState(false);
+
+  // Helper: Convert existing record back to form values for editing
+  const buildEditFormValues = (record) => {
+    if (!record) return {};
+    
+    // Parse dob "MM/DD/YYYY" back to Month, Day, Year
+    const dobParts = (record.dob || "").split("/");
+    const month = dobParts[0] || "";
+    const day = dobParts[1] || "";
+    const year = dobParts[2] || "";
+
+    return {
+      fname: record.fname || "",
+      lname: record.lname || "",
+      nickname: record.nickname || "",
+      sex: record.sex || "",
+      Month: month,
+      Day: day,
+      Year: year,
+      telephoneNumber: record.phone || record.telephoneNumber || "",
+      marriageStatus: record.marriageStatus || "",
+      educationLevel: record.educationLevel || "",
+      communityname: record.communityname || "",
+      subcounty: record.subcounty || "",
+      city: record.city || "",
+      province: record.province || "",
+      region: record.region || "",
+      location: {
+        latitude: record.latitude || 0,
+        longitude: record.longitude || 0,
+        altitude: record.altitude || 0,
+      },
+    };
+  };
+
+  const editFormValues = editMode ? buildEditFormValues(existingRecord) : {};
 
   const onSubmit = async (values) => {
     setSubmitting(true);
@@ -166,6 +210,25 @@ function IdentificationFormWrapper({
         delete formObject[value];
       });
 
+      // EDIT MODE: Use updateObjectInClass
+      if (editMode && existingRecord && existingRecord.objectId) {
+        await updateObjectInClass(
+          "SurveyData",
+          existingRecord.objectId,
+          formObject,
+          user.id || user.objectId
+        );
+        const fname = formObject.fname || "";
+        const lname = formObject.lname || "";
+        alert(`${fname} ${lname} ${I18n.t("forms.successfullySubmitted")}`.trim());
+        setSubmitting(false);
+        if (navigation) {
+          navigation.goBack();
+        }
+        return;
+      }
+
+      // CREATE MODE: Use postIdentificationForm (existing logic)
       const postParams = {
         parseClass: "SurveyData",
         parseUser: user.objectId,
@@ -205,6 +268,8 @@ function IdentificationFormWrapper({
       setSubmissionError={setSubmissionError}
       setSelectedForm={setSelectedForm}
       setSurveyee={setSurveyee}
+      editMode={editMode}
+      editFormValues={editFormValues}
     />
   );
 }

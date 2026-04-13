@@ -1,5 +1,6 @@
 // Make this render but switch between forms
 import surveyingUserFailsafe from "@app/domains/DataCollection/Forms/utils";
+import { updateObjectInClass } from "@app/services/parse/crud";
 import { AlertContext } from "@context/alert.context";
 import PopupError from "@impacto-design-system/Base/PopupError";
 import ErrorPicker from "@impacto-design-system/Extensions/FormikFields/ErrorPicker";
@@ -21,17 +22,22 @@ import vitalsConfig from "./configs/vitals.config";
 import {
   addSelectTextInputs,
   cleanLoopSubmissions,
+  reverseFormResultsFields,
+  reverseSelectTextInputs,
+  reverseVitalsBloodPressure,
   vitalsBloodPressue,
 } from "./utils";
 
 function SupplementaryForm({
+  editMode,
+  existingRecord,
   navigation,
+  customForm,
   selectedForm,
   setSelectedForm,
   surveyee,
   surveyingUser,
   surveyingOrganization,
-  customForm,
 }) {
   const theme = useTheme();
   const layout = createLayoutStyles(theme);
@@ -66,9 +72,38 @@ function SupplementaryForm({
     }
   }, [selectedForm, config]);
 
+  // BUILD EDIT FORM VALUES (REVERSE TRANSFORMS)
+  const buildEditFormValues = () => {
+    if (!editMode || !existingRecord) {
+      return {};
+    }
+
+    const editFormValues = { ...existingRecord };
+
+    // For custom forms (FormResults): reverse fields array → individual form values
+    if (selectedForm === "custom" && Array.isArray(existingRecord.fields)) {
+      const customFormReverse = reverseFormResultsFields(existingRecord);
+      Object.assign(editFormValues, customFormReverse);
+    }
+
+    // For Vitals: reverse blood pressure "120/80" → { Systolic, Diastolic }
+    if (selectedForm === "vitals") {
+      const bpReverse = reverseVitalsBloodPressure(existingRecord);
+      Object.assign(editFormValues, bpReverse);
+    }
+
+    // For all forms: reverse custom text fields "option__text" → separate fields
+    const selectTextReverse = reverseSelectTextInputs(existingRecord, config);
+    Object.assign(editFormValues, selectTextReverse);
+
+    return editFormValues;
+  };
+
+  const editFormValues = editMode ? buildEditFormValues() : {};
+
   return (
     <Formik
-      initialValues={{}}
+      initialValues={editMode && editFormValues ? editFormValues : {}}
       onSubmit={async (values) => {
         setSubmitting(true);
         setPhotoFile("Submitted Photo String");
@@ -95,6 +130,24 @@ function SupplementaryForm({
           // clean looped form questions
           formObjectUpdated = cleanLoopSubmissions(values, formObjectUpdated);
 
+          // EDIT MODE: Update existing record
+          if (editMode && existingRecord && existingRecord.objectId) {
+            const editClass = selectedForm === "custom" ? "FormResults" : config.class;
+            await updateObjectInClass(
+              editClass,
+              existingRecord.objectId,
+              formObjectUpdated,
+              user.id || user.objectId
+            );
+            alert(I18n.t("forms.successfullySubmitted"));
+            setSubmitting(false);
+            if (navigation) {
+              navigation.goBack();
+            }
+            return;
+          }
+
+          // CREATE MODE: Post new form (existing logic)
           const postParams = {
             parseParentClassID: surveyee.objectId,
             parseParentClass: "SurveyData",
@@ -165,6 +218,7 @@ function SupplementaryForm({
             <ActivityIndicator size="large" color={theme.colors.primary} />
           ) : (
             <Button
+              testID="formSubmit"
               disabled={!surveyee.objectId}
               onPress={formikProps.handleSubmit}
             >
