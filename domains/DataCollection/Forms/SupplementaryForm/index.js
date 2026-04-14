@@ -7,7 +7,10 @@ import ErrorPicker from "@impacto-design-system/Extensions/FormikFields/ErrorPic
 import PaperInputPicker from "@impacto-design-system/Extensions/FormikFields/PaperInputPicker";
 import yupValidationPicker from "@impacto-design-system/Extensions/FormikFields/YupValidation";
 import { getData } from "@modules/async-storage";
-import { postSupplementaryForm } from "@modules/cached-resources";
+import {
+  invalidateResidentCache,
+  postSupplementaryForm,
+} from "@modules/cached-resources";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
 import { isEmpty } from "@modules/utils";
@@ -160,6 +163,10 @@ function SupplementaryForm({
               formObjectUpdated,
               user.id || user.objectId
             );
+            // Invalidate cache after successful form update
+            if (surveyee && surveyee.objectId) {
+              await invalidateResidentCache(surveyee.objectId);
+            }
             alert(I18n.t("forms.successfullySubmitted"));
             setSubmitting(false);
             if (navigation) {

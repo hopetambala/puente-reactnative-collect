@@ -5,7 +5,8 @@
  * Part of edit forms feature - Phase 2
  */
 import client from '@app/services/parse/client';
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, View,
 } from 'react-native';
@@ -50,71 +51,79 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
     },
   ];
 
-  useEffect(() => {
-    const fetchRecords = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fetchRecords = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        const results = {
-          // The resident object itself is the identification (SurveyData) record
-          SurveyData: {
-            label: 'Identification',
-            records: [resident],
-          },
-        };
+      const results = {
+        // The resident object itself is the identification (SurveyData) record
+        SurveyData: {
+          label: 'Identification',
+          records: [resident],
+        },
+      };
 
-        // Build a Parse pointer to the resident's SurveyData record
-        const residentPointer = new Parse.Object('SurveyData');
-        residentPointer.id = residentId;
+      // Build a Parse pointer to the resident's SurveyData record
+      const residentPointer = new Parse.Object('SurveyData');
+      residentPointer.id = residentId;
 
-        // Query each record type in parallel
-        await Promise.all(
-          recordTypes.map(async (type) => {
-            try {
-              const Model = Parse.Object.extend(type.parseClass);
-              const query = new Parse.Query(Model);
-              query.limit(1000);
-              query.descending('createdAt');
+      // Query each record type in parallel
+      await Promise.all(
+        recordTypes.map(async (type) => {
+          try {
+            const Model = Parse.Object.extend(type.parseClass);
+            const query = new Parse.Query(Model);
+            query.limit(1000);
+            query.descending('createdAt');
 
-              if (type.usePointer) {
-                // Supplementary forms: 'client' is a Parse pointer to SurveyData
-                query.equalTo('client', residentPointer);
-              } else {
-                // FormResults: 'parseParentClassID' is a plain string objectId
-                query.equalTo('parseParentClassID', residentId);
-              }
-
-              const records = await query.find();
-
-              if (records && records.length > 0) {
-                // Serialize Parse Objects to plain JSON so .get() calls aren't needed later
-                const serialized = records
-                  .map((r) => (r?.toJSON ? r.toJSON() : r))
-                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                results[type.formType] = {
-                  label: type.label,
-                  records: serialized,
-                };
-              }
-            } catch (err) {
-              console.error(`Error fetching ${type.parseClass}:`, err); // eslint-disable-line
-              // Continue querying other types even if one fails
+            if (type.usePointer) {
+              // Supplementary forms: 'client' is a Parse pointer to SurveyData
+              query.equalTo('client', residentPointer);
+            } else {
+              // FormResults: 'parseParentClassID' is a plain string objectId
+              query.equalTo('parseParentClassID', residentId);
             }
-          })
-        );
 
-        setRecordsByType(results);
-      } catch (err) {
-        console.error('Error fetching records:', err); // eslint-disable-line
-        setError(err.message || 'Failed to load records');
-      } finally {
-        setLoading(false);
-      }
-    };
+            const records = await query.find();
 
+            if (records && records.length > 0) {
+              // Serialize Parse Objects to plain JSON so .get() calls aren't needed later
+              const serialized = records
+                .map((r) => (r?.toJSON ? r.toJSON() : r))
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+              results[type.formType] = {
+                label: type.label,
+                records: serialized,
+              };
+            }
+          } catch (err) {
+            console.error(`Error fetching ${type.parseClass}:`, err); // eslint-disable-line
+            // Continue querying other types even if one fails
+          }
+        })
+      );
+
+      setRecordsByType(results);
+    } catch (err) {
+      console.error('Error fetching records:', err); // eslint-disable-line
+      setError(err.message || 'Failed to load records');
+    } finally {
+      setLoading(false);
+    }
+  }, [residentId, recordTypes]);
+
+  // Initial fetch on mount
+  useEffect(() => {
     fetchRecords();
-  }, [residentId]);
+  }, [fetchRecords]);
+
+  // Re-fetch when screen is focused (after returning from edit form)
+  useFocusEffect(
+    useCallback(() => {
+      fetchRecords();
+    }, [fetchRecords])
+  );
 
   const handleRecordPress = (formType, record) => {
     navigation.navigate('EditForm', {

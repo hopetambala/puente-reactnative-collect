@@ -8,7 +8,10 @@ import {
   YupValidationPicker as yupValidationPicker,
 } from "@impacto-design-system/Extensions";
 import { getData } from "@modules/async-storage";
-import { postIdentificationForm } from "@modules/cached-resources";
+import {
+  invalidateResidentCache,
+  postIdentificationForm,
+} from "@modules/cached-resources";
 import { storeAppVersion } from "@modules/cached-resources/populate-cache";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
@@ -218,6 +221,8 @@ function IdentificationFormWrapper({
           formObject,
           user.id || user.objectId
         );
+        // Invalidate cache after successful form update
+        await invalidateResidentCache(existingRecord.objectId);
         const fname = formObject.fname || "";
         const lname = formObject.lname || "";
         alert(`${fname} ${lname} ${I18n.t("forms.successfullySubmitted")}`.trim());
