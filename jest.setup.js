@@ -310,6 +310,48 @@ jest.mock('@impacto-design-system/Cards/ModernCard', () => {
   };
 });
 
+// Mock expo-camera for tests
+jest.mock('expo-camera', () => {
+  // eslint-disable-next-line global-require
+  const React = require('react');
+  return {
+    CameraView: React.forwardRef(({ onInitialized, onError, children, ...props }, ref) => {
+      React.useEffect(() => {
+        if (onInitialized) {
+          onInitialized();
+        }
+      }, [onInitialized]);
+      // eslint-disable-next-line global-require
+      const { View } = require('react-native');
+      return React.createElement(
+        View,
+        { testID: 'camera-view', ref, ...props },
+        children
+      );
+    }),
+    useCameraPermissions: () => {
+      const [permission, setPermission] = React.useState({
+        granted: false,
+        canAskAgain: true,
+        expires: undefined,
+        status: 'undetermined',
+      });
+
+      const requestPermission = React.useCallback(async () => {
+        setPermission({
+          granted: true,
+          canAskAgain: true,
+          expires: undefined,
+          status: 'granted',
+        });
+        return { granted: true };
+      }, []);
+
+      return [permission, requestPermission];
+    },
+  };
+});
+
 // Suppress console logs during tests - suppress act() warnings more aggressively
 const originalError = console.error; // eslint-disable-line no-console
 

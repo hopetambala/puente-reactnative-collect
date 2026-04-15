@@ -581,6 +581,7 @@
   "camera":{
     "useImage": "Use image from camera roll",
     "noAccess": "No access to camera",
+    "requestingPermission": "Requesting camera permission...",
     "retake": "Retake Picture",
     "flip": "Flip",
     "takePicture": "Take Picture",

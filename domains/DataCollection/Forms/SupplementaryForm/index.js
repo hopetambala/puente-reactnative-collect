@@ -16,8 +16,9 @@ import { createLayoutStyles } from "@modules/theme";
 import { isEmpty } from "@modules/utils";
 import { Formik } from "formik";
 import React, { useContext, useEffect, useState } from "react";
-import { ActivityIndicator, Platform, SafeAreaView, View } from "react-native";
+import { ActivityIndicator, Platform, View } from "react-native";
 import { Button, Text,useTheme  } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import envConfig from "./configs/envhealth.config";
 import medConfig from "./configs/medical-evaluation.config";
@@ -88,7 +89,7 @@ function SupplementaryForm({
         setConfig(customForm);
       }
     }
-  }, [selectedForm]);
+  }, [selectedForm, editMode, existingRecord, customForm]);
 
   // BUILD EDIT FORM VALUES (REVERSE TRANSFORMS)
   const buildEditFormValues = () => {

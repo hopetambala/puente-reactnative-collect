@@ -127,7 +127,7 @@ function AutoFill(props) {
             onChangeText={formikProps.handleChange(formikKey)}
             onBlur={(e) => {
               handleInputBlur();
-              formikProps.handleBlur(formikKey);
+              formikProps.handleBlur(formikKey)(e);
             }}
             onFocus={handleInputFocus}
             mode="outlined"

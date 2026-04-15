@@ -3,7 +3,7 @@ import UseCamera from "@impacto-design-system/Multimedia/UseCamera";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
 import { MOTION_TOKENS } from "@modules/utils/animations";
-import * as React from "react";
+import React from "react";
 import { Image, TouchableWithoutFeedback, View } from "react-native";
 import {
   Button,
@@ -81,6 +81,10 @@ function PaperInputPicker({
   const handleInputBlur = React.useCallback(() => {
     focusScale.value = withSpring(1, MOTION_TOKENS.spring.smooth);
   }, [focusScale]);
+
+  const handleTakePhoto = React.useCallback(() => {
+    setCameraVisible(true);
+  }, []);
 
   return (
     <>
@@ -550,7 +554,7 @@ function PaperInputPicker({
           {!cameraVisible && image === null && (
             <View>
               <Text style={stylesDefault.labelImage}>{translatedLabel}</Text>
-              <Button onPress={() => setCameraVisible(true)}>
+              <Button onPress={handleTakePhoto}>
                 {I18n.t("paperButton.takePhoto")}
               </Button>
               <UseCameraRoll
@@ -571,9 +575,7 @@ function PaperInputPicker({
                 style={{ width: "auto", height: 400 }}
               />
               <Button
-                onPress={() => {
-                  setCameraVisible(true);
-                }}
+                onPress={handleTakePhoto}
               >
                 {I18n.t("paperButton.takePhoto")}
               </Button>
@@ -589,7 +591,7 @@ function PaperInputPicker({
           )}
           {cameraVisible && (
             <View>
-              <Text style={stylesDefault.labelImage}>{label}</Text>
+              <Text style={stylesDefault.labelImage}>{translatedLabel}</Text>
               <UseCamera
                 cameraVisible={cameraVisible}
                 setCameraVisible={setCameraVisible}

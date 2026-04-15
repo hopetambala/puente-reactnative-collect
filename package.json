@@ -17,11 +17,11 @@
     "test": "jest --watchAll",
     "test-debug": "jest -o --watch --coverage=false",
     "test-run": "jest --forceExit --detectOpenHandles",
-    "test:unit": "jest --testPathIgnorePatterns='integrate|snapshot' --maxWorkers=4 --forceExit",
+    "test:unit": "jest --testPathIgnorePatterns='integrat(e|ion)|snapshot' --maxWorkers=4 --forceExit",
     "test:integration": "jest --config jest.integration.config.js --maxWorkers=2 --forceExit",
     "test:snapshot": "jest --testPathPattern='snapshot' --maxWorkers=2 --forceExit",
     "test:cov": "jest --coverage --forceExit",
-    "test-no-integration": "jest --testPathIgnorePatterns='integrate' --maxWorkers=4 --forceExit",
+    "test-no-integration": "jest --testPathIgnorePatterns='integrat(e|ion)' --maxWorkers=4 --forceExit",
     "test-all:parallel": "concurrently --kill-others-on-fail 'yarn test:unit' 'yarn test:integration' 'yarn test:snapshot'",
     "lint": "eslint '**/*.{js,jsx}' --quiet",
     "lint-fix": "eslint '**/*.{js,jsx}' --fix",
@@ -67,7 +67,7 @@
       "/android/",
       "/ios/",
       "/coverage/",
-      "integrate\\.test\\.js"
+      "integrat(e|ion)\\.test\\.js"
     ]
   },
   "dependencies": {

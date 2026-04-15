@@ -7,8 +7,6 @@ import * as Notifications from "expo-notifications";
 import { toInteger } from "lodash";
 import { Platform } from "react-native";
 
-const axios = require("axios");
-
 const registerForPushNotificationsAsync = async () => {
   let token;
   if (Constants.isDevice) {
@@ -52,6 +50,8 @@ const registerForPushNotificationsAsync = async () => {
 };
 
 const checkAppVersionAndSendPush = async (token) => {
+  // eslint-disable-next-line global-require
+  const axios = require("axios");
   await getData("appVersion").then(async (appVersion) => {
     const [majorCurrent, minorCurrent, patchCurrent] = appVersion.split(".");
     const majorCurrentInt = toInteger(majorCurrent);

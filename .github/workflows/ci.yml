@@ -132,6 +132,12 @@ jobs:
         env:
           MONGOMS_PREFER_GLOBAL_PATH: 1
 
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          flags: integration
+          fail_ci_if_error: false
+
   snapshot-tests:
     runs-on: ubuntu-latest
     needs: lint

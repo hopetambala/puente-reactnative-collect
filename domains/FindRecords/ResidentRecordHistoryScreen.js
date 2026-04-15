@@ -191,7 +191,9 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
     );
   }
 
-  const hasRecords = Object.keys(recordsByType).length > 0;
+  // SurveyData is always present (the resident's identification record).
+  // Show empty state only when there are no supplementary form submissions.
+  const hasRecords = Object.keys(recordsByType).length > 1;
 
   if (!hasRecords) {
     return (

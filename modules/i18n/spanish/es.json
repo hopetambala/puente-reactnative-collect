@@ -581,6 +581,7 @@
   "camera":{
     "useImage": "Usar imagen del carrete de la cámara",
     "noAccess": "Sin acceso a la cámara",
+    "requestingPermission": "Pidiendo permiso de cámara...",
     "retake": "Volver a tomar la imagen",
     "flip": "Dar la vuelta",
     "takePicture": "Tomar la foto",

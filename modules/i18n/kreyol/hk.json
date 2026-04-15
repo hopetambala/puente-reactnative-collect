@@ -579,6 +579,7 @@
   "camera":{
     "useImage": "Sèvi ak imaj ki soti nan woulo kamera",
     "noAccess": "Pa gen aksè a kamera",
+    "requestingPermission": "Ap mande pèmisyon kamera...",
     "retake": "Rekomanse Foto",
     "flip": "Flip",
     "takePicture": "Pran foto",
