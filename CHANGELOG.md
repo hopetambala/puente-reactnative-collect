@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.0.4](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.0.3...v15.0.4) (2026-04-15)
+
+
+### Bug fixes
+
+* cache persistence ([e450f8f](https://github.com/hopetambala/puente-reactnative-collect/commit/e450f8f1e5c5a5eb9c64f8aee86b723ebb0d16a6))
+* stabilize camera and caching ([ef56063](https://github.com/hopetambala/puente-reactnative-collect/commit/ef5606362869982143bca1517ac7cc01ff1ac647))
+
+
+### Documentation Changes
+
+* start animation philosphy discovery ([4aca705](https://github.com/hopetambala/puente-reactnative-collect/commit/4aca70505dfdd452071332163efd0bdca255e73d))
+
 ### [15.0.3](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.0.2...v15.0.3) (2026-04-13)
 
 
