@@ -209,6 +209,134 @@ export function usePulseAnimation(options = {}) {
   return { animatedStyle, start, stop };
 }
 
+/**
+ * Hook for status icon animation (Reanimated)
+ * Bounces on entrance and pulses to indicate state change
+ * Used for status indicators, validation feedback
+ *
+ * @param {Object} options
+ * @param {boolean} options.isActive - Whether status icon should be animated
+ * @param {string} options.state - Status state ('success'|'error'|'warning'|'info')
+ * @returns {{ animatedStyle: object, reset: () => void }}
+ */
+export function useStatusIconAnimation(options = {}) {
+  const {
+    isActive = true,
+    state = "info",
+  } = options;
+
+  const scale = useSharedValue(1);
+  const opacity = useSharedValue(1);
+
+  useEffect(() => {
+    if (!isActive) {
+      scale.value = withTiming(1, { duration: 200 });
+      opacity.value = withTiming(1, { duration: 200 });
+      return;
+    }
+
+    // Bounce entrance + pulse effect
+    scale.value = withSequence(
+      withSpring(1.2, SPRING_CONFIG.PLAYFUL),
+      withRepeat(
+        withSequence(
+          withTiming(1.15, { duration: 600 }),
+          withTiming(1, { duration: 600 }),
+        ),
+        3, // pulse 3 times
+      ),
+    );
+  }, [isActive, state, scale, opacity]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+
+  return { animatedStyle };
+}
+
+/**
+ * Hook for disclosure/expansion icon animation (Reanimated)
+ * Rotates chevron/arrow icon on expand/collapse
+ * Used for collapsible sections, accordions, disclosure triangles
+ *
+ * @param {Object} options
+ * @param {boolean} options.isExpanded - Whether section is expanded
+ * @param {number} options.duration - Rotation duration in ms (default: 300)
+ * @returns {{ animatedStyle: object }}
+ */
+export function useDisclosureIconAnimation(options = {}) {
+  const {
+    isExpanded = false,
+    duration = ANIMATION_CONFIG.DURATION_STANDARD,
+  } = options;
+
+  const rotation = useSharedValue(0);
+
+  useEffect(() => {
+    rotation.value = withTiming(
+      isExpanded ? 180 : 0,
+      { duration, easing: Easing.inOut(Easing.ease) },
+    );
+  }, [isExpanded, duration, rotation]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
+  }));
+
+  return { animatedStyle };
+}
+
+/**
+ * Hook for button icon animation (Reanimated)
+ * Combines press feedback with rotation or scale
+ * Used for action buttons, navigation controls
+ *
+ * @param {Object} options
+ * @param {'scale'|'rotate'|'both'} options.type - Animation type (default: 'scale')
+ * @returns {{ animatedStyle: object, onPressIn: () => void, onPressOut: () => void }}
+ */
+export function useButtonIconAnimation(options = {}) {
+  const {
+    type = "scale",
+  } = options;
+
+  const scale = useSharedValue(1);
+  const rotation = useSharedValue(0);
+
+  const onPressIn = useCallback(() => {
+    if (type === "scale" || type === "both") {
+      scale.value = withSpring(ANIMATION_CONFIG.SCALE_INTERACTIVE, SPRING_CONFIG.SNAPPY);
+    }
+    if (type === "rotate" || type === "both") {
+      rotation.value = withTiming(15, { duration: ANIMATION_CONFIG.DURATION_FAST });
+    }
+  }, [scale, rotation, type]);
+
+  const onPressOut = useCallback(() => {
+    if (type === "scale" || type === "both") {
+      scale.value = withSpring(1, SPRING_CONFIG.PLAYFUL);
+    }
+    if (type === "rotate" || type === "both") {
+      rotation.value = withTiming(0, { duration: ANIMATION_CONFIG.DURATION_FAST });
+    }
+  }, [scale, rotation, type]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const transforms = [];
+    if (type === "scale" || type === "both") {
+      transforms.push({ scale: scale.value });
+    }
+    if (type === "rotate" || type === "both") {
+      transforms.push({ rotate: `${rotation.value}deg` });
+    }
+    return { transform: transforms };
+  });
+
+  return { animatedStyle, onPressIn, onPressOut };
+}
+
 // ─── Layout Animations ───────────────────────────────────────────────────────
 
 /**
@@ -225,8 +353,11 @@ export default {
   SPRING_CONFIG,
   SCREEN_TRANSITIONS,
   ANIMATION_TIMINGS,
+  useButtonIconAnimation,
+  useDisclosureIconAnimation,
   usePressAnimation,
-  useShakeAnimation,
   usePulseAnimation,
+  useShakeAnimation,
+  useStatusIconAnimation,
   ROOT_ENTERING,
 };

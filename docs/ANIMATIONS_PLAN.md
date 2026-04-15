@@ -195,6 +195,96 @@
 
 ---
 
+---
+
+## 11. Animation Hooks (Reanimated)
+
+### Available Hooks in `modules/utils/animations.js`
+
+#### `usePressAnimation(options)`
+Provides scale and opacity feedback on button press.
+- **Returns**: `{ animatedStyle, onPressIn, onPressOut }`
+- **Options**: `{ scaleTo, opacityTo }`
+- **Default**: Scale to 0.95, opacity to 0.8
+- **Use Case**: Button icons, action buttons, interactive elements
+- **Spring Config**: SNAPPY (quick responsive feedback)
+
+#### `useShakeAnimation(options)`
+Shake/wiggle animation for feedback on invalid input or notifications.
+- **Returns**: `{ shakeStyle, triggerShake }`
+- **Options**: `{ amplitude, axis, duration }`
+- **Axis**: `'translateX'` (input shake) or `'rotate'` (icon wiggle)
+- **Use Case**: Form validation errors, 3D model wiggle, icon feedback
+- **Example**: Tab bar icon rotation wiggle (SHAKE_DEGREES, axis: 'rotate')
+
+#### `usePulseAnimation(options)`
+Gentle continuous scale animation for loading states.
+- **Returns**: `{ animatedStyle, start, stop }`
+- **Options**: `{ duration, scaleRange }`
+- **Default**: 1000ms cycle, scale range 1.0 → 1.1 → 1.0
+- **Use Case**: Loading indicators, breathing animations, subtle activity feedback
+
+#### `useStatusIconAnimation(options)` *(NEW)*
+Bounces on entrance and pulses to indicate state changes.
+- **Returns**: `{ animatedStyle }`
+- **Options**: `{ isActive, state }`
+- **States**: `'success'`, `'error'`, `'warning'`, `'info'`
+- **Behavior**: Entrance bounce (1.0 → 1.2 spring) + 3-pulse cycle
+- **Use Case**: Validation success indicators, status badges, field feedback
+- **Spring Config**: PLAYFUL (playful overshoot)
+
+#### `useDisclosureIconAnimation(options)` *(NEW)*
+Rotates chevron/arrow icons on expand/collapse.
+- **Returns**: `{ animatedStyle }`
+- **Options**: `{ isExpanded, duration }`
+- **Default**: 300ms rotation
+- **Behavior**: 0° ↔ 180° smooth rotation
+- **Use Case**: Accordion sections, collapsible lists, expansion triangles
+- **Easing**: ease-in-out for natural feel
+
+#### `useButtonIconAnimation(options)` *(NEW)*
+Combines press feedback with rotation or scale for button icons.
+- **Returns**: `{ animatedStyle, onPressIn, onPressOut }`
+- **Options**: `{ type }`
+- **Types**: `'scale'` (default), `'rotate'`, `'both'`
+- **Behavior**: 
+  - `'scale'`: 1.0 → 0.95 on press, spring back with overshoot
+  - `'rotate'`: Rotate ±15° on press for playful feedback
+  - `'both'`: Combined scale + rotate effect
+- **Use Case**: Icon buttons, navigation controls, toolbar buttons
+- **Spring Config**: SNAPPY on press-out for bouncy release
+
+### Implementation Pattern
+
+```jsx
+import { usePressAnimation, useDisclosureIconAnimation } from '@modules/utils/animations';
+import Animated from 'react-native-reanimated';
+
+function MyButton() {
+  const { animatedStyle, onPressIn, onPressOut } = usePressAnimation();
+  
+  return (
+    <Animated.View style={animatedStyle}>
+      <Pressable onPressIn={onPressIn} onPressOut={onPressOut}>
+        {/* button content */}
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+function DisclosureArrow({ isExpanded }) {
+  const { animatedStyle } = useDisclosureIconAnimation({ isExpanded });
+  
+  return (
+    <Animated.View style={animatedStyle}>
+      <Icon name="chevron-down" />
+    </Animated.View>
+  );
+}
+```
+
+---
+
 ## Implementation Files
 
 | File | What | Status |
