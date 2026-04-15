@@ -1,5 +1,3 @@
-/* eslint no-param-reassign: ["error",
-{ "props": true, "ignorePropertyModificationsFor": ["formikProps"] }] */
 import BlackLogo from "@app/assets/graphics/static/Logo-Black.svg";
 import FormInput from "@impacto-design-system/Extensions/FormikFields/FormInput";
 import LanguagePicker from "@impacto-design-system/Extensions/LanguagePicker";
@@ -8,6 +6,7 @@ import { deleteData, getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
 import { spacing, typography } from "@modules/theme";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import { Formik } from "formik";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
@@ -21,11 +20,25 @@ import {
   View,
 } from "react-native";
 import { Button, Text, TextInput, useTheme } from "react-native-paper";
+import Animated, { Keyframe } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as yup from "yup";
 
 import { UserContext } from "../../../context/auth.context";
 import ForgotPassword from "./ForgotPassword";
+
+// Spec §1 / §5.4: MEGA-level screen entrance — logo pops in with energy
+const LogoEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ scale: 0.8 }] },
+  60: { opacity: 1, transform: [{ scale: 1.05 }] },
+  100: { opacity: 1, transform: [{ scale: 1 }] },
+});
+
+// Form slides up from below, after logo settles
+const FormEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 16 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }] },
+});
 
 const validationSchema = yup.object().shape({
   username: yup.string().label(I18n.t("signIn.user")).required(),
@@ -222,9 +235,17 @@ function SignIn({ navigation, route }) {
             >
               {(formikProps) => (
                 <View>
-                  <View style={styles.logoContainer}>
+                  <Animated.View
+                    style={styles.logoContainer}
+                    entering={LogoEntrance.duration(MOTION_TOKENS.duration.xslow)}
+                  >
                     <BlackLogo height={130} />
-                  </View>
+                  </Animated.View>
+                  <Animated.View
+                    entering={FormEntrance
+                      .delay(200)
+                      .duration(MOTION_TOKENS.duration.base)}
+                  >
                   <FormInput
                     label={I18n.t("signIn.username")}
                     formikProps={formikProps}
@@ -265,6 +286,7 @@ function SignIn({ navigation, route }) {
                       {I18n.t("signIn.login")}
                     </Button>
                   )}
+                  </Animated.View>
                 </View>
               )}
             </Formik>

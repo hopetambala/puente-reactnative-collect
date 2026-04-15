@@ -113,7 +113,14 @@ const mockAnimationChain = {
 };
 
 jest.mock('react-native-reanimated', () => ({
+  __esModule: true,
   cancelAnimation: jest.fn(),
+  default: {
+    View: ({ children }) => children || null,
+    Text: ({ children }) => children || null,
+    Image: ({ children }) => children || null,
+    createAnimatedComponent: (Component) => Component,
+  },
   Easing: {
     in: jest.fn(),
     out: jest.fn(),
@@ -121,6 +128,16 @@ jest.mock('react-native-reanimated', () => ({
     bezier: jest.fn(),
     circle: jest.fn(),
     ease: jest.fn(),
+  },
+  Keyframe: class {
+    // eslint-disable-next-line no-useless-constructor
+    constructor() {
+      // Mock constructor for Reanimated Keyframe
+    }
+
+    delay() { return this; }
+
+    duration() { return this; }
   },
   ZoomIn: {
     springify: jest.fn(() => ({

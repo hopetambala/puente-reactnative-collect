@@ -1,11 +1,15 @@
 import FieldStateIndicator from "@impacto-design-system/Extensions/FormikFields/FieldStateIndicator";
 import { spacing, typography } from "@modules/theme";
-import { ANIMATION_CONFIG, useShakeAnimation } from "@modules/utils/animations";
+import { ANIMATION_CONFIG, MOTION_TOKENS, useShakeAnimation } from "@modules/utils/animations";
 import PropTypes from "prop-types";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { TextInput, useTheme } from "react-native-paper";
-import Animated from "react-native-reanimated";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 const createStyles = (theme) =>
   StyleSheet.create({
@@ -63,17 +67,29 @@ function FormInput({
     duration: ANIMATION_CONFIG.DURATION_FAST,
   });
 
+  // Focus lift animation — spec §5.3: subtle scale lift on focus (spring.smooth)
+  // GPU-safe: transform only (no shadow/layout properties)
+  const focusScale = useSharedValue(1);
+  const focusLiftStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: focusScale.value }],
+  }));
+
+  const handleFocus = useCallback(() => {
+    focusScale.value = withSpring(1.01, MOTION_TOKENS.spring.smooth);
+  }, [focusScale]);
+
   useEffect(() => {
     if (error) {
       triggerShake();
     }
   }, [error, triggerShake]);
 
-  const handleBlur = () => {
+  const handleBlur = useCallback(() => {
     // Mark field as touched but do NOT trigger validation on blur.
     // Validation only runs on submit to prevent premature shake/error animations.
     formikProps.setFieldTouched(formikKey, true, false);
-  };
+    focusScale.value = withSpring(1, MOTION_TOKENS.spring.smooth);
+  }, [formikProps, formikKey, focusScale]);
 
   return (
     <View style={styles.container}>
@@ -81,12 +97,14 @@ function FormInput({
         style={[
           styles.inputWrapper,
           shakeStyle,
+          focusLiftStyle,
         ]}
       >
         <View style={styles.inputContainer}>
           <TextInput
             label={label}
             onChangeText={formikProps.handleChange(formikKey)}
+            onFocus={handleFocus}
             onBlur={handleBlur}
             value={value || ""}
             {...rest}

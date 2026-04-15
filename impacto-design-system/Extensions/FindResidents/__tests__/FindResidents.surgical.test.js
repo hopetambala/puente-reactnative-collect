@@ -7,6 +7,7 @@
  * the resident card still shows "Ron" because residentsData is a stale snapshot.
  * Fix: useEffect([selectPerson]) patches the matching record in-place.
  */
+/* eslint-disable no-dupe-keys, no-shadow, no-promise-executor-return, react/button-has-type */
 
 import { render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
@@ -103,7 +104,7 @@ jest.mock('react-native-paper', () => {
 
 // ─── Import component AFTER all mocks ────────────────────────────────────────
 // eslint-disable-next-line import/first
-import FindResidents from '../index';
+import FindResidents from '@impacto-design-system/Extensions/FindResidents/index';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

@@ -7,14 +7,22 @@ import {
   cleanupPostedOfflineForms,
   postOfflineForms,
 } from "@modules/offline/post";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useContext, useState } from "react";
 import { View } from "react-native";
 import Emoji from "react-native-emoji";
 import { Button, IconButton, Text, useTheme } from "react-native-paper";
+import Animated, { Keyframe } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import FormCounts from "./FormCounts";
 import { createHeaderStyles } from "./index.styles";
+
+// Spec §5.5 STANDARD: drawer content slides in from top when opened
+const DrawerEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: -10 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }] },
+});
 
 function Header({ setSettings, onOpenSettings, onBack }) {
   const theme = useTheme();
@@ -188,7 +196,10 @@ function Header({ setSettings, onOpenSettings, onBack }) {
       </View>
 
       {drawerOpen && (
-        <View style={styles.drawerContent}>
+        <Animated.View
+          style={styles.drawerContent}
+          entering={DrawerEntrance.duration(MOTION_TOKENS.duration.base)}
+        >
           {!showCounts ? (
             <>
               <Text style={styles.greeting}>
@@ -261,7 +272,7 @@ function Header({ setSettings, onOpenSettings, onBack }) {
           ) : (
             <FormCounts />
           )}
-        </View>
+        </Animated.View>
       )}
     </View>
   );

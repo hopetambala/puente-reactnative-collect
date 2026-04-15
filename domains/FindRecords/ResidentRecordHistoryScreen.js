@@ -6,13 +6,27 @@
  */
 import client from '@app/services/parse/client';
 import { fetchResidentById } from '@impacto-design-system/Extensions/FindResidents/_utils';
+import { MOTION_TOKENS } from '@modules/utils/animations';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, View,
 } from 'react-native';
 import { Button } from 'react-native-paper';
+import Animated, { Keyframe } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+// Spec §5.4: section group slides in from below
+const SectionEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 8 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }] },
+});
+
+// Spec §5.4: individual record rows, smaller offset
+const RowEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 5 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }] },
+});
 
 const Parse = client(false);
 
@@ -203,8 +217,14 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
         {residentName}
       </Text>
 
-      {Object.entries(recordsByType).map(([formType, { label, records }]) => (
-        <View key={formType} style={{ marginBottom: 24 }}>
+      {Object.entries(recordsByType).map(([formType, { label, records }], sectionIdx) => (
+        <Animated.View
+          key={formType}
+          style={{ marginBottom: 24 }}
+          entering={SectionEntrance
+            .delay(sectionIdx * 80)
+            .duration(MOTION_TOKENS.duration.base)}
+        >
           <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 8, textTransform: 'capitalize' }}>
             {label}
           </Text>
@@ -213,26 +233,32 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
             scrollEnabled={false}
             data={records}
             keyExtractor={(item, idx) => `${formType}-${item.objectId}-${idx}`}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                testID={`${item.objectId}`}
-                onPress={() => handleRecordPress(formType, item)}
-                style={{
-                  padding: 12,
-                  marginBottom: 8,
-                  backgroundColor: '#f5f5f5',
-                  borderRadius: 8,
-                }}
+            renderItem={({ item, index }) => (
+              <Animated.View
+                entering={RowEntrance
+                  .delay(Math.min(index * 40, 200))
+                  .duration(MOTION_TOKENS.duration.base)}
               >
-                <Text style={{ fontSize: 14, fontWeight: '500' }}>
-                  {label}
-                  {' - '}
-                  {formatDate(item.createdAt)}
-                </Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  testID={`${item.objectId}`}
+                  onPress={() => handleRecordPress(formType, item)}
+                  style={{
+                    padding: 12,
+                    marginBottom: 8,
+                    backgroundColor: '#f5f5f5',
+                    borderRadius: 8,
+                  }}
+                >
+                  <Text style={{ fontSize: 14, fontWeight: '500' }}>
+                    {label}
+                    {' - '}
+                    {formatDate(item.createdAt)}
+                  </Text>
+                </TouchableOpacity>
+              </Animated.View>
             )}
           />
-        </View>
+        </Animated.View>
       ))}
       </ScrollView>
     </SafeAreaView>

@@ -72,7 +72,7 @@ function MainNavigation() {
           <Stack.Screen
             name="Root"
             component={RootScreenWrapper}
-            options={{ headerShown: false, gestureEnabled: false }}
+            options={{ headerShown: false, gestureEnabled: false, animation: "none" }}
           />
           <Stack.Screen
             name="SettingsModal"

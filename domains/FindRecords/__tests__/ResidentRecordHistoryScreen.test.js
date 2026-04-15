@@ -2,6 +2,7 @@
  * ResidentRecordHistoryScreen - RED-GREEN TDD Tests
  * Phase 2: Tests for record history querying, grouping, and navigation
  */
+/* eslint-disable no-promise-executor-return, global-require */
 
 import ResidentRecordHistoryScreen from '@app/domains/FindRecords/ResidentRecordHistoryScreen';
 import { render, screen, waitFor } from '@testing-library/react-native';

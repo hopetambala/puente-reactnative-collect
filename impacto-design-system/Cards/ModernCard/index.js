@@ -1,5 +1,5 @@
 import { spacing } from "@modules/theme";
-import { usePressAnimation } from "@modules/utils/animations";
+import { MOTION_TOKENS, usePressAnimation } from "@modules/utils/animations";
 import PropTypes from "prop-types";
 import React from "react";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -50,7 +50,7 @@ function ModernCard({
   const pressAnimation = usePressAnimation({
     scaleTo: 0.95,
     opacityTo: 0.85,
-    duration: 150,
+    releaseSpring: MOTION_TOKENS.spring.snappy,
   });
 
   // Extract backgroundColor from style if provided (takes precedence)

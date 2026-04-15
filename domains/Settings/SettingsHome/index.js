@@ -1,6 +1,7 @@
 import { ThemeContext } from "@context/theme.context";
 import I18n from "@modules/i18n";
 import { spacing, typography } from "@modules/theme";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useContext, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import {
@@ -10,9 +11,16 @@ import {
   Text,
   useTheme,
 } from "react-native-paper";
+import Animated, { Keyframe } from "react-native-reanimated";
 
 import { createSettingsStyles } from "../index.styles";
 import AccountSettings from "./AccountSettings";
+
+// Spec §5.4: settings rows fade+lift in staggered
+const RowEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 6 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }] },
+});
 
 // Safe defaults in case spacing is undefined
 const safeSpacing = {
@@ -119,8 +127,13 @@ function SettingsHome({
           </View>
             <View style={styles.horizontalLineGray} />
             {inputs.length &&
-              inputs.map((input) => (
-                <View key={input.key}>
+              inputs.map((input, i) => (
+                <Animated.View
+                  key={input.key}
+                  entering={RowEntrance
+                    .delay(i * 40)
+                    .duration(MOTION_TOKENS.duration.base)}
+                >
                   {input.key === "Theme" ? (
                     <View style={settingsStyles.themeContainer}>
                       <Text style={settingsStyles.themeLabel}>
@@ -169,7 +182,7 @@ function SettingsHome({
                       <View style={styles.horizontalLineGray} />
                     </>
                   )}
-                </View>
+                </Animated.View>
               ))}
           </View>
           <Button

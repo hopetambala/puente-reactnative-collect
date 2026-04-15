@@ -4,6 +4,7 @@ import Autofill from "@impacto-design-system/Extensions/FormikFields/PaperInputP
 import TermsModal from "@impacto-design-system/Extensions/TermsModal";
 import I18n from "@modules/i18n";
 import { spacing, typography } from "@modules/theme";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import { CommonActions } from "@react-navigation/native";
 import { Formik } from "formik";
 import React, { useContext, useMemo, useState } from "react";
@@ -16,10 +17,17 @@ import {
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { Checkbox, Text, useTheme } from "react-native-paper";
+import Animated, { Keyframe } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as yup from "yup";
 
 import { UserContext } from "../../../context/auth.context";
+
+// Spec §5.4 STANDARD: form section lifts in on screen mount
+const HeaderEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 10 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }] },
+});
 
 const validationSchema = yup.object().shape({
   firstname: yup.string().label("First Name").required(),
@@ -103,12 +111,16 @@ export default function SignUp({ navigation }) {
       style={{ backgroundColor: theme.colors.background, flex: 1 }}
     >
       <View>
-        <Button
-          icon="arrow-left"
-          onPress={() => navigation.navigate("Sign In")}
-          buttonText={I18n.t("global.back")}
-          style={[styles.serviceButton, { marginTop: 60 }]}
-        />
+        <Animated.View
+          entering={HeaderEntrance.duration(MOTION_TOKENS.duration.base)}
+        >
+          <Button
+            icon="arrow-left"
+            onPress={() => navigation.navigate("Sign In")}
+            buttonText={I18n.t("global.back")}
+            style={[styles.serviceButton, { marginTop: 60 }]}
+          />
+        </Animated.View>
         <ScrollView
           style={{ backgroundColor: theme.colors.background }}
           keyboardShouldPersistTaps="never"

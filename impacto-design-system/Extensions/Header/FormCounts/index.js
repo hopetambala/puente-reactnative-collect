@@ -2,11 +2,19 @@ import { countService } from "@app/services/parse/crud";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
+import Animated, { Keyframe } from "react-native-reanimated";
 
 import { createHeaderStyles } from "../index.styles";
+
+// Spec §5.4: count rows pop in staggered once data resolves
+const CountRowEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 6 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }] },
+});
 
 function FormCounts({ setShowCounts }) {
   const theme = useTheme();
@@ -108,32 +116,47 @@ function FormCounts({ setShowCounts }) {
       )}
       {queryDone && (
         <View>
-          <View style={styles.countContainer}>
+          <Animated.View
+            style={styles.countContainer}
+            entering={CountRowEntrance.delay(0).duration(MOTION_TOKENS.duration.base)}
+          >
             <Text style={styles.label}>{I18n.t("formCounts.idForms")}</Text>
             <Text style={styles.count}>{surveyCount}</Text>
-          </View>
+          </Animated.View>
           <View style={styles.horizontalLineGray} />
-          <View style={styles.countContainer}>
+          <Animated.View
+            style={styles.countContainer}
+            entering={CountRowEntrance.delay(50).duration(MOTION_TOKENS.duration.base)}
+          >
             <Text style={styles.label}>
               {I18n.t("formCounts.envHealthForms")}
             </Text>
             <Text style={styles.count}>{envHealthCount}</Text>
-          </View>
+          </Animated.View>
           <View style={styles.horizontalLineGray} />
-          <View style={styles.countContainer}>
+          <Animated.View
+            style={styles.countContainer}
+            entering={CountRowEntrance.delay(100).duration(MOTION_TOKENS.duration.base)}
+          >
             <Text style={styles.label}>{I18n.t("formCounts.vitalsForms")}</Text>
             <Text style={styles.count}>{vitalsCount}</Text>
-          </View>
+          </Animated.View>
           <View style={styles.horizontalLineGray} />
-          <View style={styles.countContainer}>
+          <Animated.View
+            style={styles.countContainer}
+            entering={CountRowEntrance.delay(150).duration(MOTION_TOKENS.duration.base)}
+          >
             <Text style={styles.label}>{I18n.t("formCounts.customForms")}</Text>
             <Text style={styles.count}>{customCount}</Text>
-          </View>
+          </Animated.View>
           <View style={styles.horizontalLineGray} />
-          <View style={styles.countContainer}>
+          <Animated.View
+            style={styles.countContainer}
+            entering={CountRowEntrance.delay(200).duration(MOTION_TOKENS.duration.base)}
+          >
             <Text style={styles.label}>{I18n.t("formCounts.assetForms")}</Text>
             <Text style={styles.count}>{assetCount}</Text>
-          </View>
+          </Animated.View>
           <View style={styles.horizontalLineGray} />
         </View>
       )}

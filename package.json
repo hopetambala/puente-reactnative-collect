@@ -25,6 +25,8 @@
     "test-all:parallel": "concurrently --kill-others-on-fail 'yarn test:unit' 'yarn test:integration' 'yarn test:snapshot'",
     "lint": "eslint '**/*.{js,jsx}' --quiet",
     "lint-fix": "eslint '**/*.{js,jsx}' --fix",
+    "lint:animations": "node scripts/lint-animations.js",
+    "lint:animations:hints": "node scripts/lint-animations.js --fix-hints",
     "prettier": "prettier --write '**/*.{js,jsx}'",
     "build-apps": "eas build --platform all",
     "submit-apps": "eas submit -p ios --latest && eas submit -p android --latest",

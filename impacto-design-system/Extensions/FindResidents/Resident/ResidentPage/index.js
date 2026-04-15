@@ -1,12 +1,27 @@
 import I18n from "@modules/i18n";
 import { spacing, typography } from "@modules/theme";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
+import Animated, { Keyframe } from "react-native-reanimated";
 
 import Demographics from "./Demographics";
 import Forms from "./Forms";
 import Household from "./Housheold";
+
+// Spec §1 MEGA: profile picture pops in with energy on detail screen open
+const ProfileEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ scale: 0.85 }] },
+  65: { opacity: 1, transform: [{ scale: 1.04 }] },
+  100: { opacity: 1, transform: [{ scale: 1 }] },
+});
+
+// Name + meta slides up after profile image settles
+const NameEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 12 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }] },
+});
 
 function ResidentPage({
   fname,
@@ -59,22 +74,24 @@ function ResidentPage({
         {I18n.t("dataCollection.back")}
       </Button>
       <View style={styles.picNameContainer}>
-        <Image style={styles.profPic} source={pictureUrl} />
-        <View style={{ margin: 7 }}>
+        <Animated.View
+          entering={ProfileEntrance.duration(MOTION_TOKENS.duration.slow)}
+        >
+          <Image style={styles.profPic} source={pictureUrl} />
+        </Animated.View>
+        <Animated.View
+          style={{ margin: 7 }}
+          entering={NameEntrance
+            .delay(150)
+            .duration(MOTION_TOKENS.duration.base)}
+        >
           <View style={styles.nameContainer}>
             <Text
               style={[styles.name, { fontWeight: "bold" }]}
             >{`${fname} ${lname}`}</Text>
           </View>
           <Text style={styles.name}>{`"${nickname}"`}</Text>
-
-          {/* <Button
-            style={styles.button}
-            contentStyle={styles.buttonContent}
-          >
-            {I18n.t('findResident.residentPage.household.editProfile')}
-          </Button> */}
-        </View>
+        </Animated.View>
       </View>
       <View style={styles.horizontalLine} />
       <View style={styles.navigationButtonsContainer}>

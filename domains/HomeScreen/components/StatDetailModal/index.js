@@ -1,12 +1,20 @@
 import useModalItems from '@app/domains/HomeScreen/hooks/useModalItems';
 import Text from '@app/impacto-design-system/Base/Text';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { MOTION_TOKENS } from '@modules/utils/animations';
 import React, { useEffect } from 'react';
 import {
 FlatList,   Modal, Pressable,
 StyleSheet, useColorScheme, View, } from 'react-native';
 import { Button,useTheme } from 'react-native-paper';
+import Animated, { Keyframe } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// Spec §5.4: Bottom-up staggered row entrance
+const RowEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 8 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }] },
+});
 
 /**
  * StatDetailModal Component
@@ -107,7 +115,7 @@ function StatDetailModal({
     });
   };
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item, index }) => {
     let metaText = '';
     if (cardType === 'recentActivity') {
       // eslint-disable-next-line no-underscore-dangle
@@ -117,7 +125,12 @@ function StatDetailModal({
     }
 
     return (
-      <View style={styles.itemRow}>
+      <Animated.View
+        style={styles.itemRow}
+        entering={RowEntrance
+          .delay(Math.min(index * 50, 300))
+          .duration(MOTION_TOKENS.duration.base)}
+      >
         <Text
           style={[
             styles.itemLabel,
@@ -134,7 +147,7 @@ function StatDetailModal({
         >
           {metaText}
         </Text>
-      </View>
+      </Animated.View>
     );
   };
 

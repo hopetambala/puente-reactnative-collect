@@ -1,6 +1,6 @@
 # Motion Design System Specification
 
-**Version**: 1.0  
+**Version**: 1.3  
 **Status**: Active Specification  
 **Framework**: React Native Reanimated v4+  
 **Target**: Copilot-driven consistent, high-quality animations
@@ -9,65 +9,80 @@
 
 ## 0. Motion Philosophy
 
-All animations in this application follow **3 core principles**. Every animation must align with at least one; motion that violates these principles should be removed.
+All animations in this application follow **3 core principles**. Every animation should celebrate interaction, build trust, and make the app feel alive and responsive.
 
-### Principle 1: Meaningful Motion
-- **Every animation communicates something**: state changes, hierarchy, feedback, or continuity
-- **No decorative-only motion**: Animations that purely look good but don't serve a functional purpose are forbidden
-- **Examples**:
-  - ✅ Button scale on press → communicates interaction readiness
-  - ✅ Form label float on focus → communicates input active state
-  - ✅ Success checkmark entrance → communicates form submission complete
-  - ❌ Spinning icon while loading with no visual signal change → purely decorative
-  - ❌ Rotating buttons on secondary actions → doesn't communicate state
+**Target Aesthetic**: Playful, bouncy, energetic. Users (both healthcare workers and residents/patients) should feel delighted, not slowed down.
 
-### Principle 2: Continuity
-- **Elements feel like they persist between states**, not teleport or swap
-- **Prefer transform transitions over enter/exit replacements**
-- **Spatial logic matters**: If a card is at position X, it should appear to move to position Y, not fade out and fade in at the new location
+### Principle 1: Celebrate Every Interaction
+- **Motion is a feature, not a constraint**: Animations are generous, springy, and give feedback life
+- **Spring physics everywhere**: Buttons, forms, lists, navigation all use bounce to feel responsive and alive
+- **Communicate delight**: Success states, empty states, form submissions should feel celebratory
 - **Examples**:
-  - ✅ List item slides in from bottom, scales up as it settles → feels like it's being placed
-  - ✅ Navigation: previous screen scales away as new screen scales in → depth effect
-  - ✅ Modal slides from bottom, backdrop progressively darkens → feels grounded
-  - ❌ List item appears instantly (no entrance animation) → breaks continuity
-  - ❌ Card fade-out then fade-in at new position → feels like replacement, not movement
+  - ✅ Button scale on press with spring bounce (overshoot 1.05) → feels playful and responsive
+  - ✅ Form label float + rise on focus with smooth lift → feels dynamic
+  - ✅ Success checkmark entrance with playful spring bounce → celebration energy
+  - ✅ List items scale up + slide in together with stagger → feels gathered/assembled
+  - ❌ Button press with no animation → feels broken/unresponsive
+  - ❌ Form submit that instantly shows success → no celebration
 
-### Principle 3: Responsiveness > Flashiness
-- **Input latency must feel instant**: < 100ms perceived delay between gesture and response
-- **Motion should never block interaction**: User can always interact again immediately
-- **Faster is better than fancier**: Button responds instantly; animation follows
+### Principle 2: Continuity & Spatial Awareness
+- **Elements feel like they move through space**, not teleport or swap
+- **Navigation leaves breadcrumbs**: Previous screen visible/scaled beneath new screen
+- **Consistent entrance/exit patterns**: All items move in the same direction, settle at same scale
 - **Examples**:
-  - ✅ Button responds to press within 16ms; animation plays in background
-  - ✅ Form field focuses immediately; label animates smoothly after
-  - ✅ Navigation transition starts instantly; screen content loads while animating
-  - ❌ Button waits for animation to complete before responding → feels broken
-  - ❌ 800ms animation for a secondary action → unnecessarily slow
+  - ✅ List item springs up from bottom, scales to full size → feels placed
+  - ✅ Navigation: previous screen scales 0.9x stay visible as new scales in → depth & memory
+  - ✅ Modal springs up from bottom with backdrop fade → feels grounded
+  - ✅ Form validation error shakes, then success bounces in → contrasting motion
+  - ❌ List item appears instantly → feels jarring
+  - ❌ Navigation swaps screens → feels disposable
+
+### Principle 3: Responsiveness First (But Animation Doesn't Block)
+- **Button/gesture must respond within 16ms**: Animation plays simultaneously, never blocks next interaction
+- **Animation is background job**: User can tap, swipe, type immediately; animations catch up
+- **Longer is ok if user can act**: 500-700ms animations fine IF user isn't waiting for them
+- **Examples**:
+  - ✅ Button responds instantly to press; spring animation plays in background (user can tap again immediately)
+  - ✅ Form field focuses immediately; label animation continues smoothly after
+  - ✅ Navigation starts instantly; screen enters while previous screen exits
+  - ❌ Button waits for animation to finish before responding → feels broken
+  - ❌ Gesture disabled during 1000ms animation → frustrating
 
 ---
 
-## 1. Motion Hierarchy: Priority System
+## 1. Motion Hierarchy: Aggression Levels (Not Restriction)
 
-Not all animations are equal. This hierarchy ensures motion is intentional and doesn't overwhelm.
+Not all animations need the same energy. This hierarchy ensures motion feels *intentional and coordinated*, not chaotic.
 
-| Priority | Tier | Scope | Animation Budget | Examples | Rules |
-|----------|------|-------|------------------|----------|-------|
-| **HIGH** | 🔴 User Focus | 1 per screen max | Full motion allowed (300-700ms, spring/easing) | Navigation transitions, modals, primary CTA response, error alerts | Spring bounce allowed; can use all transform properties; easing curves complex |
-| **MEDIUM** | 🟡 Secondary Action | Multiple allowed | Subtle motion (150-300ms, smooth easing) | Card press, form field focus, list item entrance, tab indicator | No spring overshoot; use smooth easing only; limited scale (0.98-1.0) |
-| **LOW** | 🟢 Micro Interaction | Unlimited (in reason) | Fast & minimal (80-150ms, linear/ease) | Icon feedback, checkbox check, badge pulse, micro-transitions | Linear easing preferred; scale ±5% max; opacity only or combined with scale |
+| Level | Scope | Spring? | Duration | Scale | Use Cases | Energy |
+|-------|-------|---------|----------|-------|-----------|--------|
+| **MEGA** 🔴 | Screen entrance, celebration moments | ✅ PLAYFUL | 500-700ms | Full (0.8→1.0, 1.0→1.2) | Navigation transitions, success flows, empty states | Maximum bounce, overshoot allowed |
+| **STANDARD** 🟡 | Buttons, forms, cards, modals | ✅ SMOOTH/SNAPPY | 300-400ms | Medium (0.95-1.05) | Most user interactions | Consistent spring, balanced |
+| **QUICK** 🟢 | Micro-feedback, icons, badges | ✅ SNAPPY | 150-200ms | Subtle (0.98-1.02) | Taps, checks, state indicators | Quick bounce, minimal |
 
 ### Application Rules
 
-**Only 1 high-motion animation per screen at a time.**
-- Example: Don't animate modal entrance AND show a success toast simultaneously
-- If multiple high-priority events occur, queue them or reduce one to medium
+**Spring physics on everything** (except disabled/tertiary states).
+- Button press? Spring.
+- Form focus? Spring. 
+- List entrance? Spring.
+- Navigation? Spring.
+- Keep it consistent and energetic.
 
-**Medium & low can overlap freely.**
-- Example: Card press (medium) + icon pulse (low) = fine
-- Example: Tab switch (medium) + spinner pulse (low) = fine
+**Multiple animations CAN overlap** — this is a feature, not a bug.
+- Example: Button press + ripple + form validation error + success toast all at once = joyful chaos, not chaotic chaos
+- Stagger where it looks good (list items), overlap where it feels good (feedback layers)
 
-**No animation should run for > 700ms** unless user-initiated (e.g., dragging, long-press).
-- Sustained animations feel stuck
-- Exception: Continuous spinner (loading indicator) — use 1000ms loop, not 700ms+
+**Duration escalation**:
+- User-initiated actions (button tap): 300-400ms (feels responsive)
+- Navigation (screen change): 500-700ms (feels special)
+- Screen entrance (first load): 500ms (feels cinematic)
+- List entrance: 300ms per item + 50ms stagger (feels assembled)
+
+**No animation should feel stuck** (user satisfaction check):
+- If duration > 1000ms: Must be user-initiated (drag) or continuous (spinner loop)
+- If duration < 100ms: Feels snappy, good for micro-interactions
+- Most should land 200-500ms range
 
 ---
 
@@ -75,65 +90,100 @@ Not all animations are equal. This hierarchy ensures motion is intentional and d
 
 All animation values must come from this centralized token system. **No hardcoded values in components.**
 
-### Duration Tokens
+### Duration Tokens (High-Aggression: Generous Timings)
 ```javascript
 MOTION_TOKENS.duration = {
   instant:     0,      // No animation (accessibility mode)
-  fast:        150,    // Micro-interactions, icon feedback
+  micro:       80,     // Icon wiggle, checkbox pulse
+  quick:       150,    // Button micro-feedback
+  snappy:      200,    // Quick response
   base:        300,    // Standard transitions, button press, form focus
-  slow:        500,    // Loading complete, success celebration
+  substantial: 400,    // Card entrance, tab switch
+  slow:        500,    // Loading complete, success celebration, modal
   xslow:       700,    // Navigation transitions, screen entrance
-  dismiss:     4000,   // Popup success/error auto-dismiss
+  dismiss:     4000,   // Popup success/error auto-dismiss time
   toast:       3000,   // Toast notification hold time
   pulse:       1000,   // Loading spinner loop
 };
 ```
 
-### Easing Tokens
+### Spring Presets (Hierarchy-Calibrated)
+
+Spring physics is the **default animation system** across the entire app. Energy is controlled by hierarchy level — not restricted by component type.
+
+| Preset | Hierarchy | Use Cases |
+|--------|-----------|----------|
+| `tight` | QUICK | Micro-feedback: icons, badges, checkboxes |
+| `snappy` | STANDARD | Default everywhere: buttons, forms, cards, lists |
+| `smooth` | STANDARD/MEGA | Navigation, modals, spatial movements |
+| `playful` | MEGA | Celebrations only: success states, empty states |
+
 ```javascript
-MOTION_TOKENS.easing = {
-  standard:    'easeInOut',   // Form animations, tab switches, button press-release
-  entrance:    'easeOut',     // Items entering (slide in, scale up, fade in)
-  exit:        'easeIn',      // Items leaving (slide out, scale down, fade out)
-  linear:      'linear',      // Spinners, infinite loops (NOT for user interactions)
+MOTION_TOKENS.spring = {
+  // QUICK interactions (micro-feedback, fast settle, no visible overshoot)
+  tight: {
+    damping:   20,
+    stiffness: 250,
+    mass:      0.6,
+  },
+  // STANDARD interactions (default everywhere — balanced bounce)
+  snappy: {
+    damping:   14,
+    stiffness: 180,
+    mass:      0.8,
+  },
+  // NAVIGATION & MODALS (smooth movement through space)
+  smooth: {
+    damping:   18,
+    stiffness: 120,
+    mass:      1,
+  },
+  // CELEBRATION ONLY (success, empty states — maximum overshoot allowed)
+  playful: {
+    damping:   8,
+    stiffness: 60,
+    mass:      1,
+  },
 };
 ```
 
-### Spring Physics Presets
+### Easing (When Spring Not Used)
 ```javascript
-MOTION_TOKENS.spring = {
-  snappy: {
-    damping:   15,     // Quick, responsive (button press-release)
-    stiffness: 200,    // Bouncy return
-    mass:      1,      // Default mass
-  },
-  smooth: {
-    damping:   20,     // Elegant, controlled (form animations)
-    stiffness: 120,    // Less bouncy
-    mass:      1,
-  },
-  playful: {
-    damping:   10,     // Bouncy, playful (success states, CTAs)
-    stiffness: 180,    // Slightly stiffer for quicker response
-    mass:      1,
-  },
+MOTION_TOKENS.easing = {
+  standard:    'easeInOut',   // Default smooth transitions
+  entrance:    'easeOut',     // Fast entry, slow settle
+  exit:        'easeIn',      // Slow exit fade
+  linear:      'linear',      // Spinners ONLY
 };
 ```
 
 ### Scale & Opacity Tokens
 ```javascript
 MOTION_TOKENS.scale = {
-  press:       0.95,      // Button/card press feedback
-  hover:       1.02,      // Subtle elevation
-  overshoot:   1.05,      // Spring bounce target (never exceed 1.1)
-  entrance:    0.98,      // Item entrance (scale from)
+  press:       0.95,      // Button/card press (medium energy)
+  micro:       0.98,      // Icon/badge scale (quick)
+  entrance:    0.98,      // List/modal item entrance scale
+  celebrate:   1.2,       // Success state (overshoots to this before settling)
 };
 
 MOTION_TOKENS.opacity = {
-  interactive: 0.8,       // Button/card press feedback
+  interactive: 0.8,       // Pressed state
   disabled:    0.5,       // Disabled state
-  entrance:    0,         // Fade in from
+  backdrop:    0.5,       // Modal backdrop
+  entrance:    0,         // Fade in from invisible
 };
+```
+
+### Theme Integration (Brand-Aware Motion)
+Motion should tie to your design system theme tokens. Motion tokens inherit theme context:
+
+```javascript
+// Example: Success animation uses brand success color
+const successColor = themeTokens.color.semantic.success; // Green
+const errorColor = themeTokens.color.semantic.error;     // Red
+
+// Motion duration respects theme density
+const duration = themeTokens.motion?.standard || MOTION_TOKENS.duration.base;
 ```
 
 **Usage Rule**: Always import from `@modules/utils/animations`:
@@ -149,7 +199,7 @@ const duration = 300;
 
 ---
 
-## 3. Animation Rules: What to Animate
+## 3. Animation Rules: What & How to Animate
 
 ### Hard Rules (Non-Negotiable)
 
@@ -166,58 +216,93 @@ const duration = 300;
 - Don't shadow-animate layout properties
 - Recomputing layout every frame = jank
 
-### Restricted Animations
+### Spring Physics Rules (Hierarchy-Calibrated)
 
-These are allowed **ONLY** in specific contexts:
+**Spring physics is the default** — it applies to every interaction. What varies is intensity, not presence:
 
-| Animation | Allowed For | NOT Allowed For |
-|-----------|-------------|-----------------|
-| Spring physics + overshoot (bounce) | CTA buttons, success states, empty states | Secondary buttons, forms, navigation, list items |
-| 500ms+ duration | Navigation, modals, complex multi-step sequences | Button press, tab switch, form focus |
-| `rotate` transform | Icon feedback (chevron, loading spinner), empty state illustration | Button backgrounds, card orientations |
-| `blur` (Reanimated Skia) | Modal backdrop, image blur effects | Common UI animations (use shadow instead) |
+| Component | Spring Preset | Reason |
+|-----------|--------------|--------|
+| Icons, badges, checkboxes | `tight` | Micro-feedback, no overshoot |
+| Buttons, forms, lists, cards | `snappy` | Responsive and bouncy (default) |
+| Navigation, modals | `smooth` | Elegant spatial movement |
+| Success, empty states | `playful` | Celebratory, maximum energy |
+
+- ✅ Button press: Scale 0.95→1.0 + spring bounce (`snappy`)
+- ✅ Form focus: Label float + spring settle (`smooth`)
+- ✅ Success: Checkmark entrance + playful bounce (`playful`)
+- ✅ List items: Scale 0.98→1.0 + spring entrance (`snappy`)
+- ✅ Navigation: Screen scales in + spring settle (`smooth`)
+- ✅ Icon tap: Quick scale pulse (`tight`)
+
+**Avoid overshoot > 1.2** — beyond that feels cartoony on this app's aesthetic.
 
 ### Per-Component Guidelines
 
 **Buttons:**
-- High-priority CTA: Scale 0.95→1.0 spring (SNAPPY) + ripple
-- Medium buttons: Scale 0.95→1.0 smooth (ease-in-out, no spring)
-- Tertiary/secondary: Scale only, no color flash or ripple
+- All buttons: Scale 0.95→1.0 spring (SNAPPY) + optional ripple
+- Include shadow shift for elevation feedback
 
 **Form Inputs:**
-- Focus: Label float (smooth), border color fade (smooth), background lift (subtle scale)
-- Error: Shake amplitude 3px (not 5px), fade color transition
-- Success: Checkmark entrance bounce (PLAYFUL spring), field highlight fade
+- Focus: Label float (spring SMOOTH), border color fade, background lift
+- Error: Shake amplitude ±3-5px, then color transition
+- Success: Checkmark entrance (spring PLAYFUL), field highlight
 
 **Lists & Cards:**
-- Entrance: Scale 0.98→1.0 + Opacity 0→1 + TranslateY 10px→0 (all parallel, smooth easing)
-- Stagger: 50ms delay between items max
-- Press: Scale 0.95, no spring
+- Entrance: Scale 0.98→1.0 + Opacity 0→1 + TranslateY 10px→0 (spring SNAPPY)
+- Stagger: 50ms delay between items
+- Press: Scale 0.95 (spring SNAPPY)
 
 **Navigation:**
-- Forward: TranslateX 100%→0 + Scale 0.98→1.0 + Opacity 0.8→1.0 (parallel, base duration, smooth easing)
-- Back: Reverse transition
-- Previous screen: Subtly visible behind (depth effect, 90% scale)
+- Forward: TranslateX 100%→0 + Scale 0.98→1.0 + Opacity 0.9→1.0 (spring `smooth`, 500-700ms)
+- Back: Reverse
+- Previous screen: Visible beneath (94% scale, 0.5 opacity — avoids "dead background" look)
 
 **Modals:**
-- Entry: Slide from bottom + backdrop fade (both spring, SMOOTH)
+- Entry: Slide from bottom + backdrop fade (spring SMOOTH)
 - Exit: Reverse
-- Dismiss button: Standard button press
+- Duration: 300-400ms for quickness
+
+---
+
+## 3.5 Motion Layering Rules
+
+Multiple animations can occur simultaneously — this is encouraged. However, they must follow visual layering so the UI doesn't feel noisy.
+
+**Layer Priority (per screen, at any given moment)**
+
+1. **Primary Motion** — One per screen
+   - Navigation transition, modal open/close, or major state change
+   - Uses MEGA or STANDARD hierarchy level
+   - All other motion defers visually to this
+
+2. **Secondary Motion** — Buttons, cards, form fields
+   - Plays simultaneously with primary, but must not overpower it
+   - Uses STANDARD hierarchy level
+   - If primary is a navigation transition, secondary should be subtle
+
+3. **Tertiary Motion** — Icons, badges, micro-indicators
+   - Always subtle and fast (`tight` spring, < 200ms)
+   - Never the visual focus
+
+**Rule**: At any given moment, **only ONE animation layer should dominate user attention**. Overlapping is fine; competing for dominance is not.
+
+**Clinical Context Note**: In critical data-entry flows (forms, assessments), prefer secondary + tertiary only. Reserve primary motion for navigation between major screens.
 
 ---
 
 ## 4. Anti-Patterns: What NOT to Do
 
-### ❌ Decorative Motion (Violates Principle 1)
+### ❌ Ignoring Brand Context (Violates Principle 2)
 ```javascript
-// WRONG: Icon rotates continuously with no purpose
-<Animated.View style={[styles.icon, { transform: [{ rotate: spinValue }] }]} />
+// WRONG: Motion divorced from design system (generic duration, no theme tie-in)
+duration={300}
 
-// RIGHT: Icon rotates on press to give feedback
-const { animatedStyle, onPressIn, onPressOut } = usePressAnimation({ type: 'rotate' });
+// RIGHT: Motion inherits from theme
+const { duration } = useMotion(themeContext);
+duration={MOTION_TOKENS.duration.base}  // Respects theme settings
 ```
 
-### ❌ Breaking Continuity (Violates Principle 2)
+### ❌ Breaking Spatial Continuity (Violates Principle 2)
 ```javascript
 // WRONG: Item disappears then appears at new position
 setItems(prev => prev.filter(i => i.id !== itemId));
@@ -227,7 +312,7 @@ setTimeout(() => setItems(prev => [...prev, updatedItem]), 300);
 setItems(prev => prev.map(i => i.id === itemId ? updatedItem : i));
 ```
 
-### ❌ Blocking Interaction (Violates Principle 3)
+### ❌ Blocking User from Acting (Violates Principle 3)
 ```javascript
 // WRONG: User can't tap button again until animation completes
 const handlePress = async () => {
@@ -242,37 +327,60 @@ const handlePress = () => {
 };
 ```
 
-### ❌ Overshoot Everywhere
+### ❌ Overshoot > 1.2 (Too Cartoony)
 ```javascript
-// WRONG: Everything bounces (exhausting)
-spring: MOTION_TOKENS.spring.playful, // On every element
+// WRONG: Spring overshoot to 1.3+ (feels gimmicky for this app)
+scale: withSpring(1.3, springConfig);
 
-// RIGHT: Spring only for high-priority moments
-const isHighPriority = isCTA || isSuccess;
-spring: isHighPriority ? MOTION_TOKENS.spring.playful : MOTION_TOKENS.spring.smooth;
+// RIGHT: Keep bounce within 1.05-1.2 range
+scale: withSpring(1.1, MOTION_TOKENS.spring.playful); // 10-20% max
 ```
 
-### ❌ Hardcoded Values
+### ❌ No Animation Where Expected (Violates Principle 1)
 ```javascript
-// WRONG: Duration spread throughout code
+// WRONG: Button tap with zero feedback
+<Pressable onPress={handlePress}>{/* no animation */}</Pressable>
+
+// RIGHT: Button responds visibly
+function Button() {
+  const { animatedStyle, onPressIn, onPressOut } = usePressAnimation();
+  return (
+    <Animated.View style={animatedStyle}>
+      <Pressable onPressIn={onPressIn} onPressOut={onPressOut}>{/* content */}</Pressable>
+    </Animated.View>
+  );
+}
+```
+
+### ❌ Mismatched Spring Intensity (Feels Disjointed)
+
+Using the same spring config for every component makes the UI feel either chaotic (too bouncy everywhere) or flat (too tight everywhere).
+
+```javascript
+// WRONG: `spring.playful` on every interaction → feels like a cartoon
+onPressIn() { scale.value = withSpring(0.95, MOTION_TOKENS.spring.playful); } // on a secondary button
+
+// WRONG: Custom spring values bypassing the token system
+withSpring(1.0, { damping: 5, stiffness: 300 }); // Never do this
+
+// RIGHT: Spring intensity mapped to hierarchy
+// Micro-feedback  → spring.tight   (icons, badges)
+// Standard action → spring.snappy  (buttons, forms, lists)
+// Navigation      → spring.smooth  (screens, modals)
+// Celebration     → spring.playful (success, empty states)
+```
+
+### ❌ Hardcoded Values Everywhere
+```javascript
+// WRONG: Duration spread throughout code, no sync point
 duration={300}
-duration={3000}
+duration={500}
 duration={700}
 
-// RIGHT: Centralized tokens
+// RIGHT: Centralized tokens for consistency
 duration={MOTION_TOKENS.duration.base}
-duration={MOTION_TOKENS.duration.toast}
+duration={MOTION_TOKENS.duration.slow}
 duration={MOTION_TOKENS.duration.xslow}
-```
-
-### ❌ Missing Reduced Motion Support
-```javascript
-// WRONG: No fallback for accessibility
-const { animatedStyle } = usePressAnimation();
-
-// RIGHT: Graceful degradation
-const { shouldAnimate } = useMotion();
-const { animatedStyle } = usePressAnimation({ enabled: shouldAnimate });
 ```
 
 ---
@@ -283,21 +391,21 @@ const { animatedStyle } = usePressAnimation({ enabled: shouldAnimate });
 
 **Forward Navigation (Enter New Screen)**
 ```
-Previous Screen: Scale 1.0 → 0.9, Opacity 1.0 → 0.3 (stays visible beneath)
-New Screen:     TranslateX 100% → 0, Scale 0.98 → 1.0, Opacity 0.8 → 1.0
+Previous Screen: Scale 1.0 → 0.94, Opacity 1.0 → 0.5 (stays readable, avoids "dead background")
+New Screen:     TranslateX 100% → 0, Scale 0.98 → 1.0, Opacity 0.9 → 1.0
 Duration:       MOTION_TOKENS.duration.xslow (700ms)
-Easing:         entrance (easeOut)
+Spring:         MOTION_TOKENS.spring.smooth
 ```
 
 **Backward Navigation (Return to Previous)**
 ```
-Previous Screen: Scale 0.9 → 1.0, Opacity 0.3 → 1.0
-Current Screen: TranslateX 0 → 100%, Scale 1.0 → 0.98, Opacity 1.0 → 0.8
+Previous Screen: Scale 0.94 → 1.0, Opacity 0.5 → 1.0
+Current Screen: TranslateX 0 → 100%, Scale 1.0 → 0.98, Opacity 1.0 → 0.9
 Duration:       MOTION_TOKENS.duration.xslow (700ms)
 Easing:         exit (easeIn)
 ```
 
-**Effect**: "Depth effect" — previous screen always slightly visible, creates layered perception
+**Effect**: "Depth effect" — previous screen visible at 94% scale + 50% opacity, preserving context without looking dead
 
 ### 5.2 Button Press Feedback
 
@@ -396,6 +504,42 @@ Total:       ~300ms, feels like transformation not replacement
 
 ### 5.7 Toast Notifications
 
+### 5.8 Shared Element Transitions (Required for Premium UX)
+
+Used when the **same element** appears in two screens (card → detail, image → fullscreen).
+
+**Behavior**
+```
+Element:    Maintains position, size, and visual identity between screens
+Transition: Scale + position interpolation (not a new element appearing)
+Background: Fades independently from element
+```
+
+**Entry**
+```
+Element:    Scales from thumbnail size/position → full size/position
+Background: Opacity 0 → 1 (fades in independently)
+Duration:   MOTION_TOKENS.duration.slow (500ms)
+Spring:     MOTION_TOKENS.spring.smooth
+```
+
+**Exit**
+```
+Element:    Scales from full size/position → thumbnail size/position
+Background: Opacity 1 → 0
+Duration:   MOTION_TOKENS.duration.slow (500ms)
+Easing:     exit (easeIn)
+```
+
+**Rule**: Must feel like the SAME physical element traveling through space — not a replacement appearing at the destination.
+
+**Use Cases**
+- Form card → full form detail screen  
+- Asset thumbnail → full asset view  
+- Profile photo → expanded profile
+
+---
+
 **Entry (Bounce In From Bottom)**
 ```
 Slide:       TranslateY 100px → 0
@@ -418,16 +562,16 @@ Duration:    MOTION_TOKENS.duration.fast (150ms, quick disappear)
 
 ---
 
-## 6. Accessibility: Reduced Motion Support
+## 6. Accessibility: Reduced Motion (Nice-to-Have)
 
 ### Implementation
 
-All animations must gracefully degrade to zero motion when user enables "Reduce Motion" in system settings.
+Reduced motion support is included but not critical. If user has enabled "Reduce Motion" in system settings, animations gracefully degrade to instant.
 
 ```javascript
 // In useMotion hook (Phase 3)
 export function useMotion({ componentType = 'default' } = {}) {
-  const { reduceMotion } = useAccessibility(); // System setting
+  const { reduceMotion } = useAccessibility(); // System setting, optional
   
   if (reduceMotion) {
     return {
@@ -447,9 +591,9 @@ export function useMotion({ componentType = 'default' } = {}) {
 }
 ```
 
-### Testing Pattern
+### Testing Pattern (Optional)
 
-Every animated component must be tested with `reduceMotion: true`:
+Include reduced-motion tests in your test suite for completeness:
 ```javascript
 describe('AnimatedButton', () => {
   it('responds with no animation when reduceMotion enabled', () => {
@@ -467,6 +611,8 @@ describe('AnimatedButton', () => {
   });
 });
 ```
+
+**Note**: Since accessibility is not critical for your app, you can implement this after the core motion system is solid.
 
 ---
 
@@ -526,11 +672,12 @@ When Copilot encounters animation work, provide it with this spec and the execut
 9. 🔄 Refactor `impacto-design-system/Extensions/FormikFields/FormInput/index.js` — add focus lift, reduce error shake
 10. 🔄 Refactor `impacto-design-system/Cards/SmallCardsCarousel/index.js` — modern scale+fade+translateY entrance
 11. 🔄 Refactor `domains/DataCollection/FormsHorizontalView/index.js` — same pattern as carousel
-12. 🔄 Audit and restrict spring/bounce to CTA buttons, success states, empty states only
+12. 🔄 Audit spring intensity across components — map each to correct hierarchy level (`tight`/`snappy`/`smooth`/`playful`)
 
 #### Phase 6: Premium Features (Future)
-- Shared element transitions (card → detail screen)
+- Shared element transitions — spec defined in Section 5.8
 - State morphing (loading → success spinner morph)
+- "Calm mode" toggle for reduced spring intensity in clinical flows
 
 #### Phase 7: Validation & Testing
 - Add animation performance validator
@@ -620,7 +767,7 @@ export const getMotionHierarchy = (componentType) => {
 3. **Gesture feedback must be instant** — Perceivable < 100ms
 4. **Reduce motion first** — Build animations as enhancements, not requirements
 5. **Stagger thoughtfully** — 50ms between list items, not random
-6. **Spring physics sparingly** — Reserve for high-priority moments
+6. **Spring intensity matches hierarchy** — `tight` for micro, `snappy` for standard, `smooth` for navigation, `playful` for celebration
 7. **Reference tokens always** — No magic numbers
 
 ### ❌ DON'T
@@ -629,7 +776,7 @@ export const getMotionHierarchy = (componentType) => {
 2. **Mix animation frameworks** — Use Reanimated consistently, not Animated + Reanimated
 3. **Forget reduced motion** — Test every animation with motion disabled
 4. **Bloat duration** — 800ms+ for routine interactions feels broken
-5. **Spring everything** — Bouncy secondary buttons feel gimmicky
+5. **Mismatched spring intensity** — Using `spring.playful` on secondary buttons, or `spring.tight` on navigation feels incoherent
 6. **Cache animations** — Let Reanimated manage lifecycle
 7. **Animate off-screen** — Only animate visible content
 
@@ -662,23 +809,39 @@ export const getMotionHierarchy = (componentType) => {
 
 ### Tokens Version History
 - **v1.0** (Apr 2026) — Initial specification, 3 core principles, 5 duration tiers, 3 spring presets
+- **v1.1** (Apr 2026) — Resolved spring philosophy contradiction; 4-tier hierarchy-calibrated spring system (`tight`/`snappy`/`smooth`/`playful`); updated navigation values (scale 0.94, opacity 0.5); added Motion Layering Rules (§3.5); added Shared Element Transitions spec (§5.8); fixed DO/DON'T list and anti-patterns
 
 ---
 
-## 12. Next Steps: Phase 2 Implementation
+## 12. Philosophy Summary
+
+**Your Motion Design Philosophy:**
+
+✅ **Aesthetic**: Playful & Bouncy (spring physics everywhere)  
+✅ **Aggression Level**: High (generous durations, 300-700ms common)  
+✅ **Spring Usage**: Everywhere, calibrated by hierarchy (`tight` → `snappy` → `smooth` → `playful`)  
+✅ **Device Focus**: Modern devices (iOS 14+, Android 11+)  
+✅ **User Base**: Both healthcare workers and residents/patients  
+✅ **Brand Integration**: Motion reflects theme tokens  
+✅ **Accessibility**: Reduced motion as nice-to-have (not critical)  
+
+**Motion Principle**: Every interaction should feel celebratory, responsive, and alive. Layout should feel spatial (previous screens persist, items move through space). User responsiveness always takes priority over animation completion.
+
+## Next Steps: Phase 2 Implementation
 
 When ready to proceed with Phase 2 (Token System Formalization):
 
-1. **Enhance** `modules/utils/animations.js` — Add `MOTION_HIERARCHY`, `ANIMATION_RULES` exports
-2. **Create** `modules/utils/animationRules.js` — Validation helpers and guards
-3. **Refactor** hardcoded values (4000, 3000, 1000) to token imports
-4. **Verify** all 278 tests pass, ESLint clean, animations smooth on device
+1. **Enhance** `modules/utils/animations.js` — Map existing constants to MOTION_TOKENS + MOTION_HIERARCHY objects
+2. **Create** `modules/utils/animationRules.js` — Validation helpers (canUseSpring, getMotionHierarchy, etc.)
+3. **Ensure** tokens align with theme system (brand motion integration)
+4. **Verify** all animations still pass with new token imports
 
 **Owner**: Copilot (motion design mode)  
-**Estimated Duration**: 2-3 hours for Phase 2  
-**Success Criteria**: All tokens centralized, no hardcoded animation values, all tests green
+**Estimated Duration**: 1-2 hours for Phase 2  
+**Success Criteria**: All tokens centralized, no hardcoded animation values, all tests green, visual consistency with playful aesthetic
 
 ---
 
 **Last Updated**: April 14, 2026  
-**Spec Status**: Active — Ready for Copilot implementation
+**Spec Status**: Active — Ready for Copilot implementation  
+**Philosophy Lock**: ✅ Confirmed with user

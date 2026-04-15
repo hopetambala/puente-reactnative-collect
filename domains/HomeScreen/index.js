@@ -2,6 +2,7 @@ import { UserContext } from '@app/context/auth.context';
 import Text from '@app/impacto-design-system/Base/Text';
 import I18n from '@modules/i18n';
 import { spacing, typography } from '@modules/theme';
+import { MOTION_TOKENS } from '@modules/utils/animations';
 import React, { useContext,useState } from 'react';
 import {
   RefreshControl,
@@ -11,11 +12,18 @@ import {
   View,
 } from 'react-native';
 import { SegmentedButtons,useTheme } from 'react-native-paper';
+import Animated, { Keyframe } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import StatCard from './components/StatCard';
 import StatDetailModal from './components/StatDetailModal';
 import useHomeStats from './hooks/useHomeStats';
+
+// Spec §5.4 STANDARD: section header + welcome fade+lift entrance
+const SectionEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 6 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }] },
+});
 
 function HomeScreen() {
   const theme = useTheme();
@@ -107,14 +115,20 @@ function HomeScreen() {
         )}
       >
         {/* Title Header */}
-        <View style={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.sm }}>
+        <Animated.View
+          entering={SectionEntrance.delay(0).duration(MOTION_TOKENS.duration.base)}
+          style={{ paddingHorizontal: spacing.lg, paddingVertical: spacing.sm }}
+        >
           <Text style={[typography.heading2, { fontWeight: 'bold', color: theme.colors.onSurface, marginTop: spacing.sm }]}>
             {I18n.t('home.title')}
           </Text>
-        </View>
+        </Animated.View>
 
         {/* Welcome Section */}
-        <View style={styles.welcomeSection}>
+        <Animated.View
+          entering={SectionEntrance.delay(50).duration(MOTION_TOKENS.duration.base)}
+          style={styles.welcomeSection}
+        >
           <Text style={[styles.greeting, { color: theme.colors.onSurfaceVariant }]}>
             {I18n.t('home.welcomeBack', { name: user.firstname })}
           </Text>
@@ -126,7 +140,7 @@ function HomeScreen() {
           >
             {user.organization || ''}
           </Text>
-        </View>
+        </Animated.View>
 
         {/* Offline Banner */}
         {isOffline && (
@@ -163,6 +177,7 @@ function HomeScreen() {
                 onPress={() => setSelectedCard('recentActivity')}
                 isLoading={isLoading}
                 fullWidth
+                index={0}
               />
             </View>
 
@@ -177,6 +192,7 @@ function HomeScreen() {
                 onPress={() => setSelectedCard('mySurveys')}
                 isLoading={isLoading}
                 fullWidth={false}
+                index={1}
               />
               <StatCard
                 title={I18n.t('home.orgSurveys')}
@@ -187,6 +203,7 @@ function HomeScreen() {
                 onPress={() => setSelectedCard('orgSurveys')}
                 isLoading={isLoading}
                 fullWidth={false}
+                index={2}
               />
               <StatCard
                 title={I18n.t('home.myVitals')}
@@ -197,6 +214,7 @@ function HomeScreen() {
                 onPress={() => setSelectedCard('myVitals')}
                 isLoading={isLoading}
                 fullWidth={false}
+                index={3}
               />
               <StatCard
                 title={I18n.t('home.orgVitals')}
@@ -207,6 +225,7 @@ function HomeScreen() {
                 onPress={() => setSelectedCard('orgVitals')}
                 isLoading={isLoading}
                 fullWidth={false}
+                index={4}
               />
             </View>
           </>

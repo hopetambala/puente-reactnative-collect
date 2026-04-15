@@ -1,5 +1,5 @@
 import { createLayoutStyles, spacing, typography } from "@modules/theme";
-import { usePressAnimation } from "@modules/utils/animations";
+import { MOTION_TOKENS, usePressAnimation } from "@modules/utils/animations";
 import PropTypes from "prop-types";
 import * as React from "react";
 import { Pressable } from "react-native";
@@ -19,9 +19,15 @@ function Button({
 }) {
   const theme = useTheme();
   const layout = createLayoutStyles(theme);
+
+  // Spring intensity is hierarchy-calibrated (spec §3.2):
+  // CTA (contained) → snappy spring (balanced bounce)
+  // Secondary (outlined/text) → tight spring (minimal overshoot)
+  const isCTA = mode === 'contained';
   const { animatedStyle, onPressIn, onPressOut } = usePressAnimation({
     scaleTo: 0.95,
     opacityTo: 0.9,
+    releaseSpring: isCTA ? MOTION_TOKENS.spring.snappy : MOTION_TOKENS.spring.tight,
   });
 
   const getColor = () => {

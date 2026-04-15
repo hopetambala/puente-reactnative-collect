@@ -4,7 +4,7 @@ module.exports = {
   ...baseConfig,
   globalSetup: '<rootDir>/test/setup/integrationGlobalSetup.js',
   globalTeardown: '<rootDir>/test/setup/integrationGlobalTeardown.js',
-  testRegex: 'integrate\\.test\\.js$',
+  testRegex: 'integration\\.test\\.js$',
   testTimeout: 60000,
   // Preserve jest-expo's react-native transform exceptions, plus exclude the
   // cloud code directory (plain CJS; Babel transforms break it).

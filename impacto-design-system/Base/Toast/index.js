@@ -1,6 +1,7 @@
 import { ThemeContext } from "@context/theme.context";
 import GlassView from "@impacto-design-system/Base/GlassView";
 import { spacing } from "@modules/theme";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useContext } from "react";
 import { StyleSheet } from "react-native";
 import { Snackbar } from "react-native-paper";
@@ -40,7 +41,7 @@ function Toast({ text, visible, onClick, onClickLabel }) {
         <Snackbar
           visible={visible}
           onDismiss={onClick}
-          duration={3000}
+          duration={MOTION_TOKENS.duration.toast}
           style={styles.snackbar}
           action={{
             label: onClickLabel,

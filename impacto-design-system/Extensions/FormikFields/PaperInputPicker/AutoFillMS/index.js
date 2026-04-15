@@ -1,6 +1,7 @@
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
-import React, { useEffect, useMemo, useState } from "react";
+import { MOTION_TOKENS } from "@modules/utils/animations";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Platform,
   StyleSheet,
@@ -10,6 +11,11 @@ import {
 } from "react-native";
 import Autocomplete from "react-native-autocomplete-input";
 import { Chip, TextInput, useTheme } from "react-native-paper";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 import uuid from "react-native-uuid";
 
 import createPaperInputPickerStyles from "../index.style";
@@ -63,6 +69,21 @@ function AutoFillMS(props) {
   const [values, setValues] = useState(null);
   const [selectedValues, setSelectedValues] = useState([]);
 
+  // Focus lift animation — spec §5.3: subtle scale lift on focus (spring.smooth)
+  // GPU-safe: transform only (no shadow/layout properties)
+  const focusScale = useSharedValue(1);
+  const focusLiftStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: focusScale.value }],
+  }));
+
+  const handleInputFocus = useCallback(() => {
+    focusScale.value = withSpring(1.01, MOTION_TOKENS.spring.smooth);
+  }, [focusScale]);
+
+  const handleInputBlur = useCallback(() => {
+    focusScale.value = withSpring(1, MOTION_TOKENS.spring.smooth);
+  }, [focusScale]);
+
   useEffect(() => {
     const { parameter } = props;
     async function fetchAutofill() {
@@ -114,17 +135,23 @@ function AutoFillMS(props) {
         ))}
       </View>
       {!values && (
-        <TextInput
-          label={translatedLabel.length > 40 ? "" : translatedLabel}
-          onChangeText={formikProps.handleChange(formikKey)}
-          onBlur={formikProps.handleBlur(formikKey)}
-          mode="outlined"
-          theme={stylesPaper}
-          style={stylesDefault.label}
-        />
+        <Animated.View style={focusLiftStyle}>
+          <TextInput
+            label={translatedLabel.length > 40 ? "" : translatedLabel}
+            onChangeText={formikProps.handleChange(formikKey)}
+            onBlur={(e) => {
+              handleInputBlur();
+              formikProps.handleBlur(formikKey)(e);
+            }}
+            onFocus={handleInputFocus}
+            mode="outlined"
+            theme={stylesPaper}
+            style={stylesDefault.label}
+          />
+        </Animated.View>
       )}
       {values && Platform.OS === "ios" && (
-        <View>
+        <Animated.View style={focusLiftStyle}>
           <Autocomplete
             autoCapitalize="none"
             autoCorrect={false}
@@ -134,6 +161,10 @@ function AutoFillMS(props) {
             defaultValue={query}
             onChangeText={(text) => {
               setQuery(text);
+            }}
+            onFocus={handleInputFocus}
+            onBlur={(e) => {
+              handleInputBlur();
             }}
             placeholder={placeholder}
             placeholderTextColor={theme.colors.onSurface}
@@ -162,10 +193,10 @@ function AutoFillMS(props) {
               </TouchableOpacity>
             )}
           />
-        </View>
+        </Animated.View>
       )}
       {values && Platform.OS === "android" && (
-        <View>
+        <Animated.View style={focusLiftStyle}>
           <Autocomplete
             autoCapitalize="none"
             autoCorrect={false}
@@ -176,6 +207,8 @@ function AutoFillMS(props) {
             onChangeText={(text) => {
               setQuery(text);
             }}
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
             placeholder={placeholder}
             placeholderTextColor={theme.colors.onSurface}
             listStyle={styles.listContainer}
@@ -197,7 +230,7 @@ function AutoFillMS(props) {
               </TouchableOpacity>
             )}
           />
-        </View>
+        </Animated.View>
       )}
     </View>
   );

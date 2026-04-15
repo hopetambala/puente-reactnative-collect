@@ -19,6 +19,26 @@ jest.mock('react-native-reanimated', () => ({
   useSharedValue: () => ({ value: 0 }),
   useAnimatedStyle: () => ({}),
   withSpring: (val) => val,
+  withTiming: (val) => val,
+  withRepeat: (val) => val,
+  withSequence: (...args) => args[0],
+  cancelAnimation: jest.fn(),
+  Keyframe: class {
+    // eslint-disable-next-line no-useless-constructor
+    constructor() {
+      // Mock constructor
+    }
+
+    delay() { return this; }
+
+    duration() { return this; }
+  },
+  ZoomIn: {
+    springify: jest.fn(function springifyFn() { return this; }),
+    damping: jest.fn(function dampingFn() { return this; }),
+    stiffness: jest.fn(function stiffnessFn() { return this; }),
+    duration: jest.fn(function durationFn() { return this; }),
+  },
   Animated: {
     View: ({ children }) => children || null,
     Text: ({ children }) => children || null,

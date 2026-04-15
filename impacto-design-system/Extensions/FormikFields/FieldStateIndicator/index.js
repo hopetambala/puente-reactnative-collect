@@ -1,4 +1,4 @@
-import { ANIMATION_TIMINGS, SPRING_CONFIG, usePulseAnimation } from "@modules/utils/animations";
+import { MOTION_TOKENS, SPRING_CONFIG, usePulseAnimation } from "@modules/utils/animations";
 import React, { useEffect } from "react";
 import { View } from "react-native";
 import { ActivityIndicator, Icon, useTheme } from "react-native-paper";
@@ -23,7 +23,7 @@ import Animated, {
  */
 function FieldStateIndicator({ state, visible, size = 24, style }) {
   const theme = useTheme();
-  const pulseAnimation = usePulseAnimation({ duration: 1000, scaleRange: 1.1 });
+  const pulseAnimation = usePulseAnimation({ duration: MOTION_TOKENS.duration.pulse, scaleRange: 1.1 });
   
   // Entrance animation values for success and error states
   const scaleAnim = useSharedValue(0);
@@ -44,7 +44,7 @@ function FieldStateIndicator({ state, visible, size = 24, style }) {
   useEffect(() => {
     if (state === "success" || state === "error") {
       scaleAnim.value = withSpring(1, SPRING_CONFIG.PLAYFUL);
-      opacityAnim.value = withTiming(1, { duration: ANIMATION_TIMINGS.DURATION_GLOBAL });
+      opacityAnim.value = withTiming(1, { duration: MOTION_TOKENS.duration.base });
     } else {
       scaleAnim.value = 0;
       opacityAnim.value = 0;

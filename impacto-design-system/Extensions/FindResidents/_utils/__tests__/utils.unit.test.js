@@ -14,7 +14,7 @@ jest.mock('parse/react-native', () => ({
 
 // Import AFTER mocks are registered
 // eslint-disable-next-line import/first
-import { fetchResidentById } from '../index';
+import { fetchResidentById } from '@impacto-design-system/Extensions/FindResidents/_utils/index';
 
 describe('fetchResidentById - RED-GREEN TDD', () => {
   beforeEach(() => {

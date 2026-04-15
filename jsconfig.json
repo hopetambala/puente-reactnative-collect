@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths" : {
         "@impacto-design-system/*": ["impacto-design-system/*"],
         "@modules/*":["modules/*"],
         "@assets/*": ["assets/*"],
         "@context/*": ["context/*"],
-        "@app": ["./"],
-
+        "@app": ["./"]
     }
   }
 }

@@ -2,6 +2,7 @@ import UseCameraRoll from "@impacto-design-system/Multimedia/CameraRoll";
 import UseCamera from "@impacto-design-system/Multimedia/UseCamera";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import * as React from "react";
 import { Image, TouchableWithoutFeedback, View } from "react-native";
 import {
@@ -10,6 +11,11 @@ import {
   TextInput,
   useTheme,
 } from "react-native-paper";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 import AutoFill from "./AutoFill";
 import AutoFillMS from "./AutoFillMS";
@@ -61,150 +67,205 @@ function PaperInputPicker({
 
   const [additionalQuestions, setAdditionalQuestions] = React.useState([]);
 
+  // Focus lift animation — spec §5.3: subtle scale lift on focus (spring.smooth)
+  // GPU-safe: transform only (no shadow/layout properties)
+  const focusScale = useSharedValue(1);
+  const focusLiftStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: focusScale.value }],
+  }));
+
+  const handleInputFocus = React.useCallback(() => {
+    focusScale.value = withSpring(1.01, MOTION_TOKENS.spring.smooth);
+  }, [focusScale]);
+
+  const handleInputBlur = React.useCallback(() => {
+    focusScale.value = withSpring(1, MOTION_TOKENS.spring.smooth);
+  }, [focusScale]);
+
   return (
     <>
       {fieldType === "input" && (
-        <View style={stylesDefault.container} key={formikKey}>
-          {translatedLabel.length > 30 && (
-            <Text style={stylesDefault.label}>{translatedLabel}</Text>
-          )}
-          <TextInput
-            label={translatedLabel.length > 30 ? "" : translatedLabel}
-            onChangeText={handleChange(formikKey)}
-            onBlur={handleBlur(formikKey)}
-            value={String(values[formikKey] ?? '')}
-            {...rest} //eslint-disable-line
-            mode="outlined"
-            theme={stylesPaper}
-            style={stylesDefault.label}
-          />
-          <Text style={styles.redText}>{errors[formikKey]}</Text>
-        </View>
-      )}
-      {fieldType === "numberInput" && (
-        <View style={stylesDefault.container} key={formikKey}>
-          {translatedLabel.length > 30 && (
-            <Text
-              style={[
-                stylesDefault.label,
-                {
-                  bottom: -15,
-                  zIndex: 1,
-                  left: 5,
-                  padding: 5,
-                },
-              ]}
-            >
-              {translatedLabel}
-            </Text>
-          )}
-          <TextInput
-            label={translatedLabel.length > 30 ? "" : translatedLabel}
-            onChangeText={handleChange(formikKey)}
-            onBlur={handleBlur(formikKey)}
-            value={String(values[formikKey] ?? '')}
-            {...rest} //eslint-disable-line
-            mode="outlined"
-            keyboardType="numeric"
-            theme={stylesPaper}
-            style={stylesDefault.label}
-          />
-          <Text style={styles.redText}>{errors[formikKey]}</Text>
-        </View>
-      )}
-      {fieldType === "inputSideLabel" && (
-        <View style={stylesDefault.container} key={formikKey}>
-          <View style={{ flexDirection: "row" }}>
+        <Animated.View style={focusLiftStyle}>
+          <View style={stylesDefault.container} key={formikKey}>
+            {translatedLabel.length > 30 && (
+              <Text style={stylesDefault.label}>{translatedLabel}</Text>
+            )}
             <TextInput
-              label={translatedLabel}
+              label={translatedLabel.length > 30 ? "" : translatedLabel}
               onChangeText={handleChange(formikKey)}
-              onBlur={handleBlur(formikKey)}
+              onBlur={(e) => {
+                handleInputBlur();
+                handleBlur(formikKey)(e);
+              }}
+              onFocus={handleInputFocus}
               value={String(values[formikKey] ?? '')}
               {...rest} //eslint-disable-line
               mode="outlined"
-              theme={{
-                colors: { placeholder: theme.colors.primary },
-              }}
-              style={{ flex: 1 }}
+              theme={stylesPaper}
+              style={stylesDefault.label}
             />
-            <Text style={styleX.sideLabel}>{translatedLabelSide}</Text>
+            <Text style={styles.redText}>{errors[formikKey]}</Text>
           </View>
-          <Text style={styles.redText}>{errors[formikKey]}</Text>
-        </View>
+        </Animated.View>
       )}
-      {fieldType === "inputSideLabelNum" && (
-        <View style={stylesDefault} key={formikKey}>
-          <View style={{ flexDirection: "row" }}>
+      {fieldType === "numberInput" && (
+        <Animated.View style={focusLiftStyle}>
+          <View style={stylesDefault.container} key={formikKey}>
+            {translatedLabel.length > 30 && (
+              <Text
+                style={[
+                  stylesDefault.label,
+                  {
+                    bottom: -15,
+                    zIndex: 1,
+                    left: 5,
+                    padding: 5,
+                  },
+                ]}
+              >
+                {translatedLabel}
+              </Text>
+            )}
             <TextInput
-              label={translatedLabel}
+              label={translatedLabel.length > 30 ? "" : translatedLabel}
               onChangeText={handleChange(formikKey)}
-              onBlur={handleBlur(formikKey)}
+              onBlur={(e) => {
+                handleInputBlur();
+                handleBlur(formikKey)(e);
+              }}
+              onFocus={handleInputFocus}
               value={String(values[formikKey] ?? '')}
               {...rest} //eslint-disable-line
               mode="outlined"
               keyboardType="numeric"
               theme={stylesPaper}
-              style={{ flex: 1 }}
+              style={stylesDefault.label}
             />
-            <Text style={styleX.sideLabel}>{translatedLabelSide}</Text>
+            <Text style={styles.redText}>{errors[formikKey]}</Text>
           </View>
-          {errors[formikKey] && (
-            <Text style={styles.errorText}>
-              {errors[formikKey]}
-            </Text>
-          )}
-        </View>
+        </Animated.View>
+      )}
+      {fieldType === "inputSideLabel" && (
+        <Animated.View style={focusLiftStyle}>
+          <View style={stylesDefault.container} key={formikKey}>
+            <View style={{ flexDirection: "row" }}>
+              <TextInput
+                label={translatedLabel}
+                onChangeText={handleChange(formikKey)}
+                onBlur={(e) => {
+                  handleInputBlur();
+                  handleBlur(formikKey)(e);
+                }}
+                onFocus={handleInputFocus}
+                value={String(values[formikKey] ?? '')}
+                {...rest} //eslint-disable-line
+                mode="outlined"
+                theme={{
+                  colors: { placeholder: theme.colors.primary },
+                }}
+                style={{ flex: 1 }}
+              />
+              <Text style={styleX.sideLabel}>{translatedLabelSide}</Text>
+            </View>
+            <Text style={styles.redText}>{errors[formikKey]}</Text>
+          </View>
+        </Animated.View>
+      )}
+      {fieldType === "inputSideLabelNum" && (
+        <Animated.View style={focusLiftStyle}>
+          <View style={stylesDefault} key={formikKey}>
+            <View style={{ flexDirection: "row" }}>
+              <TextInput
+                label={translatedLabel}
+                onChangeText={handleChange(formikKey)}
+                onBlur={(e) => {
+                  handleInputBlur();
+                  handleBlur(formikKey)(e);
+                }}
+                onFocus={handleInputFocus}
+                value={String(values[formikKey] ?? '')}
+                {...rest} //eslint-disable-line
+                mode="outlined"
+                keyboardType="numeric"
+                theme={stylesPaper}
+                style={{ flex: 1 }}
+              />
+              <Text style={styleX.sideLabel}>{translatedLabelSide}</Text>
+            </View>
+            {errors[formikKey] && (
+              <Text style={styles.errorText}>
+                {errors[formikKey]}
+              </Text>
+            )}
+          </View>
+        </Animated.View>
       )}
       {fieldType === "inputSideLabelTextQuestNumber" && (
-        <View style={stylesDefault} key={formikKey}>
-          <Text style={stylesDefault.label}>{translatedLabel}</Text>
-          <View style={{ flexDirection: "row" }}>
-            <TextInput
-              onChangeText={handleChange(formikKey)}
-              onBlur={handleBlur(formikKey)}
-              value={String(values[formikKey] ?? '')}
-              {...rest} //eslint-disable-line
-              mode="outlined"
-              keyboardType="numeric"
-              theme={{
-                colors: { placeholder: theme.colors.primary },
-              }}
-              style={{ flex: 1 }}
-            />
-            <Text style={styleX.sideLabel}>{translatedLabelSide}</Text>
+        <Animated.View style={focusLiftStyle}>
+          <View style={stylesDefault} key={formikKey}>
+            <Text style={stylesDefault.label}>{translatedLabel}</Text>
+            <View style={{ flexDirection: "row" }}>
+              <TextInput
+                onChangeText={handleChange(formikKey)}
+                onBlur={(e) => {
+                  handleInputBlur();
+                  handleBlur(formikKey)(e);
+                }}
+                onFocus={handleInputFocus}
+                value={String(values[formikKey] ?? '')}
+                {...rest} //eslint-disable-line
+                mode="outlined"
+                keyboardType="numeric"
+                theme={{
+                  colors: { placeholder: theme.colors.primary },
+                }}
+                style={{ flex: 1 }}
+              />
+              <Text style={styleX.sideLabel}>{translatedLabelSide}</Text>
+            </View>
+            <Text style={styles.redText}>{errors[formikKey]}</Text>
           </View>
-          <Text style={styles.redText}>{errors[formikKey]}</Text>
-        </View>
+        </Animated.View>
       )}
       {fieldType === "inputSideBySideLabel" && (
-        <View style={stylesDefault} key={formikKey}>
-          <View style={{ flexDirection: "row" }}>
-            <TextInput
-              label={translatedLabel}
-              onChangeText={handleChange(formikKey)}
-              onBlur={handleBlur(formikKey)}
-              {...rest} //eslint-disable-line
-              mode="outlined"
-              theme={{
-                colors: { placeholder: theme.colors.primary },
-              }}
-              style={{ flex: 1 }}
-            />
-            <Text style={styleX.sideLabel}>{translatedLabelSide}</Text>
-            <TextInput
-              label={translatedLabel}
-              onChangeText={handleChange(formikKey)}
-              onBlur={handleBlur(formikKey)}
-              {...rest} //eslint-disable-line
-              mode="outlined"
-              theme={{
-                colors: { placeholder: theme.colors.primary },
-              }}
-              style={{ flex: 1 }}
-            />
+        <Animated.View style={focusLiftStyle}>
+          <View style={stylesDefault} key={formikKey}>
+            <View style={{ flexDirection: "row" }}>
+              <TextInput
+                label={translatedLabel}
+                onChangeText={handleChange(formikKey)}
+                onBlur={(e) => {
+                  handleInputBlur();
+                  handleBlur(formikKey)(e);
+                }}
+                onFocus={handleInputFocus}
+                {...rest} //eslint-disable-line
+                mode="outlined"
+                theme={{
+                  colors: { placeholder: theme.colors.primary },
+                }}
+                style={{ flex: 1 }}
+              />
+              <Text style={styleX.sideLabel}>{translatedLabelSide}</Text>
+              <TextInput
+                label={translatedLabel}
+                onChangeText={handleChange(formikKey)}
+                onBlur={(e) => {
+                  handleInputBlur();
+                  handleBlur(formikKey)(e);
+                }}
+                onFocus={handleInputFocus}
+                {...rest} //eslint-disable-line
+                mode="outlined"
+                theme={{
+                  colors: { placeholder: theme.colors.primary },
+                }}
+                style={{ flex: 1 }}
+              />
+            </View>
+            <Text style={styles.redText}>{errors[formikKey]}</Text>
           </View>
-          <Text style={styles.redText}>{errors[formikKey]}</Text>
-        </View>
+        </Animated.View>
       )}
       {fieldType === "select" && (
         <View key={formikKey} style={stylesDefault.container}>
@@ -421,15 +482,19 @@ function PaperInputPicker({
                   <Text style={styleX.textSplit}>{result.label}</Text>
                 </View>
               ) : (
-                <View key={result.value} style={stylesDefault.inputItem}>
+                <Animated.View key={result.value} style={[stylesDefault.inputItem, focusLiftStyle]}>
                   <TextInput
                     label={customForm ? result.label : I18n.t(result.label)}
                     onChangeText={handleChange(
                       customForm ? result.label : I18n.t(result.label)
                     )}
-                    onBlur={handleBlur(
-                      customForm ? result.label : I18n.t(result.label)
-                    )}
+                    onBlur={(e) => {
+                      handleInputBlur();
+                      handleBlur(
+                        customForm ? result.label : I18n.t(result.label)
+                      )(e);
+                    }}
+                    onFocus={handleInputFocus}
                     {...rest} //eslint-disable-line
                     mode="outlined"
                     theme={{
@@ -439,7 +504,7 @@ function PaperInputPicker({
                   <Text style={styles.redText}>
                     {errors[customForm ? result.label : I18n.t(result.label)]}
                   </Text>
-                </View>
+                </Animated.View>
               )
             )}
           </View>
@@ -455,11 +520,15 @@ function PaperInputPicker({
                   <Text style={styleX.textSplit}>{result.label}</Text>
                 </View>
               ) : (
-                <View key={result.value} style={stylesDefault.inputItem}>
+                <Animated.View key={result.value} style={[stylesDefault.inputItem, focusLiftStyle]}>
                   <TextInput
                     label={customForm ? result.label : I18n.t(result.label)}
                     onChangeText={handleChange(result.value)}
-                    onBlur={handleBlur(result.value)}
+                    onBlur={(e) => {
+                      handleInputBlur();
+                      handleBlur(result.value)(e);
+                    }}
+                    onFocus={handleInputFocus}
                     value={String(values[result.value] ?? '')}
                     {...rest} //eslint-disable-line
                     mode="outlined"
@@ -470,7 +539,7 @@ function PaperInputPicker({
                     }}
                   />
                   <Text style={styles.redText}>{errors[result.value]}</Text>
-                </View>
+                </Animated.View>
               )
             )}
           </View>

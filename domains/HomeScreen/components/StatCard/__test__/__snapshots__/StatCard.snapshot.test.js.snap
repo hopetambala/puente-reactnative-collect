@@ -1,15 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`StatCard Component - Snapshots renders StatCard hidden with "all" timeFilter 1`] = `
-<View
-  style={
-    {
-      "marginVertical": 8,
-      "paddingHorizontal": 6,
-      "width": "50%",
-    }
-  }
->
+[
   <View
     style={
       {
@@ -55,7 +47,7 @@ exports[`StatCard Component - Snapshots renders StatCard hidden with "all" timeF
         Icon: undefined (24, #007AFF)
       </text>
     </View>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -80,40 +72,22 @@ exports[`StatCard Component - Snapshots renders StatCard hidden with "all" timeF
     >
       42
     </text>
-  </View>
-</View>
+  </View>,
+]
 `;
 
 exports[`StatCard Component - Snapshots renders StatCard in loading state 1`] = `
 <View
   style={
     {
-      "marginVertical": 8,
-      "paddingHorizontal": 6,
-      "width": "50%",
+      "gap": 8,
     }
   }
->
-  <View
-    style={
-      {
-        "gap": 8,
-      }
-    }
-  />
-</View>
+/>
 `;
 
 exports[`StatCard Component - Snapshots renders StatCard with count data 1`] = `
-<View
-  style={
-    {
-      "marginVertical": 8,
-      "paddingHorizontal": 6,
-      "width": "50%",
-    }
-  }
->
+[
   <View
     style={
       {
@@ -159,7 +133,7 @@ exports[`StatCard Component - Snapshots renders StatCard with count data 1`] = `
         Icon: undefined (24, #007AFF)
       </text>
     </View>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -184,7 +158,7 @@ exports[`StatCard Component - Snapshots renders StatCard with count data 1`] = `
     >
       42
     </text>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -213,20 +187,12 @@ exports[`StatCard Component - Snapshots renders StatCard with count data 1`] = `
     >
       +5%
     </text>
-  </View>
-</View>
+  </View>,
+]
 `;
 
 exports[`StatCard Component - Snapshots renders StatCard with full width 1`] = `
-<View
-  style={
-    {
-      "marginVertical": 8,
-      "paddingHorizontal": 0,
-      "width": "100%",
-    }
-  }
->
+[
   <View
     style={
       {
@@ -272,7 +238,7 @@ exports[`StatCard Component - Snapshots renders StatCard with full width 1`] = `
         Icon: undefined (24, #007AFF)
       </text>
     </View>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -297,7 +263,7 @@ exports[`StatCard Component - Snapshots renders StatCard with full width 1`] = `
     >
       227
     </text>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -326,20 +292,12 @@ exports[`StatCard Component - Snapshots renders StatCard with full width 1`] = `
     >
       +14%
     </text>
-  </View>
-</View>
+  </View>,
+]
 `;
 
 exports[`StatCard Component - Snapshots renders StatCard with high count numbers 1`] = `
-<View
-  style={
-    {
-      "marginVertical": 8,
-      "paddingHorizontal": 0,
-      "width": "100%",
-    }
-  }
->
+[
   <View
     style={
       {
@@ -385,7 +343,7 @@ exports[`StatCard Component - Snapshots renders StatCard with high count numbers
         Icon: undefined (24, #007AFF)
       </text>
     </View>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -410,7 +368,7 @@ exports[`StatCard Component - Snapshots renders StatCard with high count numbers
     >
       9999
     </text>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -439,20 +397,12 @@ exports[`StatCard Component - Snapshots renders StatCard with high count numbers
     >
       +100%
     </text>
-  </View>
-</View>
+  </View>,
+]
 `;
 
 exports[`StatCard Component - Snapshots renders StatCard with negative trend 1`] = `
-<View
-  style={
-    {
-      "marginVertical": 8,
-      "paddingHorizontal": 6,
-      "width": "50%",
-    }
-  }
->
+[
   <View
     style={
       {
@@ -498,7 +448,7 @@ exports[`StatCard Component - Snapshots renders StatCard with negative trend 1`]
         Icon: undefined (24, #007AFF)
       </text>
     </View>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -523,7 +473,7 @@ exports[`StatCard Component - Snapshots renders StatCard with negative trend 1`]
     >
       8
     </text>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -552,20 +502,12 @@ exports[`StatCard Component - Snapshots renders StatCard with negative trend 1`]
     >
       -47%
     </text>
-  </View>
-</View>
+  </View>,
+]
 `;
 
 exports[`StatCard Component - Snapshots renders StatCard with positive trend 1`] = `
-<View
-  style={
-    {
-      "marginVertical": 8,
-      "paddingHorizontal": 6,
-      "width": "50%",
-    }
-  }
->
+[
   <View
     style={
       {
@@ -611,7 +553,7 @@ exports[`StatCard Component - Snapshots renders StatCard with positive trend 1`]
         Icon: undefined (24, #007AFF)
       </text>
     </View>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -636,7 +578,7 @@ exports[`StatCard Component - Snapshots renders StatCard with positive trend 1`]
     >
       150
     </text>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -665,20 +607,12 @@ exports[`StatCard Component - Snapshots renders StatCard with positive trend 1`]
     >
       +50%
     </text>
-  </View>
-</View>
+  </View>,
+]
 `;
 
 exports[`StatCard Component - Snapshots renders StatCard with zero count 1`] = `
-<View
-  style={
-    {
-      "marginVertical": 8,
-      "paddingHorizontal": 6,
-      "width": "50%",
-    }
-  }
->
+[
   <View
     style={
       {
@@ -724,7 +658,7 @@ exports[`StatCard Component - Snapshots renders StatCard with zero count 1`] = `
         Icon: undefined (24, #007AFF)
       </text>
     </View>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -749,20 +683,12 @@ exports[`StatCard Component - Snapshots renders StatCard with zero count 1`] = `
     >
       0
     </text>
-  </View>
-</View>
+  </View>,
+]
 `;
 
 exports[`StatCard Component - Snapshots renders StatCard with zero trend (identical counts) 1`] = `
-<View
-  style={
-    {
-      "marginVertical": 8,
-      "paddingHorizontal": 6,
-      "width": "50%",
-    }
-  }
->
+[
   <View
     style={
       {
@@ -808,7 +734,7 @@ exports[`StatCard Component - Snapshots renders StatCard with zero trend (identi
         Icon: undefined (24, #007AFF)
       </text>
     </View>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -833,7 +759,7 @@ exports[`StatCard Component - Snapshots renders StatCard with zero trend (identi
     >
       50
     </text>
-  </View>
+  </View>,
   <View
     style={
       {
@@ -862,6 +788,6 @@ exports[`StatCard Component - Snapshots renders StatCard with zero trend (identi
     >
       +0%
     </text>
-  </View>
-</View>
+  </View>,
+]
 `;

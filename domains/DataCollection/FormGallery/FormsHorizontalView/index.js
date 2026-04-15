@@ -1,13 +1,27 @@
 import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
-import { ANIMATION_TIMINGS } from "@modules/utils/animations";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import React from "react";
 import { ScrollView, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
-import Animated, { Easing, FadeInRight } from "react-native-reanimated";
+import Animated, { Easing, Keyframe } from "react-native-reanimated";
 
 import createStyles from "../index.styles";
+
+// Spec §5.4: Bottom-up staggered entrance — scale + translateY + opacity
+// Consistent with SmallCardsCarousel entrance pattern
+const ListItemEntrance = new Keyframe({
+  0: {
+    opacity: 0,
+    transform: [{ translateY: 10 }, { scale: 0.98 }],
+  },
+  100: {
+    opacity: 1,
+    transform: [{ translateY: 0 }, { scale: 1 }],
+    easing: Easing.out(Easing.ease),
+  },
+});
 
 function FormsHorizontalView({
   forms,
@@ -31,11 +45,9 @@ function FormsHorizontalView({
       {safeForms.map((form, index) => (
         <Animated.View
           key={form.objectId || form.name}
-          entering={FadeInRight
-            .delay(ANIMATION_TIMINGS.SECTION_DELAY + index * ANIMATION_TIMINGS.STAGGER_DELAY)
-            .duration(ANIMATION_TIMINGS.DURATION_GLOBAL)
-            .easing(Easing.inOut(Easing.ease))
-            .withInitialValues({ transform: [{ translateX: 50 }] })}
+          entering={ListItemEntrance
+            .delay(MOTION_TOKENS.duration.substantial + index * 50)
+            .duration(MOTION_TOKENS.duration.base)}
         >
           <ModernCard
             style={layout.cardSmallStyle}
