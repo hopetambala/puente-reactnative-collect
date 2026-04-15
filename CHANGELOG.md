@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [15.1.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.0.4...v15.1.0) (2026-04-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* Create and implement motion design philosophy
+
+### New Features
+
+* Create and implement motion design philosophy ([beccfe6](https://github.com/hopetambala/puente-reactnative-collect/commit/beccfe6d0adda0c8f9f54ee24dcfca02c756913e))
+
+
+### Pipeline Changes
+
+* fix test-integration yaml ([668fd09](https://github.com/hopetambala/puente-reactnative-collect/commit/668fd09ea1acc7eb753f1c80727453c96fe25412))
+
 ### [15.0.4](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.0.3...v15.0.4) (2026-04-15)
 
 
