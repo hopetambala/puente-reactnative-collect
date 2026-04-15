@@ -8,10 +8,22 @@ import {
 } from "./custom-queries";
 
 const { TEST_MODE } = selectedENV;
-const Parse = client(TEST_MODE);
+
+/**
+ * Lazy-load Parse instance on first use
+ * This defers initialization until tests have properly set up Parse configuration
+ */
+let parseInstance = null;
+
+function getParse() {
+  if (!parseInstance) {
+    parseInstance = client(TEST_MODE);
+  }
+  return parseInstance;
+}
 
 function retrieveHelloFunction() {
-  Parse.Cloud.run("hello").then((result) => result);
+  getParse().Cloud.run("hello").then((result) => result);
 }
 
 function residentIDQuery(params) {
@@ -28,6 +40,7 @@ function residentIDQuery(params) {
   }
 
   return new Promise((resolve, reject) => {
+    const Parse = getParse();
     const Model = Parse.Object.extend("SurveyData");
     const query = new Parse.Query(Model);
 
@@ -55,7 +68,7 @@ function residentIDQuery(params) {
 
 function countService(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("countService", params).then(
+    getParse().Cloud.run("countService", params).then(
       (result) => {
         resolve(result);
       },
@@ -68,7 +81,7 @@ function countService(params) {
 
 function postObjectsToClass(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("postObjectsToClass", params).then(
+    getParse().Cloud.run("postObjectsToClass", params).then(
       (result) => {
         resolve(result);
       },
@@ -81,7 +94,7 @@ function postObjectsToClass(params) {
 
 function postObjectsToClassWithRelation(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("postObjectsToClassWithRelation", params).then(
+    getParse().Cloud.run("postObjectsToClassWithRelation", params).then(
       (result) => {
         resolve(result);
       },
@@ -94,7 +107,7 @@ function postObjectsToClassWithRelation(params) {
 
 function getObjectsByGeolocation(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("geoQuery", params).then(
+    getParse().Cloud.run("geoQuery", params).then(
       (result) => {
         resolve(result);
       },
@@ -107,7 +120,7 @@ function getObjectsByGeolocation(params) {
 
 function postOfflineForms(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("postOfflineForms", params).then(
+    getParse().Cloud.run("postOfflineForms", params).then(
       (result) => {
         resolve(result);
       },
@@ -120,7 +133,7 @@ function postOfflineForms(params) {
 
 function uploadOfflineForms(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("uploadOfflineForms", params).then(
+    getParse().Cloud.run("uploadOfflineForms", params).then(
       (result) => {
         resolve(result);
       },
@@ -136,7 +149,7 @@ function aggregateStats(params) {
     if (TEST_MODE) {
       console.log('aggregateStats: Called'); // eslint-disable-line
     }
-    Parse.Cloud.run("aggregateStats", params).then(
+    getParse().Cloud.run("aggregateStats", params).then(
       (result) => {
         if (TEST_MODE) {
           console.log('aggregateStats: Success'); // eslint-disable-line
@@ -155,7 +168,7 @@ function aggregateStats(params) {
 
 function aggregateStatsItems(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("aggregateStatsItems", params).then(
+    getParse().Cloud.run("aggregateStatsItems", params).then(
       (result) => {
         resolve(result);
       },
@@ -195,7 +208,7 @@ function updateObjectInClass(parseClass, objectId, updateFields, surveyingUser) 
     localObject.editedBy = surveyingUser;
     localObject.editedAt = new Date();
 
-    Parse.Cloud.run('updateObject', {
+    getParse().Cloud.run('updateObject', {
       parseClass,
       parseClassID: objectId,
       localObject,
