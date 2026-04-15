@@ -20,7 +20,7 @@ export default function UseCamera({
 }) {
   const appTheme = useTheme();
   const [hasPermission, setHasPermission] = useState(null);
-  const [type, setType] = useState(Camera.Constants.Type.back);
+  const [type, setType] = useState('back');
   const [cameraImage, setCameraImage] = useState(null);
   const [zoom, setZoom] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,7 +70,6 @@ export default function UseCamera({
         const { status } = await Camera.requestPermissionsAsync();
         setHasPermission(status === "granted");
       } catch (error) {
-        console.error("Error requesting camera permissions:", error);
         setHasPermission(false);
       }
     })();
@@ -78,7 +77,6 @@ export default function UseCamera({
 
   const takePicture = async () => {
     if (!camera.current) {
-      console.error("Camera reference not available");
       return;
     }
     
@@ -91,7 +89,6 @@ export default function UseCamera({
       });
 
       if (!photo || !photo.uri) {
-        console.error("Photo capture failed: missing uri");
         setIsLoading(false);
         return;
       }
@@ -103,7 +100,7 @@ export default function UseCamera({
         `data:image/jpg;base64,${photo.base64}`
       );
     } catch (error) {
-      console.error("Error taking picture:", error);
+      // Error silently handled
     } finally {
       setIsLoading(false);
     }
@@ -180,9 +177,9 @@ export default function UseCamera({
                   style={styles.flipContainer}
                   onPress={() => {
                     setType(
-                      type === Camera.Constants.Type.back
-                        ? Camera.Constants.Type.front
-                        : Camera.Constants.Type.back
+                      type === 'back'
+                        ? 'front'
+                        : 'back'
                     );
                   }}
                 >

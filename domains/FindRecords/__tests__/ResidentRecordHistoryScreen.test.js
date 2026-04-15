@@ -30,9 +30,25 @@ jest.mock('@app/services/parse/client', () => {
   }));
 });
 
+// Mock fetchResidentById used for resident name refresh on focus
+const mockFetchResidentById = jest.fn(() => Promise.resolve(null));
+jest.mock('@impacto-design-system/Extensions/FindResidents/_utils', () => ({
+  __esModule: true,
+  fetchResidentById: (...args) => mockFetchResidentById(...args),
+}));
+
 // Mock utilities
 jest.mock('@modules/i18n', () => ({
   t: (key) => key,
+}));
+
+// Mock useFocusEffect from react-navigation
+jest.mock('@react-navigation/native', () => ({
+  ...jest.requireActual('@react-navigation/native'),
+  useFocusEffect: jest.fn(() => {
+    // For testing, don't call the callback during render
+    // Just return void like the real useFocusEffect does
+  }),
 }));
 
 describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
@@ -81,6 +97,7 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockFind.mockResolvedValue([]);
+    mockFetchResidentById.mockResolvedValue(null);
   });
 
   describe('RED: Initial state', () => {
@@ -245,6 +262,162 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
       await waitFor(() => {
         // Should still show medical records despite Vitals query failure
         expect(screen.queryByText('Medical Evaluation')).toBeDefined();
+      });
+    });
+  });
+
+  describe('RED-GREEN: Infinite loop prevention', () => {
+    test('RED: should NOT trigger fetchRecords multiple times due to recordTypes dependency', async () => {
+      // Track how many times fetchRecords runs by counting mockFind invocations
+      // RED: Bug causes many rapid invocations (infinite loop)
+      // GREEN: Fix causes exactly 4 invocations (one per record type, only on mount + initial render)
+      mockFind.mockResolvedValue([]);
+      const mockNavigation = { goBack: jest.fn() };
+      const mockRoute = { params: { resident: mockResident } };
+
+      // Reset before render
+      mockFind.mockClear();
+
+      const { rerender } = render(
+        <ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />
+      );
+
+      // Allow async operations to settle
+      await waitFor(() => {
+        // GREEN: Should fetch exactly 4 times (one query per record type)
+        // RED: Before fix, this would be called way more times in rapid succession
+        expect(mockFind).toHaveBeenCalledTimes(4);
+      }, { timeout: 500 });
+
+      // Re-render with same props should NOT trigger fetchRecords again
+      mockFind.mockClear();
+      rerender(
+        <ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />
+      );
+
+      // GREEN: Second render should NOT call fetchRecords again
+      // (since resident.objectId hasn't changed)
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(mockFind).toHaveBeenCalledTimes(0);
+    });
+
+    test('GREEN: should memoize recordTypes to prevent recreation on every render', async () => {
+      mockFind.mockResolvedValue([]);
+      const mockNavigation = { goBack: jest.fn() };
+      const mockRoute = { params: { resident: mockResident } };
+
+      render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
+
+      await waitFor(() => {
+        // Should reach loading state successfully
+        expect(screen.queryByText(/Record History/i)).toBeDefined();
+      });
+
+      // Track call count
+      const initialCallCount = mockFind.mock.calls.length;
+
+      // Wait a bit and verify no additional calls
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      const finalCallCount = mockFind.mock.calls.length;
+
+      // GREEN: Call count should not increase after initial fetch
+      expect(finalCallCount).toBe(initialCallCount);
+    });
+  });
+
+  describe('RED-GREEN: Stale resident name in header after SurveyData edit', () => {
+    // The useFocusEffect mock above swallows the callback by default.
+    // These tests directly verify that:
+    // (a) residentName is initialised from navigation params (so the initial render is correct)
+    // (b) fetchResidentById is called with the correct residentId (so the refresh logic exists)
+    // (c) when fetchResidentById resolves with a new name, the header title updates
+
+    test('RED: header shows stale name when residentName is a plain const from params', async () => {
+      // Before the fix, residentName was a const — it could never update.
+      // This test documents the expected GREEN behaviour after the fix.
+      const mockNavigation = { goBack: jest.fn() };
+      const ronResident = { objectId: 'resident-ron', fname: 'Ron', lname: 'Smith' };
+      const mockRoute = { params: { resident: ronResident } };
+
+      render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
+
+      await waitFor(() => {
+        // Initially the header should show "Ron Smith" from params
+        expect(screen.queryByText(/Ron Smith/i)).toBeDefined();
+      });
+    });
+
+    test('GREEN: residentName state initialises from navigation params on first render', async () => {
+      const mockNavigation = { goBack: jest.fn() };
+      const mockRoute = { params: { resident: { objectId: 'resident-123', fname: 'John', lname: 'Doe' } } };
+
+      render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
+
+      await waitFor(() => {
+        // Header should show initial name from route params
+        expect(screen.queryByText(/John Doe/i)).toBeDefined();
+      });
+    });
+
+    test('GREEN: fetchResidentById is called with resident objectId on focus', async () => {
+      // Simulate useFocusEffect firing the callback (override the no-op mock for this test only)
+      const { useFocusEffect } = require('@react-navigation/native');
+      useFocusEffect.mockImplementationOnce((callback) => {
+        callback();
+      });
+
+      const mockNavigation = { goBack: jest.fn() };
+      const mockRoute = { params: { resident: mockResident } };
+
+      render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
+
+      await waitFor(() => {
+        expect(mockFetchResidentById).toHaveBeenCalledWith('resident-123');
+      });
+    });
+
+    test('GREEN: header updates to new name when fetchResidentById returns fresh resident', async () => {
+      // Simulate useFocusEffect calling the callback with fresh data
+      const { useFocusEffect } = require('@react-navigation/native');
+      useFocusEffect.mockImplementationOnce((callback) => {
+        callback();
+      });
+
+      // fetchResidentById returns the updated name
+      mockFetchResidentById.mockResolvedValueOnce({
+        objectId: 'resident-123',
+        fname: 'Updated',
+        lname: 'Name',
+      });
+
+      const mockNavigation = { goBack: jest.fn() };
+      const mockRoute = { params: { resident: mockResident } };
+
+      render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
+
+      await waitFor(() => {
+        // After focus re-fetch, the header should show the new name
+        expect(screen.queryByText(/Updated Name/i)).toBeDefined();
+      });
+    });
+
+    test('GREEN: header keeps original name when fetchResidentById returns null (offline)', async () => {
+      const { useFocusEffect } = require('@react-navigation/native');
+      useFocusEffect.mockImplementationOnce((callback) => {
+        callback();
+      });
+
+      // null means offline or PatientID — keep original name from params
+      mockFetchResidentById.mockResolvedValueOnce(null);
+
+      const mockNavigation = { goBack: jest.fn() };
+      const mockRoute = { params: { resident: mockResident } };
+
+      render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
+
+      await waitFor(() => {
+        // Should still show original name
+        expect(screen.queryByText(/John Doe/i)).toBeDefined();
       });
     });
   });

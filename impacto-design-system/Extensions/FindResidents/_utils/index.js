@@ -1,5 +1,22 @@
 import { Parse } from "parse/react-native";
 
+/**
+ * Fetch a single resident by objectId from Parse.
+ * Returns serialized plain JSON (same shape as parseSearch results), or null on error/offline resident.
+ * @param {string} objectId
+ * @returns {Promise<object|null>}
+ */
+const fetchResidentById = async (objectId) => {
+  if (!objectId || objectId.startsWith("PatientID-")) return null;
+  try {
+    const query = new Parse.Query("SurveyData");
+    const record = await query.get(objectId);
+    return JSON.parse(JSON.stringify(record));
+  } catch (e) {
+    return null;
+  }
+};
+
 const parseSearch = (surveyingOrganization, qry) => {
   function checkIfAlreadyExist(accumulator, currentVal) {
     return accumulator.some(
@@ -44,4 +61,5 @@ const parseSearch = (surveyingOrganization, qry) => {
   });
 };
 
+export { fetchResidentById };
 export default parseSearch;

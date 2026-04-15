@@ -5,6 +5,7 @@
  * Part of edit forms feature - Phase 2
  */
 import client from '@app/services/parse/client';
+import { fetchResidentById } from '@impacto-design-system/Extensions/FindResidents/_utils';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
@@ -15,6 +16,30 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Parse = client(false);
 
+// Define record types once, outside component, to prevent infinite loop
+// from recordTypes being recreated on every render
+const RECORD_TYPES = [
+  { parseClass: 'Vitals', label: 'Vitals', formType: 'Vitals', usePointer: true },
+  {
+    parseClass: 'HistoryEnvironmentalHealth',
+    label: 'Environmental Health',
+    formType: 'HistoryEnvironmentalHealth',
+    usePointer: true,
+  },
+  {
+    parseClass: 'EvaluationMedical',
+    label: 'Medical Evaluation',
+    formType: 'EvaluationMedical',
+    usePointer: true,
+  },
+  {
+    parseClass: 'FormResults',
+    label: 'Custom Forms',
+    formType: 'FormResults',
+    usePointer: true,
+  },
+];
+
 const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   const { resident } = route.params;
   const [recordsByType, setRecordsByType] = useState({});
@@ -22,34 +47,11 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   const [error, setError] = useState(null);
 
   const residentId = resident.objectId;
-  // resident arrives as a plain object via navigation params (Parse Objects serialize over navigation)
-  const residentName = `${resident.fname || ''} ${resident.lname || ''}`.trim() || 'Resident';
-
-  // Define record types to query.
-  // Supplementary forms link to SurveyData via a Parse pointer column named 'client'.
-  // FormResults use a plain string field 'parseParentClassID'.
-  // The resident object itself IS the SurveyData (identification) record — no query needed.
-  const recordTypes = [
-    { parseClass: 'Vitals', label: 'Vitals', formType: 'Vitals', usePointer: true },
-    {
-      parseClass: 'HistoryEnvironmentalHealth',
-      label: 'Environmental Health',
-      formType: 'HistoryEnvironmentalHealth',
-      usePointer: true,
-    },
-    {
-      parseClass: 'EvaluationMedical',
-      label: 'Medical Evaluation',
-      formType: 'EvaluationMedical',
-      usePointer: true,
-    },
-    {
-      parseClass: 'FormResults',
-      label: 'Custom Forms',
-      formType: 'FormResults',
-      usePointer: true,
-    },
-  ];
+  // residentName is kept in state so it updates if the user edits the SurveyData record
+  // and returns to this screen (navigation params are a stale snapshot).
+  const [residentName, setResidentName] = useState(
+    `${resident.fname || ''} ${resident.lname || ''}`.trim() || 'Resident'
+  );
 
   const fetchRecords = useCallback(async () => {
     try {
@@ -70,7 +72,7 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
 
       // Query each record type in parallel
       await Promise.all(
-        recordTypes.map(async (type) => {
+        RECORD_TYPES.map(async (type) => {
           try {
             const Model = Parse.Object.extend(type.parseClass);
             const query = new Parse.Query(Model);
@@ -111,18 +113,23 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
     } finally {
       setLoading(false);
     }
-  }, [residentId, recordTypes]);
+  }, [residentId]);
 
   // Initial fetch on mount
   useEffect(() => {
     fetchRecords();
   }, [fetchRecords]);
 
-  // Re-fetch when screen is focused (after returning from edit form)
+  // Re-fetch records and resident name when screen is focused (after returning from edit form)
   useFocusEffect(
     useCallback(() => {
       fetchRecords();
-    }, [fetchRecords])
+      fetchResidentById(residentId).then((fresh) => {
+        if (!fresh) return;
+        const name = `${fresh.fname || ''} ${fresh.lname || ''}`.trim();
+        if (name) setResidentName(name);
+      });
+    }, [fetchRecords, residentId])
   );
 
   const handleRecordPress = (formType, record) => {

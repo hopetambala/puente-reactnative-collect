@@ -2,7 +2,7 @@ import { OfflineContext } from "@context/offline.context";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import { Button, Searchbar, Text, useTheme } from "react-native-paper";
 
@@ -30,6 +30,24 @@ function FindResidents({
   const [online, setOnline] = useState(true);
   const [searchTimeout, setSearchTimeout] = useState(null);
   const { residentOfflineData } = useContext(OfflineContext);
+
+  // Track the previous selectPerson to detect when the parent has refreshed it
+  // after a SurveyData edit, so we can patch the list in-memory without a full re-fetch.
+  const prevSelectPersonRef = useRef(null);
+
+  useEffect(() => {
+    if (
+      selectPerson?.objectId &&
+      prevSelectPersonRef.current !== selectPerson
+    ) {
+      prevSelectPersonRef.current = selectPerson;
+      setResidentsData((prev) =>
+        prev.map((r) =>
+          r.objectId === selectPerson.objectId ? selectPerson : r
+        )
+      );
+    }
+  }, [selectPerson]);
 
   useEffect(() => {
     checkOnlineStatus().then(async (connected) => {
