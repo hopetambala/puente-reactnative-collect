@@ -10,7 +10,7 @@ import { MOTION_TOKENS } from '@modules/utils/animations';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  ActivityIndicator, FlatList, ScrollView, Text, TouchableOpacity, View,
+  ActivityIndicator, ScrollView, Text, TouchableOpacity, View,
 } from 'react-native';
 import { Button } from 'react-native-paper';
 import Animated, { Keyframe } from 'react-native-reanimated';
@@ -231,12 +231,10 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
             {label}
           </Text>
 
-          <FlatList
-            scrollEnabled={false}
-            data={records}
-            keyExtractor={(item, idx) => `${formType}-${item.objectId}-${idx}`}
-            renderItem={({ item, index }) => (
+          <View>
+            {records.map((item, index) => (
               <Animated.View
+                key={`${formType}-${item.objectId}-${index}`}
                 entering={RowEntrance
                   .delay(Math.min(index * 40, 200))
                   .duration(MOTION_TOKENS.duration.base)}
@@ -258,8 +256,8 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
                   </Text>
                 </TouchableOpacity>
               </Animated.View>
-            )}
-          />
+            ))}
+          </View>
         </Animated.View>
       ))}
       </ScrollView>

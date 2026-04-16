@@ -196,13 +196,40 @@ function updateObjectInClass(parseClass, objectId, updateFields, surveyingUser) 
       return;
     }
 
-    // Build localObject: user fields (excluding any attempt to override audit fields) + audit trail
+    // Parse metadata fields that should not be updated (reserved in Parse)
+    const parseReservedFields = new Set([
+      'objectId',
+      'createdAt',
+      'updatedAt',
+      'className',
+      '__type',
+      'ACL',
+      'sessionToken',
+      'authData',
+    ]);
+
+    // Build localObject: user fields (excluding reserved/audit/pointer/parse-object fields) + audit trail
     const localObject = {};
     if (updateFields && typeof updateFields === 'object') {
       Object.entries(updateFields).forEach(([key, value]) => {
-        if (key !== 'editedBy' && key !== 'editedAt') {
-          localObject[key] = value;
+        // Skip Parse reserved fields and audit fields
+        if (parseReservedFields.has(key) || key === 'editedBy' || key === 'editedAt') {
+          return;
         }
+        
+        // Skip Parse Pointer fields (__type === 'Pointer')
+        if (value && typeof value === 'object' && value.__type === 'Pointer') {
+          return;
+        }
+        
+        // Skip Parse Object instances (have className and .save method or toJSON)
+        // Check if it looks like a Parse Object by checking for Parse-specific methods
+        if (value && typeof value === 'object' && (value.className || (typeof value.save === 'function' && typeof value.toJSON === 'function'))) {
+          return; // Skip Parse Objects
+        }
+        
+        // Include the field if it's a primitive or plain serializable object
+        localObject[key] = value;
       });
     }
     localObject.editedBy = surveyingUser;

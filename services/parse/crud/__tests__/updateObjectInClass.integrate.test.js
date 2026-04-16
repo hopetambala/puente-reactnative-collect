@@ -196,4 +196,142 @@ describe('updateObjectInClass - INTEGRATION', () => {
       ).rejects.toThrow('surveyingUser is required');
     });
   });
+
+  describe('RED-GREEN: Real-world form edit with Pointer fields', () => {
+    let testResident;
+    let testVitals;
+
+    beforeEach(async () => {
+      // Create a resident (SurveyData)
+      const SurveyData = Parse.Object.extend('SurveyData');
+      testResident = new SurveyData();
+      testResident.set('fname', 'John');
+      testResident.set('lname', 'Smith');
+      await testResident.save(null, { useMasterKey: true });
+
+      // Create a Vitals record with a Pointer to the resident
+      const Vitals = Parse.Object.extend('Vitals');
+      testVitals = new Vitals();
+      testVitals.set('height', 180);
+      testVitals.set('weight', 75);
+      testVitals.set('bloodPressure', '120/80');
+      testVitals.set('client', testResident); // This is a Parse Pointer
+      testVitals.set('surveyingUser', 'Dr. Johnson');
+      await testVitals.save(null, { useMasterKey: true });
+    });
+
+    test('RED: should handle edit submission with Pointer fields in updateFields', async () => {
+      // RED: Real app sends back the Pointer along with user data
+      // This should fail until we filter Pointers correctly
+      const recordWithPointer = await new Parse.Query('Vitals').include('client').get(testVitals.id, { useMasterKey: true });
+      
+      // Simulate what the form does: spreads all fields including the Pointer
+      const formData = {
+        height: 185, // Changed
+        weight: 75,
+        bloodPressure: '120/80',
+        client: recordWithPointer.get('client'), // Parse Pointer object
+      };
+
+      // GREEN: Should handle Pointer gracefully (skip it, not throw)
+      await updateObjectInClass(
+        'Vitals',
+        testVitals.id,
+        formData,
+        testUser.id
+      );
+
+      // Verify user fields were updated
+      const updated = await new Parse.Query('Vitals').get(testVitals.id, { useMasterKey: true });
+      expect(updated.get('height')).toBe(185);
+      expect(updated.get('weight')).toBe(75);
+      expect(updated.get('bloodPressure')).toBe('120/80');
+      // Pointer relationship should be unchanged
+      expect(updated.get('client').id).toBe(testResident.id);
+    });
+
+    test('GREEN: should filter out Pointer fields and only update user data', async () => {
+      const recordWithPointer = await new Parse.Query('Vitals').include('client').get(testVitals.id, { useMasterKey: true });
+      
+      const formData = {
+        height: 190,
+        client: recordWithPointer.get('client'), // Should be filtered out
+        surveyingUser: 'Dr. Johnson', // Keep user data
+      };
+
+      await updateObjectInClass(
+        'Vitals',
+        testVitals.id,
+        formData,
+        testUser.id
+      );
+
+      const updated = await new Parse.Query('Vitals').include('client').get(testVitals.id, { useMasterKey: true });
+      expect(updated.get('height')).toBe(190);
+      expect(updated.get('client').id).toBe(testResident.id); // Relationship preserved
+    });
+
+    test('GREEN: should handle Parse Object with toJSON() method', async () => {
+      const recordWithPointer = await new Parse.Query('Vitals').include('client').get(testVitals.id, { useMasterKey: true });
+      
+      // Simulate form data where client is a Parse Object
+      const clientObject = recordWithPointer.get('client'); // This is a Parse Object
+      const formData = {
+        height: 175,
+        weight: 80,
+        client: clientObject, // Has toJSON() method
+      };
+
+      // Should not throw, should handle gracefully
+      await updateObjectInClass(
+        'Vitals',
+        testVitals.id,
+        formData,
+        testUser.id
+      );
+
+      const updated = await new Parse.Query('Vitals').get(testVitals.id, { useMasterKey: true });
+      expect(updated.get('height')).toBe(175);
+      expect(updated.get('weight')).toBe(80);
+    });
+
+    test('RED-GREEN: comprehensive form edit with mixed Pointer and user fields', async () => {
+      const recordWithPointer = await new Parse.Query('Vitals').include('client').get(testVitals.id, { useMasterKey: true });
+      
+      // Simulate real form submission with all fields
+      const formData = {
+        height: 172,
+        weight: 68,
+        bloodPressure: '110/70',
+        client: recordWithPointer.get('client'), // Pointer - should be filtered
+        surveyingUser: 'Dr. Wilson', // User data
+        surveyingOrganization: 'Clinic A', // User data
+        appVersion: '15.1.0', // User data
+      };
+
+      await updateObjectInClass(
+        'Vitals',
+        testVitals.id,
+        formData,
+        testUser.id
+      );
+
+      const updated = await new Parse.Query('Vitals').include('client').get(testVitals.id, { useMasterKey: true });
+      
+      // User fields updated
+      expect(updated.get('height')).toBe(172);
+      expect(updated.get('weight')).toBe(68);
+      expect(updated.get('bloodPressure')).toBe('110/70');
+      expect(updated.get('surveyingUser')).toBe('Dr. Wilson');
+      expect(updated.get('surveyingOrganization')).toBe('Clinic A');
+      expect(updated.get('appVersion')).toBe('15.1.0');
+      
+      // Pointer unchanged
+      expect(updated.get('client').id).toBe(testResident.id);
+      
+      // Audit trail added
+      expect(updated.get('editedBy')).toBe(testUser.id);
+      expect(updated.get('editedAt')).toBeInstanceOf(Date);
+    });
+  });
 });

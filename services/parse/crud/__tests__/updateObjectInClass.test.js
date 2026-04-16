@@ -135,5 +135,102 @@ describe('updateObjectInClass - RED/GREEN TDD', () => {
       expect(result).toBe(fakeResult);
     });
   });
+
+  describe('RED-GREEN: Filter Parse reserved/metadata fields', () => {
+    test('RED: should strip objectId from updateFields (prevents "This is not a valid Object" error)', async () => {
+      // RED: This test would fail without filtering - Parse rejects objectId in updates
+      const updateFields = {
+        fname: 'Jane',
+        objectId: 'should-be-removed', // This causes the error if not filtered
+      };
+      await updateObjectInClass('SurveyData', 'test-id-123', updateFields, 'user123');
+      const [, params] = mockCloudRun.mock.calls[0];
+      
+      // GREEN: objectId should not be in localObject sent to cloud function
+      expect(params.localObject.objectId).toBeUndefined();
+      expect(params.localObject.fname).toBe('Jane');
+    });
+
+    test('GREEN: should strip createdAt from updateFields', async () => {
+      const updateFields = {
+        fname: 'Jane',
+        createdAt: new Date('2000-01-01'), // Should be removed
+      };
+      await updateObjectInClass('SurveyData', 'test-id-123', updateFields, 'user123');
+      const [, params] = mockCloudRun.mock.calls[0];
+      
+      expect(params.localObject.createdAt).toBeUndefined();
+      expect(params.localObject.fname).toBe('Jane');
+    });
+
+    test('GREEN: should strip updatedAt from updateFields', async () => {
+      const updateFields = {
+        fname: 'Jane',
+        updatedAt: new Date('2000-01-01'), // Should be removed
+      };
+      await updateObjectInClass('SurveyData', 'test-id-123', updateFields, 'user123');
+      const [, params] = mockCloudRun.mock.calls[0];
+      
+      expect(params.localObject.updatedAt).toBeUndefined();
+    });
+
+    test('GREEN: should strip className from updateFields', async () => {
+      const updateFields = {
+        fname: 'Jane',
+        className: 'SurveyData', // Should be removed
+      };
+      await updateObjectInClass('SurveyData', 'test-id-123', updateFields, 'user123');
+      const [, params] = mockCloudRun.mock.calls[0];
+      
+      expect(params.localObject.className).toBeUndefined();
+    });
+
+    test('GREEN: should strip __type from updateFields', async () => {
+      const updateFields = {
+        fname: 'Jane',
+        __type: 'Object', // Should be removed
+      };
+      await updateObjectInClass('SurveyData', 'test-id-123', updateFields, 'user123');
+      const [, params] = mockCloudRun.mock.calls[0];
+      
+      expect(params.localObject.__type).toBeUndefined();
+    });
+
+    test('GREEN: should strip ACL from updateFields', async () => {
+      const updateFields = {
+        fname: 'Jane',
+        ACL: { user123: { read: true } }, // Should be removed
+      };
+      await updateObjectInClass('SurveyData', 'test-id-123', updateFields, 'user123');
+      const [, params] = mockCloudRun.mock.calls[0];
+      
+      expect(params.localObject.ACL).toBeUndefined();
+    });
+
+    test('GREEN: should keep user-data fields while stripping reserved fields', async () => {
+      const updateFields = {
+        fname: 'Jane',
+        lname: 'Smith',
+        height: 180,
+        objectId: 'remove-me',
+        createdAt: new Date('2000-01-01'),
+        updatedAt: new Date('2000-01-02'),
+        className: 'SurveyData',
+      };
+      await updateObjectInClass('SurveyData', 'test-id-123', updateFields, 'user123');
+      const [, params] = mockCloudRun.mock.calls[0];
+      
+      // User data should be present
+      expect(params.localObject.fname).toBe('Jane');
+      expect(params.localObject.lname).toBe('Smith');
+      expect(params.localObject.height).toBe(180);
+      
+      // Reserved fields should be stripped
+      expect(params.localObject.objectId).toBeUndefined();
+      expect(params.localObject.createdAt).toBeUndefined();
+      expect(params.localObject.updatedAt).toBeUndefined();
+      expect(params.localObject.className).toBeUndefined();
+    });
+  });
 });
 

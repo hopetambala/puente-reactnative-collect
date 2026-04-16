@@ -452,4 +452,149 @@ describe('SupplementaryForm Edit Mode - RED-GREEN TDD', () => {
       });
     });
   });
+
+  describe('RED-GREEN: Filter Parse metadata fields from edit form values', () => {
+    test('RED: should NOT include objectId in form values (prevents "This is not a valid Object" error)', async () => {
+      // RED: Without filtering, objectId gets spread into form values and sent to Parse
+      // Parse rejects updates that attempt to overwrite objectId, causing the error
+      const existingRecord = {
+        objectId: 'vitals-123', // This should NOT be in form submission
+        height: 180,
+        weight: 75,
+        bloodPressure: '120/80',
+      };
+
+      const { getByTestId } = renderWithContext(
+        <SupplementaryForm
+          editMode
+          existingRecord={existingRecord}
+          selectedForm="vitals"
+          surveyee={mockSurveyee}
+          surveyingUser="Test User"
+          surveyingOrganization="Test Org"
+          navigation={mockNavigation}
+        />
+      );
+
+      updateObjectInClass.mockResolvedValue({});
+      const submitButton = getByTestId('formSubmit');
+      fireEvent.press(submitButton);
+
+      await waitFor(() => {
+        const [, , updateFields] = updateObjectInClass.mock.calls[0];
+        // GREEN: objectId should be filtered out before calling updateObjectInClass
+        expect(updateFields.objectId).toBeUndefined();
+        // User data should be preserved
+        expect(updateFields.height).toBe(180);
+      });
+    });
+
+    test('GREEN: should NOT include createdAt in form values', async () => {
+      const existingRecord = {
+        objectId: 'vitals-123',
+        createdAt: '2026-04-10T10:00:00Z', // Should be filtered
+        height: 180,
+      };
+
+      const { getByTestId } = renderWithContext(
+        <SupplementaryForm
+          editMode
+          existingRecord={existingRecord}
+          selectedForm="vitals"
+          surveyee={mockSurveyee}
+          surveyingUser="Test User"
+          surveyingOrganization="Test Org"
+          navigation={mockNavigation}
+        />
+      );
+
+      updateObjectInClass.mockResolvedValue({});
+      const submitButton = getByTestId('formSubmit');
+      fireEvent.press(submitButton);
+
+      await waitFor(() => {
+        const [, , updateFields] = updateObjectInClass.mock.calls[0];
+        expect(updateFields.createdAt).toBeUndefined();
+        expect(updateFields.height).toBe(180);
+      });
+    });
+
+    test('GREEN: should NOT include updatedAt in form values', async () => {
+      const existingRecord = {
+        objectId: 'vitals-123',
+        updatedAt: '2026-04-15T10:00:00Z', // Should be filtered
+        weight: 75,
+      };
+
+      const { getByTestId } = renderWithContext(
+        <SupplementaryForm
+          editMode
+          existingRecord={existingRecord}
+          selectedForm="vitals"
+          surveyee={mockSurveyee}
+          surveyingUser="Test User"
+          surveyingOrganization="Test Org"
+          navigation={mockNavigation}
+        />
+      );
+
+      updateObjectInClass.mockResolvedValue({});
+      const submitButton = getByTestId('formSubmit');
+      fireEvent.press(submitButton);
+
+      await waitFor(() => {
+        const [, , updateFields] = updateObjectInClass.mock.calls[0];
+        expect(updateFields.updatedAt).toBeUndefined();
+        expect(updateFields.weight).toBe(75);
+      });
+    });
+
+    test('GREEN: should filter all reserved fields while preserving user data', async () => {
+      const existingRecord = {
+        objectId: 'vitals-123',
+        createdAt: '2026-04-10T10:00:00Z',
+        updatedAt: '2026-04-15T10:00:00Z',
+        className: 'Vitals',
+        __type: 'Object',
+        ACL: { user123: { read: true } },
+        // User data
+        height: 180,
+        weight: 75,
+        bloodPressure: '120/80',
+      };
+
+      const { getByTestId } = renderWithContext(
+        <SupplementaryForm
+          editMode
+          existingRecord={existingRecord}
+          selectedForm="vitals"
+          surveyee={mockSurveyee}
+          surveyingUser="Test User"
+          surveyingOrganization="Test Org"
+          navigation={mockNavigation}
+        />
+      );
+
+      updateObjectInClass.mockResolvedValue({});
+      const submitButton = getByTestId('formSubmit');
+      fireEvent.press(submitButton);
+
+      await waitFor(() => {
+        const [, , updateFields] = updateObjectInClass.mock.calls[0];
+        
+        // Reserved/metadata fields should be filtered
+        expect(updateFields.objectId).toBeUndefined();
+        expect(updateFields.createdAt).toBeUndefined();
+        expect(updateFields.updatedAt).toBeUndefined();
+        expect(updateFields.className).toBeUndefined();
+        expect(updateFields.__type).toBeUndefined();
+        expect(updateFields.ACL).toBeUndefined();
+        
+        // User data should be preserved
+        expect(updateFields.height).toBe(180);
+        expect(updateFields.weight).toBe(75);
+        expect(updateFields.bloodPressure).toBe('120/80');
+      });
+    });
+  });
 });

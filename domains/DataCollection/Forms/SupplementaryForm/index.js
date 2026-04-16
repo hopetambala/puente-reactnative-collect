@@ -97,7 +97,25 @@ function SupplementaryForm({
       return {};
     }
 
-    const editFormValues = { ...existingRecord };
+    // Filter out Parse metadata fields that should not be in form values
+    const parseMetadataFields = new Set([
+      'objectId',
+      'createdAt',
+      'updatedAt',
+      'className',
+      '__type',
+      'ACL',
+      'sessionToken',
+      'authData',
+    ]);
+
+    // Spread existingRecord but exclude metadata fields
+    const editFormValues = {};
+    Object.entries(existingRecord).forEach(([key, value]) => {
+      if (!parseMetadataFields.has(key)) {
+        editFormValues[key] = value;
+      }
+    });
 
     // For custom forms (FormResults): reverse fields array → individual form values
     if (selectedForm === "custom" && Array.isArray(existingRecord.fields)) {
@@ -158,10 +176,40 @@ function SupplementaryForm({
           // EDIT MODE: Update existing record
           if (editMode && existingRecord && existingRecord.objectId) {
             const editClass = selectedForm === "custom" ? "FormResults" : config.class;
+            
+            // Clean formObjectUpdated: remove any Parse metadata, Pointers, or non-serializable values
+            // This prevents "This is not a valid Object" errors from Parse
+            const parseMetadataFields = new Set([
+              'objectId', 'createdAt', 'updatedAt', 'className', '__type', 'ACL', 'sessionToken', 'authData',
+            ]);
+            const cleanedUpdateFields = {};
+            Object.entries(formObjectUpdated).forEach(([key, value]) => {
+              if (!parseMetadataFields.has(key)) {
+                // Skip Parse Pointer fields (they have __type === 'Pointer') - don't update relationships
+                if (value && typeof value === 'object' && value.__type === 'Pointer') {
+                  return; // Skip pointers, don't update them
+                }
+                // Convert Parse Objects to JSON if needed
+                if (value && typeof value === 'object' && typeof value.toJSON === 'function') {
+                  cleanedUpdateFields[key] = value.toJSON();
+                } else if (value !== undefined && value !== null) {
+                  // Ensure the value is actually serializable
+                  try {
+                    JSON.stringify(value); // Test if serializable
+                    cleanedUpdateFields[key] = value;
+                  } catch (e) {
+                    console.warn(`Skipping non-serializable field ${key}:`, e.message); // eslint-disable-line
+                  }
+                }
+              }
+            });
+            
+            console.log('DEBUG: cleanedUpdateFields keys:', Object.keys(cleanedUpdateFields).slice(0, 10)); // eslint-disable-line
+            
             await updateObjectInClass(
               editClass,
               existingRecord.objectId,
-              formObjectUpdated,
+              cleanedUpdateFields,
               user.id || user.objectId
             );
             // Invalidate cache after successful form update
@@ -210,7 +258,20 @@ function SupplementaryForm({
           setSubmitting(false);
           toRoot();
         } catch (e) {
-          console.log(e); // eslint-disable-line
+          console.error('Form submission error:', e); // eslint-disable-line
+          console.error('Error details:', { // eslint-disable-line
+            message: e?.message,
+            code: e?.code,
+            errorResponse: e?.response,
+            stack: e?.stack,
+          });
+          // Log formObjectUpdated if available (for debugging data format issues)
+          if (typeof formObjectUpdated !== 'undefined') {
+            console.error('formObjectUpdated keys:', Object.keys(formObjectUpdated)); // eslint-disable-line
+            console.error('formObjectUpdated sample:', { // eslint-disable-line
+              ...Object.fromEntries(Object.entries(formObjectUpdated).slice(0, 3)),
+            });
+          }
           setSubmitting(false);
           setSubmissionError(true);
           alert(I18n.t("submissionError.error"));
