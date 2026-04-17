@@ -4,6 +4,7 @@ import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import ResidentIdSearchbar from "@impacto-design-system/Extensions/ResidentIdSearchbar";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useState } from "react";
 import {
   Keyboard,
@@ -12,10 +13,19 @@ import {
   View,
 } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
+import Animated, { Easing, Keyframe } from "react-native-reanimated";
 
 import IdentificationForm from "./IdentificationForm";
 import createStyles from "./index.styles";
 import SupplementaryForm from "./SupplementaryForm";
+
+// Spec §1 MEGA: success state entrance uses celebratory scale + fade // lint-animations-ignore
+// GPU-safe: transform + opacity only
+const SuccessEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ scale: 0.8 }] },
+  60: { opacity: 1, transform: [{ scale: 1.05 }], easing: Easing.out(Easing.ease) },
+  100: { opacity: 1, transform: [{ scale: 1 }], easing: Easing.inOut(Easing.ease) },
+});
 
 function Forms(props) {
   const theme = useTheme();
@@ -88,11 +98,9 @@ function Forms(props) {
       )}
       {selectedForm === "" && (
         <View>
-          <View
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-            }}
+          <Animated.View
+            entering={SuccessEntrance.duration(MOTION_TOKENS.duration.slow)}
+            style={{ justifyContent: "center", alignItems: "center" }}
           >
             <PostSubmissionSVG width={350} height={350} />
             <Text
@@ -107,7 +115,7 @@ function Forms(props) {
             <Text style={{ fontSize: 15, marginTop: 10, marginBottom: 10 }}>
               {I18n.t("forms.grabCoffee")}
             </Text>
-          </View>
+          </Animated.View>
           <View style={layout.container}>
             <Text style={{ fontSize: 15, marginBottom: 5 }}>
               {I18n.t("forms.suggestedForms")}

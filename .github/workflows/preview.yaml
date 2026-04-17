@@ -1,5 +1,9 @@
 name: Create Expo Preview
-on: pull_request
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [master, main, develop]
 
 jobs:
   update:
@@ -8,6 +12,8 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+    # Only run if CI workflow succeeded
+    if: github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Check for EXPO_TOKEN
         run: |
@@ -18,6 +24,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_branch }}
       
       - name: Create app.json for Build
         run: |

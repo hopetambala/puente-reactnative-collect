@@ -2,14 +2,22 @@ import { OfflineContext } from "@context/offline.context";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
-import React, { useContext, useEffect, useState } from "react";
+import { MOTION_TOKENS } from "@modules/utils/animations";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import { Button, Searchbar, Text, useTheme } from "react-native-paper";
+import Animated, { Keyframe } from "react-native-reanimated";
 
 import parseSearch from "./_utils";
 import createStyles from "./index.styles";
 import ResidentCard from "./Resident/ResidentCard";
 import ResidentPage from "./Resident/ResidentPage";
+
+// Spec §5.4: Each resident search result lifts in, staggered by FlatList index
+const ResidentRowEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 8 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }] },
+});
 
 function FindResidents({
   selectPerson,
@@ -17,6 +25,7 @@ function FindResidents({
   organization,
   puenteForms,
   navigateToNewRecord,
+  navigateToRecordHistory,
   surveyee,
   setSurveyee,
   setView,
@@ -30,7 +39,26 @@ function FindResidents({
   const [searchTimeout, setSearchTimeout] = useState(null);
   const { residentOfflineData } = useContext(OfflineContext);
 
+  // Track the previous selectPerson to detect when the parent has refreshed it
+  // after a SurveyData edit, so we can patch the list in-memory without a full re-fetch.
+  const prevSelectPersonRef = useRef(null);
+
   useEffect(() => {
+    if (
+      selectPerson?.objectId &&
+      prevSelectPersonRef.current !== selectPerson
+    ) {
+      prevSelectPersonRef.current = selectPerson;
+      setResidentsData((prev) =>
+        prev.map((r) =>
+          r.objectId === selectPerson.objectId ? selectPerson : r
+        )
+      );
+    }
+  }, [selectPerson]);
+
+  useEffect(() => {
+    if (!organization) return;
     checkOnlineStatus().then(async (connected) => {
       if (connected) fetchData(true, "");
       if (!connected) fetchData(false, "");
@@ -96,7 +124,7 @@ function FindResidents({
     setSearchTimeout(
       setTimeout(() => {
         fetchData(online, input);
-      }, 1000)
+      }, MOTION_TOKENS.duration.pulse)
     );
   };
 
@@ -105,10 +133,15 @@ function FindResidents({
     setQuery("");
   };
 
-  const renderItem = ({ item }) => (
-    <View key={item.objectId}>
+  const renderItem = ({ item, index }) => (
+    <Animated.View
+      key={item.objectId}
+      entering={ResidentRowEntrance
+        .delay(Math.min(index * 40, 240))
+        .duration(MOTION_TOKENS.duration.base)}
+    >
       <ResidentCard resident={item} onSelectPerson={onSelectPerson} />
-    </View>
+    </Animated.View>
   );
 
   return (
@@ -153,6 +186,7 @@ function FindResidents({
           setSelectPerson={setSelectPerson}
           puenteForms={puenteForms}
           navigateToNewRecord={navigateToNewRecord}
+          navigateToRecordHistory={navigateToRecordHistory}
           surveyee={surveyee}
           setSurveyee={setSurveyee}
           setView={setView || (() => {})}

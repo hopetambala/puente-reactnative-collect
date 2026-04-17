@@ -3,11 +3,19 @@ import ResidentCard from "@impacto-design-system/Extensions/FindResidents/Reside
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import { Button, Searchbar, Text, useTheme } from "react-native-paper";
+import Animated, { Keyframe } from "react-native-reanimated";
 
 import parseSearch from "./utils";
+
+// Spec §5.4: resident search rows lift in staggered
+const ResidentRowEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 8 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }] },
+});
 
 function ResidentIdSearchbar({
   surveyee,
@@ -98,8 +106,12 @@ function ResidentIdSearchbar({
     setQuery("");
   };
 
-  const renderItem = ({ item }) => (
-    <View>
+  const renderItem = ({ item, index }) => (
+    <Animated.View
+      entering={ResidentRowEntrance
+        .delay(Math.min(index * 40, 200))
+        .duration(MOTION_TOKENS.duration.base)}
+    >
       <Button
         onPress={() => onSelectSurveyee(item)}
         contentStyle={{ marginRight: 5 }}
@@ -122,7 +134,7 @@ function ResidentIdSearchbar({
           />
         )}
       </Button>
-    </View>
+    </Animated.View>
   );
 
   return (

@@ -402,5 +402,36 @@ module.exports = function mockCloudCode(Parse) {
     }
   });
 
-  console.log('✓ Mock Cloud Code functions registered: postObjectsToClass, postObjectsToClassWithRelation, signup, login, uploadOfflineForms');
+  /**
+   * Cloud function: updateObject
+   * Matches puente-node-cloudcode/cloud/src/definer/crud.definer.js (line 426)
+   * Input: { parseClass, parseClassID, localObject }
+   * Gets object by ID, sets all localObject fields, saves with master key
+   */
+  Parse.Cloud.define('updateObject', async (request) => {
+    const { parseClass, parseClassID, localObject } = request.params;
+
+    if (!parseClass || !parseClassID || !localObject) {
+      throw new Error('parseClass, parseClassID and localObject are required');
+    }
+
+    const Class = Parse.Object.extend(parseClass);
+    const query = new Parse.Query(Class);
+
+    const result = await query.get(parseClassID, { useMasterKey: true });
+
+    Object.keys(localObject).forEach((key) => {
+      result.set(String(key), localObject[key]);
+    });
+
+    if (localObject.latitude) {
+      const point = new Parse.GeoPoint(localObject.latitude, localObject.longitude);
+      result.set('location', point);
+    }
+
+    const saved = await result.save(null, { useMasterKey: true });
+    return saved;
+  });
+
+  console.log('✓ Mock Cloud Code functions registered: postObjectsToClass, postObjectsToClassWithRelation, signup, login, uploadOfflineForms, updateObject');
 };

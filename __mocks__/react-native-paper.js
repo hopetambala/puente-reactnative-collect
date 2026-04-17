@@ -37,7 +37,10 @@ module.exports = {
       onSurfaceVariant: '#AAAAAA',
     },
   },
-  Button: ({ children, onPress }) => React.createElement('button', { onPress, type: 'button' }, children),
+  Button: ({ children, onPress, testID, disabled }) => React.createElement('button', { onPress, testID, disabled, type: 'button' }, children),
+  Text: ({ children }) => React.createElement('text', null, children),
+  Title: ({ children }) => React.createElement('text', null, children),
+  IconButton: ({ onPress, testID }) => React.createElement('button', { onPress, testID, type: 'button' }),
   useTheme: () => ({
     colors: {
       primary: '#007AFF',

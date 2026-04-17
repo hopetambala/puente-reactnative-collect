@@ -2,14 +2,28 @@ import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import I18n from "@modules/i18n";
 import { theme } from "@modules/theme";
 import { getTokens } from "@modules/theme/tokens";
-import { ANIMATION_TIMINGS } from "@modules/utils/animations";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useMemo } from "react";
 import {
   ScrollView,
   StyleSheet,
 } from "react-native";
 import { Text, useTheme } from "react-native-paper";
-import Animated, { Easing, FadeInRight } from "react-native-reanimated";
+import Animated, { Easing, Keyframe } from "react-native-reanimated";
+
+// Spec §5.4: Bottom-up staggered entrance — scale + translateY + opacity
+// More modern than side-slide (FadeInRight); mimics content being revealed naturally
+const ListItemEntrance = new Keyframe({
+  0: {
+    opacity: 0,
+    transform: [{ translateY: 10 }, { scale: 0.98 }],
+  },
+  100: {
+    opacity: 1,
+    transform: [{ translateY: 0 }, { scale: 1 }],
+    easing: Easing.out(Easing.ease),
+  },
+});
 
 /**
  * Carousel of Forms that are used for Form Navigation
@@ -64,11 +78,9 @@ function SmallCardsCarousel({
     {safePuenteForms.map((form, index) => (
       <Animated.View
         key={form.tag}
-        entering={FadeInRight
-          .delay(index * ANIMATION_TIMINGS.STAGGER_DELAY)
-          .duration(ANIMATION_TIMINGS.DURATION_GLOBAL)
-          .easing(Easing.inOut(Easing.ease))
-          .withInitialValues({ transform: [{ translateX: 50 }] })}
+        entering={ListItemEntrance
+          .delay(index * 50)
+          .duration(MOTION_TOKENS.duration.base)}
       >
         <ModernCard
           style={[

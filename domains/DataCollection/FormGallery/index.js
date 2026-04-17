@@ -4,15 +4,23 @@ import { getData, storeData } from "@modules/async-storage";
 import { customFormsQuery } from "@modules/cached-resources";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useEffect, useState } from "react";
 import { ScrollView, View } from "react-native";
 import { IconButton,
   Text,
   useTheme ,
 } from "react-native-paper";
+import Animated, { Keyframe } from "react-native-reanimated";
 
 import FormsHorizontalView from "./FormsHorizontalView";
 import createStyles from "./index.styles";
+
+// Spec §5.4: pinned form cards pop in horizontally staggered
+const PinnedCardEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ scale: 0.96 }] },
+  100: { opacity: 1, transform: [{ scale: 1 }] },
+});
 
 function FormGallery({
   navigateToNewRecord,
@@ -119,24 +127,30 @@ function FormGallery({
       <View key="pinnedForms" style={layout.screenRow}>
         <Text style={styles.header}>{I18n.t("formsGallery.pinnedForms")}</Text>
         <ScrollView horizontal>
-          {pinnedForms?.map((form) => (
-            <ModernCard
+          {pinnedForms?.map((form, i) => (
+            <Animated.View
               key={form.objectId ?? form.tag}
-              style={layout.cardSmallStyle}
-              onPress={() => {
-                if (!form.tag) return navigateToCustomForm(form);
-                return navigateToNewRecord(form.tag);
-              }}
-              onLongPress={() => removePinnedForm(form)}
+              entering={PinnedCardEntrance
+                .delay(i * 50)
+                .duration(MOTION_TOKENS.duration.base)}
             >
-              <View style={styles.cardContainer}>
-                <View style={styles.textContainer}>
-                  <Text style={styles.text}>
-                    {form.customForm === false ? I18n.t(form.name) : form.name}
-                  </Text>
+              <ModernCard
+                style={layout.cardSmallStyle}
+                onPress={() => {
+                  if (!form.tag) return navigateToCustomForm(form);
+                  return navigateToNewRecord(form.tag);
+                }}
+                onLongPress={() => removePinnedForm(form)}
+              >
+                <View style={styles.cardContainer}>
+                  <View style={styles.textContainer}>
+                    <Text style={styles.text}>
+                      {form.customForm === false ? I18n.t(form.name) : form.name}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            </ModernCard>
+              </ModernCard>
+            </Animated.View>
           ))}
           {pinnedForms?.length < 1 && (
             <View style={layout.screenRow}>

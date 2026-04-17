@@ -1,7 +1,8 @@
 import selectedENV from "@app/environment";
-import axios from "axios";
 
 function getTasks() {
+  // eslint-disable-next-line global-require
+  const axios = require("axios");
   const { taskyUrlApi } = selectedENV;
 
   return axios.get(`${taskyUrlApi}/tasks`).then(async (response) => {

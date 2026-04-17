@@ -1,12 +1,52 @@
 import Text from '@app/impacto-design-system/Base/Text';
 import ModernCard from '@app/impacto-design-system/Cards/ModernCard';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import React, { useMemo } from 'react';
+import { MOTION_TOKENS } from '@modules/utils/animations';
+import React, { useEffect, useMemo } from 'react';
 import {
 StyleSheet, useColorScheme,
   View, } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import Animated from 'react-native-reanimated';
+import Animated, {
+  Keyframe,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
+
+/**
+ * Hook for skeleton shimmer effect — opacity cycles 0.4 → 1.0 (spec §5.7 loading states)
+ */
+function useSkeletonShimmer() {
+  const opacity = useSharedValue(0.4);
+
+  useEffect(() => {
+    opacity.value = withRepeat(
+      withSequence(
+        withTiming(1.0, { duration: MOTION_TOKENS.duration.slow }),
+        withTiming(0.4, { duration: MOTION_TOKENS.duration.slow }),
+      ),
+      -1,
+    );
+  }, [opacity]);
+
+  return useAnimatedStyle(() => ({ opacity: opacity.value }));
+}
+
+// Spec §5.4: Bottom-up staggered card entrance — scale + translateY + opacity
+// Consistent pattern with SmallCardsCarousel and FormsHorizontalView
+const CardEntrance = new Keyframe({
+  0: {
+    opacity: 0,
+    transform: [{ translateY: 10 }, { scale: 0.98 }],
+  },
+  100: {
+    opacity: 1,
+    transform: [{ translateY: 0 }, { scale: 1 }],
+  },
+});
 
 /**
  * StatCard Component
@@ -21,10 +61,12 @@ function StatCard({
   onPress,
   isLoading,
   fullWidth,
+  index = 0, // Stagger delay index (spec §5.4: 50ms per item)
 }) {
   const theme = useTheme();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const shimmerStyle = useSkeletonShimmer();
 
   // Calculate trend percentage
   const trend = useMemo(() => {
@@ -104,44 +146,48 @@ function StatCard({
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
+      <Animated.View
+        style={styles.container}
+        entering={CardEntrance
+          .delay(index * 50)
+          .duration(MOTION_TOKENS.duration.base)}
+      >
         <ModernCard style={styles.cardContent}>
           <View style={styles.skeletonContainer}>
             <Animated.View
               style={[
                 styles.skeletonBar,
-                {
-                  backgroundColor: isDark ? '#333' : '#e0e0e0',
-                  width: '70%',
-                },
+                { backgroundColor: isDark ? '#333' : '#e0e0e0', width: '70%' },
+                shimmerStyle,
               ]}
             />
             <Animated.View
               style={[
                 styles.skeletonBarLarge,
-                {
-                  backgroundColor: isDark ? '#333' : '#e0e0e0',
-                  width: '100%',
-                },
+                { backgroundColor: isDark ? '#333' : '#e0e0e0', width: '100%' },
+                shimmerStyle,
               ]}
             />
             <Animated.View
               style={[
                 styles.skeletonBar,
-                {
-                  backgroundColor: isDark ? '#333' : '#e0e0e0',
-                  width: '50%',
-                },
+                { backgroundColor: isDark ? '#333' : '#e0e0e0', width: '50%' },
+                shimmerStyle,
               ]}
             />
           </View>
         </ModernCard>
-      </View>
+      </Animated.View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <Animated.View
+      style={styles.container}
+      entering={CardEntrance
+        .delay(index * 50)
+        .duration(MOTION_TOKENS.duration.base)}
+    >
       <ModernCard style={styles.cardContent} shadow onPress={onPress}>
         <View style={styles.header}>
             <View style={styles.titleSection}>
@@ -198,7 +244,7 @@ function StatCard({
             </View>
           )}
         </ModernCard>
-    </View>
+    </Animated.View>
   );
 }
 

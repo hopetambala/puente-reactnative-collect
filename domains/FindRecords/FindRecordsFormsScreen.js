@@ -62,6 +62,15 @@ function FindRecordsFormsScreen({ navigation, route }) {
     navigation.navigate("FindRecordsHome");
   };
 
+  const navigateToRecordHistory = () => {
+    if (surveyee && surveyee.objectId) {
+      const residentParam = surveyee?.toJSON ? surveyee.toJSON() : surveyee;
+      navigation.navigate("ResidentRecordHistory", {
+        resident: residentParam,
+      });
+    }
+  };
+
   const navigateToNewRecord = (formTag, surveyeePerson) => {
     setSelectedForm(formTag || "id");
     setSurveyee(surveyeePerson || surveyee);
@@ -94,6 +103,11 @@ function FindRecordsFormsScreen({ navigation, route }) {
           <Button icon="arrow-left" width={100} onPress={navigateToRoot}>
             <Text>{I18n.t("dataCollection.back")}</Text>
           </Button>
+          {surveyee && surveyee.objectId && (
+            <Button onPress={navigateToRecordHistory}>
+              <Text>{I18n.t("findRecords.viewRecordHistory") || "View Records"}</Text>
+            </Button>
+          )}
           <Forms
             navigation={navigation}
             scrollViewScroll={scrollViewScroll}

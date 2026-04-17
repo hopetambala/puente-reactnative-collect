@@ -2,7 +2,8 @@ import ResidentIdSearchbar from "@impacto-design-system/Extensions/ResidentIdSea
 import { postHousehold } from "@modules/cached-resources";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
-import React, { useState } from "react";
+import { MOTION_TOKENS } from "@modules/utils/animations";
+import React, { useCallback,useState } from "react";
 import { Modal, View } from "react-native";
 import {   Appbar,
   Button,
@@ -11,6 +12,11 @@ import {   Appbar,
   TextInput,
 useTheme ,
 } from "react-native-paper";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 import styles from "./index.style";
 
@@ -30,6 +36,20 @@ function HouseholdManager(props) {
   const [selectPerson, setSelectPerson] = useState();
   const [modalView, setModalView] = useState("unset");
   const [householdSet, setHouseholdSet] = useState(false);
+
+  // Focus lift animation for TextInput
+  const focusScale = useSharedValue(1);
+  const focusLiftStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: focusScale.value }],
+  }));
+
+  const handleInputFocus = useCallback(() => {
+    focusScale.value = withSpring(1.01, MOTION_TOKENS.spring.smooth);
+  }, [focusScale]);
+
+  const handleInputBlur = useCallback(() => {
+    focusScale.value = withSpring(1, MOTION_TOKENS.spring.smooth);
+  }, [focusScale]);
 
   const onSubmit = () => {
     if (!selectPerson) {
@@ -196,11 +216,15 @@ function HouseholdManager(props) {
                 ))}
             </View>
             {relationship === "Other" && (
-              <View style={styles}>
+              <Animated.View style={focusLiftStyle}>
                 <TextInput
                   label={I18n.t("global.other")}
                   onChangeText={handleChange("other")}
-                  onBlur={handleBlur("other")}
+                  onBlur={(e) => {
+                    handleInputBlur();
+                    handleBlur("other");
+                  }}
+                  onFocus={handleInputFocus}
                   mode="outlined"
                   theme={{
                     colors: { placeholder: theme.colors.primary },
@@ -208,7 +232,7 @@ function HouseholdManager(props) {
                   }}
                 />
                 <Text style={{ color: theme.colors.error }}>{errors.other}</Text>
-              </View>
+              </Animated.View>
             )}
             {selectPerson ? (
               <Button

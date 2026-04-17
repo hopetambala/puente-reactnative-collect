@@ -1,7 +1,9 @@
 import { puenteForms } from "@app/domains/DataCollection/formsConfig";
 import { UserContext } from "@context/auth.context";
 import { FindResidents } from "@impacto-design-system/Extensions";
+import { fetchResidentById } from "@impacto-design-system/Extensions/FindResidents/_utils";
 import { getData } from "@modules/async-storage";
+import checkOnlineStatus from "@modules/offline";
 import { createLayoutStyles } from "@modules/theme";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useContext, useState } from "react";
@@ -24,7 +26,18 @@ function FindRecordsHomeScreen({ navigation }) {
         if (!currentUser) return;
         setSurveyingOrganization(currentUser.organization || "");
       });
-    }, [user])
+
+      // Re-fetch the selected resident on focus so that edits to their
+      // SurveyData (fname, lname, etc.) are reflected immediately on return.
+      if (selectPerson?.objectId) {
+        checkOnlineStatus().then((connected) => {
+          if (!connected) return;
+          fetchResidentById(selectPerson.objectId).then((fresh) => {
+            if (fresh) setSelectPerson(fresh);
+          });
+        });
+      }
+    }, [user, selectPerson?.objectId])
   );
 
   const navigateToNewRecord = (formTag, surveyeePerson) => {
@@ -32,6 +45,15 @@ function FindRecordsHomeScreen({ navigation }) {
       formTag: formTag || "id",
       surveyee: surveyeePerson || surveyee,
     });
+  };
+
+  const navigateToRecordHistory = (resident) => {
+    const residentParam = resident?.toJSON ? resident.toJSON() : resident;
+    if (residentParam && residentParam.objectId) {
+      navigation.navigate("ResidentRecordHistory", {
+        resident: residentParam,
+      });
+    }
   };
 
   return (
@@ -50,6 +72,7 @@ function FindRecordsHomeScreen({ navigation }) {
           organization={surveyingOrganization}
           puenteForms={puenteForms}
           navigateToNewRecord={navigateToNewRecord}
+          navigateToRecordHistory={navigateToRecordHistory}
           surveyee={surveyee}
           setSurveyee={setSurveyee}
         />

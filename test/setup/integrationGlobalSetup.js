@@ -68,6 +68,14 @@ module.exports = async function globalSetup() {
   // Prevent cloud error.js from routing errors to Slack (read at module-load time)
   process.env.PUENTE_ENV = 'dev';
 
+  // Set environment variables BEFORE loading parse-server and before seedTestData
+  // This ensures any module loaded during seed has env vars available
+  process.env.APP_ENV = 'test';
+  process.env.PARSE_APP_ID = APP_ID;
+  process.env.PARSE_SERVER_URL = SERVER_URL;
+  process.env.PARSE_JAVASCRIPT_KEY = 'test-js-key';
+  process.env.PARSE_MASTER_KEY = MASTER_KEY;
+
   const { ParseServer } = require('parse-server'); // eslint-disable-line global-require, import/no-extraneous-dependencies
 
   const parseServer = new ParseServer({
@@ -103,6 +111,16 @@ module.exports = async function globalSetup() {
   console.log('  - Server URL:', Parse.serverURL);
   console.log('  - Master Key:', MASTER_KEY ? '[set]' : '[not set]');
 
+  // CRITICAL: Store test credentials in global IMMEDIATELY after Parse client init
+  // This must be done before seedTestData so global.testParseConfig is available
+  global.testParseConfig = {
+    appId: APP_ID,
+    serverUrl: SERVER_URL,
+    masterKey: MASTER_KEY,
+    users: null, // Will be populated after seedTestData
+    user: null,
+  };
+
   // Seed test data (create test users)
   console.log('🌱 Creating test users...');
   const testUsers = await seedTestData(APP_ID, SERVER_URL, MASTER_KEY);
@@ -112,21 +130,20 @@ module.exports = async function globalSetup() {
   }
   console.log('✓ Test users created:', Object.keys(testUsers).join(', '));
 
-  // Store test credentials in global for tests to access
-  global.testParseConfig = {
+  // Update global.testParseConfig with seeded users
+  global.testParseConfig.users = testUsers;
+  global.testParseConfig.user = testUsers.regularUser;
+
+  // CRITICAL: Store all config in process.env so Jest workers can access it
+  // This is necessary because global objects don't transfer to worker processes
+  // when using maxWorkers > 1. We use JSON.stringify to store complex objects.
+  process.env.PARSE_TEST_CONFIG = JSON.stringify({
     appId: APP_ID,
     serverUrl: SERVER_URL,
     masterKey: MASTER_KEY,
     users: testUsers,
     user: testUsers.regularUser,
-  };
-
-  // Set environment variables BEFORE tests import modules (critical for Parse initialization)
-  process.env.APP_ENV = 'test';
-  process.env.PARSE_APP_ID = APP_ID;
-  process.env.PARSE_SERVER_URL = SERVER_URL;
-  process.env.PARSE_JAVASCRIPT_KEY = 'test-js-key';
-  process.env.PARSE_MASTER_KEY = MASTER_KEY;
+  });
 
   console.log('✓ Global setup complete - Parse Server ready for integration tests');
 };

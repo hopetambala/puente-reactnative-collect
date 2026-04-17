@@ -1,8 +1,8 @@
 import selectedENV from "@app/environment";
 
-const axios = require("axios");
-
 function retrievePuenteAutofillData(parameter) {
+  // eslint-disable-next-line global-require
+  const axios = require("axios");
   const { AWS_LAMBDA_URL } = selectedENV;
   return axios
     .get(AWS_LAMBDA_URL, {

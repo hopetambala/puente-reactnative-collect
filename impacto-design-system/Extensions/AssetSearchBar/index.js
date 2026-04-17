@@ -2,11 +2,19 @@ import { getData } from "@modules/async-storage";
 import { assetDataQuery } from "@modules/cached-resources/index";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import { Button, Searchbar, Text, useTheme } from "react-native-paper";
+import Animated, { Keyframe } from "react-native-reanimated";
 
 import styles from "./index.styles";
+
+// Spec §5.4: search result rows lift in staggered
+const AssetRowEntrance = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 8 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }] },
+});
 
 function AssetSearchbar({ setSelectedAsset, surveyingOrganization }) {
   const theme = useTheme();
@@ -92,7 +100,7 @@ function AssetSearchbar({ setSelectedAsset, surveyingOrganization }) {
     setSearchTimeout(
       setTimeout(() => {
         fetchData(online, input);
-      }, 1000)
+      }, MOTION_TOKENS.duration.pulse)
     );
   };
 
@@ -101,8 +109,12 @@ function AssetSearchbar({ setSelectedAsset, surveyingOrganization }) {
     setQuery("");
   };
 
-  const renderItem = ({ item }) => (
-    <View>
+  const renderItem = ({ item, index }) => (
+    <Animated.View
+      entering={AssetRowEntrance
+        .delay(Math.min(index * 40, 200))
+        .duration(MOTION_TOKENS.duration.base)}
+    >
       <Button
         onPress={() => onSelectAsset(item)}
         contentStyle={{ marginRight: 5 }}
@@ -121,7 +133,7 @@ function AssetSearchbar({ setSelectedAsset, surveyingOrganization }) {
           }}
         />
       </Button>
-    </View>
+    </Animated.View>
   );
 
   return (

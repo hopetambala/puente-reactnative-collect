@@ -2,9 +2,16 @@ const baseConfig = require('./package.json').jest;
 
 module.exports = {
   ...baseConfig,
+  // Only exclude node_modules/build dirs — integration test files must NOT be excluded
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/android/',
+    '/ios/',
+    '/coverage/',
+  ],
   globalSetup: '<rootDir>/test/setup/integrationGlobalSetup.js',
   globalTeardown: '<rootDir>/test/setup/integrationGlobalTeardown.js',
-  testRegex: 'integrate\\.test\\.js$',
+  testRegex: 'integrat(e|ion)\\.test\\.js$',
   testTimeout: 60000,
   // Preserve jest-expo's react-native transform exceptions, plus exclude the
   // cloud code directory (plain CJS; Babel transforms break it).

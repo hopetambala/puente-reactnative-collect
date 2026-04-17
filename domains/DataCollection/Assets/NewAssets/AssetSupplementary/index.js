@@ -2,8 +2,10 @@ import SelectedAsset from "@app/domains/DataCollection/Assets/ViewAssets/Selecte
 import {
   addSelectTextInputs,
   cleanLoopSubmissions,
+  reverseFormResultsFields,
 } from "@app/domains/DataCollection/Forms/SupplementaryForm/utils";
 import surveyingUserFailsafe from "@app/domains/DataCollection/Forms/utils";
+import { updateObjectInClass } from "@app/services/parse/crud";
 import { Button as PaperButton, PopupError } from "@impacto-design-system/Base";
 import {
   AssetSearchbar,
@@ -19,6 +21,7 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   Platform,
+  SafeAreaView,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
@@ -29,6 +32,9 @@ import AssetFormSelect from "./AssetFormSelect";
 import styles from "./index.styles";
 
 function AssetSupplementary({
+  editMode,
+  existingRecord,
+  navigation,
   selectedAsset,
   setSelectedAsset,
   surveyingOrganization,
@@ -47,10 +53,27 @@ function AssetSupplementary({
     return false;
   };
 
+  // BUILD EDIT FORM VALUES (REVERSE TRANSFORMS)
+  const buildEditFormValues = () => {
+    if (!editMode || !existingRecord) {
+      return {};
+    }
+
+    // For asset forms (FormAssetResults): reverse fields array → individual form values
+    if (Array.isArray(existingRecord.fields)) {
+      return reverseFormResultsFields(existingRecord);
+    }
+
+    return {};
+  };
+
+  const editFormValues = editMode ? buildEditFormValues() : {};
+
   return (
     <ScrollView>
       <Formik
-        initialValues={{}}
+        enableReinitialize
+        initialValues={editMode && editFormValues ? editFormValues : {}}
         onSubmit={async (values, actions) => {
           setPhotoFile("Submitted Photo String");
           setSubmitting(true);
@@ -68,6 +91,28 @@ function AssetSupplementary({
           let formObjectUpdated = addSelectTextInputs(values, formObject);
           formObjectUpdated = cleanLoopSubmissions(values, formObjectUpdated);
 
+          // Propagate surveyingUser and surveyingOrganization to formObjectUpdated
+          // (required for stats queries to find records, especially in edit mode)
+          formObjectUpdated.surveyingUser = surveyingUserFailSafe;
+          formObjectUpdated.surveyingOrganization = surveyingOrganization || user.organization;
+
+          // EDIT MODE: Update existing asset form
+          if (editMode && existingRecord && existingRecord.objectId) {
+            await updateObjectInClass(
+              "FormAssetResults",
+              existingRecord.objectId,
+              formObjectUpdated,
+              user.id || user.objectId
+            );
+            alert(I18n.t("forms.successfullySubmitted"));
+            setSubmitting(false);
+            if (navigation) {
+              navigation.goBack();
+            }
+            return;
+          }
+
+          // CREATE MODE: Post new asset form (existing logic)
           const postParams = {
             parseParentClassID: selectedAsset.objectId,
             parseParentClass: "Assets",
@@ -84,9 +129,9 @@ function AssetSupplementary({
           }));
 
           postParams.localObject = {
-            title: selectedForm.name || "",
-            description: selectedForm.description || "",
-            formSpecificationsId: selectedForm.objectId,
+            title: selectedForm?.name || "",
+            description: selectedForm?.description || "",
+            formSpecificationsId: selectedForm?.objectId || "",
             fields: fieldsArray,
             surveyingOrganization,
             surveyingUser: surveyingUserFailSafe,
@@ -129,9 +174,18 @@ function AssetSupplementary({
               {Object.keys(selectedAsset).length !== 0 && (
                 <SelectedAsset selectedMarker={selectedAsset} />
               )}
-              <View>
-                {selectedForm?.fields?.length &&
-                  selectedForm.fields.map((result) => (
+              <SafeAreaView edges={['top']}>
+                {editMode && existingRecord?.fields?.length > 0
+                  ? existingRecord.fields.map((field) => (
+                    <View key={field.title}>
+                      <PaperInputPicker
+                        data={{ formikKey: field.title, fieldType: 'string', question: field.title }}
+                        formikProps={formikProps}
+                        customForm
+                      />
+                    </View>
+                  ))
+                  : selectedForm?.fields?.length > 0 && selectedForm.fields.map((result) => (
                     <View key={result.formikKey}>
                       <PaperInputPicker
                         data={result}
@@ -147,6 +201,7 @@ function AssetSupplementary({
                   />
                 ) : (
                   <PaperButton
+                    testID="formSubmit"
                     disabled={!validForm()}
                     style={{
                       backgroundColor: validForm() ? theme.colors.success : theme.colors.error,
@@ -157,7 +212,7 @@ function AssetSupplementary({
                       validForm()
                         ? I18n.t("global.submit")
                         : I18n.t("assetForms.attachForm")
-                    }
+                    } // eslint-disable-line
                   />
                 )}
                 <PaperButton
@@ -165,7 +220,7 @@ function AssetSupplementary({
                   buttonText={I18n.t("assetCore.tapCreateAsset")}
                   onPress={() => setPage("assetCore")}
                 />
-              </View>
+              </SafeAreaView>
               <PopupError
                 error={submissionError}
                 setError={setSubmissionError}

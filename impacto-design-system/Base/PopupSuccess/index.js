@@ -1,5 +1,6 @@
 import GlassView from "@impacto-design-system/Base/GlassView";
 import { spacing, typography } from "@modules/theme";
+import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useEffect, useState } from "react";
 import { StyleSheet, Text } from "react-native";
 import { Snackbar, useTheme } from "react-native-paper";
@@ -46,7 +47,7 @@ function PopupSuccess({ success, setSuccess, submittedForms }) {
       <Snackbar
         visible={visible}
         onDismiss={dismissSnackBar}
-        duration={4000}
+        duration={MOTION_TOKENS.duration.dismiss}
         style={styles.snackbar}
       >
         <Text style={styles.text}>

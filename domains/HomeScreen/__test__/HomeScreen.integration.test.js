@@ -71,6 +71,23 @@ jest.mock('@app/impacto-design-system/Cards/ModernCard', () => ({
 
 jest.mock('react-native-reanimated', () => ({
   __esModule: true,
+  default: {
+    View: ({ children }) => {
+      // eslint-disable-next-line global-require, no-shadow
+      const ReactModule = require('react');
+      return ReactModule.createElement(ReactModule.Fragment, null, children);
+    },
+  },
+  Keyframe: class {
+    // eslint-disable-next-line no-useless-constructor
+    constructor() {
+      // Mock constructor for Reanimated Keyframe
+    }
+
+    delay() { return this; }
+
+    duration() { return this; }
+  },
   Animated: {
     View: ({ children }) => {
       // eslint-disable-next-line global-require, no-shadow

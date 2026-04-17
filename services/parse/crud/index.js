@@ -8,10 +8,22 @@ import {
 } from "./custom-queries";
 
 const { TEST_MODE } = selectedENV;
-const Parse = client(TEST_MODE);
+
+/**
+ * Lazy-load Parse instance on first use
+ * This defers initialization until tests have properly set up Parse configuration
+ */
+let parseInstance = null;
+
+function getParse() {
+  if (!parseInstance) {
+    parseInstance = client(TEST_MODE);
+  }
+  return parseInstance;
+}
 
 function retrieveHelloFunction() {
-  Parse.Cloud.run("hello").then((result) => result);
+  return getParse().Cloud.run("hello").then((result) => result);
 }
 
 function residentIDQuery(params) {
@@ -28,6 +40,7 @@ function residentIDQuery(params) {
   }
 
   return new Promise((resolve, reject) => {
+    const Parse = getParse();
     const Model = Parse.Object.extend("SurveyData");
     const query = new Parse.Query(Model);
 
@@ -55,7 +68,7 @@ function residentIDQuery(params) {
 
 function countService(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("countService", params).then(
+    getParse().Cloud.run("countService", params).then(
       (result) => {
         resolve(result);
       },
@@ -68,7 +81,7 @@ function countService(params) {
 
 function postObjectsToClass(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("postObjectsToClass", params).then(
+    getParse().Cloud.run("postObjectsToClass", params).then(
       (result) => {
         resolve(result);
       },
@@ -81,7 +94,7 @@ function postObjectsToClass(params) {
 
 function postObjectsToClassWithRelation(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("postObjectsToClassWithRelation", params).then(
+    getParse().Cloud.run("postObjectsToClassWithRelation", params).then(
       (result) => {
         resolve(result);
       },
@@ -94,7 +107,7 @@ function postObjectsToClassWithRelation(params) {
 
 function getObjectsByGeolocation(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("geoQuery", params).then(
+    getParse().Cloud.run("geoQuery", params).then(
       (result) => {
         resolve(result);
       },
@@ -107,7 +120,7 @@ function getObjectsByGeolocation(params) {
 
 function postOfflineForms(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("postOfflineForms", params).then(
+    getParse().Cloud.run("postOfflineForms", params).then(
       (result) => {
         resolve(result);
       },
@@ -120,7 +133,7 @@ function postOfflineForms(params) {
 
 function uploadOfflineForms(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("uploadOfflineForms", params).then(
+    getParse().Cloud.run("uploadOfflineForms", params).then(
       (result) => {
         resolve(result);
       },
@@ -136,7 +149,7 @@ function aggregateStats(params) {
     if (TEST_MODE) {
       console.log('aggregateStats: Called'); // eslint-disable-line
     }
-    Parse.Cloud.run("aggregateStats", params).then(
+    getParse().Cloud.run("aggregateStats", params).then(
       (result) => {
         if (TEST_MODE) {
           console.log('aggregateStats: Success'); // eslint-disable-line
@@ -155,7 +168,7 @@ function aggregateStats(params) {
 
 function aggregateStatsItems(params) {
   return new Promise((resolve, reject) => {
-    Parse.Cloud.run("aggregateStatsItems", params).then(
+    getParse().Cloud.run("aggregateStatsItems", params).then(
       (result) => {
         resolve(result);
       },
@@ -163,6 +176,71 @@ function aggregateStatsItems(params) {
         reject(error);
       }
     );
+  });
+}
+
+/**
+ * Update an existing object in a Parse class via the updateObject cloud function.
+ * Runs server-side with master key, bypassing client ACL restrictions.
+ * Audit trail (editedBy, editedAt) is added client-side before the cloud call.
+ * @param {string} parseClass - Parse class name (e.g., 'SurveyData', 'Vitals', 'FormResults')
+ * @param {string} objectId - Object ID to update
+ * @param {object} updateFields - Fields to update {fieldName: value}
+ * @param {string} surveyingUser - Current user making the edit (for audit trail)
+ * @returns {Promise<object>} Updated Parse object
+ */
+function updateObjectInClass(parseClass, objectId, updateFields, surveyingUser) {
+  return new Promise((resolve, reject) => {
+    if (!surveyingUser) {
+      reject(new Error('surveyingUser is required for audit trail'));
+      return;
+    }
+
+    // Parse metadata fields that should not be updated (reserved in Parse)
+    const parseReservedFields = new Set([
+      'objectId',
+      'createdAt',
+      'updatedAt',
+      'className',
+      '__type',
+      'ACL',
+      'sessionToken',
+      'authData',
+    ]);
+
+    // Build localObject: user fields (excluding reserved/audit/pointer/parse-object fields) + audit trail
+    const localObject = {};
+    if (updateFields && typeof updateFields === 'object') {
+      Object.entries(updateFields).forEach(([key, value]) => {
+        // Skip Parse reserved fields and audit fields
+        if (parseReservedFields.has(key) || key === 'editedBy' || key === 'editedAt') {
+          return;
+        }
+        
+        // Skip Parse Pointer fields (__type === 'Pointer')
+      // eslint-disable-next-line no-underscore-dangle
+      if (value && typeof value === 'object' && value.__type === 'Pointer') {
+          return;
+        }
+        
+        // Skip Parse Object instances (have className and .save method or toJSON)
+        // Check if it looks like a Parse Object by checking for Parse-specific methods
+        if (value && typeof value === 'object' && (value.className || (typeof value.save === 'function' && typeof value.toJSON === 'function'))) {
+          return; // Skip Parse Objects
+        }
+        
+        // Include the field if it's a primitive or plain serializable object
+        localObject[key] = value;
+      });
+    }
+    localObject.editedBy = surveyingUser;
+    localObject.editedAt = new Date();
+
+    getParse().Cloud.run('updateObject', {
+      parseClass,
+      parseClassID: objectId,
+      localObject,
+    }).then(resolve, reject);
   });
 }
 
@@ -179,5 +257,6 @@ export {
   postOfflineForms,
   residentIDQuery,
   retrieveHelloFunction,
+  updateObjectInClass,
   uploadOfflineForms,
 };

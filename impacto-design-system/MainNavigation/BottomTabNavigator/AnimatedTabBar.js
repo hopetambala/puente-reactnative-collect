@@ -1,11 +1,11 @@
-import { ANIMATION_TIMINGS } from "@modules/utils/animations";
+import { ANIMATION_TIMINGS, MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
+  withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -29,9 +29,8 @@ function AnimatedTabBar({ state, descriptors, navigation, onTabPress }) {
     const tabWidth = (containerWidth - TAB_BAR_PADDING_HORIZONTAL * 2) / state.routes.length;
     const targetPosition = TAB_BAR_PADDING_HORIZONTAL + state.index * tabWidth + (tabWidth - INDICATOR_WIDTH) / 2;
 
-    indicatorPosition.value = withTiming(targetPosition, {
-      duration: ANIMATION_TIMINGS.TAB_TRANSITION,
-    });
+    // Spec §3.2: tab indicator is STANDARD interaction → spring.snappy
+    indicatorPosition.value = withSpring(targetPosition, MOTION_TOKENS.spring.snappy);
   }, [state.index, state.routes.length, containerWidth, indicatorPosition]);
 
   const indicatorStyle = useAnimatedStyle(() => ({
