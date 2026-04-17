@@ -30,23 +30,14 @@ export default function UseCamera({
   // Permission state management
   const { permission, requestPermission, isGranted, isDenied, isRequesting } = usePermissionState();
 
-  // Request permission when camera is about to be shown
+  // Request permission when camera is about to be shown.
+  // isGranted and isDenied are derived from permission.granted and canAskAgain
+  // inside usePermissionState, so they safely cover all permission states.
   useEffect(() => {
-    if (cameraVisible && !isGranted && !isDenied && permission) {
-      // Permission already determined, don't request again
-      return;
-    }
-
-    if (cameraVisible && permission === null) {
-      // Permission is still loading/undetermined
-      return;
-    }
-
     if (cameraVisible && !isGranted && !isDenied) {
-      // Request permission when camera is opened
       requestPermission();
     }
-  }, [cameraVisible, isGranted, isDenied, permission, requestPermission]);
+  }, [cameraVisible, isGranted, isDenied, requestPermission]);
 
   // Camera controls (take photo, flip, reset)
   const {

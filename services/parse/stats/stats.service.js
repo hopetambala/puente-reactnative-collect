@@ -367,11 +367,11 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
     const result = {
       mySurveys: {
         count: mySurveysCurrent + myVitalsCurrent + myEnvHealthCurrent + myMedEvalCurrent + myCustomFormsCurrent,
-        previous: mySurveysPrev,
+        previous: mySurveysPrev + myVitalsPrev + myEnvHealthPrev + myMedEvalPrev + myCustomFormsPrev,
       },
       orgSurveys: {
         count: orgSurveysCurrent + orgSurveysVitalsCurrent + orgSurveysEnvHealthCurrent + orgSurveysMedEvalCurrent + orgSurveysCustomFormsCurrent,
-        previous: orgSurveysPrev,
+        previous: orgSurveysPrev + orgVitalsPrev + orgEnvHealthPrev + orgMedEvalPrev + orgCustomFormsPrev,
       },
       myVitals: { count: myVitalsCurrent, previous: myVitalsPrev },
       orgVitals: { count: orgVitalsCurrent, previous: orgVitalsPrev },

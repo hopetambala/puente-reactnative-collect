@@ -6,7 +6,9 @@ import { useReducedMotion } from "react-native-reanimated";
  * Provides:
  * - reduceMotion: whether the user has enabled "Reduce Motion" in system settings
  *
- * Used by useMotion() as its single source of truth for animation gating.
+ * Note: Not yet wired into useMotion(). Motion gating currently defaults to
+ * reduceMotion=false via a TODO in modules/utils/useMotion.js. Connect this
+ * hook into useMotion() when accessibility is a priority requirement.
  * Spec: §6.1 Reduced Motion
  *
  * @returns {{ reduceMotion: boolean }}

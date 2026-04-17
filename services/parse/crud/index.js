@@ -23,7 +23,7 @@ function getParse() {
 }
 
 function retrieveHelloFunction() {
-  getParse().Cloud.run("hello").then((result) => result);
+  return getParse().Cloud.run("hello").then((result) => result);
 }
 
 function residentIDQuery(params) {

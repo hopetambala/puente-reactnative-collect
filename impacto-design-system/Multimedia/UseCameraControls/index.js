@@ -65,7 +65,8 @@ export function useCameraControls(formikProps, formikKey, setImage) {
   const resetPicture = useCallback(() => {
     setCameraImage(null);
     setImage(null);
-  }, [setImage]);
+    formikProps.setFieldValue(formikKey, null);
+  }, [setImage, formikProps, formikKey]);
 
   const toggleCameraType = useCallback(() => {
     setCameraType((prev) => (prev === "back" ? "front" : "back"));
