@@ -337,15 +337,20 @@ jest.mock('expo-camera', () => {
         status: 'undetermined',
       });
 
-      const requestPermission = React.useCallback(async () => {
-        setPermission({
-          granted: true,
-          canAskAgain: true,
-          expires: undefined,
-          status: 'granted',
-        });
-        return { granted: true };
-      }, []);
+      const requestPermission = React.useCallback(async () => 
+        // Simulate async permission request - grant after a small delay
+         new Promise((resolve) => {
+          setTimeout(() => {
+            setPermission({
+              granted: true,
+              canAskAgain: true,
+              expires: undefined,
+              status: 'granted',
+            });
+            resolve({ granted: true });
+          }, 50);
+        })
+      , []);
 
       return [permission, requestPermission];
     },
