@@ -6,6 +6,7 @@
  */
 import IdentificationForm from '@app/domains/DataCollection/Forms/IdentificationForm';
 import SupplementaryForm from '@app/domains/DataCollection/Forms/SupplementaryForm';
+import client from '@app/services/parse/client';
 import { getData } from '@modules/async-storage';
 import I18n from '@modules/i18n';
 import { createLayoutStyles } from '@modules/theme';
@@ -21,9 +22,12 @@ function EditForm({ navigation, route }) {
   const [loading, setLoading] = useState(true);
   const [surveyingUser, setSurveyingUser] = useState('');
   const [surveyingOrganization, setSurveyingOrganization] = useState('');
+  const [formSpecifications, setFormSpecifications] = useState(null);
   const {
     editMode, existingRecord, formType, resident,
   } = route.params || {};
+  
+  const Parse = client(false);
 
   useEffect(() => {
     const setupData = async () => {
@@ -35,6 +39,23 @@ function EditForm({ navigation, route }) {
           );
           setSurveyingOrganization(currentUser.organization || '');
         }
+        
+        // For FormResults, fetch the FormSpecifications to get the real field definitions
+        if (formType === 'FormResults' && existingRecord?.formSpecificationsId) {
+          try {
+            const Model = Parse.Object.extend('FormSpecificationsV2');
+            const query = new Parse.Query(Model);
+            query.equalTo('objectId', existingRecord.formSpecificationsId);
+            const specs = await query.first();
+            if (specs) {
+              setFormSpecifications(specs.toJSON ? specs.toJSON() : specs);
+            }
+          } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error('Error fetching FormSpecifications:', err);
+          }
+        }
+        
         setLoading(false);
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -44,7 +65,7 @@ function EditForm({ navigation, route }) {
     };
 
     setupData();
-  }, []);
+  }, [formType, existingRecord?.formSpecificationsId, Parse]);
 
   if (!editMode || !existingRecord || !formType) {
     return (
@@ -115,6 +136,16 @@ function EditForm({ navigation, route }) {
   }
 
   // Supplementary forms
+  const getCustomFormProp = () => {
+    if (formType !== 'FormResults') {
+      return undefined;
+    }
+    if (formSpecifications) {
+      return formSpecifications;
+    }
+    return existingRecord;
+  };
+
   return (
     <View style={layout.screenContainer}>
       <KeyboardAvoidingView
@@ -142,7 +173,7 @@ function EditForm({ navigation, route }) {
             surveyee={resident}
             surveyingUser={surveyingUser}
             surveyingOrganization={surveyingOrganization}
-            customForm={formType === 'FormResults' ? existingRecord : undefined}
+            customForm={getCustomFormProp()}
             scrollViewScroll={false}
             setScrollViewScroll={() => {}}
           />

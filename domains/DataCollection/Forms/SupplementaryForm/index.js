@@ -72,9 +72,13 @@ function SupplementaryForm({
       setConfig(vitalsConfig);
     }
     if (selectedForm === "custom") {
-      // In edit mode, existingRecord.fields contains [{title, answer}] answer pairs,
-      // not a field config schema. Build a synthetic config for rendering.
-      if (editMode && existingRecord && Array.isArray(existingRecord.fields)) {
+      // In edit mode with FormSpecifications: use the real field definitions
+      if (editMode && existingRecord && customForm && customForm.fields && Array.isArray(customForm.fields)) {
+        // customForm is FormSpecificationsV2 with real field definitions
+        setConfig(customForm);
+      } else if (editMode && existingRecord && Array.isArray(existingRecord.fields)) {
+        // Fallback: existingRecord.fields contains [{title, answer}] pairs only,
+        // build a synthetic config for rendering
         const syntheticConfig = {
           name: existingRecord.title || "Custom Form",
           customForm: true,
@@ -97,8 +101,8 @@ function SupplementaryForm({
       return {};
     }
 
-    // Filter out Parse metadata fields that should not be in form values
-    const parseMetadataFields = new Set([
+    // Filter out Parse metadata and system fields that should not be in form values
+    const fieldsToExclude = new Set([
       'objectId',
       'createdAt',
       'updatedAt',
@@ -107,12 +111,25 @@ function SupplementaryForm({
       'ACL',
       'sessionToken',
       'authData',
+      'client', // Parse pointer to resident
+      'appVersion', // System field
+      'phoneOS', // System field
+      'editedAt', // System field
+      'editedBy', // System field
     ]);
 
-    // Spread existingRecord but exclude metadata fields
+    // For FormResults, also exclude form structure fields
+    if (selectedForm === "custom") {
+      fieldsToExclude.add('title');
+      fieldsToExclude.add('description');
+      fieldsToExclude.add('formSpecificationsId');
+      fieldsToExclude.add('fields'); // Will be handled separately via reverseFormResultsFields
+    }
+
+    // Start with allowed fields from existingRecord
     const editFormValues = {};
     Object.entries(existingRecord).forEach(([key, value]) => {
-      if (!parseMetadataFields.has(key)) {
+      if (!fieldsToExclude.has(key)) {
         editFormValues[key] = value;
       }
     });
@@ -145,6 +162,7 @@ function SupplementaryForm({
       onSubmit={async (values) => {
         setSubmitting(true);
         setPhotoFile("Submitted Photo String");
+        let formObjectUpdated;
 
         try {
           const formObject = values;
@@ -160,7 +178,7 @@ function SupplementaryForm({
           formObject.appVersion = (await getData("appVersion")) || "";
           formObject.phoneOS = Platform.OS || "";
 
-          let formObjectUpdated = addSelectTextInputs(values, formObject);
+          formObjectUpdated = addSelectTextInputs(values, formObject);
           if (selectedForm === "vitals") {
             formObjectUpdated = vitalsBloodPressue(values, formObjectUpdated);
           }
@@ -177,15 +195,25 @@ function SupplementaryForm({
           if (editMode && existingRecord && existingRecord.objectId) {
             const editClass = selectedForm === "custom" ? "FormResults" : config.class;
             
-            // Clean formObjectUpdated: remove any Parse metadata, Pointers, or non-serializable values
-            // This prevents "This is not a valid Object" errors from Parse
-            const parseMetadataFields = new Set([
+            // For FormResults: exclude structure fields, rebuild the fields array from answers
+            // For other forms: exclude Parse metadata
+            const fieldsToExclude = new Set([
               'objectId', 'createdAt', 'updatedAt', 'className', '__type', 'ACL', 'sessionToken', 'authData',
             ]);
+            
+            // For FormResults, also exclude the form structure (keep only user-provided data)
+            if (selectedForm === "custom") {
+              fieldsToExclude.add('fields');
+              fieldsToExclude.add('title');
+              fieldsToExclude.add('description');
+              fieldsToExclude.add('formSpecificationsId');
+            }
+            
             const cleanedUpdateFields = {};
             Object.entries(formObjectUpdated).forEach(([key, value]) => {
-              if (!parseMetadataFields.has(key)) {
+              if (!fieldsToExclude.has(key)) {
                 // Skip Parse Pointer fields (they have __type === 'Pointer') - don't update relationships
+                // eslint-disable-next-line no-underscore-dangle
                 if (value && typeof value === 'object' && value.__type === 'Pointer') {
                   return; // Skip pointers, don't update them
                 }
@@ -204,7 +232,25 @@ function SupplementaryForm({
               }
             });
             
-            console.log('DEBUG: cleanedUpdateFields keys:', Object.keys(cleanedUpdateFields).slice(0, 10)); // eslint-disable-line
+            // For FormResults: rebuild the fields array from the cleaned user data
+            if (selectedForm === "custom") {
+              const metadataFields = new Set(['surveyingUser', 'surveyingOrganization', 'client', 'appVersion', 'editedBy', 'editedAt']);
+              cleanedUpdateFields.fields = Object.entries(cleanedUpdateFields)
+                .filter(([key]) => !metadataFields.has(key))
+                .map(([title, answer]) => ({
+                  title,
+                  answer,
+                }));
+              
+              // Remove individual field entries, keep only the fields array and metadata
+              Object.keys(cleanedUpdateFields).forEach((key) => {
+                if (!metadataFields.has(key) && key !== 'fields') {
+                  delete cleanedUpdateFields[key];
+                }
+              });
+            }
+            
+            console.log('DEBUG: cleanedUpdateFields keys:', Object.keys(cleanedUpdateFields)); // eslint-disable-line
             
             await updateObjectInClass(
               editClass,

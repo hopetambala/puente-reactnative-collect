@@ -234,7 +234,7 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
           <View>
             {records.map((item, index) => (
               <Animated.View
-                key={`${formType}-${item.objectId}-${index}`}
+                key={`${formType}-${item.objectId}`}
                 entering={RowEntrance
                   .delay(Math.min(index * 40, 200))
                   .duration(MOTION_TOKENS.duration.base)}

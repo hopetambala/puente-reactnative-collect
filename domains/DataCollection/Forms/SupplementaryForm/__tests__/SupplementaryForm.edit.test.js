@@ -587,6 +587,7 @@ describe('SupplementaryForm Edit Mode - RED-GREEN TDD', () => {
         expect(updateFields.createdAt).toBeUndefined();
         expect(updateFields.updatedAt).toBeUndefined();
         expect(updateFields.className).toBeUndefined();
+        // eslint-disable-next-line no-underscore-dangle
         expect(updateFields.__type).toBeUndefined();
         expect(updateFields.ACL).toBeUndefined();
         

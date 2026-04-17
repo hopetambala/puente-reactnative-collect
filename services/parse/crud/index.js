@@ -218,7 +218,8 @@ function updateObjectInClass(parseClass, objectId, updateFields, surveyingUser) 
         }
         
         // Skip Parse Pointer fields (__type === 'Pointer')
-        if (value && typeof value === 'object' && value.__type === 'Pointer') {
+      // eslint-disable-next-line no-underscore-dangle
+      if (value && typeof value === 'object' && value.__type === 'Pointer') {
           return;
         }
         

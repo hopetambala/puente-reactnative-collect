@@ -193,6 +193,7 @@ describe('updateObjectInClass - RED/GREEN TDD', () => {
       await updateObjectInClass('SurveyData', 'test-id-123', updateFields, 'user123');
       const [, params] = mockCloudRun.mock.calls[0];
       
+      // eslint-disable-next-line no-underscore-dangle
       expect(params.localObject.__type).toBeUndefined();
     });
 
