@@ -422,4 +422,82 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
       });
     });
   });
+
+  describe('RED-GREEN: Section order and FormResults row labels', () => {
+    const mockFormResultsRecord = {
+      objectId: 'form-1',
+      title: 'Dog Intake Form',
+      createdAt: new Date('2026-04-12').toISOString(),
+      fields: [{ title: 'dogName', answer: 'Rex' }],
+      toJSON: () => ({
+        objectId: 'form-1',
+        title: 'Dog Intake Form',
+        createdAt: new Date('2026-04-12').toISOString(),
+        fields: [{ title: 'dogName', answer: 'Rex' }],
+      }),
+    };
+
+    test('RED: sections always render in fixed order regardless of fetch completion order', async () => {
+      // Simulate env/vitals resolving AFTER FormResults (out of RECORD_TYPES order)
+      mockFind
+        .mockResolvedValueOnce([mockVitalsRecord])        // Vitals resolves first
+        .mockResolvedValueOnce([])                        // Environmental Health
+        .mockResolvedValueOnce([mockMedicalRecord])       // Medical Evaluation
+        .mockResolvedValueOnce([mockFormResultsRecord]);  // FormResults resolves last
+
+      const mockNavigation = { goBack: jest.fn() };
+      const mockRoute = { params: { resident: mockResident } };
+
+      render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('Vitals')).toBeDefined();
+      });
+
+      // Sections must appear in this fixed order:
+      // Identification → Vitals → Environmental Health → Medical Evaluation → Custom Forms
+      const sectionHeaders = screen.queryAllByText(/Identification|Vitals|Environmental Health|Medical Evaluation|Custom Forms/);
+      const headerTexts = sectionHeaders.map((el) => el.props.children);
+
+      const vitalsIdx = headerTexts.indexOf('Vitals');
+      const customIdx = headerTexts.indexOf('Custom Forms');
+      const medIdx = headerTexts.indexOf('Medical Evaluation');
+
+      // Vitals must come before Medical Evaluation, which must come before Custom Forms
+      expect(vitalsIdx).toBeLessThan(medIdx);
+      expect(medIdx).toBeLessThan(customIdx);
+    });
+
+    test('RED: FormResults rows show record.title, not the section label "Custom Forms"', async () => {
+      const secondFormRecord = {
+        objectId: 'form-2',
+        title: 'Cat Adoption Survey',
+        createdAt: new Date('2026-04-11').toISOString(),
+        fields: [],
+        toJSON: () => ({
+          objectId: 'form-2',
+          title: 'Cat Adoption Survey',
+          createdAt: new Date('2026-04-11').toISOString(),
+          fields: [],
+        }),
+      };
+
+      mockFind
+        .mockResolvedValueOnce([])                                        // Vitals
+        .mockResolvedValueOnce([])                                        // Environmental Health
+        .mockResolvedValueOnce([])                                        // Medical Evaluation
+        .mockResolvedValueOnce([mockFormResultsRecord, secondFormRecord]); // FormResults
+
+      const mockNavigation = { goBack: jest.fn() };
+      const mockRoute = { params: { resident: mockResident } };
+
+      render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
+
+      await waitFor(() => {
+        // Each row should show its own title, not the generic section label
+        expect(screen.getByText(/Dog Intake Form/)).toBeDefined();
+        expect(screen.getByText(/Cat Adoption Survey/)).toBeDefined();
+      });
+    });
+  });
 });

@@ -191,6 +191,20 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
     );
   }
 
+  const getRecordDisplayName = (formType, record) => {
+    if (formType === 'FormResults') {
+      return record.title || 'Custom Form';
+    }
+    return null;
+  };
+
+  // Render sections in a fixed order regardless of which query resolved first.
+  // RECORD_TYPES order: Vitals → HistoryEnvironmentalHealth → EvaluationMedical → FormResults
+  const SECTION_ORDER = ['SurveyData', ...RECORD_TYPES.map((t) => t.formType)];
+  const orderedEntries = SECTION_ORDER
+    .filter((key) => recordsByType[key])
+    .map((key) => [key, recordsByType[key]]);
+
   // SurveyData is always present (the resident's identification record).
   // Show empty state only when there are no supplementary form submissions.
   const hasRecords = Object.keys(recordsByType).length > 1;
@@ -212,54 +226,56 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1 }}>
       <ScrollView style={{ flex: 1, padding: 16 }}>
-        <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ marginBottom: 8, alignSelf: 'flex-start' }}>Back</Button>
-      <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
-        Record History:
-        {' '}
-        {residentName}
-      </Text>
-
-      {Object.entries(recordsByType).map(([formType, { label, records }], sectionIdx) => (
-        <Animated.View
-          key={formType}
-          style={{ marginBottom: 24 }}
-          entering={SectionEntrance
-            .delay(sectionIdx * 80)
-            .duration(MOTION_TOKENS.duration.base)}
-        >
-          <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 8, textTransform: 'capitalize' }}>
-            {label}
+        <View>
+          <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ marginBottom: 8, alignSelf: 'flex-start' }}>Back</Button>
+          <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
+            Record History:
+            {' '}
+            {residentName}
           </Text>
 
-          <View>
-            {records.map((item, index) => (
-              <Animated.View
-                key={`${formType}-${item.objectId}`}
-                entering={RowEntrance
-                  .delay(Math.min(index * 40, 200))
-                  .duration(MOTION_TOKENS.duration.base)}
-              >
-                <TouchableOpacity
-                  testID={`${item.objectId}`}
-                  onPress={() => handleRecordPress(formType, item)}
-                  style={{
-                    padding: 12,
-                    marginBottom: 8,
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: 8,
-                  }}
-                >
-                  <Text style={{ fontSize: 14, fontWeight: '500' }}>
-                    {label}
-                    {' - '}
-                    {formatDate(item.createdAt)}
-                  </Text>
-                </TouchableOpacity>
-              </Animated.View>
-            ))}
-          </View>
-        </Animated.View>
-      ))}
+          {orderedEntries.map(([formType, { label, records }], sectionIdx) => (
+            <Animated.View
+              key={formType}
+              style={{ marginBottom: 24 }}
+              entering={SectionEntrance
+                .delay(sectionIdx * 80)
+                .duration(MOTION_TOKENS.duration.base)}
+            >
+              <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 8, textTransform: 'capitalize' }}>
+                {label}
+              </Text>
+
+              <View>
+                {records.map((item, index) => (
+                  <Animated.View
+                    key={`${formType}-${item.objectId}`}
+                    entering={RowEntrance
+                      .delay(Math.min(index * 40, 200))
+                      .duration(MOTION_TOKENS.duration.base)}
+                  >
+                    <TouchableOpacity
+                      testID={`${item.objectId}`}
+                      onPress={() => handleRecordPress(formType, item)}
+                      style={{
+                        padding: 12,
+                        marginBottom: 8,
+                        backgroundColor: '#f5f5f5',
+                        borderRadius: 8,
+                      }}
+                    >
+                      <Text style={{ fontSize: 14, fontWeight: '500' }}>
+                        {getRecordDisplayName(formType, item) || label}
+                        {' - '}
+                        {formatDate(item.createdAt)}
+                      </Text>
+                    </TouchableOpacity>
+                  </Animated.View>
+                ))}
+              </View>
+            </Animated.View>
+          ))}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
