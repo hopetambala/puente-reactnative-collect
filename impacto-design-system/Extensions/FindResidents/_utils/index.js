@@ -40,7 +40,7 @@ const parseSearch = (surveyingOrganization, qry) => {
   return new Promise((resolve, reject) => {
     const query = Parse.Query.or(fname, lname);
 
-    query.descending("createdAt");
+    query.descending("updatedAt");
 
     query.equalTo("surveyingOrganization", surveyingOrganization);
 

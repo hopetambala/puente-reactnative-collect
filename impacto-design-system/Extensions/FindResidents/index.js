@@ -58,6 +58,7 @@ function FindResidents({
   }, [selectPerson]);
 
   useEffect(() => {
+    if (!organization) return;
     checkOnlineStatus().then(async (connected) => {
       if (connected) fetchData(true, "");
       if (!connected) fetchData(false, "");
