@@ -12,9 +12,10 @@ import I18n from '@modules/i18n';
 import { createLayoutStyles } from '@modules/theme';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text, View,
+  ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, Text,
 } from 'react-native';
 import { Button, useTheme } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 function EditForm({ navigation, route }) {
   const theme = useTheme();
@@ -69,23 +70,23 @@ function EditForm({ navigation, route }) {
 
   if (!editMode || !existingRecord || !formType) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }} testID="error-view">
+      <SafeAreaView edges={['top']} style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }} testID="error-view">
         <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>
-          Error
+          {I18n.t('global.error')}
         </Text>
-        <Text>Invalid edit parameters. Missing editMode, existingRecord, or formType.</Text>
+        <Text>{I18n.t('findRecordSettings.invalidParams')}</Text>
         <Button mode="contained" onPress={() => navigation.goBack()} style={{ marginTop: 20 }}>
-          Go Back
+          {I18n.t('global.back')}
         </Button>
-      </View>
+      </SafeAreaView>
     );
   }
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} testID="loadingContainer">
+      <SafeAreaView edges={['top']} style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} testID="loadingContainer">
         <ActivityIndicator size="large" color={theme.colors.primary} testID="loadingIndicator" />
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -102,10 +103,21 @@ function EditForm({ navigation, route }) {
   };
   const mappedForm = formTypeToSelectedForm[formType] || formType;
 
+  // Map Parse class name to translated display label
+  const formTypeToI18nKey = {
+    Vitals: 'residentHistory.vitals',
+    HistoryEnvironmentalHealth: 'residentHistory.environmentalHealth',
+    EvaluationMedical: 'residentHistory.medicalEvaluation',
+    FormResults: 'residentHistory.customForms',
+  };
+  const formTypeLabel = formTypeToI18nKey[formType]
+    ? I18n.t(formTypeToI18nKey[formType])
+    : formType;
+
   // Render appropriate form based on formType
   if (formType === 'SurveyData' || formType === 'Identification') {
     return (
-      <View style={layout.screenContainer}>
+      <SafeAreaView edges={['top']} style={layout.screenContainer}>
         <KeyboardAvoidingView
           enabled
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -116,7 +128,7 @@ function EditForm({ navigation, route }) {
               {I18n.t('dataCollection.back')}
             </Button>
             <Text style={{ fontSize: 18, fontWeight: 'bold', margin: 16 }}>
-              Edit Identification
+              {`${I18n.t('findRecordSettings.edit')} ${I18n.t('residentHistory.identification')}`}
             </Text>
             <IdentificationForm
               editMode={editMode}
@@ -131,7 +143,7 @@ function EditForm({ navigation, route }) {
             />
           </ScrollView>
         </KeyboardAvoidingView>
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -147,20 +159,18 @@ function EditForm({ navigation, route }) {
   };
 
   return (
-    <View style={layout.screenContainer}>
+    <SafeAreaView edges={['top']} style={layout.screenContainer}>
       <KeyboardAvoidingView
         enabled
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
         <ScrollView>
-          <Button icon="arrow-left" onPress={handleGoBack} style={{ marginBottom: 10 }}>
+          <Button icon="arrow-left" onPress={handleGoBack}>
             {I18n.t('dataCollection.back')}
           </Button>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', margin: 16 }}>
-            Edit
-            {' '}
-            {formType}
+          <Text style={{ fontSize: 18, fontWeight: 'bold', margin: 16, marginBottom: 0, paddingBottom: 0 }}>
+            {`${I18n.t('findRecordSettings.edit')} ${formTypeLabel}`}
           </Text>
           <SupplementaryForm
             editMode={editMode}
@@ -179,7 +189,7 @@ function EditForm({ navigation, route }) {
           />
         </ScrollView>
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }
 

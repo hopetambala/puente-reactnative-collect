@@ -171,8 +171,8 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
 
       await waitFor(() => {
         // Should have grouped records by type
-        expect(screen.queryByText('Vitals')).toBeDefined();
-        expect(screen.queryByText('Medical Evaluation')).toBeDefined();
+        expect(screen.queryByText('residentHistory.vitals')).toBeDefined();
+        expect(screen.queryByText('residentHistory.medicalEvaluation')).toBeDefined();
       });
     });
 
@@ -451,17 +451,17 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
       render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
 
       await waitFor(() => {
-        expect(screen.queryByText('Vitals')).toBeDefined();
+        expect(screen.queryByText('residentHistory.vitals')).toBeDefined();
       });
 
       // Sections must appear in this fixed order:
       // Identification → Vitals → Environmental Health → Medical Evaluation → Custom Forms
-      const sectionHeaders = screen.queryAllByText(/Identification|Vitals|Environmental Health|Medical Evaluation|Custom Forms/);
+      const sectionHeaders = screen.queryAllByText(/residentHistory\.(identification|vitals|environmentalHealth|medicalEvaluation|customForms)/);
       const headerTexts = sectionHeaders.map((el) => el.props.children);
 
-      const vitalsIdx = headerTexts.indexOf('Vitals');
-      const customIdx = headerTexts.indexOf('Custom Forms');
-      const medIdx = headerTexts.indexOf('Medical Evaluation');
+      const vitalsIdx = headerTexts.indexOf('residentHistory.vitals');
+      const customIdx = headerTexts.indexOf('residentHistory.customForms');
+      const medIdx = headerTexts.indexOf('residentHistory.medicalEvaluation');
 
       // Vitals must come before Medical Evaluation, which must come before Custom Forms
       expect(vitalsIdx).toBeLessThan(medIdx);

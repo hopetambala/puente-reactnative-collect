@@ -186,40 +186,40 @@ export default function SignUp({ navigation }) {
                     label={I18n.t("signUp.firstName")}
                     formikProps={formikProps}
                     formikKey="firstname"
-                    placeholder="John"
+                    placeholder={I18n.t("signUp.placeholders.firstName")}
                     autoFocus
                   />
                   <FormInput
                     label={I18n.t("signUp.lastName")}
                     formikProps={formikProps}
                     formikKey="lastname"
-                    placeholder="Doe"
+                    placeholder={I18n.t("signUp.placeholders.lastName")}
                   />
                   <FormInput
                     label={I18n.t("signUp.email")}
                     formikProps={formikProps}
                     formikKey="email"
-                    placeholder="johndoe@example.com"
+                    placeholder={I18n.t("signUp.placeholders.email")}
                   />
                   <FormInput
                     label={I18n.t("signUp.phoneNumber")}
                     formikProps={formikProps}
                     formikKey="phonenumber"
-                    placeholder="123-456-7890"
+                    placeholder={I18n.t("signUp.placeholders.phoneNumber")}
                     keyboardType="numeric"
                   />
                   <FormInput
                     label={I18n.t("signUp.password")}
                     formikProps={formikProps}
                     formikKey="password"
-                    placeholder="Password Here"
+                    placeholder={I18n.t("signUp.placeholders.password")}
                     secureTextEntry
                   />
                   <FormInput
                     label={I18n.t("signUp.password2")}
                     formikProps={formikProps}
                     formikKey="password2"
-                    placeholder="Password Here"
+                    placeholder={I18n.t("signUp.placeholders.password")}
                     secureTextEntry
                   />
                   <Autofill

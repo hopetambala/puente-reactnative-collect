@@ -3,7 +3,7 @@ on:
   workflow_run:
     workflows: ["CI"]
     types: [completed]
-    branches: [master, main, develop]
+    branches: [master, develop]
 
 jobs:
   update:

@@ -145,7 +145,7 @@ function ResidentPage({
           style={{ margin: spacing.md }}
           onPress={() => navigateToRecordHistory(selectPerson)}
         >
-          View Record History
+          {I18n.t('findResident.residentPage.viewRecordHistory')}
         </Button>
       )}
       <Button onPress={() => setSelectPerson()}>

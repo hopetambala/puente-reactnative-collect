@@ -1,10 +1,10 @@
-# CI/CD: Animation Linter Checks
+# CI/CD: Linter Checks
 
-This document describes the automated checks for the Motion Design System.
+This document describes the automated checks for the Motion Design System and i18n translation coverage.
 
 ## Overview
 
-The animation linter runs as **two independent checks**:
+Linters run as **independent checks**:
 
 1. **GitHub Actions CI** — Runs on every push and pull request
 2. **Local Pre-commit Hook** — Runs before commits (optional, but recommended)
@@ -13,7 +13,7 @@ The animation linter runs as **two independent checks**:
 
 ### Animation Linter (`.github/workflows/lint-animations.yml`)
 
-✅ **Runs on:** Every push to `main`, `dev`, `develop` + all PRs  
+✅ **Runs on:** Every push to `master`, `develop` + all PRs  
 ✅ **Check:** `yarn lint:animations`  
 ✅ **Fails if:** Any animation violations detected
 
@@ -25,9 +25,28 @@ The animation linter runs as **two independent checks**:
 
 **View results:** GitHub Actions tab on PR page
 
+### i18n Linter (`.github/workflows/lint-i18n.yml`)
+
+✅ **Runs on:** Every push to `master`, `develop` + all PRs  
+✅ **Check:** `yarn lint:i18n`  
+✅ **Fails if:** Any hardcoded user-facing string detected (exit code 1 on errors, warnings-only exits 0)
+
+**What it validates:**
+- No `<Text>` elements with raw string children (not wrapped in `I18n.t()`)
+- No `title=`, `placeholder=`, `label=`, `accessibilityLabel=` props with string literals
+- Screen components that render JSX but never import `@modules/i18n` (warning)
+
+**Suppress a line** (use sparingly):
+```jsx
+{/* lint-i18n-ignore */}
+<Text>Internal debug string</Text>
+```
+
+**View results:** GitHub Actions tab on PR page
+
 ### Tests (`.github/workflows/tests.yml`)
 
-✅ **Runs on:** Every push to `main`, `dev`, `develop` + all PRs  
+✅ **Runs on:** Every push to `master`, `develop` + all PRs  
 ✅ **Checks:**
   - Unit tests: `yarn test:unit`
   - Integration tests: `yarn test:integration`
@@ -46,6 +65,29 @@ yarn lint:animations
 
 # Get hints for fixes
 yarn lint:animations:hints
+```
+
+### Run i18n Linter Locally
+
+```bash
+# Check for hardcoded strings (CI mode — errors only block)
+yarn lint:i18n
+
+# Summary view (per-file counts)
+yarn lint:i18n:summary
+```
+
+### Check Locale Sync Locally
+
+```bash
+# Check all locale files are in sync with en.json
+yarn lint:locale-sync
+
+# Also show orphaned keys (in locale but not in en.json)
+yarn lint:locale-sync:orphans
+
+# Check for verbatim English strings in localized files (runs in CI)
+yarn lint:locale-sync:verbatim
 ```
 
 ### Setup Pre-commit Hook (Optional)

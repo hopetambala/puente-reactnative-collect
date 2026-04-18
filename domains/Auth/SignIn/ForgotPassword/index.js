@@ -24,7 +24,7 @@ export default function ForgotPassword({ navigation, setForgotPassword }) {
     <View style={{ flex: 1, marginHorizontal: 15, marginTop: 50 }}>
       <View style={{ flex: 9 }}>
         <Button icon="arrow-left" width={100} onPress={handleSignIn}>
-          Back
+          {I18n.t('global.back')}
         </Button>
         {!emailError && !emailSuccess && (
           <View>
@@ -86,7 +86,7 @@ export default function ForgotPassword({ navigation, setForgotPassword }) {
               {I18n.t("signIn.forgotPassword.resetSuccess")}
             </Text>
             <Button mode="text" theme={theme} onPress={handleSignIn}>
-              Back to Sign in
+              {I18n.t('signIn.forgotPassword.backToSignIn')}
             </Button>
           </View>
         )}

@@ -16,7 +16,8 @@
     "ok": "Ok",
     "emptyForm": "Empty Form",
     "back": "Back",
-    "pleaseTryAgain": "Please, try again"
+    "pleaseTryAgain": "Please, try again",
+    "loadMore": "Load More"
   },
   "signUp": {
     "firstName": "First Name",
@@ -37,7 +38,14 @@
     "errorPassword": "Error, your passwords do not match.",
     "usernameError": "Sign up attempt failed.\n\nYou might have attempted to sign up with a username (email/phone number) that has been previously registered with another account.\n\nPlease contact your supervisor if you believe this is an error.",
     "confirmViaEmail": "Send confirmation via email?",
-    "confirmViaText": "Send confirmation via text?"
+    "confirmViaText": "Send confirmation via text?",
+    "placeholders": {
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "johndoe@example.com",
+      "phoneNumber": "123-456-7890",
+      "password": "Password Here"
+    }
   },
   "signIn": {
     "user":"Username",
@@ -60,7 +68,8 @@
       "signIn": "Sign In",
       "resetSuccess": "Your password reset link has been sent to your email. Please Check your email to change your password.",
       "resetError": "There was an error sending the password reset link. Please ensure that you entered your email correctly. You can try again by clicking the button below. If you believe the email is correct, please contact your manager.",
-      "tryAgain": "Try Again"
+      "tryAgain": "Try Again",
+      "backToSignIn": "Back to Sign in"
     },
     "credentialsModal": {
       "useCreds": "Would you like to use your saved login credentials?"
@@ -451,7 +460,8 @@
         "forms": "Forms",
         "household": "Household",
         "goBack": "Go back to find records"
-      }
+      },
+      "viewRecordHistory": "View Record History"
     }
   },
   "householdManager": {
@@ -529,7 +539,8 @@
     "errorMessage": "There was an error processing your request. Please ensure you are connected to the internet and try again.",
     "successMessage": "You have updated your storage limit. You may experience app related issues if your phone cannot handle the new limit. If this occurs, your experience may be better if you reduce the limit.",
     "findRecords": "Find Records",
-    "edit": "Edit"
+    "edit": "Edit",
+    "invalidParams": "Invalid edit parameters. Missing editMode, existingRecord, or formType."
   },
   "languageSettings": {
     "chooseLanguage": "Choose Language"
@@ -642,5 +653,18 @@
     "light": "Light",
     "dark": "Dark",
     "auto": "Auto"
+  },
+  "residentHistory": {
+    "loading": "Loading record history...",
+    "noRecordsFound": "No records found",
+    "noSubmissionsYet": "%{name} has no form submissions yet.",
+    "recordHistory": "Record History:",
+    "errorLoadingRecords": "Error loading records",
+    "customForm": "Custom Form",
+    "identification": "Identification",
+    "vitals": "Vitals",
+    "environmentalHealth": "Environmental Health",
+    "medicalEvaluation": "Medical Evaluation",
+    "customForms": "Custom Forms"
   }
 }
