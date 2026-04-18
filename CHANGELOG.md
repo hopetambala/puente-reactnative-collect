@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [15.3.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.2.4...v15.3.0) (2026-04-18)
+
+
+### Bug fixes
+
+* restore AccessibilityContext reading in useMotion hook ([8612c99](https://github.com/hopetambala/puente-reactnative-collect/commit/8612c99ddaf4e84b9d18d2a7ec5649e4f21c38a6))
+
 ### [15.2.4](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.2.3...v15.2.4) (2026-04-18)
 
 ### [15.2.3](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.0.4...v15.2.3) (2026-04-18)

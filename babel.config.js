@@ -20,7 +20,10 @@ module.exports = function (api) {
     ],
     env: {
       production: {
-        plugins: ["react-native-paper/babel"],
+        plugins: [
+          // TEMPORARILY DISABLED: Testing if react-native-paper/babel causes production crash
+          // "react-native-paper/babel",
+        ],
       },
     },
   };

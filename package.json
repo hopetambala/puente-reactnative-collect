@@ -1,6 +1,6 @@
 {
   "name": "puente-reactnative",
-  "version": "15.2.4",
+  "version": "15.3.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
@@ -36,7 +36,10 @@
     "lint:locale-sync:verbatim": "node scripts/check-locale-sync.js --verbatim",
     "prettier": "prettier --write '**/*.{js,jsx}'",
     "build-apps": "eas build --platform all",
-    "submit-apps": "eas submit -p ios --latest && eas submit -p android --latest",
+    "build-submit-all": "eas build --platform all --non-interactive && eas submit -p ios --latest --non-interactive && eas submit -p android --latest --non-interactive",
+    "build-submit-ios": "eas build --platform ios --non-interactive && eas submit -p ios --latest --non-interactive",
+    "build-submit-android": "eas build --platform android --non-interactive && eas submit -p android --latest --non-interactive",
+    "submit-apps": "eas submit -p ios --latest --non-interactive && eas submit -p android --latest --non-interactive",
     "gh-prune": "git fetch -p && for branch in `git branch -vv | grep ': gone]' | awk '{print $1}'`; do git branch -D $branch; done",
     "release-patch": "standard-version --release-as patch",
     "release-minor": "standard-version --release-as minor",
