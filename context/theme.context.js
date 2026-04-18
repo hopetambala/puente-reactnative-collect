@@ -1,4 +1,3 @@
-/* global __DEV__ */
 import { getData, storeData } from "@modules/async-storage";
 import React, { createContext, useEffect, useMemo, useState } from "react";
 import { useColorScheme } from "react-native";

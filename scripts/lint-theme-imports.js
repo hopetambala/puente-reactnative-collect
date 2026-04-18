@@ -45,9 +45,10 @@ const SKIP_DIRS = new Set([
 
 /**
  * Pattern: import { theme } from "@modules/theme"
- * Matches: import { theme, spacing } from "@modules/theme" (etc)
+ * Matches single-line and multi-line named imports that include `theme`.
+ * The `s` flag makes `.` match newlines so multi-line imports are caught.
  */
-const STATIC_THEME_IMPORT_RE = /import\s*\{\s*([^}]*)\btheme\b([^}]*)\s*\}\s*from\s+["']@modules\/theme["']/;
+const STATIC_THEME_IMPORT_RE = /import\s*\{[^}]*\btheme\b[^}]*\}\s*from\s+["']@modules\/theme["']/gs;
 
 // ─── Utilities ───────────────────────────────────────────────────────────────
 
@@ -71,26 +72,27 @@ function walkDir(dir) {
 }
 
 /**
- * Check a file for theme import violations
+ * Check a file for theme import violations.
+ * Matches against full file content so multi-line imports are caught.
  */
 function lintFile(filePath) {
   const violations = [];
 
   try {
     const content = fs.readFileSync(filePath, 'utf8');
-    const lines = content.split('\n');
 
-    lines.forEach((line, lineIdx) => {
-      const lineNumber = lineIdx + 1;
-
-      if (STATIC_THEME_IMPORT_RE.test(line)) {
-        violations.push({
-          line: lineNumber,
-          file: filePath,
-          message: 'Static theme import detected. This is frozen at bundle time and won\'t update in production dark mode. Use useTheme() hook from react-native-paper instead.',
-        });
-      }
-    });
+    STATIC_THEME_IMPORT_RE.lastIndex = 0;
+    let match = STATIC_THEME_IMPORT_RE.exec(content);
+    while (match !== null) {
+      // Compute line number from the match start index
+      const lineNumber = content.slice(0, match.index).split('\n').length;
+      violations.push({
+        line: lineNumber,
+        file: filePath,
+        message: 'Static theme import detected. This is frozen at bundle time and won\'t update in production dark mode. Use useTheme() hook from react-native-paper instead.',
+      });
+      match = STATIC_THEME_IMPORT_RE.exec(content);
+    }
   } catch (err) {
     // Silently skip unreadable files
   }

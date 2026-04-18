@@ -194,7 +194,7 @@ function SettingsHome({
             >
               <View style={settingsStyles.themeContainer}>
                 <Text style={settingsStyles.themeLabel}>
-                  {I18n.t("accessibility.calmMode", "Calm Mode")}
+                  {I18n.t("accessibility.calmMode")}
                 </Text>
                 <View
                   style={{
@@ -210,10 +210,7 @@ function SettingsHome({
                       fontSize: 14,
                     }}
                   >
-                    {I18n.t(
-                      "accessibility.calmModeDescription",
-                      "Reduce animations for clinical focus"
-                    )}
+                    {I18n.t("accessibility.calmModeDescription")}
                   </Text>
                   <Switch
                     value={accessibilityContext.calmMode}

@@ -1,6 +1,5 @@
+import { AccessibilityContext } from "@context/accessibility.context";
 import { useContext } from "react";
-
-import { AccessibilityContext } from "../../context/accessibility.context";
 
 /**
  * useAccessibilityContext — Access calm mode and motion reduction settings

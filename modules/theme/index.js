@@ -1,4 +1,3 @@
-/* global __DEV__ */
 import { DefaultTheme, MD3DarkTheme } from "react-native-paper";
 
 import { createLayoutStyles } from "./layout";

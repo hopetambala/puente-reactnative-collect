@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import {
   cancelAnimation,
   Easing,
@@ -11,6 +11,16 @@ import {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+
+// Lazy import to avoid circular dependency (accessibility context → animations → theme)
+let AccessibilityContext;
+const getAccessibilityContext = () => {
+  if (!AccessibilityContext) {
+    // eslint-disable-next-line global-require
+    AccessibilityContext = require("@context/accessibility.context").AccessibilityContext;
+  }
+  return AccessibilityContext;
+};
 
 /**
  * Motion Token System - Centralized animation values
@@ -568,14 +578,19 @@ export function useSuccessMorphAnimation() {
 /**
  * useMotion hook — global motion control gate (spec §6.1 + §6.2)
  * Single control point for reduced motion + calm mode.
+ * Automatically reads calmMode from AccessibilityContext — no prop threading needed.
  *
  * @param {Object} options
  * @param {string} options.componentType - Component type for spring selection (e.g., 'button', 'navigation')
- * @param {boolean} options.calmMode - Shift spring intensity down one level (spec §6.2 clinical context)
+ * @param {boolean} options.calmMode - Override calm mode (defaults to AccessibilityContext value)
  * @returns {{ shouldAnimate, duration, spring, resolveSpring }}
  */
-export function useMotion({ componentType = 'default', calmMode = false } = {}) {
+export function useMotion({ componentType = 'default', calmMode: calmModeOverride } = {}) {
   const reduceMotion = useReducedMotion();
+
+  // Read calm mode from AccessibilityContext automatically
+  const ctx = useContext(getAccessibilityContext());
+  const calmMode = calmModeOverride !== undefined ? calmModeOverride : (ctx?.shouldReduceMotion ?? false);
 
   // Calm mode spring map: shift intensity down one level (spec §6.2)
   const calmSpringMap = {
