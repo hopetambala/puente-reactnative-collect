@@ -588,9 +588,10 @@ export function useSuccessMorphAnimation() {
 export function useMotion({ componentType = 'default', calmMode: calmModeOverride } = {}) {
   const reduceMotion = useReducedMotion();
 
-  // Read calm mode from AccessibilityContext automatically
+  // Read calm mode preference from AccessibilityContext
+  // (separate from system reduce-motion, which is already handled above)
   const ctx = useContext(getAccessibilityContext());
-  const calmMode = calmModeOverride !== undefined ? calmModeOverride : (ctx?.shouldReduceMotion ?? false);
+  const calmMode = calmModeOverride !== undefined ? calmModeOverride : (ctx?.calmMode ?? false);
 
   // Calm mode spring map: shift intensity down one level (spec §6.2)
   const calmSpringMap = {

@@ -127,7 +127,7 @@ function EditForm({ navigation, route }) {
             <Button icon="arrow-left" onPress={handleGoBack} style={{ marginBottom: 10 }}>
               {I18n.t('dataCollection.back')}
             </Button>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', margin: 16 }}>
+            <Text style={{ color: theme.colors.onBackground, fontSize: 18, fontWeight: 'bold', margin: 16 }}>
               {`${I18n.t('findRecordSettings.edit')} ${I18n.t('residentHistory.identification')}`}
             </Text>
             <IdentificationForm
@@ -169,7 +169,7 @@ function EditForm({ navigation, route }) {
           <Button icon="arrow-left" onPress={handleGoBack}>
             {I18n.t('dataCollection.back')}
           </Button>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', margin: 16, marginBottom: 0, paddingBottom: 0 }}>
+          <Text style={{ color: theme.colors.onBackground, fontSize: 18, fontWeight: 'bold', margin: 16, marginBottom: 0, paddingBottom: 0 }}>
             {`${I18n.t('findRecordSettings.edit')} ${formTypeLabel}`}
           </Text>
           <SupplementaryForm
