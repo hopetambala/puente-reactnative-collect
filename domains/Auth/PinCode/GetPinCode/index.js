@@ -48,9 +48,9 @@ function GetPinCode({ navigation }) {
               deleteData("organization");
               navigation.navigate("Sign In");
             } else if (failedAttempts === 2) {
-              alert(I18n.t("pinCode.getPincode.incorrect1")); // eslint-disable-line
+              alert(I18n.t("pinCode.getPinCode.incorrect1")); // eslint-disable-line
             } else {
-              alert(I18n.t("pinCode.getPincode.incorrect2")); // eslint-disable-line
+              alert(I18n.t("pinCode.getPinCode.incorrect2")); // eslint-disable-line
             }
           }
         });

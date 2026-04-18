@@ -1,6 +1,5 @@
 import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
 import { getTokens } from "@modules/theme/tokens";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useMemo } from "react";
@@ -62,7 +61,7 @@ function SmallCardsCarousel({
     cardSmallStyle: {
       height: 110,
       width: 150,
-      margin: theme.spacing.sm,
+      margin: currentTheme.spacing.sm,
       justifyContent: "center",
       alignItems: "center",
     },

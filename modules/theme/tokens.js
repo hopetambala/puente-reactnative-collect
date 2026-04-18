@@ -8,7 +8,10 @@ export const tokens = {
 };
 
 // Convenience getters for current mode
-export const getTokens = (mode) => tokens[mode] || tokens.light;
+export const getTokens = (mode) => {
+  const selectedTokens = tokens[mode] || tokens.light;
+  return selectedTokens;
+};
 
 // Helper to get a specific color by path and mode
 export const getColor = (mode, path) => {

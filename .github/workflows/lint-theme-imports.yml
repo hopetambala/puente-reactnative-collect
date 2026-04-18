@@ -1,0 +1,27 @@
+name: Theme Import Linter
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
+
+jobs:
+  lint-theme-imports:
+    runs-on: ubuntu-latest
+    name: Static Theme Import Check
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run theme import linter
+        run: yarn lint:theme-imports

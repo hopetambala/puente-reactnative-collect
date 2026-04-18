@@ -35,6 +35,7 @@
         "simple-import-sort/imports": "error",
         "simple-import-sort/exports": "error",
         "import/no-extraneous-dependencies": ["error", {"devDependencies": ["**/*.test.js", "**/*.spec.js", "**/__test__/*.js" ]}],
+        "import/prefer-default-export": "off",
         "module-resolver/use-alias": 2
     },
      "settings": {

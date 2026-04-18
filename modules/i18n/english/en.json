@@ -17,7 +17,8 @@
     "emptyForm": "Empty Form",
     "back": "Back",
     "pleaseTryAgain": "Please, try again",
-    "loadMore": "Load More"
+    "loadMore": "Load More",
+    "settings": "Settings"
   },
   "signUp": {
     "firstName": "First Name",
@@ -587,7 +588,8 @@
     "removePrevious": "Remove Previous "
   },
   "bottomTab":{
-    "dataCollection": "Data Collection"
+    "dataCollection": "Data Collection",
+    "home": "Home"
   },
   "camera":{
     "useImage": "Use image from camera roll",
@@ -651,8 +653,14 @@
   "theme": {
     "title": "Theme",
     "light": "Light",
-    "dark": "Dark",
-    "auto": "Auto"
+    "dark": "Dark"
+  },
+  "findRecords": {
+    "viewRecordHistory": "View Record History"
+  },
+  "accessibility": {
+    "calmMode": "Calm Mode",
+    "calmModeDescription": "Reduce animations for clinical focus"
   },
   "residentHistory": {
     "loading": "Loading record history...",

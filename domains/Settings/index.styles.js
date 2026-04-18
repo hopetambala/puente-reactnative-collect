@@ -1,8 +1,7 @@
-// Default export with light theme for backwards compatibility
-import { spacing, theme, typography } from "@modules/theme";
+// Factory function to create dynamic styles with theme
+import { spacing, typography } from "@modules/theme";
 import { StyleSheet } from "react-native";
 
-// Factory function to create dynamic styles with theme
 export const createSettingsStyles = (appTheme) => StyleSheet.create({
   text: {
     flexShrink: 1,
@@ -47,5 +46,3 @@ export const createSettingsStyles = (appTheme) => StyleSheet.create({
     paddingTop: spacing.sm,
   },
 });
-const defaultStyles = createSettingsStyles(theme);
-export default defaultStyles;

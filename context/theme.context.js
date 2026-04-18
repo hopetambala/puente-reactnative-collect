@@ -1,3 +1,4 @@
+/* global __DEV__ */
 import { getData, storeData } from "@modules/async-storage";
 import React, { createContext, useEffect, useMemo, useState } from "react";
 import { useColorScheme } from "react-native";
@@ -37,7 +38,7 @@ export function ThemeContextProvider({ children }) {
     if (newMode === "light" || newMode === "dark" || newMode === "auto") {
       setPreference(newMode);
       try {
-        await storeData("themePreference", newMode);
+        await storeData(newMode, "themePreference");
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error("Error saving theme preference:", e);

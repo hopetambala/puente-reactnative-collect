@@ -17,7 +17,7 @@ import { storeAppVersion } from "@modules/cached-resources/populate-cache";
 import I18n from "@modules/i18n";
 import { isEmpty } from "@modules/utils";
 import { Formik } from "formik";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Platform,

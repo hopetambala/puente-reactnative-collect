@@ -17,7 +17,8 @@
     "emptyForm": "Vide Fòm",
     "back":"Tounen",
     "pleaseTryAgain": "Tanpri eseye ankò",
-    "loadMore": "Chaje plis"
+    "loadMore": "Chaje plis",
+    "settings": "Paramèt"
   },
   "signUp": {
     "firstName": "Non",
@@ -587,7 +588,8 @@
     "removePrevious": "Retire Previous "
   },
   "bottomTab":{
-    "dataCollection": "Done Koleksyon"
+    "dataCollection": "Done Koleksyon",
+    "home": "Akèy"
   },
   "camera":{
     "useImage": "Sèvi ak imaj ki soti nan woulo kamera",
@@ -648,8 +650,14 @@
   "theme": {
     "title": "Tèm",
     "light": "Limyè",
-    "dark": "Fènwa",
-    "auto": "Otomatik"
+    "dark": "Fènwa"
+  },
+  "findRecords": {
+    "viewRecordHistory": "Wè istwa dosye"
+  },
+  "accessibility": {
+    "calmMode": "Mòd kalm",
+    "calmModeDescription": "Diminye animasyon pou konsantrasyon klinik"
   },
   "residentHistory": {
     "loading": "Ap chaje istwa dosye...",

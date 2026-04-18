@@ -1,12 +1,15 @@
 import I18n from "@modules/i18n";
 import * as MailComposer from "expo-mail-composer";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { View } from "react-native";
-import { Button, Text, TextInput } from "react-native-paper";
+import { Button, Text, TextInput, useTheme } from "react-native-paper";
 
-import styles from "../../../index.styles";
+import { createSettingsStyles } from "../../../index.styles";
 
 function Feedback() {
+  const theme = useTheme();
+  const styles = useMemo(() => createSettingsStyles(theme), [theme]);
+
   const handleEmail = async () => {
     await MailComposer.isAvailableAsync().then((mailAvailable) => {
       if (mailAvailable) {
