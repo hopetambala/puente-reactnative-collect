@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [15.2.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.0.4...v15.2.0) (2026-04-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* Create and implement motion design philosophy
+
+### New Features
+
+* Create and implement motion design philosophy ([beccfe6](https://github.com/hopetambala/puente-reactnative-collect/commit/beccfe6d0adda0c8f9f54ee24dcfca02c756913e))
+
+
+### Pipeline Changes
+
+* fix test-integration yaml ([668fd09](https://github.com/hopetambala/puente-reactnative-collect/commit/668fd09ea1acc7eb753f1c80727453c96fe25412))
+* parse cloud ([a5661fa](https://github.com/hopetambala/puente-reactnative-collect/commit/a5661fabefbeec3710fde9d25c5e1117044c768c))
+
+
+### Bug fixes
+
+* bad rerender on listing records ([fc52810](https://github.com/hopetambala/puente-reactnative-collect/commit/fc52810c34896882ec205c3eb64a108c4645c314))
+* Translation complete ([e4032a9](https://github.com/hopetambala/puente-reactnative-collect/commit/e4032a9d2b7a35e73da07d10033a6ed9fbee0cf9))
+* update custom forms ([774d9cc](https://github.com/hopetambala/puente-reactnative-collect/commit/774d9cc9a1ad7feb9c552626c6bac5b7c19dc7e8))
+* Update forms ([5efb175](https://github.com/hopetambala/puente-reactnative-collect/commit/5efb175b66ab20e53602452243bcfb5bb75bef3f))
+
 ## [15.1.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.0.4...v15.1.0) (2026-04-15)
 
 **Summary:** Major release introducing Motion Design System v1.3 (professional animation framework), Edit Forms feature (data correction workflows), and critical React Navigation dependency upgrades. Complete with specification, linter, 1,100+ test cases, and full accessibility support.
