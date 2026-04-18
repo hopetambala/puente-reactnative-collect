@@ -250,7 +250,8 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
               <View>
                 {records.map((item, index) => (
                   <Animated.View
-                    key={`${formType}-${item.objectId}`}
+                    // eslint-disable-next-line react/no-array-index-key
+                    key={`${formType}-${item.objectId || index}-${index}`}
                     entering={RowEntrance
                       .delay(Math.min(index * 40, 200))
                       .duration(MOTION_TOKENS.duration.base)}
@@ -266,7 +267,7 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
                       }}
                     >
                       <Text style={{ fontSize: 14, fontWeight: '500' }}>
-                        {getRecordDisplayName(formType, item) || label}
+                        {getRecordDisplayName(formType, item) || I18n.t(label)}
                         {' - '}
                         {formatDate(item.createdAt)}
                       </Text>

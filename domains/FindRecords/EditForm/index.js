@@ -103,6 +103,17 @@ function EditForm({ navigation, route }) {
   };
   const mappedForm = formTypeToSelectedForm[formType] || formType;
 
+  // Map Parse class name to translated display label
+  const formTypeToI18nKey = {
+    Vitals: 'residentHistory.vitals',
+    HistoryEnvironmentalHealth: 'residentHistory.environmentalHealth',
+    EvaluationMedical: 'residentHistory.medicalEvaluation',
+    FormResults: 'residentHistory.customForms',
+  };
+  const formTypeLabel = formTypeToI18nKey[formType]
+    ? I18n.t(formTypeToI18nKey[formType])
+    : formType;
+
   // Render appropriate form based on formType
   if (formType === 'SurveyData' || formType === 'Identification') {
     return (
@@ -117,7 +128,7 @@ function EditForm({ navigation, route }) {
               {I18n.t('dataCollection.back')}
             </Button>
             <Text style={{ fontSize: 18, fontWeight: 'bold', margin: 16 }}>
-              {`${I18n.t('findRecordSettings.edit')} Identification`}
+              {`${I18n.t('findRecordSettings.edit')} ${I18n.t('residentHistory.identification')}`}
             </Text>
             <IdentificationForm
               editMode={editMode}
@@ -159,7 +170,7 @@ function EditForm({ navigation, route }) {
             {I18n.t('dataCollection.back')}
           </Button>
           <Text style={{ fontSize: 18, fontWeight: 'bold', margin: 16, marginBottom: 0, paddingBottom: 0 }}>
-            {`${I18n.t('findRecordSettings.edit')} ${formType}`}
+            {`${I18n.t('findRecordSettings.edit')} ${formTypeLabel}`}
           </Text>
           <SupplementaryForm
             editMode={editMode}

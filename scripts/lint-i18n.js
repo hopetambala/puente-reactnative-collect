@@ -224,7 +224,8 @@ function analyzeFile(filePath) {
       const matchStart = m.index;
       // Look back on the same line for `{I18n.t(` — if we're inside an expression, skip
       const lineStart = source.lastIndexOf('\n', matchStart) + 1;
-      const lineText  = source.slice(lineStart, source.indexOf('\n', matchStart) >>> 0 || source.length);
+      const nlPos     = source.indexOf('\n', matchStart);
+      const lineText  = source.slice(lineStart, nlPos === -1 ? source.length : nlPos);
       if (lineText.includes('I18n.t(') || lineText.includes('i18n.t(')) continue;
       // Skip style/testID/id props that happen to have text between tags
       if (lineText.includes('testID') || lineText.includes('style={') || lineText.includes('key=')) continue;

@@ -13,7 +13,7 @@ Linters run as **independent checks**:
 
 ### Animation Linter (`.github/workflows/lint-animations.yml`)
 
-✅ **Runs on:** Every push to `main`, `dev`, `develop` + all PRs  
+✅ **Runs on:** Every push to `master`, `develop` + all PRs  
 ✅ **Check:** `yarn lint:animations`  
 ✅ **Fails if:** Any animation violations detected
 
@@ -27,7 +27,7 @@ Linters run as **independent checks**:
 
 ### i18n Linter (`.github/workflows/lint-i18n.yml`)
 
-✅ **Runs on:** Every push to `main`, `dev`, `develop` + all PRs  
+✅ **Runs on:** Every push to `master`, `develop` + all PRs  
 ✅ **Check:** `yarn lint:i18n`  
 ✅ **Fails if:** Any hardcoded user-facing string detected (exit code 1 on errors, warnings-only exits 0)
 
@@ -46,7 +46,7 @@ Linters run as **independent checks**:
 
 ### Tests (`.github/workflows/tests.yml`)
 
-✅ **Runs on:** Every push to `main`, `dev`, `develop` + all PRs  
+✅ **Runs on:** Every push to `master`, `develop` + all PRs  
 ✅ **Checks:**
   - Unit tests: `yarn test:unit`
   - Integration tests: `yarn test:integration`
@@ -85,6 +85,9 @@ yarn lint:locale-sync
 
 # Also show orphaned keys (in locale but not in en.json)
 yarn lint:locale-sync:orphans
+
+# Check for verbatim English strings in localized files (runs in CI)
+yarn lint:locale-sync:verbatim
 ```
 
 ### Setup Pre-commit Hook (Optional)

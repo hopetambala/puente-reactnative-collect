@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable no-restricted-syntax, no-plusplus */
+/* eslint-disable no-restricted-syntax, no-plusplus, no-var, prefer-template, prefer-arrow-callback, vars-on-top, no-param-reassign, consistent-return */
 /**
  * Locale Sync Checker
  *
@@ -157,7 +157,9 @@ function run() {
   if (showVerbatim) console.log('  Total verbatim:      ' + totalVerbatim);
   console.log();
 
-  if (totalMissing === 0) {
+  var hasFailures = totalMissing > 0 || (showVerbatim && totalVerbatim > 0);
+
+  if (!hasFailures) {
     var tips = [];
     if (!showOrphans)  tips.push('--orphans');
     if (!showVerbatim) tips.push('--verbatim');
@@ -165,7 +167,12 @@ function run() {
     if (tips.length) console.log('  Tip: run with ' + tips.join(' ') + ' for additional checks\n');
     process.exit(0);
   } else {
-    console.log('  Tip: run with --orphans --verbatim for additional checks\n');
+    if (!showOrphans || !showVerbatim) {
+      var hints = [];
+      if (!showOrphans)  hints.push('--orphans');
+      if (!showVerbatim) hints.push('--verbatim');
+      console.log('  Tip: run with ' + hints.join(' ') + ' for additional checks\n');
+    }
     process.exit(1);
   }
 }
