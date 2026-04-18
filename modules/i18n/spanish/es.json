@@ -16,7 +16,8 @@
     "ok": "OK",
     "emptyForm": "Forma vacía",
     "back": "Regresa",
-    "pleaseTryAgain": "Inténtalo de nuevo"
+    "pleaseTryAgain": "Inténtalo de nuevo",
+    "loadMore": "Cargar más"
   },
   "signUp": {
     "firstName": "Nombre de verdadero",
@@ -35,9 +36,16 @@
     "toSpanish": "Cambiar el idioma al español",
     "errorTerms": "Error, se deben acordar los términos y el servicio",
     "errorPassword": "Error, sus contraseñas no coinciden.",
-    "usernameError": "Sign up attempt failed.\n\nYou might have attempted to sign up with a username (email/phone number) that has been previously registered with another account.\n\nPlease contact your supervisor if you believe this is an error.",
+    "usernameError": "Intento de registro fallido.\n\nEs posible que hayas intentado registrarte con un nombre de usuario (correo electrónico/número de teléfono) que ya está registrado con otra cuenta.\n\nComuníquese con su supervisor si cree que esto es un error.",
     "confirmViaEmail": "¿Enviar confirmación por correo electrónico?",
-    "confirmViaText": "¿Enviar confirmación por mensaje de texto?"
+    "confirmViaText": "¿Enviar confirmación por mensaje de texto?",
+    "placeholders": {
+      "firstName": "Juan",
+      "lastName": "Pérez",
+      "email": "juanperez@ejemplo.com",
+      "phoneNumber": "123-456-7890",
+      "password": "Contraseña"
+    }
   },
   "signIn": {
     "user": "Nombre de usuario",
@@ -60,7 +68,8 @@
       "signIn": "Registrarse",
       "resetSuccess": "Su enlace de restablecimiento de contraseña se ha enviado a su correo electrónico. Por favor revise su correo electrónico para cambiar su contraseña.",
       "resetError": "Hubo un error al enviar el enlace para restablecer la contraseña. Asegúrese de haber ingresado su correo electrónico correctamente. Puede intentarlo de nuevo haciendo clic en el botón de abajo. Si cree que el correo electrónico es correcto, comuníquese con su gerente.",
-      "tryAgain": "Intentar de nuevo"
+      "tryAgain": "Intentar de nuevo",
+      "backToSignIn": "Volver a iniciar sesión"
     },
     "credentialsModal": {
       "useCreds": "¿Le gustaría guardar su usuario y contraseña?"
@@ -293,11 +302,11 @@
     "partOfBody": {
       "label": "Parte del cuerpo",
       "bonesJoints": "Huesos o articulaciones",
-      "eyes": "Eyes",
+      "eyes": "Ojos",
       "earsNoseThroat": "Oídos, Nariz o Garganta",
-      "skin": "Skin",
+      "skin": "Piel",
       "headMental": "Problemas mentales o de la cabeza",
-      "stomachIntestines": "Stomach, Intestines",
+      "stomachIntestines": "Estómago, Intestinos",
       "bladderUrinary": "Vejiga, tracto urinario",
       "reproductiveOrgans": "Órganos reproductivos",
       "nutritionIssues": "Problema de nutrición",
@@ -451,7 +460,8 @@
         "forms": "Formularios",
         "household": "Casa",
         "goBack": "Vuelve para buscar registros"
-      }
+      },
+      "viewRecordHistory": "Ver historial de registros"
     }
   },
   "householdManager": {
@@ -461,7 +471,7 @@
     "householdManager": "Administrador del hogar",
     "relationshipHousehold": "¿Cuál es su función / relación en el hogar?",
     "linked": "Vinculada",
-    "useSearchBar": "Please use the searchbar to find and select the correct Household.",
+    "useSearchBar": "Por favor use la barra de búsqueda para encontrar y seleccionar el hogar correcto.",
     "doNothing": "Solo crear ID",
     "successCreateHousehold": "Ha creado correctamente un nuevo hogar.",
     "noHousehold": "Ha elegido no vincular un hogar.",
@@ -529,7 +539,8 @@
     "errorMessage": "Hubo un error al procesar su solicitud. Asegúrese de estar conectado a Internet y vuelva a intentarlo.",
     "successMessage": "Has actualizado tu límite de almacenamiento. Puede experimentar problemas relacionados con la aplicación si su teléfono no puede manejar el nuevo límite. Si esto ocurre, su experiencia puede mejorar si reduce el límite.",
     "findRecords": "Buscar registros",
-    "edit": "Editar"
+    "edit": "Editar",
+    "invalidParams": "Parámetros de edición no válidos. Faltan editMode, existingRecord o formType."
   },
   "languageSettings": {
     "chooseLanguage": "Elige lengua"
@@ -642,5 +653,18 @@
     "light": "Claro",
     "dark": "Oscuro",
     "auto": "Automático"
+  },
+  "residentHistory": {
+    "loading": "Cargando historial de registros...",
+    "noRecordsFound": "No se encontraron registros",
+    "noSubmissionsYet": "%{name} no tiene envíos de formularios todavía.",
+    "recordHistory": "Historial de registros:",
+    "errorLoadingRecords": "Error al cargar los registros",
+    "customForm": "Formulario personalizado",
+    "identification": "Identificación",
+    "vitals": "Signos vitales",
+    "environmentalHealth": "Salud ambiental",
+    "medicalEvaluation": "Evaluación médica",
+    "customForms": "Formularios personalizados"
   }
 }

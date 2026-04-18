@@ -6,6 +6,7 @@
  */
 import client from '@app/services/parse/client';
 import { fetchResidentById } from '@impacto-design-system/Extensions/FindResidents/_utils';
+import I18n from '@modules/i18n';
 import { MOTION_TOKENS } from '@modules/utils/animations';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -33,22 +34,22 @@ const Parse = client(false);
 // Define record types once, outside component, to prevent infinite loop
 // from recordTypes being recreated on every render
 const RECORD_TYPES = [
-  { parseClass: 'Vitals', label: 'Vitals', formType: 'Vitals', usePointer: true },
+  { parseClass: 'Vitals', label: 'residentHistory.vitals', formType: 'Vitals', usePointer: true },
   {
     parseClass: 'HistoryEnvironmentalHealth',
-    label: 'Environmental Health',
+    label: 'residentHistory.environmentalHealth',
     formType: 'HistoryEnvironmentalHealth',
     usePointer: true,
   },
   {
     parseClass: 'EvaluationMedical',
-    label: 'Medical Evaluation',
+    label: 'residentHistory.medicalEvaluation',
     formType: 'EvaluationMedical',
     usePointer: true,
   },
   {
     parseClass: 'FormResults',
-    label: 'Custom Forms',
+    label: 'residentHistory.customForms',
     formType: 'FormResults',
     usePointer: true,
   },
@@ -75,7 +76,7 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
       const results = {
         // The resident object itself is the identification (SurveyData) record
         SurveyData: {
-          label: 'Identification',
+          label: 'residentHistory.identification',
           records: [resident],
         },
       };
@@ -168,10 +169,10 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   if (loading) {
     return (
       <SafeAreaView edges={['top']} style={{ flex: 1 }} testID="loadingContainer">
-        <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ margin: 8 }}>Back</Button>
+        <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ margin: 8 }}>{I18n.t('global.back')}</Button>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" testID="loadingIndicator" />
-          <Text>Loading record history...</Text>
+          <Text>{I18n.t('residentHistory.loading')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -180,10 +181,10 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   if (error) {
     return (
       <SafeAreaView edges={['top']} style={{ flex: 1, padding: 20 }} testID="error-view">
-        <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ marginBottom: 8 }}>Back</Button>
+        <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ marginBottom: 8 }}>{I18n.t('global.back')}</Button>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>
-            Error loading records
+            {I18n.t('residentHistory.errorLoadingRecords')}
           </Text>
           <Text style={{ textAlign: 'center' }}>{error}</Text>
         </View>
@@ -193,7 +194,7 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
 
   const getRecordDisplayName = (formType, record) => {
     if (formType === 'FormResults') {
-      return record.title || 'Custom Form';
+      return record.title || I18n.t('residentHistory.customForm');
     }
     return null;
   };
@@ -212,11 +213,11 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   if (!hasRecords) {
     return (
       <SafeAreaView edges={['top']} style={{ flex: 1, padding: 20 }}>
-        <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ marginBottom: 8 }}>Back</Button>
+        <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ marginBottom: 8 }}>{I18n.t('global.back')}</Button>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>No records found</Text>
+          <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>{I18n.t('residentHistory.noRecordsFound')}</Text>
           <Text style={{ textAlign: 'center' }}>
-            {residentName} has no form submissions yet.
+            {I18n.t('residentHistory.noSubmissionsYet', { name: residentName })}
           </Text>
         </View>
       </SafeAreaView>
@@ -227,9 +228,9 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
     <SafeAreaView edges={['top']} style={{ flex: 1 }}>
       <ScrollView style={{ flex: 1, padding: 16 }}>
         <View>
-          <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ marginBottom: 8, alignSelf: 'flex-start' }}>Back</Button>
+          <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ marginBottom: 8, alignSelf: 'flex-start' }}>{I18n.t('global.back')}</Button>
           <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
-            Record History:
+            {I18n.t('residentHistory.recordHistory')}
             {' '}
             {residentName}
           </Text>
@@ -243,7 +244,7 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
                 .duration(MOTION_TOKENS.duration.base)}
             >
               <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 8, textTransform: 'capitalize' }}>
-                {label}
+                {I18n.t(label)}
               </Text>
 
               <View>

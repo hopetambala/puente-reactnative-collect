@@ -16,7 +16,8 @@
     "ok": "Ok",	
     "emptyForm": "Vide Fòm",
     "back":"Tounen",
-    "pleaseTryAgain": "Tanpri eseye ankò"
+    "pleaseTryAgain": "Tanpri eseye ankò",
+    "loadMore": "Chaje plis"
   },
   "signUp": {
     "firstName": "Non",
@@ -37,7 +38,14 @@
     "errorPassword": "Erè, modpas ou pa matche ak.",
     "usernameError": "Tantativ enskri echwe. \n nOu te ka eseye enskri ak yon non itilizatè (imèl / nimewo telefòn) ki te deja anrejistre ak yon lòt kont. \n nTanpri kontakte sipèvizè ou si ou kwè sa se yon erè.",
     "confirmViaEmail": "Voye konfirmasyon pa imèl?",
-    "confirmViaText": "Voye konfirmasyon pa tèks?"
+    "confirmViaText": "Voye konfirmasyon pa tèks?",
+    "placeholders": {
+      "firstName": "Jan",
+      "lastName": "Diyen",
+      "email": "jandiyen@egzanp.com",
+      "phoneNumber": "123-456-7890",
+      "password": "Modpas"
+    }
   },
   "signIn": {
     "user":"Non itilizatè",
@@ -60,7 +68,8 @@
       "signIn": "Ouvè sesion",
       "resetSuccess": "Lyen Reyajiste modpas ou te voye nan imèl ou. Tanpri Tcheke imèl ou a chanje modpas ou.",
 	    "resetError": "Te gen yon erè nan voye lyen an Reyajiste modpas. Tanpri asire ke ou te antre nan imèl ou kòrèkteman. Ou ka eseye ankò pa klike sou bouton ki anba a. Si ou kwè imèl la kòrèk, tanpri kontakte manadjè ou.",
-	    "tryAgain": "Eseye ankò"
+      "tryAgain": "Eseye ankò",
+      "backToSignIn": "Retounen konekte"
     },
     "credentialsModal": {
       "useCreds": "Èske ou ta renmen itilize kalifikasyon login ou sove?"
@@ -69,7 +78,7 @@
     "usernamePasswordIncorrect": "Non itilizatè ou an oswa modpas ou ka kòrèk, tanpri eseye ankò.",
     "offlineLoginError": "Pa kapab konekte san entennèt, tanpri vérifye kalifikasyon ou.",
     "invalidSessionToken": "Sesyon ou expere. Tanpri konekte ankò.",
-    "credentials": "Credentials",
+    "credentials": "Enfòmasyon koneksyon",
     "saveLoginCreds": "Èske ou ta renmen sove kalifikasyon login ou pou itilize nan lavni?",
     "registrationSuccess": "Kont Kreye!",
     "registrationSuccessMessage": "Kont ou a te kreye avèk siksè. Tanpri konektje avèk kredansyal ou."
@@ -81,18 +90,18 @@
       "incorrect2": "Pincode kòrèk, tanpri eseye ankò."
     },
     "storePinCode": {
-      "enterPinCode": "Enter Pincode to use instead of username/password"
+      "enterPinCode": "Antre kòd sekrè ou a olye de non itilizatè ak modpas"
     }
   },
   "formsGallery": {
     "puenteForms": "Fòm Puente",
     "customForms": "Fòm Koutim",
-    "pinnedForms": "Pinned Forms",
+    "pinnedForms": "Fòm kole",
     "ourMarketPlace": "Fòm Marketplace",
     "discoverForms": "Dekouvri fòm ki te kreye pa konpayi ou fè konfyans",
     "exploreForms": "Eksplore Fòm yo",
-    "noCustomForms": "You do not have any custom forms",
-    "noPinnedForms": "You do not have any pinned forms",
+    "noCustomForms": "Ou pa gen okenn fòm pèsonalize",
+    "noPinnedForms": "Ou pa gen okenn fòm ki kole",
     "checkOutMarketplace": "Ou pa gen okenn fòm koutim",
     "viewMarketplace": "VAl gade nan Marketplace",
     "marketPlace": "Marketplace",
@@ -131,7 +140,8 @@
       "someHS": "Pa fini segondè",
       "hs": "Liceè",
       "someCollege": "Pafini inivesite",
-      "college": "Inivesite"
+      "college": "Inivesite",
+      "technicalCourse": "Kou teknik"
     },
     "cedulaNumber": "Nimero kat didantite",
     "location": "Zòn",
@@ -329,7 +339,7 @@
     "plan": "Plan"
   },
   "vitals": {
-    "name": "Vitals",
+    "name": "Siy vital",
     "height": "Otè",
     "inches": "Pye",
     "weight": "Pwa",
@@ -344,7 +354,7 @@
     "bloodPressure": {
       "label": "Presyon sangen",
       "systolic": "Sistolik",
-      "diastolic": "Diastolic"
+      "diastolic": "Dyastòlik"
     },
     "bloodOxygen": "Oxyjen nan san",
     "mmHg": "mm Hg",
@@ -450,7 +460,8 @@
         "forms": "Fòm",
         "household": "Kay",
         "goBack": "Retounen"
-      }
+      },
+      "viewRecordHistory": "Wè istwa dosye"
     }
   },
   "householdManager": {
@@ -518,6 +529,7 @@
     "language": "Lang",
     "back": "Retounen",
     "logout": "Dekonekte",
+    "deleteUser": "Efase itilizatè?",
     "populateIdForms": "Ranpli tout Fòm ID",
     "clearCachedIdForms": "Efase Fòm ID ki nan kache"
   },
@@ -527,7 +539,8 @@
     "errorMessage": "Te gen yon erè nan pwosesis demann ou an. Tanpri asire ou konekte ak entènèt la epi eseye ankò.",
     "successMessage": "Ou mete ajou limit depo ou. Ou ka fè eksperyans pwoblèm app ki gen rapò si telefòn ou pa ka okipe nouvo limit la. Si sa rive, eksperyans ou ka pi bon si ou diminye limit la.",
     "findRecords": "Jwenn Dosye",
-    "edit": "Edite"
+    "edit": "Edite",
+    "invalidParams": "Pamèt edisyon ki pa valid. editMode, existingRecord, oswa formType manke."
   },
   "languageSettings": {
     "chooseLanguage": "Chwazi Lang"
@@ -558,7 +571,7 @@
     "back": "Retounen"
   },
   "feedback": {
-    "feedback": "Feedback",
+    "feedback": "Kòmantè",
     "enterFeedback": "Tanpri antre fidbak ou nan opinyon ki anba a epi peze bouton \"Voye Feedback\" la. Sa a pral redireksyon ou nan imèl ou kote ou ka voye voye fidbak ou.",
     "sendMail": "Voye lapòs",
     "typeFeedback": "Tape fidbak ou isit la ..."
@@ -581,7 +594,7 @@
     "noAccess": "Pa gen aksè a kamera",
     "requestingPermission": "Ap mande pèmisyon kamera...",
     "retake": "Rekomanse Foto",
-    "flip": "Flip",
+    "flip": "Vire",
     "takePicture": "Pran foto",
     "done": "Fè",
     "sorryAlert":"Nou bezwen otorizasyon woulo liv kamera pou fè travay sa a!"
@@ -597,6 +610,7 @@
     "add": "Ajoute"
   },
   "assetCore": {
+    "newAsset": "Nouvo resous",
     "nameOfAssets": "Non Byen yo",
     "addPeople": "Add Moun",
     "getLocation": "Jwenn Kote",
@@ -608,8 +622,12 @@
   },
   "assetFormSelect": {
     "supAssetForms": "Fòm Byen Siplemantè"
-  },
-  "submissionError":{
+  },  "puenteForms": {
+    "ResidentID": "Idantifikasyon rezidan",
+    "EnvironmentalHealth": "Santè anviwonman",
+    "MedicalEvaluation": "Evalyasyon medikal",
+    "Vitals": "Siy vital"
+  },  "submissionError":{
     "error": "ERÈ!\n\nFòm ou pa te soumèt. Tanpri eseye ankò oswa kontakte sipèvizè ou a si pwoblèm nan kontinye.",
     "geolocation":"DELÉ!\n\nGeolokalizasyon telefòn ou an pa t 'kapab jwenn nan aparèy ou an. Tanpri eseye ankò"
   },
@@ -632,5 +650,18 @@
     "light": "Limyè",
     "dark": "Fènwa",
     "auto": "Otomatik"
+  },
+  "residentHistory": {
+    "loading": "Ap chaje istwa dosye...",
+    "noRecordsFound": "Pa gen dosye jwenn",
+    "noSubmissionsYet": "%{name} pa gen soumisyon fòm yo toujou.",
+    "recordHistory": "Istwa dosye:",
+    "errorLoadingRecords": "Erè nan chajman dosye",
+    "customForm": "Fòm pèsonalize",
+    "identification": "Idantifikasyon",
+    "vitals": "Siy vital",
+    "environmentalHealth": "Santè anviwonman",
+    "medicalEvaluation": "Evalyasyon medikal",
+    "customForms": "Fòm pèsonalize yo"
   }
 }

@@ -15,7 +15,7 @@ mkdir -p "$HOOKS_DIR"
 cat > "$PRE_COMMIT_HOOK" << 'EOF'
 #!/bin/bash
 
-# Pre-commit hook: Check animation system
+# Pre-commit hook: Check animation system + i18n
 
 echo "🎬 Validating Motion Design System..."
 node scripts/lint-animations.js
@@ -28,6 +28,42 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "✅ Animation system is clean"
+
+echo "🌐 Validating i18n translations..."
+node scripts/lint-i18n.js
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ i18n violations detected!"
+  echo "Fix violations with: yarn lint:i18n"
+  exit 1
+fi
+
+echo "✅ i18n is clean"
+
+echo "🔄 Checking locale file sync..."
+node scripts/check-locale-sync.js
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Locale files are out of sync with en.json!"
+  echo "Fix with: yarn lint:locale-sync"
+  exit 1
+fi
+
+echo "✅ Locale files are in sync"
+
+echo "🔤 Checking for untranslated (verbatim-English) values..."
+node scripts/check-locale-sync.js --verbatim
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ Verbatim-English values found in locale files!"
+  echo "Fix with: yarn lint:locale-sync:verbatim"
+  exit 1
+fi
+
+echo "✅ No verbatim-English values found"
 EOF
 
 # Make hook executable

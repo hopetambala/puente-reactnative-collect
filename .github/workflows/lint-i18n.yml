@@ -1,0 +1,33 @@
+name: i18n Linter
+
+on:
+  push:
+    branches: [master, main, develop]
+  pull_request:
+    branches: [master, main, develop]
+
+jobs:
+  lint-i18n:
+    runs-on: ubuntu-latest
+    name: Translation Coverage
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run i18n linter
+        run: yarn lint:i18n
+
+      - name: Check locale files are in sync
+        run: yarn lint:locale-sync
+
+      - name: Check for verbatim-English values in locale files
+        run: yarn lint:locale-sync:verbatim

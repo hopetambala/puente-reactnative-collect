@@ -1,3 +1,4 @@
+import I18n from "@modules/i18n";
 import React from "react";
 import { View } from "react-native";
 import { Button } from "react-native-paper";
@@ -33,7 +34,7 @@ function AccountSettings({
         setAccountSettingsView("");
       }}
     >
-      Back
+      {I18n.t('accountSettings.back')}
     </Button>
   </View>
 }

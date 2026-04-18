@@ -1,6 +1,7 @@
 import useModalItems from '@app/domains/HomeScreen/hooks/useModalItems';
 import Text from '@app/impacto-design-system/Base/Text';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import I18n from '@modules/i18n';
 import { MOTION_TOKENS } from '@modules/utils/animations';
 import React, { useEffect } from 'react';
 import {
@@ -190,7 +191,7 @@ function StatDetailModal({
                     loading={isLoading}
                     disabled={isLoading}
                   >
-                    Load More
+                    {I18n.t('global.loadMore')}
                   </Button>
                 </View>
               ) : null
