@@ -1,4 +1,4 @@
-import BlackLogo from "@app/assets/graphics/static/Logo-Black.svg";
+import PuenteLogo from "@app/assets/graphics/static/Logo-Black.svg";
 import FormInput from "@impacto-design-system/Extensions/FormikFields/FormInput";
 import LanguagePicker from "@impacto-design-system/Extensions/LanguagePicker";
 import TermsModal from "@impacto-design-system/Extensions/TermsModal";
@@ -239,7 +239,7 @@ function SignIn({ navigation, route }) {
                     style={styles.logoContainer}
                     entering={LogoEntrance.duration(MOTION_TOKENS.duration.xslow)}
                   >
-                    <BlackLogo height={130} />
+                    <PuenteLogo height={130} color={theme.colors.onBackground} />
                   </Animated.View>
                   <Animated.View
                     entering={FormEntrance
