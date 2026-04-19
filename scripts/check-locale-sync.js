@@ -85,6 +85,57 @@ function loadJson(filePath) {
   }
 }
 
+/**
+ * Recursively collect all .js/.jsx files under a directory.
+ */
+function collectSourceFiles(dir) {
+  var results = [];
+  if (!fs.existsSync(dir)) return results;
+  fs.readdirSync(dir).forEach(function(entry) {
+    var full = path.join(dir, entry);
+    var stat = fs.statSync(full);
+    if (stat.isDirectory()) {
+      if (!SKIP_DIRS.has(entry)) results = results.concat(collectSourceFiles(full));
+    } else if (/\.(js|jsx)$/.test(entry)) {
+      results.push(full);
+    }
+  });
+  return results;
+}
+
+var SKIP_DIRS = new Set([
+  'node_modules', '__tests__', '_tests_', '__test__', '__mocks__',
+  'coverage', '.git', 'build', 'ios', 'android', 'scripts',
+]);
+
+var SOURCE_DIRS = ['domains', 'impacto-design-system', 'modules', 'context'];
+
+/**
+ * Scan source files for I18n.t("key") calls and return keys not in en.json.
+ */
+function findUndefinedI18nKeys(enKeys) {
+  var I18N_CALL = /I18n\.t\(\s*["']([^"']+)["']/g;
+  var missing = {};
+
+  SOURCE_DIRS.forEach(function(dir) {
+    collectSourceFiles(path.join(ROOT, dir)).forEach(function(file) {
+      var src = fs.readFileSync(file, 'utf8');
+      I18N_CALL.lastIndex = 0;
+      var match = I18N_CALL.exec(src);
+      while (match !== null) {
+        var key = match[1];
+        if (!enKeys.has(key)) {
+          if (!missing[key]) missing[key] = [];
+          missing[key].push(path.relative(ROOT, file));
+        }
+        match = I18N_CALL.exec(src);
+      }
+    });
+  });
+
+  return missing;
+}
+
 // ─── Runner ───────────────────────────────────────────────────────────────────
 
 function run() {
@@ -158,6 +209,26 @@ function run() {
   console.log();
 
   var hasFailures = totalMissing > 0 || (showVerbatim && totalVerbatim > 0);
+
+  // ── Code scan: I18n.t() keys not defined in en.json ──────────────────────
+  console.log('\uD83D\uDD0D  Scanning source files for undefined I18n.t() keys...\n');
+  var undefinedKeys = findUndefinedI18nKeys(enKeys);
+  var undefinedCount = Object.keys(undefinedKeys).length;
+
+  if (undefinedCount === 0) {
+    console.log('\u2705  All I18n.t() keys are defined in en.json.\n');
+  } else {
+    hasFailures = true;
+    console.log('\u274C  ' + undefinedCount + ' key(s) used in code but missing from en.json:\n');
+    Object.keys(undefinedKeys).sort().forEach(function(key) {
+      console.log('     \x1b[31m\u274C undefined:\x1b[0m ' + key);
+      undefinedKeys[key].slice(0, 3).forEach(function(f) {
+        console.log('        \u2514 ' + f);
+      });
+    });
+    console.log();
+  }
+  // ─────────────────────────────────────────────────────────────────────────
 
   if (!hasFailures) {
     var tips = [];

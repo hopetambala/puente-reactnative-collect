@@ -1,6 +1,7 @@
 import { ThemeContext } from "@context/theme.context";
 import I18n from "@modules/i18n";
 import { spacing, typography } from "@modules/theme";
+import { useAccessibilityContext } from "@modules/theme/useAccessibilityContext";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useContext, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -8,6 +9,7 @@ import {
   Button,
   IconButton,
   SegmentedButtons,
+  Switch,
   Text,
   useTheme,
 } from "react-native-paper";
@@ -62,9 +64,20 @@ function SettingsHome({
 }) {
   const paperTheme = useTheme();
   const themeContext = useContext(ThemeContext);
+  const accessibilityContext = useAccessibilityContext();
   const settingsStyles = useMemo(() => createStyles(paperTheme), [paperTheme]);
   const styles = useMemo(() => createSettingsStyles(paperTheme), [paperTheme]);
   const [accountSettingsView, setAccountSettingsView] = useState("");
+
+  const handleThemeChange = (newMode) => {
+    if (themeContext) {
+      themeContext.setMode(newMode);
+    }
+  };
+
+  const handleCalmModeToggle = (newValue) => {
+    accessibilityContext.setCalmMode(newValue);
+  };
 
   const inputs = [
     {
@@ -92,12 +105,6 @@ function SettingsHome({
       label: I18n.t("theme.title"),
     },
   ];
-
-  const handleThemeChange = (newMode) => {
-    if (themeContext) {
-      themeContext.setMode(newMode);
-    }
-  };
 
   return (
     <View>
@@ -153,11 +160,6 @@ function SettingsHome({
                             label: I18n.t("theme.dark"),
                             icon: "moon-waning-crescent",
                           },
-                          {
-                            value: "auto",
-                            label: I18n.t("theme.auto"),
-                            icon: "auto-fix",
-                          },
                         ]}
                       />
                     </View>
@@ -184,6 +186,39 @@ function SettingsHome({
                   )}
                 </Animated.View>
               ))}
+            {/* Calm Mode Toggle */}
+            <Animated.View
+              entering={RowEntrance
+                .delay(inputs.length * 40)
+                .duration(MOTION_TOKENS.duration.base)}
+            >
+              <View style={settingsStyles.themeContainer}>
+                <Text style={settingsStyles.themeLabel}>
+                  {I18n.t("accessibility.calmMode")}
+                </Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    paddingHorizontal: safeSpacing.md,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: paperTheme.colors.onSurface,
+                      fontSize: 14,
+                    }}
+                  >
+                    {I18n.t("accessibility.calmModeDescription")}
+                  </Text>
+                  <Switch
+                    value={accessibilityContext.calmMode}
+                    onValueChange={handleCalmModeToggle}
+                  />
+                </View>
+              </View>
+            </Animated.View>
           </View>
           <Button
             onPress={() => {

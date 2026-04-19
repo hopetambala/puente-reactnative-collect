@@ -1,12 +1,15 @@
 import { getData, storeData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Button, Text, useTheme } from "react-native-paper";
 
-import styles from "../../../index.styles";
+import { createSettingsStyles } from "../../../index.styles";
 
 function Language() {
+  const theme = useTheme();
+  const styles = useMemo(() => createSettingsStyles(theme), [theme]);
+
   useEffect(() => {
     async function setUserInformation() {
       const currentLocale = await getData("locale");

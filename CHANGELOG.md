@@ -2,6 +2,74 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.3.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.2.4...v15.3.1) (2026-04-19)
+
+
+### Bug fixes
+
+* Dark mode and a11y mode ([f4fd9d4](https://github.com/hopetambala/puente-reactnative-collect/commit/f4fd9d4e0e5dcc5171c153ceef641dff27ab771f))
+
+## [15.3.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.2.4...v15.3.0) (2026-04-18)
+
+
+### Bug fixes
+
+* restore AccessibilityContext reading in useMotion hook ([8612c99](https://github.com/hopetambala/puente-reactnative-collect/commit/8612c99ddaf4e84b9d18d2a7ec5649e4f21c38a6))
+
+### [15.2.4](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.2.3...v15.2.4) (2026-04-18)
+
+### [15.2.3](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.0.4...v15.2.3) (2026-04-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* Create and implement motion design philosophy
+
+### New Features
+
+* Create and implement motion design philosophy ([beccfe6](https://github.com/hopetambala/puente-reactnative-collect/commit/beccfe6d0adda0c8f9f54ee24dcfca02c756913e))
+
+
+### Pipeline Changes
+
+* fix test-integration yaml ([668fd09](https://github.com/hopetambala/puente-reactnative-collect/commit/668fd09ea1acc7eb753f1c80727453c96fe25412))
+* parse cloud ([a5661fa](https://github.com/hopetambala/puente-reactnative-collect/commit/a5661fabefbeec3710fde9d25c5e1117044c768c))
+
+
+### Bug fixes
+
+* bad rerender on listing records ([fc52810](https://github.com/hopetambala/puente-reactnative-collect/commit/fc52810c34896882ec205c3eb64a108c4645c314))
+* dark mode ([e25c2e9](https://github.com/hopetambala/puente-reactnative-collect/commit/e25c2e9dc3cae3f43c1a930259d3750cf0584b2e))
+* Translation complete ([e4032a9](https://github.com/hopetambala/puente-reactnative-collect/commit/e4032a9d2b7a35e73da07d10033a6ed9fbee0cf9))
+* update custom forms ([774d9cc](https://github.com/hopetambala/puente-reactnative-collect/commit/774d9cc9a1ad7feb9c552626c6bac5b7c19dc7e8))
+* Update forms ([5efb175](https://github.com/hopetambala/puente-reactnative-collect/commit/5efb175b66ab20e53602452243bcfb5bb75bef3f))
+
+### [15.2.2](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.0.4...v15.2.2) (2026-04-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* Create and implement motion design philosophy
+
+### New Features
+
+* Create and implement motion design philosophy ([beccfe6](https://github.com/hopetambala/puente-reactnative-collect/commit/beccfe6d0adda0c8f9f54ee24dcfca02c756913e))
+
+
+### Pipeline Changes
+
+* fix test-integration yaml ([668fd09](https://github.com/hopetambala/puente-reactnative-collect/commit/668fd09ea1acc7eb753f1c80727453c96fe25412))
+* parse cloud ([a5661fa](https://github.com/hopetambala/puente-reactnative-collect/commit/a5661fabefbeec3710fde9d25c5e1117044c768c))
+
+
+### Bug fixes
+
+* bad rerender on listing records ([fc52810](https://github.com/hopetambala/puente-reactnative-collect/commit/fc52810c34896882ec205c3eb64a108c4645c314))
+* dark mode ([e25c2e9](https://github.com/hopetambala/puente-reactnative-collect/commit/e25c2e9dc3cae3f43c1a930259d3750cf0584b2e))
+* Translation complete ([e4032a9](https://github.com/hopetambala/puente-reactnative-collect/commit/e4032a9d2b7a35e73da07d10033a6ed9fbee0cf9))
+* update custom forms ([774d9cc](https://github.com/hopetambala/puente-reactnative-collect/commit/774d9cc9a1ad7feb9c552626c6bac5b7c19dc7e8))
+* Update forms ([5efb175](https://github.com/hopetambala/puente-reactnative-collect/commit/5efb175b66ab20e53602452243bcfb5bb75bef3f))
+
 ### [15.2.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.0.4...v15.2.1) (2026-04-18)
 
 

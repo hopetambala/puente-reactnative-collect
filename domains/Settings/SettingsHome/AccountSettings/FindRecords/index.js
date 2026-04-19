@@ -1,18 +1,20 @@
 import { getData, storeData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
 import {
   Button,
   IconButton,
   Text,
   TextInput,
+  useTheme,
 } from "react-native-paper";
 
-import styles from "../../../index.styles";
+import { createSettingsStyles } from "../../../index.styles";
 
 function FindRecords() {
+  const theme = useTheme();
+  const styles = useMemo(() => createSettingsStyles(theme), [theme]);
   useEffect(() => {
     async function setUserInformation() {
       const storedLimit = await getData("findRecordsLimit");

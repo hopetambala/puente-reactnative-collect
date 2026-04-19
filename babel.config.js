@@ -20,7 +20,11 @@ module.exports = function (api) {
     ],
     env: {
       production: {
-        plugins: ["react-native-paper/babel"],
+        plugins: [
+          // DISABLED: react-native-paper/babel plugin corrupts bundle transformation
+          // causing Hermes VM crashes during startup. See: https://github.com/hopetambala/puente-reactnative-collect/issues/XXX
+          // "react-native-paper/babel",
+        ],
       },
     },
   };

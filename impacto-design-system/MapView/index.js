@@ -1,13 +1,13 @@
 import { residentIDQuery } from "@app/services/parse/crud";
 import { getData, storeData } from "@modules/async-storage";
 import getLocation from "@modules/geolocation";
-import { theme } from "@modules/theme";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator , Dimensions, StyleSheet, View } from "react-native";
 import MapView, { Marker } from "react-native-maps";
-import { IconButton } from "react-native-paper";
+import { IconButton, useTheme } from "react-native-paper";
 
 function Maps({ organization }) {
+  const theme = useTheme();
   useEffect(() => {
     let isSubscribed = true;
 

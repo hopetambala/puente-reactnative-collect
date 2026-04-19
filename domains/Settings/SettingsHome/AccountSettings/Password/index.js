@@ -1,14 +1,15 @@
 import { getData, storeData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
-import { theme } from "@modules/theme";
 import { Parse } from "parse/react-native";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
-import { Button, Text, TextInput } from "react-native-paper";
+import { Button, Text, TextInput, useTheme } from "react-native-paper";
 
-import styles from "../../../index.styles";
+import { createSettingsStyles } from "../../../index.styles";
 
 function Password() {
+  const theme = useTheme();
+  const styles = useMemo(() => createSettingsStyles(theme), [theme]);
   const [submitting, setSubmitting] = useState(false);
   const [currentState, setCurrentState] = useState("");
   const [newState, setNewState] = useState("");

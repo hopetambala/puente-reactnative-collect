@@ -13,7 +13,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator, ScrollView, Text, TouchableOpacity, View,
 } from 'react-native';
-import { Button } from 'react-native-paper';
+import { Button, useTheme } from 'react-native-paper';
 import Animated, { Keyframe } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -56,6 +56,7 @@ const RECORD_TYPES = [
 ];
 
 const ResidentRecordHistoryScreen = ({ navigation, route }) => {
+  const theme = useTheme();
   const { resident } = route.params;
   const [recordsByType, setRecordsByType] = useState({});
   const [loading, setLoading] = useState(true);
@@ -168,11 +169,11 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
 
   if (loading) {
     return (
-      <SafeAreaView edges={['top']} style={{ flex: 1 }} testID="loadingContainer">
+      <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: theme.colors.background }} testID="loadingContainer">
         <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ margin: 8 }}>{I18n.t('global.back')}</Button>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" testID="loadingIndicator" />
-          <Text>{I18n.t('residentHistory.loading')}</Text>
+          <ActivityIndicator size="large" color={theme.colors.primary} testID="loadingIndicator" />
+          <Text style={{ color: theme.colors.onBackground }}>{I18n.t('residentHistory.loading')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -180,13 +181,13 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
 
   if (error) {
     return (
-      <SafeAreaView edges={['top']} style={{ flex: 1, padding: 20 }} testID="error-view">
+      <SafeAreaView edges={['top']} style={{ flex: 1, padding: 20, backgroundColor: theme.colors.background }} testID="error-view">
         <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ marginBottom: 8 }}>{I18n.t('global.back')}</Button>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>
+          <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: theme.colors.onBackground }}>
             {I18n.t('residentHistory.errorLoadingRecords')}
           </Text>
-          <Text style={{ textAlign: 'center' }}>{error}</Text>
+          <Text style={{ textAlign: 'center', color: theme.colors.onSurfaceVariant }}>{error}</Text>
         </View>
       </SafeAreaView>
     );
@@ -212,11 +213,11 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
 
   if (!hasRecords) {
     return (
-      <SafeAreaView edges={['top']} style={{ flex: 1, padding: 20 }}>
+      <SafeAreaView edges={['top']} style={{ flex: 1, padding: 20, backgroundColor: theme.colors.background }}>
         <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ marginBottom: 8 }}>{I18n.t('global.back')}</Button>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10 }}>{I18n.t('residentHistory.noRecordsFound')}</Text>
-          <Text style={{ textAlign: 'center' }}>
+          <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: theme.colors.onBackground }}>{I18n.t('residentHistory.noRecordsFound')}</Text>
+          <Text style={{ textAlign: 'center', color: theme.colors.onSurfaceVariant }}>
             {I18n.t('residentHistory.noSubmissionsYet', { name: residentName })}
           </Text>
         </View>
@@ -225,11 +226,11 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-      <ScrollView style={{ flex: 1, padding: 16 }}>
+    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <ScrollView style={{ flex: 1, padding: 16, backgroundColor: theme.colors.background }}>
         <View>
           <Button icon="arrow-left" onPress={() => navigation.goBack()} style={{ marginBottom: 8, alignSelf: 'flex-start' }}>{I18n.t('global.back')}</Button>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>
+          <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16, color: theme.colors.onBackground }}>
             {I18n.t('residentHistory.recordHistory')}
             {' '}
             {residentName}
@@ -243,7 +244,7 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
                 .delay(sectionIdx * 80)
                 .duration(MOTION_TOKENS.duration.base)}
             >
-              <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 8, textTransform: 'capitalize' }}>
+              <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 8, textTransform: 'capitalize', color: theme.colors.onBackground }}>
                 {I18n.t(label)}
               </Text>
 
@@ -262,11 +263,11 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
                       style={{
                         padding: 12,
                         marginBottom: 8,
-                        backgroundColor: '#f5f5f5',
+                        backgroundColor: theme.colors.surface,
                         borderRadius: 8,
                       }}
                     >
-                      <Text style={{ fontSize: 14, fontWeight: '500' }}>
+                      <Text style={{ fontSize: 14, fontWeight: '500', color: theme.colors.onSurface }}>
                         {getRecordDisplayName(formType, item) || I18n.t(label)}
                         {' - '}
                         {formatDate(item.createdAt)}

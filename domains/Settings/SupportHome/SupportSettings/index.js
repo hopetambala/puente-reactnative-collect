@@ -1,12 +1,15 @@
 import I18n from "@modules/i18n";
-import React from "react";
+import React, { useMemo } from "react";
 import { View } from "react-native";
-import { Button } from "react-native-paper";
+import { Button, useTheme } from "react-native-paper";
 
-import styles from "../../index.styles";
+import { createSettingsStyles } from "../../index.styles";
 import Feedback from "./Feedback";
 
 function SupportSettings({ supportView, setSupportView }) {
+  const theme = useTheme();
+  const styles = useMemo(() => createSettingsStyles(theme), [theme]);
+
   return <View style={styles.mainContainer}>
     {supportView === "feedback" && <Feedback />}
     <Button

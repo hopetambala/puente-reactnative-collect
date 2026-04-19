@@ -1,4 +1,5 @@
 /* eslint-disable-file */
+import { AccessibilityContextProvider } from "@context/accessibility.context";
 import { AlertContextProvider } from "@context/alert.context";
 import { UserContextProvider } from "@context/auth.context";
 import { OfflineContextProvider } from "@context/offline.context";
@@ -61,7 +62,9 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ThemeContextProvider>
-          <AppContent />
+          <AccessibilityContextProvider>
+            <AppContent />
+          </AccessibilityContextProvider>
         </ThemeContextProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

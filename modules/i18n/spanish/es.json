@@ -17,7 +17,8 @@
     "emptyForm": "Forma vacía",
     "back": "Regresa",
     "pleaseTryAgain": "Inténtalo de nuevo",
-    "loadMore": "Cargar más"
+    "loadMore": "Cargar más",
+    "settings": "Configuración"
   },
   "signUp": {
     "firstName": "Nombre de verdadero",
@@ -587,7 +588,8 @@
     "removePrevious": "Quitar el anterior "
   },
   "bottomTab":{
-    "dataCollection": "Recopilación de datos"
+    "dataCollection": "Recopilación de datos",
+    "home": "Inicio"
   },
   "camera":{
     "useImage": "Usar imagen del carrete de la cámara",
@@ -651,8 +653,14 @@
   "theme": {
     "title": "Tema",
     "light": "Claro",
-    "dark": "Oscuro",
-    "auto": "Automático"
+    "dark": "Oscuro"
+  },
+  "findRecords": {
+    "viewRecordHistory": "Ver historial de registros"
+  },
+  "accessibility": {
+    "calmMode": "Modo calmado",
+    "calmModeDescription": "Reducir animaciones para enfoque clínico"
   },
   "residentHistory": {
     "loading": "Cargando historial de registros...",
