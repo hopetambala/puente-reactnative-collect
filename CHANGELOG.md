@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.3.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.2.4...v15.3.1) (2026-04-19)
+
+
+### Bug fixes
+
+* Dark mode and a11y mode ([f4fd9d4](https://github.com/hopetambala/puente-reactnative-collect/commit/f4fd9d4e0e5dcc5171c153ceef641dff27ab771f))
+
 ## [15.3.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.2.4...v15.3.0) (2026-04-18)
 
 
