@@ -725,11 +725,11 @@
     "homeTitle": "Your Impact Dashboard",
     "homeDescription": "See real-time stats on data collected by your field team. Tap any card to drill into the details.",
     "collectTitle": "Capture Field Data",
-    "collectDescription": "Start a new form to record community stories, metrics, locations, and photos — even without internet.",
+    "collectDescription": "Start a new form to collect data on your community even without internet.",
     "findTitle": "Search All Records",
-    "findDescription": "Look up any resident or asset. Supervisors use this to spot trends and take evidence-based action.",
+    "findDescription": "Look up any resident or asset. Click on a resident in order to edit previous forms.",
     "settingsTitle": "Your Preferences",
-    "settingsDescription": "Switch language, toggle dark mode, and manage your account — all in one place.",
+    "settingsDescription": "Switch language, toggle dark mode, and manage your account all in one place.",
     "dismiss": "Dismiss tips"
   }
 }

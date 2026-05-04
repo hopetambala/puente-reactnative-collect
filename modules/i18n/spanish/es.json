@@ -724,11 +724,11 @@
     "homeTitle": "Tu Panel de Impacto",
     "homeDescription": "Consulta estadísticas en tiempo real de los datos recopilados por tu equipo de campo. Toca cualquier tarjeta para ver los detalles.",
     "collectTitle": "Captura Datos de Campo",
-    "collectDescription": "Inicia un nuevo formulario para registrar historias, métricas, ubicaciones y fotos — incluso sin internet.",
+    "collectDescription": "Inicia un nuevo formulario para recopilar datos de tu comunidad incluso sin internet.",
     "findTitle": "Busca Todos los Registros",
-    "findDescription": "Busca cualquier residente o activo. Los supervisores lo usan para detectar tendencias y tomar medidas basadas en evidencia.",
+    "findDescription": "Busca cualquier residente o activo. Haz clic en un residente para editar formularios anteriores.",
     "settingsTitle": "Tus Preferencias",
-    "settingsDescription": "Cambia el idioma, activa el modo oscuro y administra tu cuenta — todo en un solo lugar.",
+    "settingsDescription": "Cambia el idioma, activa el modo oscuro y administra tu cuenta todo en un solo lugar.",
     "dismiss": "Cerrar consejos"
   }
 }
