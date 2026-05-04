@@ -242,30 +242,12 @@ function HomeScreen() {
         timeFilter={timeFilter}
       />
 
-      {/* First-visit coachmarks — shown once, dismissed via AsyncStorage flag */}
+      {/* Home screen coachmark — shown once on first visit */}
       <CoachmarkOverlay
-        steps={[
-          {
-            icon: "bar-chart-outline",
-            title: I18n.t("coachmarks.homeTitle"),
-            description: I18n.t("coachmarks.homeDescription"),
-          },
-          {
-            icon: "add-circle-outline",
-            title: I18n.t("coachmarks.collectTitle"),
-            description: I18n.t("coachmarks.collectDescription"),
-          },
-          {
-            icon: "search-outline",
-            title: I18n.t("coachmarks.findTitle"),
-            description: I18n.t("coachmarks.findDescription"),
-          },
-          {
-            icon: "settings-outline",
-            title: I18n.t("coachmarks.settingsTitle"),
-            description: I18n.t("coachmarks.settingsDescription"),
-          },
-        ]}
+        seenKey="home"
+        icon="bar-chart-outline"
+        title={I18n.t("coachmarks.homeTitle")}
+        description={I18n.t("coachmarks.homeDescription")}
       />
     </SafeAreaView>
   );

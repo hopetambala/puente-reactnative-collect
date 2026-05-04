@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import I18n from "@modules/i18n";
-import { getHasSeenCoachmarks, setHasSeenCoachmarks } from "@modules/settings";
+import { getHasSeenCoachmark, getHasSeenCoachmarks, setHasSeenCoachmark, setHasSeenCoachmarks } from "@modules/settings";
 import { spacing, typography } from "@modules/theme";
 import React, { useCallback, useEffect, useState } from "react";
 import { Modal, StyleSheet, TouchableOpacity, View } from "react-native";
@@ -11,11 +11,56 @@ import Animated, {
 } from "react-native-reanimated";
 
 /**
- * Individual coachmark tooltip — an arrow + bubble anchored below/above a target
+ * CoachmarkTip — Internal component that renders a single tip card shown bottom-sheet style.
+ * Supports both single-tip mode (simple dismiss) and multi-step mode (pagination).
+ *
+ * @param {Object} props
+ * @param {string} props.icon - Ionicons icon name (e.g., "bar-chart-outline", "search-outline")
+ * @param {string} props.title - Tip title text
+ * @param {string} props.description - Tip body description text
+ * @param {() => void} props.onDismiss - Callback when tip is dismissed (X or final CTA)
+ * @param {boolean} [props.isMultiStep=false] - Whether this is part of a multi-step sequence
+ * @param {number} [props.currentStep] - Current step number (only used if isMultiStep=true)
+ * @param {number} [props.totalSteps] - Total steps in sequence (only used if isMultiStep=true)
+ * @param {() => void} [props.onNext] - Callback to advance to next step (only used if isMultiStep=true)
+ *
+ * @returns {React.ReactNode} Animated tip card component
+ *
+ * @internal This is an internal component. Use CoachmarkOverlay instead.
+ *
+ * @example
+ * // Single-tip mode
+ * <CoachmarkTip
+ *   icon="info-outline"
+ *   title="Welcome"
+ *   description="This is a helpful tip"
+ *   onDismiss={handleDismiss}
+ * />
+ *
+ * @example
+ * // Multi-step mode (with pagination)
+ * <CoachmarkTip
+ *   icon="info-outline"
+ *   title="Step 1: Overview"
+ *   description="This is the first tip"
+ *   isMultiStep
+ *   currentStep={1}
+ *   totalSteps={3}
+ *   onNext={handleNext}
+ *   onDismiss={handleDismiss}
+ * />
  */
-function CoachmarkTip({ title, description, icon, step, total, onNext, onDismiss }) {
+function CoachmarkTip({
+  icon,
+  title,
+  description,
+  onDismiss,
+  isMultiStep = false,
+  currentStep,
+  totalSteps,
+  onNext,
+}) {
   const theme = useTheme();
-  const isLast = step === total - 1;
 
   return (
     <Animated.View
@@ -28,13 +73,12 @@ function CoachmarkTip({ title, description, icon, step, total, onNext, onDismiss
         <View style={[styles.tipIconBadge, { backgroundColor: theme.colors.primaryContainer }]}>
           <Ionicons name={icon} size={22} color={theme.colors.primary} />
         </View>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.tipTitle, { color: theme.colors.onSurface }]}>{title}</Text>
-          <Text style={[styles.tipStep, { color: theme.colors.onSurfaceVariant }]}>
-            {step + 1} / {total}
-          </Text>
-        </View>
-        <TouchableOpacity onPress={onDismiss} accessibilityRole="button" accessibilityLabel={I18n.t("coachmarks.dismiss")}>
+        <Text style={[styles.tipTitle, { color: theme.colors.onSurface }]}>{title}</Text>
+        <TouchableOpacity
+          onPress={onDismiss}
+          accessibilityRole="button"
+          accessibilityLabel={I18n.t("coachmarks.dismiss")}
+        >
           <Ionicons name="close-outline" size={22} color={theme.colors.onSurfaceVariant} />
         </TouchableOpacity>
       </View>
@@ -44,90 +88,201 @@ function CoachmarkTip({ title, description, icon, step, total, onNext, onDismiss
         {description}
       </Text>
 
-      {/* Progress dots */}
-      <View style={styles.tipDots}>
-        {Array.from({ length: total }, (_, i) => (
-          <View
-            key={i}
-            style={[
-              styles.tipDot,
-              {
-                backgroundColor: i === step ? theme.colors.primary : theme.colors.surfaceVariant,
-                width: i === step ? 16 : 6,
-              },
-            ]}
-          />
-        ))}
-      </View>
-
-      {/* CTA */}
-      <TouchableOpacity
-        onPress={onNext}
-        style={[styles.tipCta, { backgroundColor: theme.colors.primary }]}
-        accessibilityRole="button"
-        accessibilityLabel={isLast ? I18n.t("coachmarks.gotIt") : I18n.t("coachmarks.next")}
-      >
-        <Text style={[styles.tipCtaText, { color: theme.colors.onPrimary }]}>
-          {isLast ? I18n.t("coachmarks.gotIt") : I18n.t("coachmarks.next")}
+      {/* Step counter (multi-step only) */}
+      {isMultiStep && (
+        <Text style={[styles.tipStep, { color: theme.colors.onSurfaceVariant }]}>
+          {currentStep} / {totalSteps}
         </Text>
-        {!isLast && <Ionicons name="arrow-forward" size={16} color={theme.colors.onPrimary} />}
-      </TouchableOpacity>
+      )}
+
+      {/* CTA row */}
+      <View style={styles.tipCtaRow}>
+        {isMultiStep && currentStep < totalSteps && (
+          <TouchableOpacity
+            onPress={onNext}
+            style={[styles.tipCta, { backgroundColor: theme.colors.primary }]}
+            accessibilityRole="button"
+            accessibilityLabel={I18n.t("coachmarks.next")}
+          >
+            <Text style={[styles.tipCtaText, { color: theme.colors.onPrimary }]}>
+              {I18n.t("coachmarks.next")}
+            </Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          onPress={onDismiss}
+          style={[styles.tipCta, { backgroundColor: theme.colors.primary }]}
+          accessibilityRole="button"
+          accessibilityLabel={I18n.t("coachmarks.gotIt")}
+        >
+          <Text style={[styles.tipCtaText, { color: theme.colors.onPrimary }]}>
+            {I18n.t("coachmarks.gotIt")}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </Animated.View>
   );
 }
 
 /**
- * CoachmarkOverlay — full-screen dimmed overlay with sequential tip cards.
- * Renders as a Modal so it sits above all navigation chrome.
+ * CoachmarkOverlay — Flexible coachmark system supporting both single-tip and multi-step modes.
+ * Automatically detects which mode to use based on props.
  *
- * Props:
- *   steps: Array<{ title, description, icon }>
- *   onComplete: () => void  — called after last step or dismiss
+ * The component manages its own visibility state and AsyncStorage persistence.
+ * Single-tip mode persists per-screen flags; multi-step mode uses a global flag.
+ *
+ * @param {Object} props
+ *
+ * @param {string} [props.seenKey] - Unique key for single-tip mode ("home"|"collect"|"find"|"settings").
+ *                                    When provided, enables single-tip mode. Ignored if `steps` is provided.
+ * @param {string} [props.icon] - Ionicons icon name for single-tip mode (e.g., "bar-chart-outline")
+ * @param {string} [props.title] - Tip title text for single-tip mode
+ * @param {string} [props.description] - Tip body text for single-tip mode
+ *
+ * @param {Array<{icon: string, title: string, description: string}>} [props.steps] - Array of tip objects
+ *                                                                                      for multi-step mode.
+ *                                                                                      When provided, enables
+ *                                                                                      multi-step mode with
+ *                                                                                      pagination.
+ *
+ * @param {() => void} [props.onComplete] - Optional callback invoked after all tips are dismissed
+ *
+ * @returns {React.ReactNode} Modal with coachmark overlay (or null if tip was already seen)
+ *
+ * @example
+ * // Single-tip mode: shown once on first screen visit
+ * <CoachmarkOverlay
+ *   seenKey="home"
+ *   icon="bar-chart-outline"
+ *   title={I18n.t("coachmarks.homeTitle")}
+ *   description={I18n.t("coachmarks.homeDescription")}
+ *   onComplete={() => console.log("Home tip dismissed")}
+ * />
+ *
+ * @example
+ * // Multi-step mode: sequence of tips with "Next" pagination
+ * <CoachmarkOverlay
+ *   steps={[
+ *     {
+ *       icon: "info-outline",
+ *       title: "Step 1: Overview",
+ *       description: "Welcome to the feature",
+ *     },
+ *     {
+ *       icon: "touch-outline",
+ *       title: "Step 2: How to Use",
+ *       description: "Tap the button to proceed",
+ *     },
+ *     {
+ *       icon: "checkmark-circle-outline",
+ *       title: "Step 3: Done",
+ *       description: "You're all set",
+ *     },
+ *   ]}
+ *   onComplete={() => console.log("Tutorial finished")}
+ * />
+ *
+ * @note
+ * - For new screens, always use single-tip mode (seenKey + icon/title/description)
+ * - Multi-step mode is only for backward compatibility with legacy coachmark sequences
+ * - The overlay automatically handles AsyncStorage persistence and won't show twice
+ * - X button in header always dismisses immediately
+ * - Single-tip mode shows one "Got it" button; multi-step shows "Next" and "Got it"
  */
-export function CoachmarkOverlay({ steps, onComplete }) {
-  const [currentStep, setCurrentStep] = useState(0);
+export function CoachmarkOverlay({ seenKey, icon, title, description, steps, onComplete }) {
   const [visible, setVisible] = useState(false);
   const [checked, setChecked] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+
+  const isMultiStep = Array.isArray(steps) && steps.length > 0;
+  const isSingleTip = seenKey && !isMultiStep;
 
   useEffect(() => {
-    getHasSeenCoachmarks().then((seen) => {
-      if (!seen) setVisible(true);
-      setChecked(true);
-    });
-  }, []);
+    if (isSingleTip) {
+      // Single-tip mode
+      getHasSeenCoachmark(seenKey).then((seen) => {
+        if (!seen) setVisible(true);
+        setChecked(true);
+      });
+    } else if (isMultiStep) {
+      // Multi-step mode (legacy)
+      getHasSeenCoachmarks().then((seen) => {
+        if (!seen) setVisible(true);
+        setChecked(true);
+      });
+    }
+  }, [seenKey, isMultiStep, isSingleTip]);
 
-  const dismiss = useCallback(async () => {
+  const dismissSingleTip = useCallback(async () => {
+    await setHasSeenCoachmark(seenKey);
+    setVisible(false);
+    onComplete?.();
+  }, [seenKey, onComplete]);
+
+  const nextStep = useCallback(() => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      dismissMultiStep();
+    }
+  }, [currentStep, steps]);
+
+  const dismissMultiStep = useCallback(async () => {
     await setHasSeenCoachmarks();
     setVisible(false);
+    setCurrentStep(0);
     onComplete?.();
   }, [onComplete]);
 
-  const handleNext = useCallback(async () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep((s) => s + 1);
-    } else {
-      await dismiss();
-    }
-  }, [currentStep, steps.length, dismiss]);
-
   if (!checked || !visible) return null;
 
-  return (
-    <Modal transparent visible={visible} animationType="none" statusBarTranslucent>
-      <Animated.View entering={FadeIn.duration(300)} exiting={FadeOut.duration(200)} style={styles.backdrop}>
-        <View style={styles.tipContainer}>
-          <CoachmarkTip
-            key={currentStep}
-            {...steps[currentStep]}
-            step={currentStep}
-            total={steps.length}
-            onNext={handleNext}
-            onDismiss={dismiss}
-          />
-        </View>
-      </Animated.View>
-    </Modal>
-  );
+  // Render based on mode
+  if (isSingleTip) {
+    return (
+      <Modal transparent visible={visible} animationType="none" statusBarTranslucent>
+        <Animated.View
+          entering={FadeIn.duration(300)}
+          exiting={FadeOut.duration(200)}
+          style={styles.backdrop}
+        >
+          <View style={styles.tipContainer}>
+            <CoachmarkTip
+              icon={icon}
+              title={title}
+              description={description}
+              onDismiss={dismissSingleTip}
+            />
+          </View>
+        </Animated.View>
+      </Modal>
+    );
+  } if (isMultiStep) {
+    const step = steps[currentStep];
+    return (
+      <Modal transparent visible={visible} animationType="none" statusBarTranslucent>
+        <Animated.View
+          entering={FadeIn.duration(300)}
+          exiting={FadeOut.duration(200)}
+          style={styles.backdrop}
+        >
+          <View style={styles.tipContainer}>
+            <CoachmarkTip
+              icon={step.icon}
+              title={step.title}
+              description={step.description}
+              isMultiStep
+              currentStep={currentStep + 1}
+              totalSteps={steps.length}
+              onNext={nextStep}
+              onDismiss={dismissMultiStep}
+            />
+          </View>
+        </Animated.View>
+      </Modal>
+    );
+  }
+
+  return null;
 }
 
 const styles = StyleSheet.create({
@@ -152,7 +307,7 @@ const styles = StyleSheet.create({
   },
   tipHeader: {
     flexDirection: "row",
-    alignItems: "flex-start",
+    alignItems: "center",
     gap: spacing.md,
   },
   tipIconBadge: {
@@ -165,29 +320,25 @@ const styles = StyleSheet.create({
   tipTitle: {
     ...typography.label1,
     fontWeight: "700",
-  },
-  tipStep: {
-    ...typography.caption,
-    marginTop: 2,
+    flex: 1,
   },
   tipDescription: {
     ...typography.body2,
     lineHeight: 22,
   },
-  tipDots: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
+  tipStep: {
+    ...typography.caption,
+    textAlign: "center",
   },
-  tipDot: {
-    height: 6,
-    borderRadius: 9999,
+  tipCtaRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+    alignItems: "center",
   },
   tipCta: {
-    flexDirection: "row",
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.sm,
     paddingVertical: spacing.md,
     borderRadius: 9999,
   },
