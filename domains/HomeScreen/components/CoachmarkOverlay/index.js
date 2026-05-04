@@ -29,26 +29,33 @@ import Animated, {
  * @internal This is an internal component. Use CoachmarkOverlay instead.
  *
  * @example
+ * ```jsx
  * // Single-tip mode
+ * const handleDismiss = () => {};
  * <CoachmarkTip
  *   icon="info-outline"
- *   title="Welcome"
- *   description="This is a helpful tip"
+ *   title={I18n.t("coachmarks.homeTitle")}
+ *   description={I18n.t("coachmarks.homeDescription")}
  *   onDismiss={handleDismiss}
  * />
+ * ```
  *
  * @example
+ * ```jsx
  * // Multi-step mode (with pagination)
+ * const handleDismiss = () => {};
+ * const handleNext = () => {};
  * <CoachmarkTip
  *   icon="info-outline"
- *   title="Step 1: Overview"
- *   description="This is the first tip"
+ *   title={tipTitle}
+ *   description={tipDescription}
  *   isMultiStep
  *   currentStep={1}
  *   totalSteps={3}
  *   onNext={handleNext}
  *   onDismiss={handleDismiss}
  * />
+ * ```
  */
 function CoachmarkTip({
   icon,
@@ -150,6 +157,7 @@ function CoachmarkTip({
  * @returns {React.ReactNode} Modal with coachmark overlay (or null if tip was already seen)
  *
  * @example
+ * ```jsx
  * // Single-tip mode: shown once on first screen visit
  * <CoachmarkOverlay
  *   seenKey="home"
@@ -158,8 +166,10 @@ function CoachmarkTip({
  *   description={I18n.t("coachmarks.homeDescription")}
  *   onComplete={() => console.log("Home tip dismissed")}
  * />
+ * ```
  *
  * @example
+ * ```jsx
  * // Multi-step mode: sequence of tips with "Next" pagination
  * <CoachmarkOverlay
  *   steps={[
@@ -181,6 +191,7 @@ function CoachmarkTip({
  *   ]}
  *   onComplete={() => console.log("Tutorial finished")}
  * />
+ * ```
  *
  * @note
  * - For new screens, always use single-tip mode (seenKey + icon/title/description)
