@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { ThemeContext } from "@context/theme.context";
 import I18n from "@modules/i18n";
 import { setHasSeenOnboarding } from "@modules/settings";
@@ -13,6 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, useTheme } from "react-native-paper";
 import Animated, {
+  Easing,
   FadeIn,
   FadeInDown,
   interpolate,
@@ -25,7 +27,7 @@ import Animated, {
 
 import { MOTION_TOKENS } from "./motion/tokens";
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+const { width: screenWidth } = Dimensions.get("window");
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const TOTAL_STEPS = 8;
@@ -51,7 +53,7 @@ function ProgressBar({ step }) {
   }));
 
   return (
-    <View style={[styles.progressBarContainer, { marginTop: 24 }]}>
+    <View style={[styles.progressBarContainer, { marginTop: spacing.xxl }]}>
       <View style={styles.progressBarTrack}>
         <Animated.View
           style={[
@@ -210,10 +212,10 @@ function StepCollection({ onNext, onBack }) {
   const theme = useTheme();
 
   const collectionTypes = [
-    { icon: "📝", label: I18n.t("onboarding.textField"), color: theme.colors.primary },
-    { icon: "🔢", label: I18n.t("onboarding.numberField"), color: theme.colors.secondary },
-    { icon: "📍", label: I18n.t("onboarding.locationField"), color: theme.colors.success },
-    { icon: "📸", label: I18n.t("onboarding.photoField"), color: theme.colors.info },
+    { icon: "document-text-outline", label: I18n.t("onboarding.textField"), color: theme.colors.primary },
+    { icon: "keypad-outline", label: I18n.t("onboarding.numberField"), color: theme.colors.secondary },
+    { icon: "location-outline", label: I18n.t("onboarding.locationField"), color: theme.colors.success },
+    { icon: "camera-outline", label: I18n.t("onboarding.photoField"), color: theme.colors.info },
   ];
 
   return (
@@ -234,10 +236,10 @@ function StepCollection({ onNext, onBack }) {
         {collectionTypes.map((type, i) => (
           <Animated.View
             key={`collection-${i}`}
-            style={[styles.collectionCard, { borderLeftColor: type.color }]}
+            style={[styles.collectionCard, { borderLeftColor: type.color, backgroundColor: theme.colors.surface }]}
             entering={FadeInDown.delay(i * 90).duration(500)}
           >
-            <Text style={styles.cardIcon}>{type.icon}</Text>
+            <Ionicons name={type.icon} size={32} color={type.color} style={{ marginBottom: spacing.md }} />
             <Text style={[styles.cardLabel, { color: theme.colors.onBackground }]}>
               {type.label}
             </Text>
@@ -284,7 +286,10 @@ function StepFindRecords({ onNext, onBack }) {
         ]}
         entering={FadeInDown.delay(100).duration(500)}
       >
-        <Text style={{ color: theme.colors.onSurfaceVariant }}>🔍 Search</Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
+          <Ionicons name="search-outline" size={18} color={theme.colors.onSurfaceVariant} />
+          <Text style={{ color: theme.colors.onSurfaceVariant }}>Search</Text>
+        </View>
       </Animated.View>
 
       <View style={styles.recordsList}>
@@ -340,12 +345,12 @@ function StepOffline({ onNext, onBack }) {
         {I18n.t("onboarding.offlineMode")}
       </Animated.Text>
 
-      <Animated.Text
-        style={[styles.offlineIcon]}
+      <Animated.View
+        style={styles.offlineIconContainer}
         entering={FadeInDown.delay(100).duration(500)}
       >
-        🔄
-      </Animated.Text>
+        <Ionicons name="cloud-offline-outline" size={64} color={theme.colors.primary} />
+      </Animated.View>
 
       <Animated.Text
         style={[styles.stepDescription, { color: theme.colors.onSurfaceVariant }]}
@@ -515,7 +520,12 @@ function StepTheme({ onNext, onBack }) {
             accessibilityLabel={I18n.t("onboarding.light")}
             accessibilityState={{ selected: !isDarkMode }}
           >
-            <Text style={styles.themeOptionEmoji}>☀️</Text>
+            <Ionicons
+                name="sunny-outline"
+                size={32}
+                color={!isDarkMode ? theme.colors.onPrimary : theme.colors.onSurfaceVariant}
+                style={{ marginBottom: spacing.sm }}
+              />
             <Text
               style={[
                 styles.themeOptionLabel,
@@ -547,7 +557,12 @@ function StepTheme({ onNext, onBack }) {
             accessibilityLabel={I18n.t("onboarding.dark")}
             accessibilityState={{ selected: isDarkMode }}
           >
-            <Text style={styles.themeOptionEmoji}>🌙</Text>
+            <Ionicons
+                name="moon-outline"
+                size={32}
+                color={isDarkMode ? theme.colors.onPrimary : theme.colors.onSurfaceVariant}
+                style={{ marginBottom: spacing.sm }}
+              />
             <Text
               style={[
                 styles.themeOptionLabel,
@@ -581,9 +596,9 @@ function StepPrivacy({ onNext, onBack }) {
   const theme = useTheme();
 
   const privacyPoints = [
-    { icon: "🔒", title: I18n.t("onboarding.dataEncrypted") },
-    { icon: "👁️", title: I18n.t("onboarding.userPrivacy") },
-    { icon: "🛡️", title: I18n.t("onboarding.securePlatform") },
+    { icon: "lock-closed-outline", title: I18n.t("onboarding.dataEncrypted") },
+    { icon: "eye-outline", title: I18n.t("onboarding.userPrivacy") },
+    { icon: "shield-checkmark-outline", title: I18n.t("onboarding.securePlatform") },
   ];
 
   return (
@@ -607,7 +622,12 @@ function StepPrivacy({ onNext, onBack }) {
             style={styles.privacyItem}
             entering={FadeInDown.delay(i * 100).duration(500)}
           >
-            <Text style={styles.privacyIcon}>{point.icon}</Text>
+            <Ionicons
+              name={point.icon}
+              size={24}
+              color={theme.colors.primary}
+              style={{ marginRight: spacing.lg, marginTop: 2 }}
+            />
             <Text
               style={[styles.privacyTitle, { color: theme.colors.onBackground }]}
             >
@@ -629,33 +649,45 @@ function StepPrivacy({ onNext, onBack }) {
   );
 }
 
+const CONFETTI_PALETTE = ["#F97316", "#8B5CF6", "#10B981", "#3B82F6", "#F59E0B", "#EF4444"];
+const CONFETTI_COUNT = 24;
+
 /**
- * ConfettiPiece - subtle animated confetti element
+ * ConfettiPiece - colored geometric particle bursting in arc from center
  */
 function ConfettiPiece({ index }) {
-  const randomX = Math.random() * 150 - 75;
-  const randomSpinDegrees = Math.random() * 720 - 360;
+  const color = CONFETTI_PALETTE[index % CONFETTI_PALETTE.length];
+  const isCircle = index % 3 === 0;
 
   const translateY = useSharedValue(0);
   const translateX = useSharedValue(0);
   const rotate = useSharedValue(0);
-  const opacity = useSharedValue(1);
+  const opacity = useSharedValue(0);
 
   useEffect(() => {
-    translateY.value = withTiming(screenHeight, {
-      duration: 1800,
-    });
-    translateX.value = withTiming(randomX, {
-      duration: 1800,
-    });
-    rotate.value = withTiming(randomSpinDegrees, {
-      duration: 1800,
-    });
-    opacity.value = withSequence(
-      withTiming(1, { duration: 1600 }),
-      withTiming(0, { duration: 200 })
+    // Evenly spread angles so particles fan out in all directions
+    const angle = (index / CONFETTI_COUNT) * Math.PI * 2;
+    const spread = 80 + Math.random() * 160;
+    const targetX = Math.sin(angle) * spread + (Math.random() - 0.5) * 40;
+    const upAmount = 120 + Math.random() * 140;
+    const spinDeg = Math.random() * 360 - 180;
+
+    opacity.value = withTiming(1, { duration: 50 });
+    // Arc: burst up/out fast, then gravity pulls down
+    translateY.value = withSequence(
+      withTiming(-upAmount, { duration: 500, easing: Easing.out(Easing.cubic) }),
+      withTiming(400, { duration: 1000, easing: Easing.in(Easing.quad) })
     );
-  }, [translateY, translateX, rotate, opacity, randomX, randomSpinDegrees]);
+    translateX.value = withTiming(targetX, {
+      duration: 1500,
+      easing: Easing.out(Easing.cubic),
+    });
+    rotate.value = withTiming(spinDeg, { duration: 1500 });
+    opacity.value = withSequence(
+      withTiming(1, { duration: 600 }),
+      withTiming(0, { duration: 900 })
+    );
+  }, [translateY, translateX, rotate, opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [
@@ -668,20 +700,19 @@ function ConfettiPiece({ index }) {
 
   return (
     <Animated.View
-      key={`confetti-${index}`}
       style={[
         {
           position: "absolute",
-          width: 20,
-          height: 20,
-          justifyContent: "center",
-          alignItems: "center",
+          top: "50%",
+          left: screenWidth / 2 - 4,
+          width: isCircle ? 10 : 8,
+          height: isCircle ? 10 : 14,
+          borderRadius: isCircle ? 5 : 2,
+          backgroundColor: color,
         },
         animatedStyle,
       ]}
-    >
-      <Text style={{ fontSize: 16 }}>✨</Text>
-    </Animated.View>
+    />
   );
 }
 
@@ -692,11 +723,11 @@ function ConfettiBurst() {
   const [pieces, setPieces] = useState([]);
 
   useEffect(() => {
-    setPieces(Array.from({ length: 15 }, (_, i) => i));
+    setPieces(Array.from({ length: CONFETTI_COUNT }, (_, i) => i));
   }, []);
 
   return (
-    <View style={styles.confettiContainer}>
+    <View pointerEvents="none" style={styles.confettiContainer}>
       {pieces.map((i) => (
         <ConfettiPiece key={`piece-${i}`} index={i} />
       ))}
@@ -707,48 +738,59 @@ function ConfettiBurst() {
 /**
  * Step 7 - Finale
  */
-function StepFinale({ navigation }) {
+function StepFinale({ onComplete, onBack }) {
   const theme = useTheme();
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
     setShowConfetti(true);
-    const timer = setTimeout(async () => {
-      try {
-        await setHasSeenOnboarding(true);
-        navigation.replace("Sign In");
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error("Error completing onboarding:", e);
-      }
-    }, 1200);
-
-    return () => clearTimeout(timer);
-  }, [navigation]);
+  }, []);
 
   return (
-    <View style={[styles.stepContainer, styles.finaleContainer]}>
+    <Animated.View entering={FadeIn} style={styles.stepContainer}>
       {showConfetti && <ConfettiBurst />}
-      <Animated.View entering={FadeIn.duration(500)}>
-        <Text style={[styles.finaleTitle, { color: theme.colors.primary }]}>
-          🎯
-        </Text>
+
+      <View style={styles.finaleContent}>
+        <Animated.View entering={FadeIn.duration(500)} style={{ marginBottom: spacing.xl }}>
+          <Ionicons name="checkmark-circle-outline" size={80} color={theme.colors.primary} />
+        </Animated.View>
+
+        <Animated.Text
+          style={[styles.finaleMessage, { color: theme.colors.onBackground }]}
+          entering={FadeInDown.delay(300).duration(500)}
+        >
+          {I18n.t("onboarding.youreIn")}
+        </Animated.Text>
+
+        <Animated.Text
+          style={[styles.finaleSubtext, { color: theme.colors.onSurfaceVariant }]}
+          entering={FadeInDown.delay(600).duration(500)}
+        >
+          {I18n.t("onboarding.readyToBegin")}
+        </Animated.Text>
+      </View>
+
+      <Animated.View
+        style={styles.finaleButtonContainer}
+        entering={FadeInDown.delay(900).duration(500)}
+      >
+        <TouchableOpacity
+          onPress={onBack}
+          style={styles.backButton}
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel={I18n.t("onboarding.back")}
+        >
+          <Text style={[styles.backButtonText, { color: theme.colors.primary }]}>
+            {I18n.t("onboarding.back")}
+          </Text>
+        </TouchableOpacity>
+        <PrimaryPill
+          label={I18n.t("onboarding.getStarted")}
+          onPress={onComplete}
+        />
       </Animated.View>
-
-      <Animated.Text
-        style={[styles.finaleMessage, { color: theme.colors.onBackground }]}
-        entering={FadeInDown.delay(300).duration(500)}
-      >
-        {I18n.t("onboarding.youreIn")}
-      </Animated.Text>
-
-      <Animated.Text
-        style={[styles.finaleSubtext, { color: theme.colors.onSurfaceVariant }]}
-        entering={FadeInDown.delay(600).duration(500)}
-      >
-        {I18n.t("onboarding.readyToBegin")}
-      </Animated.Text>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -762,8 +804,6 @@ export default function Onboarding({ navigation }) {
   const goNext = () => {
     if (step < TOTAL_STEPS - 1) {
       setStep(step + 1);
-    } else {
-      handleComplete();
     }
   };
 
@@ -825,7 +865,7 @@ export default function Onboarding({ navigation }) {
         );
       case 7:
         return (
-          <StepFinale navigation={navigation} />
+          <StepFinale onComplete={handleComplete} onBack={goBack} />
         );
       default:
         return null;
@@ -922,10 +962,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderLeftWidth: 5,
   },
-  cardIcon: {
-    fontSize: 36,
-    marginBottom: spacing.md,
-  },
   cardLabel: {
     ...typography.label1,
     textAlign: "center",
@@ -949,9 +985,8 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
   },
   // Offline
-  offlineIcon: {
-    fontSize: 56,
-    textAlign: "center",
+  offlineIconContainer: {
+    alignItems: "center",
     marginVertical: spacing.xxl,
   },
   // Language
@@ -993,10 +1028,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  themeOptionEmoji: {
-    fontSize: 32,
-    marginBottom: spacing.sm,
-  },
   themeOptionLabel: {
     ...typography.label1,
     textTransform: "uppercase",
@@ -1010,39 +1041,39 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     marginBottom: spacing.lg,
   },
-  privacyIcon: {
-    fontSize: 28,
-    marginRight: spacing.lg,
-    marginTop: 0,
-  },
   privacyTitle: {
     flex: 1,
     ...typography.label1,
   },
   // Finale
-  finaleContainer: {
+  finaleContent: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: spacing.lg,
   },
-  finaleTitle: {
-    fontSize: 64,
-    textAlign: "center",
-    marginBottom: spacing.xl,
+  finaleButtonContainer: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.xxl,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
   },
   finaleMessage: {
     ...typography.heading2,
     textAlign: "center",
+    alignSelf: "stretch",
     marginTop: spacing.lg,
   },
   finaleSubtext: {
     ...typography.body2,
     textAlign: "center",
+    alignSelf: "stretch",
     marginTop: spacing.md,
   },
   // Confetti
   confettiContainer: {
     ...StyleSheet.absoluteFillObject,
-    pointerEvents: "none",
   },
   // Footer
   stepFooter: {
@@ -1075,7 +1106,6 @@ const styles = StyleSheet.create({
   },
   primaryPillText: {
     ...typography.label1,
-    color: "#FFFFFF",
   },
   skipText: {
     ...typography.label1,
