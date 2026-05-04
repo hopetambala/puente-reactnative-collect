@@ -1,9 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ThemeContext } from "@context/theme.context";
 import I18n from "@modules/i18n";
-import { setHasSeenOnboarding } from "@modules/settings";
+import { setHasSeenOnboarding, setOnboardingStep, getOnboardingStep, clearOnboardingStep } from "@modules/settings";
 import { spacing, typography } from "@modules/theme";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Dimensions,
   Platform,
@@ -17,7 +17,10 @@ import Animated, {
   Easing,
   FadeIn,
   FadeInDown,
+  SlideInLeft,
+  SlideInRight,
   interpolate,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withSequence,
@@ -26,11 +29,57 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { MOTION_TOKENS } from "./motion/tokens";
+import { useCameraPermissions } from "expo-camera";
+import * as Location from "expo-location";
 
 const { width: screenWidth } = Dimensions.get("window");
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
-const TOTAL_STEPS = 8;
+/**
+ * Haptics helper — gracefully no-ops when unavailable (Expo Go, older devices)
+ */
+function triggerHaptic(style = "Light") {
+  try {
+    // eslint-disable-next-line global-require
+    const Haptics = require("expo-haptics");
+    const styleMap = {
+      Light: Haptics.ImpactFeedbackStyle.Light,
+      Medium: Haptics.ImpactFeedbackStyle.Medium,
+      Heavy: Haptics.ImpactFeedbackStyle.Heavy,
+    };
+    if (Haptics?.impactAsync) {
+      Haptics.impactAsync(styleMap[style] ?? Haptics.ImpactFeedbackStyle.Light);
+    }
+  } catch (e) {
+    // Haptics unavailable — skip silently
+  }
+}
+
+const TOTAL_STEPS = 9;
+
+/**
+ * ParallaxScrollView - ScrollView with parallax effect for background
+ */
+function ParallaxScrollView({ children, style, contentContainerStyle }) {
+  const scrollOffset = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (e) => {
+      scrollOffset.value = e.contentOffset.y;
+    },
+  });
+
+  return (
+    <Animated.ScrollView
+      style={style}
+      contentContainerStyle={contentContainerStyle}
+      onScroll={scrollHandler}
+      scrollEventThrottle={16}
+    >
+      {children(scrollOffset)}
+    </Animated.ScrollView>
+  );
+}
 
 /**
  * ProgressBar - animated fill showing onboarding progress
@@ -79,6 +128,7 @@ function PrimaryPill({ label, onPress, disabled = false }) {
   }));
 
   const handlePressIn = () => {
+    triggerHaptic("Light");
     scale.value = withSpring(MOTION_TOKENS.scale.press, MOTION_TOKENS.spring.snappy);
   };
 
@@ -129,7 +179,7 @@ function StepFooter({ onNext, onBack, onSkip, showBack = false, showSkip = false
       <View style={styles.footerButtonRow}>
         {showBack && (
           <TouchableOpacity
-            onPress={onBack}
+            onPress={() => { triggerHaptic("Light"); onBack?.(); }}
             style={styles.backButton}
             accessible
             accessibilityRole="button"
@@ -144,7 +194,7 @@ function StepFooter({ onNext, onBack, onSkip, showBack = false, showSkip = false
       <View style={styles.ctaContainer}>
         {showSkip && (
           <TouchableOpacity
-            onPress={onSkip}
+            onPress={() => { triggerHaptic("Light"); onSkip?.(); }}
             accessible
             accessibilityRole="button"
             accessibilityLabel={I18n.t("onboarding.skip")}
@@ -180,7 +230,7 @@ function StepWelcome({ onNext, onSkip }) {
         style={[styles.welcomeTitle, { color: theme.colors.primary }]}
         entering={FadeInDown.duration(500)}
       >
-        Welcome to Puente
+        {I18n.t("onboarding.welcome")}
       </Animated.Text>
 
       <Animated.Text
@@ -205,6 +255,8 @@ function StepWelcome({ onNext, onSkip }) {
   );
 }
 
+
+
 /**
  * Step 1 - Data Collection
  */
@@ -225,36 +277,182 @@ function StepCollection({ onNext, onBack }) {
       entering={FadeIn}
       scrollEnabled={false}
     >
-      <Animated.Text
-        style={[styles.stepTitle, { color: theme.colors.primary }]}
-        entering={FadeInDown.duration(500)}
-      >
-        {I18n.t("onboarding.howToCollect")}
-      </Animated.Text>
+      <>
+        <Animated.Text
+          style={[styles.stepTitle, { color: theme.colors.primary }]}
+          entering={FadeInDown.duration(500)}
+        >
+          {I18n.t("onboarding.howToCollect")}
+        </Animated.Text>
 
-      <View style={styles.cardGrid}>
-        {collectionTypes.map((type, i) => (
-          <Animated.View
-            key={`collection-${i}`}
-            style={[styles.collectionCard, { borderLeftColor: type.color, backgroundColor: theme.colors.surface }]}
-            entering={FadeInDown.delay(i * 90).duration(500)}
-          >
-            <Ionicons name={type.icon} size={32} color={type.color} style={{ marginBottom: spacing.md }} />
-            <Text style={[styles.cardLabel, { color: theme.colors.onBackground }]}>
-              {type.label}
-            </Text>
-          </Animated.View>
-        ))}
+        <View style={styles.cardGrid}>
+          {collectionTypes.map((type, i) => (
+            <Animated.View
+              key={`collection-${i}`}
+              style={[styles.collectionCard, { borderLeftColor: type.color, backgroundColor: theme.colors.surface }]}
+              entering={FadeInDown.delay(i * 90).duration(500)}
+            >
+              <Ionicons name={type.icon} size={32} color={type.color} style={{ marginBottom: spacing.md }} />
+              <Text style={[styles.cardLabel, { color: theme.colors.onBackground }]}>
+                {type.label}
+              </Text>
+            </Animated.View>
+          ))}
+        </View>
+
+        <Animated.Text
+          style={[styles.stepDescription, { color: theme.colors.onSurfaceVariant }]}
+          entering={FadeInDown.delay(400).duration(500)}
+        >
+          {I18n.t("onboarding.collectionDescription")}
+        </Animated.Text>
+
+        <StepFooter onNext={onNext} onBack={onBack} showBack />
+      </>
+    </Animated.ScrollView>
+  );
+}
+
+/**
+ * PermissionCard - single permission row with icon, reason, and Allow/Granted button
+ */
+function PermissionCard({ icon, title, reason, isGranted, isDenied, onRequest, color }) {
+  const theme = useTheme();
+  const scale = useSharedValue(1);
+
+  const cardStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePress = () => {
+    if (isGranted || isDenied) return;
+    scale.value = withSequence(
+      withTiming(0.97, { duration: 100 }),
+      withSpring(1, MOTION_TOKENS.spring.snappy)
+    );
+    triggerHaptic("Medium");
+    onRequest();
+  };
+
+  const statusColor = isGranted
+    ? theme.colors.success
+    : isDenied
+    ? theme.colors.error
+    : theme.colors.primary;
+
+  const statusLabel = isGranted
+    ? I18n.t("onboarding.permissionGranted")
+    : isDenied
+    ? I18n.t("onboarding.permissionDenied")
+    : I18n.t("onboarding.permissionGrant");
+
+  const statusIcon = isGranted
+    ? "checkmark-circle"
+    : isDenied
+    ? "close-circle-outline"
+    : "arrow-forward-circle-outline";
+
+  return (
+    <Animated.View
+      style={[
+        styles.permissionCard,
+        {
+          backgroundColor: theme.colors.surface,
+          borderLeftColor: isGranted ? theme.colors.success : color,
+        },
+        cardStyle,
+      ]}
+    >
+      <Ionicons name={icon} size={36} color={isGranted ? theme.colors.success : color} style={styles.permissionCardIcon} />
+      <View style={styles.permissionCardBody}>
+        <Text style={[styles.permissionCardTitle, { color: theme.colors.onBackground }]}>
+          {title}
+        </Text>
+        <Text style={[styles.permissionCardReason, { color: theme.colors.onSurfaceVariant }]}>
+          {reason}
+        </Text>
+        <TouchableOpacity
+          onPress={handlePress}
+          disabled={isGranted || isDenied}
+          style={[styles.permissionButton, { borderColor: statusColor }]}
+          accessible
+          accessibilityRole="button"
+          accessibilityLabel={statusLabel}
+        >
+          <Ionicons name={statusIcon} size={16} color={statusColor} />
+          <Text style={[styles.permissionButtonText, { color: statusColor }]}>
+            {statusLabel}
+          </Text>
+        </TouchableOpacity>
       </View>
+    </Animated.View>
+  );
+}
 
-      <Animated.Text
-        style={[styles.stepDescription, { color: theme.colors.onSurfaceVariant }]}
-        entering={FadeInDown.delay(400).duration(500)}
-      >
-        {I18n.t("onboarding.collectionDescription")}
-      </Animated.Text>
+/**
+ * Step 2 - Permissions
+ */
+function StepPermissions({ onNext, onBack }) {
+  const theme = useTheme();
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [locationStatus, setLocationStatus] = useState(null);
 
-      <StepFooter onNext={onNext} onBack={onBack} showBack />
+  const isCameraGranted = cameraPermission?.granted === true;
+  const isCameraDenied = cameraPermission?.granted === false && cameraPermission?.canAskAgain === false;
+
+  const isLocationGranted = locationStatus === "granted";
+  const isLocationDenied = locationStatus === "denied";
+
+  const handleRequestLocation = async () => {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    setLocationStatus(status);
+  };
+
+  return (
+    <Animated.ScrollView
+      style={styles.stepContainer}
+      contentContainerStyle={styles.stepContent}
+      entering={FadeIn}
+      scrollEnabled={false}
+    >
+      <>
+        <Animated.Text
+          style={[styles.stepTitle, { color: theme.colors.primary }]}
+          entering={FadeInDown.duration(500)}
+        >
+          {I18n.t("onboarding.permissions")}
+        </Animated.Text>
+
+        <Animated.Text
+          style={[styles.stepDescription, { color: theme.colors.onSurfaceVariant }]}
+          entering={FadeInDown.delay(150).duration(500)}
+        >
+          {I18n.t("onboarding.permissionsDescription")}
+        </Animated.Text>
+
+        <Animated.View entering={FadeInDown.delay(250).duration(500)} style={styles.permissionCards}>
+          <PermissionCard
+            icon="camera-outline"
+            title={I18n.t("onboarding.cameraPermission")}
+            reason={I18n.t("onboarding.cameraPermissionReason")}
+            isGranted={isCameraGranted}
+            isDenied={isCameraDenied}
+            onRequest={requestCameraPermission}
+            color={theme.colors.info}
+          />
+          <PermissionCard
+            icon="location-outline"
+            title={I18n.t("onboarding.locationPermission")}
+            reason={I18n.t("onboarding.locationPermissionReason")}
+            isGranted={isLocationGranted}
+            isDenied={isLocationDenied}
+            onRequest={handleRequestLocation}
+            color={theme.colors.success}
+          />
+        </Animated.View>
+
+        <StepFooter onNext={onNext} onBack={onBack} showBack />
+      </>
     </Animated.ScrollView>
   );
 }
@@ -272,12 +470,13 @@ function StepFindRecords({ onNext, onBack }) {
       entering={FadeIn}
       scrollEnabled={false}
     >
-      <Animated.Text
-        style={[styles.stepTitle, { color: theme.colors.primary }]}
-        entering={FadeInDown.duration(500)}
-      >
-        {I18n.t("onboarding.findRecords")}
-      </Animated.Text>
+      <>
+        <Animated.Text
+          style={[styles.stepTitle, { color: theme.colors.primary }]}
+          entering={FadeInDown.duration(500)}
+        >
+          {I18n.t("onboarding.findRecords")}
+        </Animated.Text>
 
       <Animated.View
         style={[
@@ -321,6 +520,7 @@ function StepFindRecords({ onNext, onBack }) {
       </Animated.Text>
 
       <StepFooter onNext={onNext} onBack={onBack} showBack />
+      </>
     </Animated.ScrollView>
   );
 }
@@ -338,28 +538,30 @@ function StepOffline({ onNext, onBack }) {
       entering={FadeIn}
       scrollEnabled={false}
     >
-      <Animated.Text
-        style={[styles.stepTitle, { color: theme.colors.primary }]}
-        entering={FadeInDown.duration(500)}
-      >
-        {I18n.t("onboarding.offlineMode")}
-      </Animated.Text>
+      <>
+        <Animated.Text
+          style={[styles.stepTitle, { color: theme.colors.primary }]}
+          entering={FadeInDown.duration(500)}
+        >
+          {I18n.t("onboarding.offlineMode")}
+        </Animated.Text>
 
-      <Animated.View
-        style={styles.offlineIconContainer}
-        entering={FadeInDown.delay(100).duration(500)}
-      >
-        <Ionicons name="cloud-offline-outline" size={64} color={theme.colors.primary} />
-      </Animated.View>
+        <Animated.View
+          style={styles.offlineIconContainer}
+          entering={FadeInDown.delay(100).duration(500)}
+        >
+          <Ionicons name="cloud-offline-outline" size={64} color={theme.colors.primary} />
+        </Animated.View>
 
-      <Animated.Text
-        style={[styles.stepDescription, { color: theme.colors.onSurfaceVariant }]}
-        entering={FadeInDown.delay(300).duration(500)}
-      >
-        {I18n.t("onboarding.offlineDescription")}
-      </Animated.Text>
+        <Animated.Text
+          style={[styles.stepDescription, { color: theme.colors.onSurfaceVariant }]}
+          entering={FadeInDown.delay(300).duration(500)}
+        >
+          {I18n.t("onboarding.offlineDescription")}
+        </Animated.Text>
 
-      <StepFooter onNext={onNext} onBack={onBack} showBack />
+        <StepFooter onNext={onNext} onBack={onBack} showBack />
+      </>
     </Animated.ScrollView>
   );
 }
@@ -380,17 +582,7 @@ function StepLanguage({ onNext, onBack }) {
   const handleLanguageSelect = (code) => {
     setSelectedLanguage(code);
     I18n.locale = code;
-
-    // Try haptics if available
-    try {
-      // eslint-disable-next-line global-require
-      const Haptics = require("expo-haptics");
-      if (Haptics?.impactAsync) {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      }
-    } catch (e) {
-      // Haptics not available, skip
-    }
+    triggerHaptic("Medium");
   };
 
   return (
@@ -400,14 +592,15 @@ function StepLanguage({ onNext, onBack }) {
       entering={FadeIn}
       scrollEnabled={false}
     >
-      <Animated.Text
-        style={[styles.stepTitle, { color: theme.colors.primary }]}
-        entering={FadeInDown.duration(500)}
-      >
-        {I18n.t("onboarding.chooseLanguage")}
-      </Animated.Text>
+      <>
+        <Animated.Text
+          style={[styles.stepTitle, { color: theme.colors.primary }]}
+          entering={FadeInDown.duration(500)}
+        >
+          {I18n.t("onboarding.chooseLanguage")}
+        </Animated.Text>
 
-      <View style={styles.languageGrid}>
+        <View style={styles.languageGrid}>
         {languages.map((lang, i) => (
           <Animated.View
             key={`lang-${lang.code}`}
@@ -455,6 +648,7 @@ function StepLanguage({ onNext, onBack }) {
       </Animated.Text>
 
       <StepFooter onNext={onNext} onBack={onBack} showBack />
+      </>
     </Animated.ScrollView>
   );
 }
@@ -474,17 +668,7 @@ function StepTheme({ onNext, onBack }) {
 
   const handleThemeToggle = async () => {
     await toggleTheme();
-
-    // Try haptics
-    try {
-      // eslint-disable-next-line global-require
-      const Haptics = require("expo-haptics");
-      if (Haptics?.impactAsync) {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      }
-    } catch (e) {
-      // Haptics not available
-    }
+    triggerHaptic("Medium");
   };
 
   return (
@@ -494,14 +678,15 @@ function StepTheme({ onNext, onBack }) {
       entering={FadeIn}
       scrollEnabled={false}
     >
-      <Animated.Text
-        style={[styles.stepTitle, { color: theme.colors.primary }]}
-        entering={FadeInDown.duration(500)}
-      >
-        {I18n.t("onboarding.chooseTheme")}
-      </Animated.Text>
+      <>
+        <Animated.Text
+          style={[styles.stepTitle, { color: theme.colors.primary }]}
+          entering={FadeInDown.duration(500)}
+        >
+          {I18n.t("onboarding.chooseTheme")}
+        </Animated.Text>
 
-      <View style={styles.themeToggleContainer}>
+        <View style={styles.themeToggleContainer}>
         <Animated.View
           style={[
             styles.themeOption,
@@ -585,6 +770,7 @@ function StepTheme({ onNext, onBack }) {
       </Animated.Text>
 
       <StepFooter onNext={onNext} onBack={onBack} showBack />
+      </>
     </Animated.ScrollView>
   );
 }
@@ -608,14 +794,15 @@ function StepPrivacy({ onNext, onBack }) {
       entering={FadeIn}
       scrollEnabled={false}
     >
-      <Animated.Text
-        style={[styles.stepTitle, { color: theme.colors.primary }]}
-        entering={FadeInDown.duration(500)}
-      >
-        {I18n.t("onboarding.privacy")}
-      </Animated.Text>
+      <>
+        <Animated.Text
+          style={[styles.stepTitle, { color: theme.colors.primary }]}
+          entering={FadeInDown.duration(500)}
+        >
+          {I18n.t("onboarding.privacy")}
+        </Animated.Text>
 
-      <View style={styles.privacyList}>
+        <View style={styles.privacyList}>
         {privacyPoints.map((point, i) => (
           <Animated.View
             key={`privacy-${i}`}
@@ -645,6 +832,7 @@ function StepPrivacy({ onNext, onBack }) {
       </Animated.Text>
 
       <StepFooter onNext={onNext} onBack={onBack} showBack />
+      </>
     </Animated.ScrollView>
   );
 }
@@ -747,7 +935,7 @@ function StepFinale({ onComplete, onBack }) {
   }, []);
 
   return (
-    <Animated.View entering={FadeIn} style={styles.stepContainer}>
+    <Animated.View entering={FadeIn} style={[styles.stepContainer, styles.stepContent]}>
       {showConfetti && <ConfettiBurst />}
 
       <View style={styles.finaleContent}>
@@ -770,26 +958,12 @@ function StepFinale({ onComplete, onBack }) {
         </Animated.Text>
       </View>
 
-      <Animated.View
-        style={styles.finaleButtonContainer}
-        entering={FadeInDown.delay(900).duration(500)}
-      >
-        <TouchableOpacity
-          onPress={onBack}
-          style={styles.backButton}
-          accessible
-          accessibilityRole="button"
-          accessibilityLabel={I18n.t("onboarding.back")}
-        >
-          <Text style={[styles.backButtonText, { color: theme.colors.primary }]}>
-            {I18n.t("onboarding.back")}
-          </Text>
-        </TouchableOpacity>
-        <PrimaryPill
-          label={I18n.t("onboarding.getStarted")}
-          onPress={onComplete}
-        />
-      </Animated.View>
+      <StepFooter
+        onNext={onComplete}
+        onBack={onBack}
+        showBack
+        nextLabel={I18n.t("onboarding.getStarted")}
+      />
     </Animated.View>
   );
 }
@@ -799,22 +973,45 @@ function StepFinale({ onComplete, onBack }) {
  */
 export default function Onboarding({ navigation }) {
   const [step, setStep] = useState(0);
+  const [isRestoringStep, setIsRestoringStep] = useState(true);
   const theme = useTheme();
+  const directionRef = useRef("forward"); // "forward" | "backward"
+
+  // Restore saved step on first mount
+  useEffect(() => {
+    getOnboardingStep().then((saved) => {
+      if (saved !== null && saved > 0 && saved < TOTAL_STEPS) {
+        directionRef.current = "forward";
+        setStep(saved);
+      }
+      setIsRestoringStep(false);
+    });
+  }, []);
 
   const goNext = () => {
     if (step < TOTAL_STEPS - 1) {
-      setStep(step + 1);
+      const nextStep = step + 1;
+      directionRef.current = "forward";
+      triggerHaptic("Medium");
+      setStep(nextStep);
+      setOnboardingStep(nextStep);
     }
   };
 
   const goBack = () => {
     if (step > 0) {
-      setStep(step - 1);
+      const prevStep = step - 1;
+      directionRef.current = "backward";
+      triggerHaptic("Light");
+      setStep(prevStep);
+      setOnboardingStep(prevStep);
     }
   };
 
   const handleSkip = async () => {
     try {
+      triggerHaptic("Medium");
+      await clearOnboardingStep();
       await setHasSeenOnboarding(true);
       navigation.replace("Sign In");
     } catch (e) {
@@ -825,6 +1022,8 @@ export default function Onboarding({ navigation }) {
 
   const handleComplete = async () => {
     try {
+      triggerHaptic("Heavy");
+      await clearOnboardingStep();
       await setHasSeenOnboarding(true);
       navigation.replace("Sign In");
     } catch (e) {
@@ -845,25 +1044,29 @@ export default function Onboarding({ navigation }) {
         );
       case 2:
         return (
-          <StepFindRecords onNext={goNext} onBack={goBack} />
+          <StepPermissions onNext={goNext} onBack={goBack} />
         );
       case 3:
         return (
-          <StepOffline onNext={goNext} onBack={goBack} />
+          <StepFindRecords onNext={goNext} onBack={goBack} />
         );
       case 4:
         return (
-          <StepLanguage onNext={goNext} onBack={goBack} />
+          <StepOffline onNext={goNext} onBack={goBack} />
         );
       case 5:
         return (
-          <StepTheme onNext={goNext} onBack={goBack} />
+          <StepLanguage onNext={goNext} onBack={goBack} />
         );
       case 6:
         return (
-          <StepPrivacy onNext={goNext} onBack={goBack} />
+          <StepTheme onNext={goNext} onBack={goBack} />
         );
       case 7:
+        return (
+          <StepPrivacy onNext={goNext} onBack={goBack} />
+        );
+      case 8:
         return (
           <StepFinale onComplete={handleComplete} onBack={goBack} />
         );
@@ -879,10 +1082,18 @@ export default function Onboarding({ navigation }) {
         { backgroundColor: theme.colors.background },
       ]}
     >
-      <ProgressBar step={step} />
-      <View style={styles.stepWrapper}>
-        {renderStep()}
-      </View>
+      {isRestoringStep ? null : (
+        <>
+          <ProgressBar step={step} />
+          <Animated.View
+            key={`step-${step}`}
+            entering={directionRef.current === "forward" ? SlideInRight.duration(300) : SlideInLeft.duration(300)}
+            style={styles.stepWrapper}
+          >
+            {renderStep()}
+          </Animated.View>
+        </>
+      )}
     </SafeAreaView>
   );
 }
@@ -1052,13 +1263,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: spacing.lg,
   },
-  finaleButtonContainer: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xxl,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-  },
   finaleMessage: {
     ...typography.heading2,
     textAlign: "center",
@@ -1110,5 +1314,45 @@ const styles = StyleSheet.create({
   skipText: {
     ...typography.label1,
     marginRight: spacing.md,
+  },
+  // Permissions
+  permissionCards: {
+    marginTop: spacing.lg,
+    gap: spacing.md,
+  },
+  permissionCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    padding: spacing.lg,
+    borderRadius: spacing.radiusLarge,
+    borderLeftWidth: 4,
+    gap: spacing.md,
+  },
+  permissionCardIcon: {
+    marginTop: 2,
+  },
+  permissionCardBody: {
+    flex: 1,
+    gap: spacing.sm,
+  },
+  permissionCardTitle: {
+    ...typography.label1,
+  },
+  permissionCardReason: {
+    ...typography.body2,
+  },
+  permissionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    gap: spacing.xs,
+    borderWidth: 1,
+    borderRadius: spacing.radiusFull,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.xs,
+  },
+  permissionButtonText: {
+    ...typography.caption,
   },
 });

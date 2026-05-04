@@ -58,6 +58,7 @@ function SettingsView({
             settingsView={settingsView}
             setSettingsView={setSettingsView}
             onClose={closeSettings}
+            navigation={navigation}
             surveyingOrganization={surveyingOrganization}
             scrollViewScroll={scrollViewScroll}
             setScrollViewScroll={setScrollViewScroll}

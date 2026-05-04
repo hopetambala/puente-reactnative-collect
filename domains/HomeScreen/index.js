@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import StatCard from './components/StatCard';
 import StatDetailModal from './components/StatDetailModal';
+import { CoachmarkOverlay } from './components/CoachmarkOverlay';
 import useHomeStats from './hooks/useHomeStats';
 
 // Spec §5.4 STANDARD: section header + welcome fade+lift entrance
@@ -239,6 +240,32 @@ function HomeScreen() {
         title={selectedCard ? selectedCard.replace(/([A-Z])/g, ' $1').trim() : ''}
         cardType={selectedCard}
         timeFilter={timeFilter}
+      />
+
+      {/* First-visit coachmarks — shown once, dismissed via AsyncStorage flag */}
+      <CoachmarkOverlay
+        steps={[
+          {
+            icon: "bar-chart-outline",
+            title: I18n.t("coachmarks.homeTitle"),
+            description: I18n.t("coachmarks.homeDescription"),
+          },
+          {
+            icon: "add-circle-outline",
+            title: I18n.t("coachmarks.collectTitle"),
+            description: I18n.t("coachmarks.collectDescription"),
+          },
+          {
+            icon: "search-outline",
+            title: I18n.t("coachmarks.findTitle"),
+            description: I18n.t("coachmarks.findDescription"),
+          },
+          {
+            icon: "settings-outline",
+            title: I18n.t("coachmarks.settingsTitle"),
+            description: I18n.t("coachmarks.settingsDescription"),
+          },
+        ]}
       />
     </SafeAreaView>
   );

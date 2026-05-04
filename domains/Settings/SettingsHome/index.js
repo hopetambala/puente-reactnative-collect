@@ -59,6 +59,7 @@ function SettingsHome({
   settingsView,
   setSettingsView,
   onClose,
+  navigation,
   surveyingOrganization,
   scrollViewScroll,
   setScrollViewScroll,
@@ -82,6 +83,9 @@ function SettingsHome({
 
   const handleResetOnboarding = async () => {
     await clearOnboardingData();
+    if (navigation) {
+      navigation.navigate("Onboarding");
+    }
   };
 
   const inputs = [
