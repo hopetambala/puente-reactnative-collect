@@ -1,4 +1,6 @@
+import { CoachmarkOverlay } from "@app/domains/HomeScreen/components/CoachmarkOverlay";
 import { UserContext } from "@context/auth.context";
+import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
 import { CommonActions } from "@react-navigation/native";
 import React, { useContext, useState } from "react";
@@ -58,6 +60,7 @@ function SettingsView({
             settingsView={settingsView}
             setSettingsView={setSettingsView}
             onClose={closeSettings}
+            navigation={navigation}
             surveyingOrganization={surveyingOrganization}
             scrollViewScroll={scrollViewScroll}
             setScrollViewScroll={setScrollViewScroll}
@@ -72,6 +75,12 @@ function SettingsView({
           />
         )}
       </View>
+      <CoachmarkOverlay
+        seenKey="settings"
+        icon="settings-outline"
+        title={I18n.t("coachmarks.settingsTitle")}
+        description={I18n.t("coachmarks.settingsDescription")}
+      />
     </SafeAreaView>
   );
 }

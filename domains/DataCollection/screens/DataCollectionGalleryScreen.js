@@ -1,5 +1,6 @@
 import FormGallery from "@app/domains/DataCollection/FormGallery";
 import { puenteForms } from "@app/domains/DataCollection/formsConfig";
+import { CoachmarkOverlay } from "@app/domains/HomeScreen/components/CoachmarkOverlay";
 import { UserContext } from "@context/auth.context";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
@@ -82,6 +83,12 @@ function DataCollectionGalleryScreen({ navigation }) {
           />
         </ScrollView>
       </KeyboardAvoidingView>
+      <CoachmarkOverlay
+        seenKey="collect"
+        icon="add-circle-outline"
+        title={I18n.t("coachmarks.collectTitle")}
+        description={I18n.t("coachmarks.collectDescription")}
+      />
     </SafeAreaView>
   );
 }

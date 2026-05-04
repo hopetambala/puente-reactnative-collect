@@ -1,5 +1,6 @@
 import { ThemeContext } from "@context/theme.context";
 import I18n from "@modules/i18n";
+import { clearOnboardingData } from "@modules/settings";
 import { spacing, typography } from "@modules/theme";
 import { useAccessibilityContext } from "@modules/theme/useAccessibilityContext";
 import { MOTION_TOKENS } from "@modules/utils/animations";
@@ -58,6 +59,7 @@ function SettingsHome({
   settingsView,
   setSettingsView,
   onClose,
+  navigation,
   surveyingOrganization,
   scrollViewScroll,
   setScrollViewScroll,
@@ -77,6 +79,13 @@ function SettingsHome({
 
   const handleCalmModeToggle = (newValue) => {
     accessibilityContext.setCalmMode(newValue);
+  };
+
+  const handleResetOnboarding = async () => {
+    await clearOnboardingData();
+    if (navigation) {
+      navigation.navigate("Onboarding");
+    }
   };
 
   const inputs = [
@@ -217,6 +226,24 @@ function SettingsHome({
                     onValueChange={handleCalmModeToggle}
                   />
                 </View>
+              </View>
+            </Animated.View>
+            {/* Reset Onboarding */}
+            <Animated.View
+              entering={RowEntrance
+                .delay((inputs.length + 1) * 40)
+                .duration(MOTION_TOKENS.duration.base)}
+            >
+              <View style={settingsStyles.themeContainer}>
+                <Button
+                  mode="outlined"
+                  onPress={handleResetOnboarding}
+                  style={{
+                    marginHorizontal: safeSpacing.md,
+                  }}
+                >
+                  {I18n.t("accountSettings.resetOnboarding")}
+                </Button>
               </View>
             </Animated.View>
           </View>

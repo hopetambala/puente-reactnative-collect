@@ -15,6 +15,7 @@ import { SegmentedButtons,useTheme } from 'react-native-paper';
 import Animated, { Keyframe } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { CoachmarkOverlay } from './components/CoachmarkOverlay';
 import StatCard from './components/StatCard';
 import StatDetailModal from './components/StatDetailModal';
 import useHomeStats from './hooks/useHomeStats';
@@ -239,6 +240,14 @@ function HomeScreen() {
         title={selectedCard ? selectedCard.replace(/([A-Z])/g, ' $1').trim() : ''}
         cardType={selectedCard}
         timeFilter={timeFilter}
+      />
+
+      {/* Home screen coachmark — shown once on first visit */}
+      <CoachmarkOverlay
+        seenKey="home"
+        icon="bar-chart-outline"
+        title={I18n.t("coachmarks.homeTitle")}
+        description={I18n.t("coachmarks.homeDescription")}
       />
     </SafeAreaView>
   );
