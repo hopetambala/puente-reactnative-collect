@@ -532,7 +532,8 @@
     "logout":"Cerrar sesión",
     "deleteUser": "¿Eliminar usuario?",
     "populateIdForms": "Poblar todos los formularios de ID",
-    "clearCachedIdForms": "Borrar formularios de ID en caché"
+    "clearCachedIdForms": "Borrar formularios de ID en caché",
+    "resetOnboarding": "Reiniciar incorporación"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Registros actuales almacenados",
@@ -673,6 +674,36 @@
     "vitals": "Signos vitales",
     "environmentalHealth": "Salud ambiental",
     "medicalEvaluation": "Evaluación médica",
-    "customForms": "Formularios personalizados"
-  }
+    "customForms": "Formularios personalizados"  },
+  "onboarding": {
+    "welcome": "Recolecta Datos. Haz la Diferencia.",
+    "welcomeDescription": "Construye relaciones de confianza mediante la recopilación estructurada de datos en tu comunidad.",
+    "getStarted": "Comenzar",
+    "next": "Siguiente",
+    "back": "Atrás",
+    "skip": "Omitir",
+    "howToCollect": "Cómo Recopilar",
+    "textField": "Entrada de Texto",
+    "numberField": "Números",
+    "locationField": "Ubicación",
+    "photoField": "Fotos",
+    "collectionDescription": "Los formularios se adaptan a tus necesidades. Recopila respuestas de texto, números, coordenadas GPS y fotos en un solo lugar.",
+    "findRecords": "Buscar Registros",
+    "findDescription": "Busca y recupera rápidamente registros por nombre, ID u otros detalles. Tus datos permanecen organizados y accesibles.",
+    "offlineMode": "Funciona Sin Conexión",
+    "offlineDescription": "Recopila datos incluso sin internet. Los formularios se sincronizan automáticamente cuando te reconectas.",
+    "chooseLanguage": "Elige Tu Idioma",
+    "languageDescription": "Selecciona tu idioma preferido para comenzar. Puedes cambiar esto en cualquier momento.",
+    "chooseTheme": "Elige Tu Tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "toggleTheme": "Cambiar Tema",
+    "themeDescription": "Selecciona un tema que funcione mejor para ti. Puedes ajustar esto en la configuración más tarde.",
+    "privacy": "Privacidad y Seguridad",
+    "dataEncrypted": "Tus datos están encriptados",
+    "userPrivacy": "Protegemos tu privacidad",
+    "securePlatform": "Construido en una plataforma segura",
+    "privacyDescription": "Tus datos son seguros. Puente utiliza cifrado estándar de la industria y prácticas de seguridad.",
+    "youreIn": "¡Estás Dentro! 🎉",
+    "readyToBegin": "Comencemos a recopilar datos que importan."  }
 }

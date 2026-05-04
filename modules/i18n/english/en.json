@@ -532,7 +532,8 @@
     "logout": "Log out",
     "deleteUser":"Delete user?",
     "populateIdForms": "Populate all ID Forms",
-    "clearCachedIdForms": "Clear Cached ID Forms"
+    "clearCachedIdForms": "Clear Cached ID Forms",
+    "resetOnboarding": "Reset Onboarding"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Current records stored",
@@ -674,5 +675,37 @@
     "environmentalHealth": "Environmental Health",
     "medicalEvaluation": "Medical Evaluation",
     "customForms": "Custom Forms"
+  },
+  "onboarding": {
+    "welcome": "Collect Data. Make a Difference.",
+    "welcomeDescription": "Build trusted relationships through structured data collection in your community.",
+    "getStarted": "Get Started",
+    "next": "Next",
+    "back": "Back",
+    "skip": "Skip",
+    "howToCollect": "How to Collect",
+    "textField": "Text Input",
+    "numberField": "Numbers",
+    "locationField": "Location",
+    "photoField": "Photos",
+    "collectionDescription": "Forms adapt to your needs. Collect text responses, numbers, GPS coordinates, and photos all in one place.",
+    "findRecords": "Find & Search",
+    "findDescription": "Quickly search and retrieve records by name, ID, or other details. Your data stays organized and accessible.",
+    "offlineMode": "Works Offline",
+    "offlineDescription": "Collect data even without internet. Forms sync automatically when you reconnect.",
+    "chooseLanguage": "Choose Your Language",
+    "languageDescription": "Select your preferred language to get started. You can change this anytime.",
+    "chooseTheme": "Choose Your Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "toggleTheme": "Toggle Theme",
+    "themeDescription": "Select a theme that works best for you. You can adjust this in settings later.",
+    "privacy": "Privacy & Security",
+    "dataEncrypted": "Your data is encrypted",
+    "userPrivacy": "We protect your privacy",
+    "securePlatform": "Built on a secure platform",
+    "privacyDescription": "Your data is secure. Puente uses industry-standard encryption and security practices.",
+    "youreIn": "You're In! 🎉",
+    "readyToBegin": "Let's start collecting data that matters."
   }
 }

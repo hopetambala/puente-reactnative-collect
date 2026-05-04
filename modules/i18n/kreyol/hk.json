@@ -532,7 +532,8 @@
     "logout": "Dekonekte",
     "deleteUser": "Efase itilizatè?",
     "populateIdForms": "Ranpli tout Fòm ID",
-    "clearCachedIdForms": "Efase Fòm ID ki nan kache"
+    "clearCachedIdForms": "Efase Fòm ID ki nan kache",
+    "resetOnboarding": "Reinisyalize Onboarding"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Dosye aktyèl ki estoke",
@@ -671,5 +672,37 @@
     "environmentalHealth": "Santè anviwonman",
     "medicalEvaluation": "Evalyasyon medikal",
     "customForms": "Fòm pèsonalize yo"
+  },
+  "onboarding": {
+    "welcome": "Kolekte Dònnees. Fè Diferans.",
+    "welcomeDescription": "Bati relasyon konfyans atravè koleksyon dònnees estriktire nan kominote w la.",
+    "getStarted": "Kòmanse",
+    "next": "Suiv",
+    "back": "Retounen",
+    "skip": "Pase",
+    "howToCollect": "Kouman Kolekte",
+    "textField": "Entrèe Tèks",
+    "numberField": "Nimewo",
+    "locationField": "Lokasyon",
+    "photoField": "Foto",
+    "collectionDescription": "Fòm yo adapte ak bezwen w. Kolekte repons tèks, nimewo, kòdinate GPS, ak foto nan yon sèl kote.",
+    "findRecords": "Chèche Rejis",
+    "findDescription": "Chèche ak reprann jis rejis pa non, ID, oswa lòt detay. Dònnees w la rete òganize ak aksesib.",
+    "offlineMode": "Fonksyone san Entènet",
+    "offlineDescription": "Kolekte dònnees menm san entènet. Fòm yo senkronize otomatikman lè w konekte.",
+    "chooseLanguage": "Chwazi Lang W la",
+    "languageDescription": "Chwazi lang prefere w pou kòmanse. W ka chanje sa a nenpòt lè.",
+    "chooseTheme": "Chwazi Tèm W la",
+    "light": "Klè",
+    "dark": "Nwa",
+    "toggleTheme": "Basile Tèm",
+    "themeDescription": "Chwazi yon tèm ki travay pi byen pou w. W ka ajiste sa a nan anviwònman pita.",
+    "privacy": "Privase ak Sekirite",
+    "dataEncrypted": "Dònnees w ankripte",
+    "userPrivacy": "Nou pwoteje privase w",
+    "securePlatform": "Bati sou yon platfòm sekirize",
+    "privacyDescription": "Dònnees w sekirize. Puente itilize enkriptaj estanda endistriy ak pratik sekirite.",
+    "youreIn": "W la! 🎉",
+    "readyToBegin": "Ann kòmanse kolekte dònnees ki enpòtan."
   }
 }
