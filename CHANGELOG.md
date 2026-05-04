@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [15.4.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.3.1...v15.4.0) (2026-05-04)
+
+
+### Code Refactors
+
+* separate calm mode from system reduce-motion in useMotion hook ([8adc15d](https://github.com/hopetambala/puente-reactnative-collect/commit/8adc15da1dd74edb0ed7131148370571e554fa27))
+
+
+### Documentation Changes
+
+* clarify that react-native-paper/babel is permanently disabled ([f7ae5d3](https://github.com/hopetambala/puente-reactnative-collect/commit/f7ae5d3c0e12b339780e082353e0c08bb71b3b4b))
+
+
+### Bug fixes
+
+* logo color in dark and light mode ([b4ddf9e](https://github.com/hopetambala/puente-reactnative-collect/commit/b4ddf9ea36c92a56c40fd76ff2c6b604ce38e961))
+
+
+### New Features
+
+* add onboarding experience ([e942daf](https://github.com/hopetambala/puente-reactnative-collect/commit/e942daf2a12234ee1af23e89e654273202bec08d))
+
 ### [15.3.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.2.4...v15.3.1) (2026-04-19)
 
 
