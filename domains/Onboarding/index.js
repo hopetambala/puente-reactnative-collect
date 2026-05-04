@@ -286,6 +286,7 @@ function StepCollection({ onNext, onBack }) {
         </Animated.Text>
 
         <View style={styles.cardGrid}>
+          {/* eslint-disable react/no-array-index-key */}
           {collectionTypes.map((type, i) => (
             <Animated.View
               key={`collection-${i}`}
@@ -334,23 +335,17 @@ function PermissionCard({ icon, title, reason, isGranted, isDenied, onRequest, c
     onRequest();
   };
 
-  const statusColor = isGranted
-    ? theme.colors.success
-    : isDenied
-    ? theme.colors.error
-    : theme.colors.primary;
+  let statusColor = theme.colors.primary;
+  if (isGranted) statusColor = theme.colors.success;
+  else if (isDenied) statusColor = theme.colors.error;
 
-  const statusLabel = isGranted
-    ? I18n.t("onboarding.permissionGranted")
-    : isDenied
-    ? I18n.t("onboarding.permissionDenied")
-    : I18n.t("onboarding.permissionGrant");
+  let statusLabel = I18n.t("onboarding.permissionGrant");
+  if (isGranted) statusLabel = I18n.t("onboarding.permissionGranted");
+  else if (isDenied) statusLabel = I18n.t("onboarding.permissionDenied");
 
-  const statusIcon = isGranted
-    ? "checkmark-circle"
-    : isDenied
-    ? "close-circle-outline"
-    : "arrow-forward-circle-outline";
+  let statusIcon = "arrow-forward-circle-outline";
+  if (isGranted) statusIcon = "checkmark-circle";
+  else if (isDenied) statusIcon = "close-circle-outline";
 
   return (
     <Animated.View
@@ -803,6 +798,7 @@ function StepPrivacy({ onNext, onBack }) {
         </Animated.Text>
 
         <View style={styles.privacyList}>
+        {/* eslint-disable react/no-array-index-key */}
         {privacyPoints.map((point, i) => (
           <Animated.View
             key={`privacy-${i}`}
