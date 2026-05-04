@@ -1,47 +1,6 @@
-export const MOTION_TOKENS = {
-  duration: {
-    instant: 0,
-    micro: 80,
-    quick: 150,
-    snappy: 200,
-    base: 300,
-    substantial: 400,
-    slow: 500,
-    xslow: 700,
-    pulse: 1000,
-  },
-  spring: {
-    tight: {
-      damping: 20,
-      stiffness: 250,
-      mass: 0.6,
-    },
-    snappy: {
-      damping: 14,
-      stiffness: 180,
-      mass: 0.8,
-    },
-    smooth: {
-      damping: 18,
-      stiffness: 120,
-      mass: 1,
-    },
-    playful: {
-      damping: 8,
-      stiffness: 60,
-      mass: 1,
-    },
-  },
-  scale: {
-    press: 0.95,
-    micro: 0.98,
-    celebrate: 1.2,
-  },
-  opacity: {
-    interactive: 0.8,
-    disabled: 0.5,
-  },
-};
+import { MOTION_TOKENS } from "@modules/utils/animations";
+
+export { MOTION_TOKENS };
 
 /**
  * Stagger delay based on item count (for cascade animations)

@@ -716,7 +716,8 @@
     "permissionGrant": "Allow",
     "permissionDenied": "Denied — enable in Settings",
     "permissionGranted": "Granted",
-    "permissionSkip": "Set up later"
+    "permissionSkip": "Set up later",
+    "search": "Search"
   },
   "coachmarks": {
     "next": "Next",

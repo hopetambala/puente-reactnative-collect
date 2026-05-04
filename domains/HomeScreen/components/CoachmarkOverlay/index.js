@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import I18n from "@modules/i18n";
+import { getHasSeenCoachmarks, setHasSeenCoachmarks } from "@modules/settings";
 import { spacing, typography } from "@modules/theme";
 import React, { useCallback, useEffect, useState } from "react";
 import { Modal, StyleSheet, TouchableOpacity, View } from "react-native";
@@ -8,7 +9,6 @@ import Animated, {
   FadeIn,
   FadeOut,
 } from "react-native-reanimated";
-import { getHasSeenCoachmarks, setHasSeenCoachmarks } from "@modules/settings";
 
 /**
  * Individual coachmark tooltip — an arrow + bubble anchored below/above a target

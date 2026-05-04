@@ -713,7 +713,8 @@
     "permissionGrant": "Pèmèt",
     "permissionDenied": "Refize — aktive nan Paramèt",
     "permissionGranted": "Akòde",
-    "permissionSkip": "Konfigire pita"
+    "permissionSkip": "Konfigire pita",
+    "search": "Chèche"
   },
   "coachmarks": {
     "next": "Anvan",

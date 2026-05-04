@@ -15,9 +15,9 @@ import { SegmentedButtons,useTheme } from 'react-native-paper';
 import Animated, { Keyframe } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { CoachmarkOverlay } from './components/CoachmarkOverlay';
 import StatCard from './components/StatCard';
 import StatDetailModal from './components/StatDetailModal';
-import { CoachmarkOverlay } from './components/CoachmarkOverlay';
 import useHomeStats from './hooks/useHomeStats';
 
 // Spec §5.4 STANDARD: section header + welcome fade+lift entrance

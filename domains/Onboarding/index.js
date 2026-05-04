@@ -1,8 +1,10 @@
-import { Ionicons } from "@expo/vector-icons";
 import { ThemeContext } from "@context/theme.context";
+import { Ionicons } from "@expo/vector-icons";
 import I18n from "@modules/i18n";
-import { setHasSeenOnboarding, setOnboardingStep, getOnboardingStep, clearOnboardingStep } from "@modules/settings";
+import { clearOnboardingStep,getOnboardingStep, setHasSeenOnboarding, setOnboardingStep } from "@modules/settings";
 import { spacing, typography } from "@modules/theme";
+import { useCameraPermissions } from "expo-camera";
+import * as Location from "expo-location";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Dimensions,
@@ -11,15 +13,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Text, useTheme } from "react-native-paper";
 import Animated, {
   Easing,
   FadeIn,
   FadeInDown,
+  interpolate,
   SlideInLeft,
   SlideInRight,
-  interpolate,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
@@ -27,10 +28,9 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { MOTION_TOKENS } from "./motion/tokens";
-import { useCameraPermissions } from "expo-camera";
-import * as Location from "expo-location";
 
 const { width: screenWidth } = Dimensions.get("window");
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -487,7 +487,7 @@ function StepFindRecords({ onNext, onBack }) {
       >
         <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
           <Ionicons name="search-outline" size={18} color={theme.colors.onSurfaceVariant} />
-          <Text style={{ color: theme.colors.onSurfaceVariant }}>Search</Text>
+          <Text style={{ color: theme.colors.onSurfaceVariant }}>{I18n.t("onboarding.search")}</Text>
         </View>
       </Animated.View>
 
@@ -699,7 +699,7 @@ function StepTheme({ onNext, onBack }) {
         >
           <TouchableOpacity
             style={styles.themeCardButton}
-            onPress={async () => !isDarkMode || (await handleThemeToggle())}
+            onPress={() => { if (isDarkMode) handleThemeToggle(); }}
             accessible
             accessibilityRole="radio"
             accessibilityLabel={I18n.t("onboarding.light")}
@@ -736,7 +736,7 @@ function StepTheme({ onNext, onBack }) {
         >
           <TouchableOpacity
             style={styles.themeCardButton}
-            onPress={async () => isDarkMode || (await handleThemeToggle())}
+            onPress={() => { if (!isDarkMode) handleThemeToggle(); }}
             accessible
             accessibilityRole="radio"
             accessibilityLabel={I18n.t("onboarding.dark")}

@@ -715,7 +715,8 @@
     "permissionGrant": "Permitir",
     "permissionDenied": "Denegado — activa en Ajustes",
     "permissionGranted": "Concedido",
-    "permissionSkip": "Configurar después"
+    "permissionSkip": "Configurar después",
+    "search": "Buscar"
   },
   "coachmarks": {
     "next": "Siguiente",
