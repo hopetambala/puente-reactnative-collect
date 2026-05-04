@@ -7,15 +7,14 @@ import { useCameraPermissions } from "expo-camera";
 import * as Location from "expo-location";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import {
-  Dimensions,
   Platform,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import Animated, {
-  Easing,
   FadeIn,
   FadeInDown,
   interpolate,
@@ -30,9 +29,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { ConfettiBurst } from "./components/ConfettiBurst";
 import { MOTION_TOKENS } from "./motion/tokens";
 
-const { width: screenWidth } = Dimensions.get("window");
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 /**
@@ -87,6 +86,7 @@ function ParallaxScrollView({ children, style, contentContainerStyle }) {
 function ProgressBar({ step }) {
   const fillWidth = useSharedValue(0);
   const theme = useTheme();
+  const { width: screenWidth } = useWindowDimensions();
 
   useEffect(() => {
     const progress = ((step + 1) / TOTAL_STEPS) * 100;
@@ -328,7 +328,7 @@ function PermissionCard({ icon, title, reason, isGranted, isDenied, onRequest, c
   const handlePress = () => {
     if (isGranted || isDenied) return;
     scale.value = withSequence(
-      withTiming(0.97, { duration: 100 }),
+      withTiming(0.97, { duration: MOTION_TOKENS.duration.quick }),
       withSpring(1, MOTION_TOKENS.spring.snappy)
     );
     triggerHaptic("Medium");
@@ -833,92 +833,6 @@ function StepPrivacy({ onNext, onBack }) {
   );
 }
 
-const CONFETTI_PALETTE = ["#F97316", "#8B5CF6", "#10B981", "#3B82F6", "#F59E0B", "#EF4444"];
-const CONFETTI_COUNT = 24;
-
-/**
- * ConfettiPiece - colored geometric particle bursting in arc from center
- */
-function ConfettiPiece({ index }) {
-  const color = CONFETTI_PALETTE[index % CONFETTI_PALETTE.length];
-  const isCircle = index % 3 === 0;
-
-  const translateY = useSharedValue(0);
-  const translateX = useSharedValue(0);
-  const rotate = useSharedValue(0);
-  const opacity = useSharedValue(0);
-
-  useEffect(() => {
-    // Evenly spread angles so particles fan out in all directions
-    const angle = (index / CONFETTI_COUNT) * Math.PI * 2;
-    const spread = 80 + Math.random() * 160;
-    const targetX = Math.sin(angle) * spread + (Math.random() - 0.5) * 40;
-    const upAmount = 120 + Math.random() * 140;
-    const spinDeg = Math.random() * 360 - 180;
-
-    opacity.value = withTiming(1, { duration: 50 });
-    // Arc: burst up/out fast, then gravity pulls down
-    translateY.value = withSequence(
-      withTiming(-upAmount, { duration: 500, easing: Easing.out(Easing.cubic) }),
-      withTiming(400, { duration: 1000, easing: Easing.in(Easing.quad) })
-    );
-    translateX.value = withTiming(targetX, {
-      duration: 1500,
-      easing: Easing.out(Easing.cubic),
-    });
-    rotate.value = withTiming(spinDeg, { duration: 1500 });
-    opacity.value = withSequence(
-      withTiming(1, { duration: 600 }),
-      withTiming(0, { duration: 900 })
-    );
-  }, [translateY, translateX, rotate, opacity]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: translateY.value },
-      { translateX: translateX.value },
-      { rotate: `${rotate.value}deg` },
-    ],
-    opacity: opacity.value,
-  }));
-
-  return (
-    <Animated.View
-      style={[
-        {
-          position: "absolute",
-          top: "50%",
-          left: screenWidth / 2 - 4,
-          width: isCircle ? 10 : 8,
-          height: isCircle ? 10 : 14,
-          borderRadius: isCircle ? 5 : 2,
-          backgroundColor: color,
-        },
-        animatedStyle,
-      ]}
-    />
-  );
-}
-
-/**
- * ConfettiBurst - container for confetti particles
- */
-function ConfettiBurst() {
-  const [pieces, setPieces] = useState([]);
-
-  useEffect(() => {
-    setPieces(Array.from({ length: CONFETTI_COUNT }, (_, i) => i));
-  }, []);
-
-  return (
-    <View pointerEvents="none" style={styles.confettiContainer}>
-      {pieces.map((i) => (
-        <ConfettiPiece key={`piece-${i}`} index={i} />
-      ))}
-    </View>
-  );
-}
-
 /**
  * Step 7 - Finale
  */
@@ -1270,10 +1184,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     alignSelf: "stretch",
     marginTop: spacing.md,
-  },
-  // Confetti
-  confettiContainer: {
-    ...StyleSheet.absoluteFillObject,
   },
   // Footer
   stepFooter: {

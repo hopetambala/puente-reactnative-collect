@@ -34,7 +34,7 @@ function CoachmarkTip({ title, description, icon, step, total, onNext, onDismiss
             {step + 1} / {total}
           </Text>
         </View>
-        <TouchableOpacity onPress={onDismiss} accessibilityRole="button" accessibilityLabel="Dismiss coachmarks">
+        <TouchableOpacity onPress={onDismiss} accessibilityRole="button" accessibilityLabel={I18n.t("coachmarks.dismiss")}>
           <Ionicons name="close-outline" size={22} color={theme.colors.onSurfaceVariant} />
         </TouchableOpacity>
       </View>

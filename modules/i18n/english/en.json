@@ -729,6 +729,7 @@
     "findTitle": "Search All Records",
     "findDescription": "Look up any resident or asset. Supervisors use this to spot trends and take evidence-based action.",
     "settingsTitle": "Your Preferences",
-    "settingsDescription": "Switch language, toggle dark mode, and manage your account — all in one place."
+    "settingsDescription": "Switch language, toggle dark mode, and manage your account — all in one place.",
+    "dismiss": "Dismiss tips"
   }
 }

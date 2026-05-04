@@ -728,6 +728,7 @@
     "findTitle": "Busca Todos los Registros",
     "findDescription": "Busca cualquier residente o activo. Los supervisores lo usan para detectar tendencias y tomar medidas basadas en evidencia.",
     "settingsTitle": "Tus Preferencias",
-    "settingsDescription": "Cambia el idioma, activa el modo oscuro y administra tu cuenta — todo en un solo lugar."
+    "settingsDescription": "Cambia el idioma, activa el modo oscuro y administra tu cuenta — todo en un solo lugar.",
+    "dismiss": "Cerrar consejos"
   }
 }

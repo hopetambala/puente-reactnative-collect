@@ -100,6 +100,7 @@ const PLAYFUL_ALLOWED_PATTERNS = [
   /EmptyState/i,
   /Toast/i,
   /CelebrationState/i,
+  /Confetti/i,
 ];
 
 /**
