@@ -29,6 +29,10 @@ jest.mock('../components/StatDetailModal', () => function MockStatDetailModal() 
   return require('react').createElement(Text, {}, 'Modal');
 });
 
+jest.mock('../components/CoachmarkOverlay', () => ({
+  CoachmarkOverlay: jest.fn(() => null), // Return null to prevent modal interference
+}));
+
 jest.mock('../../../services/parse/crud');
 
 jest.mock('../../../context/offline.context', () => {
