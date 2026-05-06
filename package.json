@@ -97,6 +97,7 @@
     "expo": "~55.0.5",
     "expo-application": "~55.0.10",
     "expo-asset": "~55.0.10",
+    "expo-blur": "~55.0.14",
     "expo-build-properties": "~55.0.10",
     "expo-camera": "~55.0.10",
     "expo-constants": "~55.0.9",

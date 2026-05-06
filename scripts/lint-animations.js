@@ -101,6 +101,7 @@ const PLAYFUL_ALLOWED_PATTERNS = [
   /Toast/i,
   /CelebrationState/i,
   /Confetti/i,
+  /PuenteMark/i,
 ];
 
 /**

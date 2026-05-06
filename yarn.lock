@@ -6523,6 +6523,11 @@ expo-asset@~55.0.10, expo-asset@~55.0.15:
     "@expo/image-utils" "^0.8.13"
     expo-constants "~55.0.14"
 
+expo-blur@~55.0.14:
+  version "55.0.14"
+  resolved "https://registry.yarnpkg.com/expo-blur/-/expo-blur-55.0.14.tgz#ae2cc7eb7766279830fc6d622ca7b4c8706eb786"
+  integrity sha512-NKyCKFWTNpX4CZSsiE1sgkqk/yvR1K0UTukuIbxVKoobB+yALLg1CFav0NqfdQqjhtoj5oEzP0Brlq92Z08Zfg==
+
 expo-build-properties@~55.0.10:
   version "55.0.13"
   resolved "https://registry.yarnpkg.com/expo-build-properties/-/expo-build-properties-55.0.13.tgz#e44247a14424fa7a1597f29f99cd84a69c25385b"

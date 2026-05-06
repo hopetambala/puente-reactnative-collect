@@ -676,7 +676,8 @@
   "onboarding": {
     "welcome": "Chanj ki Baze sou Dònnees Kòmanse Isit",
     "welcomeDescription": "Itilize koleksyon dònnees estriktire pou konprann bezwen kominote w ak vni chanj ki gen sans. Chak repons bati fonddasyon prèv pou desizyon ki pi bon.",
-    "getStarted": "Kòmanse",
+    "tagline": "Konekte kominote ak done",
+    "getStarted": "Ann ale  →",
     "next": "Suiv",
     "back": "Retounen",
     "skip": "Pase",

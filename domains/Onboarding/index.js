@@ -1,3 +1,4 @@
+import PuenteLogo from "@app/assets/graphics/static/Logo-Black.svg";
 import { ThemeContext } from "@context/theme.context";
 import { Ionicons } from "@expo/vector-icons";
 import I18n from "@modules/i18n";
@@ -15,14 +16,17 @@ import {
 } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import Animated, {
+  Easing,
   FadeIn,
   FadeInDown,
+  FadeInUp,
   interpolate,
   SlideInLeft,
   SlideInRight,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
+  withRepeat,
   withSequence,
   withSpring,
   withTiming,
@@ -30,6 +34,7 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ConfettiBurst } from "./components/ConfettiBurst";
+import { DriftingShapes } from "./components/DriftingShapes";
 import { MOTION_TOKENS } from "./motion/tokens";
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
@@ -219,39 +224,69 @@ function StepFooter({ onNext, onBack, onSkip, showBack = false, showSkip = false
 function StepWelcome({ onNext, onSkip }) {
   const theme = useTheme();
 
+  // Pulsing sparkle animation
+  const pulse = useSharedValue(1);
+  useEffect(() => {
+    pulse.value = withRepeat(
+      withSequence(
+        withTiming(1.2, { duration: MOTION_TOKENS.duration.pulse / 2, easing: Easing.inOut(Easing.quad) }),
+        withTiming(1, { duration: MOTION_TOKENS.duration.pulse / 2, easing: Easing.inOut(Easing.quad) })
+      ),
+      -1,
+      false
+    );
+  }, [pulse]);
+  const sparkStyle = useAnimatedStyle(() => ({ transform: [{ scale: pulse.value }] }));
+
   return (
-    <Animated.ScrollView
-      style={styles.stepContainer}
-      contentContainerStyle={styles.stepContent}
-      entering={FadeIn}
-      scrollEnabled={false}
-    >
-      <Animated.Text
-        style={[styles.welcomeTitle, { color: theme.colors.primary }]}
-        entering={FadeInDown.duration(500)}
-      >
-        {I18n.t("onboarding.welcome")}
-      </Animated.Text>
+    <View style={[styles.stepContainer, { position: "relative" }]}>
+      {/* Ambient drifting shapes behind content */}
+      <DriftingShapes />
 
-      <Animated.Text
-        style={[styles.welcomeDescription, { color: theme.colors.onSurfaceVariant }]}
-        entering={FadeInDown.delay(200).duration(500)}
-      >
-        {I18n.t("onboarding.welcomeDescription")}
-      </Animated.Text>
+      <View style={[styles.stepContent, { flex: 1, justifyContent: "center" }]}>
+        {/* Brand logo */}
+        <Animated.View entering={FadeIn.duration(MOTION_TOKENS.duration.slow)} style={{ alignItems: "center" }}>
+          <PuenteLogo height={80} color={theme.colors.primary} />
+        </Animated.View>
 
+        {/* Pulsing sparkles flanking the tagline */}
+        <Animated.View
+          entering={FadeIn.delay(MOTION_TOKENS.duration.xslow).duration(MOTION_TOKENS.duration.slow)}
+          style={styles.sparkleRow}
+        >
+          <Animated.Text style={[styles.sparkle, { color: theme.colors.primary }, sparkStyle]}>
+            ✦
+          </Animated.Text>
+          <Text style={[styles.tagline, { color: theme.colors.onSurfaceVariant }]}>
+            {I18n.t("onboarding.tagline")}
+          </Text>
+          <Animated.Text style={[styles.sparkle, { color: theme.colors.primary }, sparkStyle]}>
+            ✦
+          </Animated.Text>
+        </Animated.View>
+
+        {/* Description */}
+        <Animated.Text
+          entering={FadeIn.delay(900).duration(MOTION_TOKENS.duration.slow)}
+          style={[styles.heroDescription, { color: theme.colors.onSurfaceVariant }]}
+        >
+          {I18n.t("onboarding.welcomeDescription")}
+        </Animated.Text>
+      </View>
+
+      {/* CTA footer */}
       <Animated.View
-        style={[styles.welcomeAccentBar, { backgroundColor: theme.colors.primary }]}
-        entering={FadeInDown.delay(400).duration(500)}
-      />
-
-      <StepFooter
-        onNext={onNext}
-        onSkip={onSkip}
-        showSkip
-        nextLabel={I18n.t("onboarding.getStarted")}
-      />
-    </Animated.ScrollView>
+        entering={FadeInUp.delay(1100).duration(MOTION_TOKENS.duration.base)}
+        style={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl }}
+      >
+        <StepFooter
+          onNext={onNext}
+          onSkip={onSkip}
+          showSkip
+          nextLabel={I18n.t("onboarding.getStarted")}
+        />
+      </Animated.View>
+    </View>
   );
 }
 
@@ -1044,6 +1079,34 @@ const styles = StyleSheet.create({
     marginTop: spacing.xxl,
     marginBottom: spacing.md,
     textAlign: "left",
+  },
+  heroTitle: {
+    ...typography.heading1,
+    fontSize: 42,
+    fontWeight: "700",
+    marginTop: spacing.xl,
+    textAlign: "center",
+  },
+  sparkleRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: spacing.lg,
+    gap: spacing.md,
+  },
+  sparkle: {
+    fontSize: 24,
+  },
+  tagline: {
+    ...typography.body1,
+    textAlign: "center",
+    fontStyle: "italic",
+  },
+  heroDescription: {
+    ...typography.body2,
+    marginTop: spacing.md,
+    textAlign: "center",
+    paddingHorizontal: spacing.lg,
   },
   welcomeAccentBar: {
     width: 60,

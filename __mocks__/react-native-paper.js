@@ -42,6 +42,7 @@ module.exports = {
   Title: ({ children }) => React.createElement('text', null, children),
   IconButton: ({ onPress, testID }) => React.createElement('button', { onPress, testID, type: 'button' }),
   useTheme: () => ({
+    dark: false,
     colors: {
       primary: '#007AFF',
       onPrimary: '#FFFFFF',
@@ -56,6 +57,7 @@ module.exports = {
       outlineVariant: '#DDDDDD',
       surfaceVariant: '#F5F5F5',
       onSurfaceVariant: '#666666',
+      surfaceOverlay: '#000000',
     },
   }),
 };

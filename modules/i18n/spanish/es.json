@@ -678,7 +678,8 @@
   "onboarding": {
     "welcome": "El Cambio Basado en Datos Comienza Aquí",
     "welcomeDescription": "Usa la recopilación estructurada de datos para entender las necesidades de tu comunidad e impulsar cambios significativos. Cada respuesta construye la base de evidencia para mejores decisiones.",
-    "getStarted": "Comenzar",
+    "tagline": "Conectando comunidades con datos",
+    "getStarted": "Vamos  →",
     "next": "Siguiente",
     "back": "Atrás",
     "skip": "Omitir",

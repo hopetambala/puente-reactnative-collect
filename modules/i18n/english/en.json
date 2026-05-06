@@ -679,7 +679,8 @@
   "onboarding": {
     "welcome": "Data-Driven Change Starts Here",
     "welcomeDescription": "Use structured data collection to understand your community's needs and drive meaningful change. Every response builds the evidence base for better decisions.",
-    "getStarted": "Get Started",
+    "tagline": "Bridging communities with data",
+    "getStarted": "Let's go  →",
     "next": "Next",
     "back": "Back",
     "skip": "Skip",
