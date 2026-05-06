@@ -19,8 +19,8 @@ import Animated, {
 
 const BottomTab = createBottomTabNavigator();
 const INITIAL_ROUTE_NAME = "Home";
-const tabIcon = (iconName) => ({ focused, label }) => (
-  <TabBarIcon focused={focused} name={iconName} label={label} />
+const tabIcon = (iconName) => ({ focused }) => (
+  <TabBarIcon focused={focused} name={iconName} />
 );
 
 /**

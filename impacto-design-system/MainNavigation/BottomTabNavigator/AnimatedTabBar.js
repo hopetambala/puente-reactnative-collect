@@ -1,7 +1,6 @@
 import { MOTION_TOKENS } from "@modules/utils/animations";
-import { BlurView } from "expo-blur";
 import React, { useEffect, useMemo } from "react";
-import { Platform, Pressable, StyleSheet, useWindowDimensions, View } from "react-native";
+import { Pressable, StyleSheet, useWindowDimensions, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import Animated, {
   useAnimatedStyle,
@@ -11,28 +10,24 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 /**
- * Glassmorphic animated tab bar with sliding pill indicator.
- * Floating bar with frosted-glass backdrop, proportional tab sizing,
- * and smooth spring-animated pill that slides behind the active tab.
+ * Animated tab bar with sliding tinted pill indicator.
+ * Solid elevated surface with proportional tab sizing and smooth
+ * spring-animated pill that slides behind the active tab.
  *
  * All colors are derived from the theme so that light and dark mode
- * work automatically — no hardcoded rgba values.
- *
- * Falls back to a solid semi-transparent background on Android if
- * BlurView is unavailable.
+ * work automatically.
  */
 
-const BAR_HEIGHT = 58;
-const BAR_SIDE_MARGIN = 14;
+const BAR_HEIGHT = 56;
+const BAR_SIDE_MARGIN = 16;
 const BAR_BOTTOM_MARGIN = 10;
 const PILL_INSET = 4;
 
-const ACTIVE_WEIGHT = 2.3;
+const ACTIVE_WEIGHT = 1.5;
 const INACTIVE_WEIGHT = 1;
 
 /**
- * Append an alpha hex pair to a 6-digit hex color.
- * e.g. withAlpha("#ff0000", 0.5) → "rgba(255,0,0,0.5)"
+ * Convert a hex color to rgba with a given alpha.
  */
 function withAlpha(hex, alpha) {
   if (!hex || hex.length < 7) return `rgba(0,0,0,${alpha})`;
@@ -72,83 +67,46 @@ function AnimatedTabBar({ state, descriptors, navigation, onTabPress }) {
     transform: [{ translateX: pillX.value }],
   }));
 
-  // Derive all colors from theme tokens
-  const blurTint = isDark ? "dark" : "light";
-  const glassBackground = withAlpha(
-    isDark ? theme.colors.surfaceVariant : theme.colors.surface,
-    isDark ? 0.7 : 0.55
-  );
-  const rimBorderColor = withAlpha(theme.colors.outline, isDark ? 0.15 : 0.25);
-  const barShadowColor = theme.colors.surfaceOverlay;
-  const barShadowOpacity = isDark ? 0.3 : 0.12;
+  // Derive colors from theme tokens
+  const pillColor = withAlpha(theme.colors.primary, isDark ? 0.18 : 0.12);
 
   return (
     <View
-      style={{
-        paddingHorizontal: BAR_SIDE_MARGIN,
-        paddingTop: 8,
-        paddingBottom: (insets.bottom || 8) + BAR_BOTTOM_MARGIN,
-        backgroundColor: theme.colors.background,
-      }}
+      style={[
+        styles.outerContainer,
+        {
+          paddingBottom: (insets.bottom || 8) + BAR_BOTTOM_MARGIN,
+          backgroundColor: theme.colors.background,
+        },
+      ]}
     >
       <View
-        style={{
-          width: barWidth,
-          height: BAR_HEIGHT,
-          borderRadius: BAR_HEIGHT / 2,
-          overflow: "hidden",
-          shadowColor: barShadowColor,
-          shadowOffset: { width: 0, height: 8 },
-          shadowOpacity: barShadowOpacity,
-          shadowRadius: 24,
-          elevation: 10,
-          backgroundColor: glassBackground,
-        }}
+        style={[
+          styles.barContainer,
+          {
+            width: barWidth,
+            backgroundColor: theme.colors.surface,
+            shadowOpacity: isDark ? 0.2 : 0.08,
+          },
+        ]}
       >
-        {/* Frosted glass backdrop */}
-        <BlurView
-          intensity={Platform.OS === "ios" ? 90 : 110}
-          tint={blurTint}
-          style={StyleSheet.absoluteFillObject}
-        />
-
-        {/* Hairline rim */}
-        <View
-          pointerEvents="none"
-          style={[
-            StyleSheet.absoluteFillObject,
-            {
-              borderRadius: BAR_HEIGHT / 2,
-              borderWidth: StyleSheet.hairlineWidth,
-              borderColor: rimBorderColor,
-            },
-          ]}
-        />
-
         {/* Sliding pill indicator */}
         <Animated.View
           pointerEvents="none"
           style={[
+            styles.pill,
             {
-              position: "absolute",
-              top: PILL_INSET,
-              left: 0,
               width: pillWidth,
               height: pillHeight,
               borderRadius: pillHeight / 2,
-              backgroundColor: theme.colors.primary,
-              shadowColor: theme.colors.primary,
-              shadowOffset: { width: 0, height: 3 },
-              shadowOpacity: 0.35,
-              shadowRadius: 8,
-              elevation: 4,
+              backgroundColor: pillColor,
             },
             pillStyle,
           ]}
         />
 
         {/* Tab buttons */}
-        <View style={{ flexDirection: "row", flex: 1 }}>
+        <View style={styles.tabRow}>
           {state.routes.map((route, index) => {
             const { options } = descriptors[route.key];
             const isFocused = state.index === index;
@@ -178,8 +136,6 @@ function AnimatedTabBar({ state, descriptors, navigation, onTabPress }) {
               });
             };
 
-            const label = options.tabBarLabel ?? options.title ?? route.name;
-
             return (
               <TabButton
                 key={route.key}
@@ -188,8 +144,7 @@ function AnimatedTabBar({ state, descriptors, navigation, onTabPress }) {
                 inactiveWidth={inactiveWidth}
                 onPress={onPress}
                 onLongPress={onLongPress}
-                label={typeof label === "string" ? label : route.name}
-                accessibilityLabel={options.tabBarAccessibilityLabel ?? (typeof label === "string" ? label : route.name)}
+                accessibilityLabel={options.tabBarAccessibilityLabel ?? options.title ?? route.name}
                 renderIcon={options.tabBarIcon}
               />
             );
@@ -203,7 +158,7 @@ function AnimatedTabBar({ state, descriptors, navigation, onTabPress }) {
 /**
  * Single tab button with proportional width animation and press feedback.
  */
-function TabButton({ isFocused, activeWidth, inactiveWidth, onPress, onLongPress, label, accessibilityLabel, renderIcon }) {
+function TabButton({ isFocused, activeWidth, inactiveWidth, onPress, onLongPress, accessibilityLabel, renderIcon }) {
   const targetWidth = isFocused ? activeWidth : inactiveWidth;
   const width = useSharedValue(targetWidth);
   const press = useSharedValue(1);
@@ -232,19 +187,9 @@ function TabButton({ isFocused, activeWidth, inactiveWidth, onPress, onLongPress
       accessibilityLabel={accessibilityLabel}
     >
       <Animated.View
-        style={[
-          {
-            height: BAR_HEIGHT,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            overflow: "hidden",
-            paddingHorizontal: 6,
-          },
-          containerStyle,
-        ]}
+        style={[styles.tabButtonInner, containerStyle]}
       >
-        {renderIcon && renderIcon({ focused: isFocused, label })}
+        {renderIcon && renderIcon({ focused: isFocused })}
       </Animated.View>
     </Pressable>
   );
@@ -264,5 +209,34 @@ function triggerTabHaptic(isCenter) {
     // Haptics unavailable — skip silently
   }
 }
+
+const styles = StyleSheet.create({
+  outerContainer: {
+    paddingHorizontal: BAR_SIDE_MARGIN,
+    paddingTop: 8,
+  },
+  barContainer: {
+    height: BAR_HEIGHT,
+    borderRadius: BAR_HEIGHT / 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  pill: {
+    position: "absolute",
+    top: PILL_INSET,
+    left: 0,
+  },
+  tabRow: {
+    flexDirection: "row",
+    flex: 1,
+  },
+  tabButtonInner: {
+    height: BAR_HEIGHT,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
 
 export default AnimatedTabBar;
