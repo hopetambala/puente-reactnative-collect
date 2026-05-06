@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.4.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.4.0...v15.4.1) (2026-05-06)
+
+
+### New Features
+
+* professional tab bar ([ddfd616](https://github.com/hopetambala/puente-reactnative-collect/commit/ddfd616eaa55a7bffe771a83382a7e01c1ca9d25))
+
 ## [15.4.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.3.1...v15.4.0) (2026-05-04)
 
 
