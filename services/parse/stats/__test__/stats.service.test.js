@@ -28,7 +28,7 @@ jest.mock('@app/environment', () => ({ default: { TEST_MODE: true } }));
 describe('Stats Service - TDD RED/GREEN', () => {
   describe('RED: buildDateRange', () => {
     test('should return valid date range object', () => {
-      const result = statsService.buildDateRange('week');
+      const result = statsService.buildDateRange('last7');
       expect(result).toHaveProperty('start');
       expect(result).toHaveProperty('end');
       expect(result.start instanceof Date).toBe(true);
@@ -39,12 +39,12 @@ describe('Stats Service - TDD RED/GREEN', () => {
   describe('RED: aggregateStats', () => {
     test('should reject with missing userId', async () => {
       await expect(
-        statsService.aggregateStats(null, 'org', 'week')
+        statsService.aggregateStats(null, 'org', 'last7')
       ).rejects.toThrow();
     });
 
     test('should return stats object with all form types', async () => {
-      const result = await statsService.aggregateStats('user1', 'Test', 'week');
+      const result = await statsService.aggregateStats('user1', 'Test', 'last7');
       expect(result).toHaveProperty('mySurveys');
       expect(result).toHaveProperty('orgSurveys');
       expect(result).toHaveProperty('myVitals');
@@ -68,7 +68,7 @@ describe('Stats Service - TDD RED/GREEN', () => {
 
   describe('RED: fetchCardItems', () => {
     test('should return paginated results with hasMore flag', async () => {
-      const result = await statsService.fetchCardItems('mySurveys', 'user1', 'Test', 'week', 0, 10);
+      const result = await statsService.fetchCardItems('mySurveys', 'user1', 'Test', 'last7', 0, 10);
       expect(result).toHaveProperty('items');
       expect(result).toHaveProperty('total');
       expect(result).toHaveProperty('hasMore');

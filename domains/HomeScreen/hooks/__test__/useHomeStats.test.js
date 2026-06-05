@@ -47,9 +47,9 @@ describe('useHomeStats - RED/GREEN Tests', () => {
       expect(result.current.stats).toBe(null);
     });
 
-    test('RED: should have default timeFilter of all', () => {
+    test('RED: should have default timeFilter of last7', () => {
       const { result } = renderHook(() => useHomeStats(), { wrapper: Wrapper });
-      expect(result.current.timeFilter).toBe('all');
+      expect(result.current.timeFilter).toBe('last7');
     });
   });
 
@@ -115,10 +115,10 @@ describe('useHomeStats - RED/GREEN Tests', () => {
       });
 
       act(() => {
-        result.current.setTimeFilter('today');
+        result.current.setTimeFilter('last7');
       });
 
-      expect(result.current.timeFilter).toBe('today');
+      expect(result.current.timeFilter).toBe('last7');
     });
   });
 

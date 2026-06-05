@@ -40,7 +40,8 @@ export const MOTION_TOKENS = {
     xslow: 700,         // Navigation transitions, screen entrance
     dismiss: 4000,      // Popup success/error auto-dismiss time
     toast: 3000,        // Toast notification hold time
-    pulse: 1000,        // Loading spinner loop
+    pulse: 1000,
+    confetti: 1500,  // Particle travel time — celebration burst animation        // Loading spinner loop
   },
   // Spring physics presets (hierarchy-calibrated: tight → snappy → smooth → playful)
   spring: {

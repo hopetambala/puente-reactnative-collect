@@ -15,6 +15,7 @@ import { SegmentedButtons,useTheme } from 'react-native-paper';
 import Animated, { Keyframe } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { CoachmarkOverlay } from './components/CoachmarkOverlay';
 import StatCard from './components/StatCard';
 import StatDetailModal from './components/StatDetailModal';
 import useHomeStats from './hooks/useHomeStats';
@@ -157,23 +158,23 @@ function HomeScreen() {
             value={timeFilter}
             onValueChange={setTimeFilter}
             buttons={[
-              { value: 'today', label: I18n.t('home.today') },
-              { value: 'week', label: I18n.t('home.thisWeek') },
+              { value: 'last7', label: I18n.t('home.last7Days') },
+              { value: 'last30', label: I18n.t('home.last30Days') },
               { value: 'all', label: I18n.t('home.allTime') },
             ]}
           />
         </View>
 
-        {/* Recent Activity - Full Width */}
+        {/* Full-Width Cards */}
         {stats && (
           <>
             <View style={styles.recentActivityRow}>
               <StatCard
-                title={I18n.t('home.recentActivity')}
-                icon="history"
+                title={I18n.t('home.orgActivity')}
+                icon="office-building"
                 count={stats.recentActivity?.count ?? 0}
-                previous={undefined}
-                timeFilter="all"
+                previous={stats.recentActivity?.previous}
+                timeFilter={timeFilter}
                 onPress={() => setSelectedCard('recentActivity')}
                 isLoading={isLoading}
                 fullWidth
@@ -181,8 +182,7 @@ function HomeScreen() {
               />
             </View>
 
-            {/* 2x2 Grid */}
-            <View style={styles.grid}>
+            <View style={styles.recentActivityRow}>
               <StatCard
                 title={I18n.t('home.mySurveys')}
                 icon="clipboard-check"
@@ -191,20 +191,13 @@ function HomeScreen() {
                 timeFilter={timeFilter}
                 onPress={() => setSelectedCard('mySurveys')}
                 isLoading={isLoading}
-                fullWidth={false}
+                fullWidth
                 index={1}
               />
-              <StatCard
-                title={I18n.t('home.orgSurveys')}
-                icon="office-building"
-                count={stats.orgSurveys?.count ?? 0}
-                previous={stats.orgSurveys?.previous}
-                timeFilter={timeFilter}
-                onPress={() => setSelectedCard('orgSurveys')}
-                isLoading={isLoading}
-                fullWidth={false}
-                index={2}
-              />
+            </View>
+
+            {/* 2x2 Grid */}
+            <View style={styles.grid}>
               <StatCard
                 title={I18n.t('home.myVitals')}
                 icon="pulse"
@@ -214,7 +207,7 @@ function HomeScreen() {
                 onPress={() => setSelectedCard('myVitals')}
                 isLoading={isLoading}
                 fullWidth={false}
-                index={3}
+                index={2}
               />
               <StatCard
                 title={I18n.t('home.orgVitals')}
@@ -225,7 +218,29 @@ function HomeScreen() {
                 onPress={() => setSelectedCard('orgVitals')}
                 isLoading={isLoading}
                 fullWidth={false}
+                index={3}
+              />
+              <StatCard
+                title={I18n.t('home.myEnvHealth')}
+                icon="leaf"
+                count={stats.myEnvironmentalHealth?.count ?? 0}
+                previous={stats.myEnvironmentalHealth?.previous}
+                timeFilter={timeFilter}
+                onPress={() => setSelectedCard('myEnvironmentalHealth')}
+                isLoading={isLoading}
+                fullWidth={false}
                 index={4}
+              />
+              <StatCard
+                title={I18n.t('home.orgEnvHealth')}
+                icon="earth"
+                count={stats.orgEnvironmentalHealth?.count ?? 0}
+                previous={stats.orgEnvironmentalHealth?.previous}
+                timeFilter={timeFilter}
+                onPress={() => setSelectedCard('orgEnvironmentalHealth')}
+                isLoading={isLoading}
+                fullWidth={false}
+                index={5}
               />
             </View>
           </>
@@ -239,6 +254,14 @@ function HomeScreen() {
         title={selectedCard ? selectedCard.replace(/([A-Z])/g, ' $1').trim() : ''}
         cardType={selectedCard}
         timeFilter={timeFilter}
+      />
+
+      {/* Home screen coachmark — shown once on first visit */}
+      <CoachmarkOverlay
+        seenKey="home"
+        icon="bar-chart-outline"
+        title={I18n.t("coachmarks.homeTitle")}
+        description={I18n.t("coachmarks.homeDescription")}
       />
     </SafeAreaView>
   );

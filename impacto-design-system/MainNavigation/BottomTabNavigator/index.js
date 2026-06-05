@@ -54,15 +54,10 @@ export default function BottomTabNavigator() {
   const screenOptions = useMemo(
     () => ({
       tabBarStyle: {
-        backgroundColor: theme.colors.background,
+        backgroundColor: "transparent",
         borderTopWidth: 0,
-        elevation: 8,
-        paddingTop: 8,
-        paddingHorizontal: 80,
-      },
-      tabBarItemStyle: {
-        paddingVertical: 8,
-        paddingHorizontal: 4,
+        elevation: 0,
+        position: "absolute",
       },
       tabBarShowLabel: false,
       tabBarActiveTintColor: theme.colors.primary,

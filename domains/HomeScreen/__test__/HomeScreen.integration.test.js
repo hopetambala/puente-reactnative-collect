@@ -29,6 +29,10 @@ jest.mock('../components/StatDetailModal', () => function MockStatDetailModal() 
   return require('react').createElement(Text, {}, 'Modal');
 });
 
+jest.mock('../components/CoachmarkOverlay', () => ({
+  CoachmarkOverlay: jest.fn(() => null), // Return null to prevent modal interference
+}));
+
 jest.mock('../../../services/parse/crud');
 
 jest.mock('../../../context/offline.context', () => {
@@ -137,6 +141,8 @@ const mockStatsData = {
   orgSurveys: { count: 120, previous: 100, trend: 20 },
   myVitals: { count: 15, previous: 14, trend: 7 },
   orgVitals: { count: 50, previous: 45, trend: 11 },
+  myEnvironmentalHealth: { count: 8, previous: 6, trend: 33 },
+  orgEnvironmentalHealth: { count: 34, previous: 30, trend: 13 },
   recentActivity: { count: 227, previous: 200, trend: 13.5 },
 };
 
@@ -150,7 +156,7 @@ describe('HomeScreen Component', () => {
       stats: mockStatsData,
       isLoading: false,
       isOffline: false,
-      timeFilter: 'today',
+      timeFilter: 'last7',
       setTimeFilter: mockSetTimeFilter,
       refresh: mockRefresh,
     });
@@ -172,21 +178,21 @@ describe('HomeScreen Component', () => {
     });
   });
 
-  test('shows time filter buttons (Today, This Week, All Time)', async () => {
+  test('shows time filter buttons (Last 7 Days, Last 30 Days, All Time)', async () => {
     const { getByText } = render(<HomeScreen />);
 
     await waitFor(() => {
-      expect(getByText(/Today/i)).toBeDefined();
-      expect(getByText(/This Week/i)).toBeDefined();
+      expect(getByText(/Last 7 Days/i)).toBeDefined();
+      expect(getByText(/Last 30 Days/i)).toBeDefined();
       expect(getByText(/All Time/i)).toBeDefined();
     });
   });
 
-  test('defaults to "Today" time filter on mount', async () => {
+  test('defaults to "Last 7 Days" time filter on mount', async () => {
     render(<HomeScreen />);
 
-    // useHomeStats is mocked to return timeFilter: 'today'
-    // verify setTimeFilter is not called on initial mount (already at 'today')
+    // useHomeStats is mocked to return timeFilter: 'last7'
+    // verify setTimeFilter is not called on initial mount
     await waitFor(() => {
       expect(mockSetTimeFilter).not.toHaveBeenCalled();
     });
@@ -196,27 +202,29 @@ describe('HomeScreen Component', () => {
     const { getByText } = render(<HomeScreen />);
 
     await waitFor(() => {
-      expect(getByText(/This Week/i)).toBeDefined();
+      expect(getByText(/Last 7 Days/i)).toBeDefined();
     });
 
-    fireEvent.press(getByText(/This Week/i));
+    fireEvent.press(getByText(/Last 7 Days/i));
 
-    expect(mockSetTimeFilter).toHaveBeenCalledWith('week');
+    expect(mockSetTimeFilter).toHaveBeenCalledWith('last7');
   });
 
-  test('renders all 5 stat cards', async () => {
+  test('renders all 6 stat cards', async () => {
     const { getByText } = render(<HomeScreen />);
 
     await waitFor(() => {
       expect(getByText(/My Surveys: 42/i)).toBeDefined();
+      expect(getByText(/My Environmental Health: 8/i)).toBeDefined();
+      expect(getByText(/Org Environmental Health: 34/i)).toBeDefined();
     });
   });
 
-  test('renders Recent Activity as full-width card', async () => {
+  test('renders Activity across the Organization as full-width card', async () => {
     const { getByText } = render(<HomeScreen />);
 
     await waitFor(() => {
-      expect(getByText(/Recent Activity/i)).toBeDefined();
+      expect(getByText(/Activity across the Organization/i)).toBeDefined();
     });
   });
 
@@ -225,7 +233,7 @@ describe('HomeScreen Component', () => {
       stats: mockStatsData,
       isLoading: false,
       isOffline: true,
-      timeFilter: 'today',
+      timeFilter: 'last7',
       setTimeFilter: mockSetTimeFilter,
       refresh: mockRefresh,
     });
@@ -295,7 +303,7 @@ describe('HomeScreen Component', () => {
       stats: null,
       isLoading: true,
       isOffline: false,
-      timeFilter: 'today',
+      timeFilter: 'last7',
       setTimeFilter: mockSetTimeFilter,
       refresh: mockRefresh,
     });
@@ -321,7 +329,7 @@ describe('HomeScreen Component', () => {
       stats: null,
       isLoading: false,
       isOffline: true,
-      timeFilter: 'today',
+      timeFilter: 'last7',
       setTimeFilter: mockSetTimeFilter,
       refresh: mockRefresh,
     });
@@ -338,13 +346,13 @@ describe('HomeScreen Component', () => {
     const { getByText } = render(<HomeScreen />);
 
     await waitFor(() => {
-      expect(getByText(/This Week/i)).toBeDefined();
+      expect(getByText(/Last 7 Days/i)).toBeDefined();
     });
 
-    fireEvent.press(getByText(/This Week/i));
+    fireEvent.press(getByText(/Last 7 Days/i));
 
     await waitFor(() => {
-      expect(mockSetTimeFilter).toHaveBeenCalledWith('week');
+      expect(mockSetTimeFilter).toHaveBeenCalledWith('last7');
     });
   });
 
@@ -362,7 +370,7 @@ describe('HomeScreen Component', () => {
 
     await waitFor(() => {
       // StatCard mock renders title:count; verify a stat renders
-      expect(getByText(/Recent Activity/i)).toBeDefined();
+      expect(getByText(/Activity across the Organization/i)).toBeDefined();
     });
   });
 });

@@ -34,3 +34,6 @@ android/
 !android/gradle.properties
 # ios/
 
+# AI
+.claude/handoff
+

@@ -1,8 +1,10 @@
 import { puenteForms } from "@app/domains/DataCollection/formsConfig";
+import { CoachmarkOverlay } from "@app/domains/HomeScreen/components/CoachmarkOverlay";
 import { UserContext } from "@context/auth.context";
 import { FindResidents } from "@impacto-design-system/Extensions";
 import { fetchResidentById } from "@impacto-design-system/Extensions/FindResidents/_utils";
 import { getData } from "@modules/async-storage";
+import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
 import { createLayoutStyles } from "@modules/theme";
 import { useFocusEffect } from "@react-navigation/native";
@@ -77,6 +79,12 @@ function FindRecordsHomeScreen({ navigation }) {
           setSurveyee={setSurveyee}
         />
       </KeyboardAvoidingView>
+      <CoachmarkOverlay
+        seenKey="find"
+        icon="search-outline"
+        title={I18n.t("coachmarks.findTitle")}
+        description={I18n.t("coachmarks.findDescription")}
+      />
     </SafeAreaView>
   );
 }

@@ -131,7 +131,7 @@ describe('StatCard Component - Snapshots', () => {
         previous={100}
         isLoading={false}
         onPress={jest.fn()}
-        timeFilter="week"
+        timeFilter="last7"
       />
     );
 
@@ -146,7 +146,7 @@ describe('StatCard Component - Snapshots', () => {
         previous={15}
         isLoading={false}
         onPress={jest.fn()}
-        timeFilter="week"
+        timeFilter="last7"
       />
     );
 
@@ -161,7 +161,7 @@ describe('StatCard Component - Snapshots', () => {
         previous={50}
         isLoading={false}
         onPress={jest.fn()}
-        timeFilter="week"
+        timeFilter="last7"
       />
     );
 

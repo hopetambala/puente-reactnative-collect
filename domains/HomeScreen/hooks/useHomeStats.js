@@ -16,7 +16,7 @@ export default function useHomeStats() {
   const [stats, setStats] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [timeFilter, setTimeFilter] = useState('all');
+  const [timeFilter, setTimeFilter] = useState('last7');
   const [isOffline, setIsOffline] = useState(false);
 
   /**
