@@ -36,7 +36,6 @@ function RootScreenWrapper(props) {
 function MainNavigation() {
   const theme = useTheme();
   const { visible, message, dismiss } = useContext(AlertContext);
-  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
   const [isOnboardingStateLoaded, setIsOnboardingStateLoaded] = useState(false);
   const [initialRouteName, setInitialRouteName] = useState("Onboarding");
 
@@ -46,7 +45,6 @@ function MainNavigation() {
       try {
         const seen = await getHasSeenOnboarding();
         const hasSeen = !!seen;
-        setHasSeenOnboarding(hasSeen);
         setInitialRouteName(hasSeen ? "Sign In" : "Onboarding");
       } catch (e) {
         // eslint-disable-next-line no-console

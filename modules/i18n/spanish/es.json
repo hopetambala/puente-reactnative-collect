@@ -721,7 +721,8 @@
     "permissionDenied": "Denegado — activa en Ajustes",
     "permissionGranted": "Concedido",
     "permissionSkip": "Configurar después",
-    "search": "Buscar"
+    "search": "Buscar",
+    "recordLabel": "Registro %{index}"
   },
   "coachmarks": {
     "next": "Siguiente",

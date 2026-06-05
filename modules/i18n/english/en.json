@@ -722,7 +722,8 @@
     "permissionDenied": "Denied — enable in Settings",
     "permissionGranted": "Granted",
     "permissionSkip": "Set up later",
-    "search": "Search"
+    "search": "Search",
+    "recordLabel": "Record %{index}"
   },
   "coachmarks": {
     "next": "Next",

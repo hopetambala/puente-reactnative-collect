@@ -23,7 +23,6 @@ import Animated, {
   interpolate,
   SlideInLeft,
   SlideInRight,
-  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
@@ -60,30 +59,6 @@ function triggerHaptic(style = "Light") {
 }
 
 const TOTAL_STEPS = 9;
-
-/**
- * ParallaxScrollView - ScrollView with parallax effect for background
- */
-function ParallaxScrollView({ children, style, contentContainerStyle }) {
-  const scrollOffset = useSharedValue(0);
-
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (e) => {
-      scrollOffset.value = e.contentOffset.y;
-    },
-  });
-
-  return (
-    <Animated.ScrollView
-      style={style}
-      contentContainerStyle={contentContainerStyle}
-      onScroll={scrollHandler}
-      scrollEventThrottle={16}
-    >
-      {children(scrollOffset)}
-    </Animated.ScrollView>
-  );
-}
 
 /**
  * ProgressBar - animated fill showing onboarding progress
@@ -267,7 +242,9 @@ function StepWelcome({ onNext, onSkip }) {
 
         {/* Description */}
         <Animated.Text
-          entering={FadeIn.delay(900).duration(MOTION_TOKENS.duration.slow)}
+          entering={FadeIn
+            .delay(MOTION_TOKENS.duration.xslow + MOTION_TOKENS.duration.snappy)
+            .duration(MOTION_TOKENS.duration.slow)}
           style={[styles.heroDescription, { color: theme.colors.onSurfaceVariant }]}
         >
           {I18n.t("onboarding.welcomeDescription")}
@@ -276,7 +253,9 @@ function StepWelcome({ onNext, onSkip }) {
 
       {/* CTA footer */}
       <Animated.View
-        entering={FadeInUp.delay(1100).duration(MOTION_TOKENS.duration.base)}
+        entering={FadeInUp
+          .delay(MOTION_TOKENS.duration.xslow + MOTION_TOKENS.duration.substantial)
+          .duration(MOTION_TOKENS.duration.base)}
         style={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.xxl }}
       >
         <StepFooter
@@ -315,7 +294,7 @@ function StepCollection({ onNext, onBack }) {
       <>
         <Animated.Text
           style={[styles.stepTitle, { color: theme.colors.primary }]}
-          entering={FadeInDown.duration(500)}
+          entering={FadeInDown.duration(MOTION_TOKENS.duration.slow)}
         >
           {I18n.t("onboarding.howToCollect")}
         </Animated.Text>
@@ -326,7 +305,9 @@ function StepCollection({ onNext, onBack }) {
             <Animated.View
               key={`collection-${i}`}
               style={[styles.collectionCard, { borderLeftColor: type.color, backgroundColor: theme.colors.surface }]}
-              entering={FadeInDown.delay(i * 90).duration(500)}
+              entering={FadeInDown
+                .delay(i * MOTION_TOKENS.duration.micro)
+                .duration(MOTION_TOKENS.duration.slow)}
             >
               <Ionicons name={type.icon} size={32} color={type.color} style={{ marginBottom: spacing.md }} />
               <Text style={[styles.cardLabel, { color: theme.colors.onBackground }]}>
@@ -338,7 +319,9 @@ function StepCollection({ onNext, onBack }) {
 
         <Animated.Text
           style={[styles.stepDescription, { color: theme.colors.onSurfaceVariant }]}
-          entering={FadeInDown.delay(400).duration(500)}
+          entering={FadeInDown
+            .delay(MOTION_TOKENS.duration.substantial)
+            .duration(MOTION_TOKENS.duration.slow)}
         >
           {I18n.t("onboarding.collectionDescription")}
         </Animated.Text>
@@ -427,6 +410,20 @@ function StepPermissions({ onNext, onBack }) {
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
   const [locationStatus, setLocationStatus] = useState(null);
 
+  useEffect(() => {
+    let mounted = true;
+
+    Location.getForegroundPermissionsAsync()
+      .then(({ status }) => {
+        if (mounted) setLocationStatus(status);
+      })
+      .catch(() => {});
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const isCameraGranted = cameraPermission?.granted === true;
   const isCameraDenied = cameraPermission?.granted === false && cameraPermission?.canAskAgain === false;
 
@@ -448,19 +445,26 @@ function StepPermissions({ onNext, onBack }) {
       <>
         <Animated.Text
           style={[styles.stepTitle, { color: theme.colors.primary }]}
-          entering={FadeInDown.duration(500)}
+          entering={FadeInDown.duration(MOTION_TOKENS.duration.slow)}
         >
           {I18n.t("onboarding.permissions")}
         </Animated.Text>
 
         <Animated.Text
           style={[styles.stepDescription, { color: theme.colors.onSurfaceVariant }]}
-          entering={FadeInDown.delay(150).duration(500)}
+          entering={FadeInDown
+            .delay(MOTION_TOKENS.duration.quick)
+            .duration(MOTION_TOKENS.duration.slow)}
         >
           {I18n.t("onboarding.permissionsDescription")}
         </Animated.Text>
 
-        <Animated.View entering={FadeInDown.delay(250).duration(500)} style={styles.permissionCards}>
+        <Animated.View
+          entering={FadeInDown
+            .delay(MOTION_TOKENS.duration.base)
+            .duration(MOTION_TOKENS.duration.slow)}
+          style={styles.permissionCards}
+        >
           <PermissionCard
             icon="camera-outline"
             title={I18n.t("onboarding.cameraPermission")}
@@ -503,7 +507,7 @@ function StepFindRecords({ onNext, onBack }) {
       <>
         <Animated.Text
           style={[styles.stepTitle, { color: theme.colors.primary }]}
-          entering={FadeInDown.duration(500)}
+          entering={FadeInDown.duration(MOTION_TOKENS.duration.slow)}
         >
           {I18n.t("onboarding.findRecords")}
         </Animated.Text>
@@ -513,7 +517,9 @@ function StepFindRecords({ onNext, onBack }) {
           styles.searchDemoBox,
           { borderColor: theme.colors.outlineVariant, backgroundColor: theme.colors.surface },
         ]}
-        entering={FadeInDown.delay(100).duration(500)}
+        entering={FadeInDown
+          .delay(MOTION_TOKENS.duration.micro)
+          .duration(MOTION_TOKENS.duration.slow)}
       >
         <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
           <Ionicons name="search-outline" size={18} color={theme.colors.onSurfaceVariant} />
@@ -533,10 +539,12 @@ function StepFindRecords({ onNext, onBack }) {
                 borderLeftColor: theme.colors.info,
               },
             ]}
-            entering={FadeInDown.delay(200 + i * 100).duration(500)}
+            entering={FadeInDown
+              .delay(MOTION_TOKENS.duration.snappy + i * MOTION_TOKENS.duration.quick)
+              .duration(MOTION_TOKENS.duration.slow)}
           >
             <Text style={{ color: theme.colors.onBackground }}>
-              Record {i}
+              {I18n.t("onboarding.recordLabel", { index: i })}
             </Text>
           </Animated.View>
         ))}
@@ -544,7 +552,9 @@ function StepFindRecords({ onNext, onBack }) {
 
       <Animated.Text
         style={[styles.stepDescription, { color: theme.colors.onSurfaceVariant }]}
-        entering={FadeInDown.delay(500).duration(500)}
+        entering={FadeInDown
+          .delay(MOTION_TOKENS.duration.slow)
+          .duration(MOTION_TOKENS.duration.slow)}
       >
         {I18n.t("onboarding.findDescription")}
       </Animated.Text>
@@ -571,21 +581,25 @@ function StepOffline({ onNext, onBack }) {
       <>
         <Animated.Text
           style={[styles.stepTitle, { color: theme.colors.primary }]}
-          entering={FadeInDown.duration(500)}
+          entering={FadeInDown.duration(MOTION_TOKENS.duration.slow)}
         >
           {I18n.t("onboarding.offlineMode")}
         </Animated.Text>
 
         <Animated.View
           style={styles.offlineIconContainer}
-          entering={FadeInDown.delay(100).duration(500)}
+          entering={FadeInDown
+            .delay(MOTION_TOKENS.duration.micro)
+            .duration(MOTION_TOKENS.duration.slow)}
         >
           <Ionicons name="cloud-offline-outline" size={64} color={theme.colors.primary} />
         </Animated.View>
 
         <Animated.Text
           style={[styles.stepDescription, { color: theme.colors.onSurfaceVariant }]}
-          entering={FadeInDown.delay(300).duration(500)}
+          entering={FadeInDown
+            .delay(MOTION_TOKENS.duration.base)
+            .duration(MOTION_TOKENS.duration.slow)}
         >
           {I18n.t("onboarding.offlineDescription")}
         </Animated.Text>
@@ -625,7 +639,7 @@ function StepLanguage({ onNext, onBack }) {
       <>
         <Animated.Text
           style={[styles.stepTitle, { color: theme.colors.primary }]}
-          entering={FadeInDown.duration(500)}
+          entering={FadeInDown.duration(MOTION_TOKENS.duration.slow)}
         >
           {I18n.t("onboarding.chooseLanguage")}
         </Animated.Text>
@@ -634,7 +648,9 @@ function StepLanguage({ onNext, onBack }) {
         {languages.map((lang, i) => (
           <Animated.View
             key={`lang-${lang.code}`}
-            entering={FadeInDown.delay(i * 90).duration(500)}
+            entering={FadeInDown
+              .delay(i * MOTION_TOKENS.duration.micro)
+              .duration(MOTION_TOKENS.duration.slow)}
           >
             <TouchableOpacity
               style={[
@@ -672,7 +688,9 @@ function StepLanguage({ onNext, onBack }) {
 
       <Animated.Text
         style={[styles.stepDescription, { color: theme.colors.onSurfaceVariant }]}
-        entering={FadeInDown.delay(300).duration(500)}
+        entering={FadeInDown
+          .delay(MOTION_TOKENS.duration.base)
+          .duration(MOTION_TOKENS.duration.slow)}
       >
         {I18n.t("onboarding.languageDescription")}
       </Animated.Text>
@@ -711,7 +729,7 @@ function StepTheme({ onNext, onBack }) {
       <>
         <Animated.Text
           style={[styles.stepTitle, { color: theme.colors.primary }]}
-          entering={FadeInDown.duration(500)}
+          entering={FadeInDown.duration(MOTION_TOKENS.duration.slow)}
         >
           {I18n.t("onboarding.chooseTheme")}
         </Animated.Text>
@@ -725,7 +743,9 @@ function StepTheme({ onNext, onBack }) {
               borderColor: !isDarkMode ? theme.colors.tertiary : theme.colors.outlineVariant,
             },
           ]}
-          entering={FadeInDown.delay(100).duration(500)}
+          entering={FadeInDown
+            .delay(MOTION_TOKENS.duration.micro)
+            .duration(MOTION_TOKENS.duration.slow)}
         >
           <TouchableOpacity
             style={styles.themeCardButton}
@@ -762,7 +782,9 @@ function StepTheme({ onNext, onBack }) {
               borderColor: isDarkMode ? theme.colors.primary : theme.colors.outlineVariant,
             },
           ]}
-          entering={FadeInDown.delay(100).duration(500)}
+          entering={FadeInDown
+            .delay(MOTION_TOKENS.duration.micro)
+            .duration(MOTION_TOKENS.duration.slow)}
         >
           <TouchableOpacity
             style={styles.themeCardButton}
@@ -794,7 +816,9 @@ function StepTheme({ onNext, onBack }) {
 
       <Animated.Text
         style={[styles.stepDescription, { color: theme.colors.onSurfaceVariant }]}
-        entering={FadeInDown.delay(300).duration(500)}
+        entering={FadeInDown
+          .delay(MOTION_TOKENS.duration.base)
+          .duration(MOTION_TOKENS.duration.slow)}
       >
         {I18n.t("onboarding.themeDescription")}
       </Animated.Text>
@@ -827,7 +851,7 @@ function StepPrivacy({ onNext, onBack }) {
       <>
         <Animated.Text
           style={[styles.stepTitle, { color: theme.colors.primary }]}
-          entering={FadeInDown.duration(500)}
+          entering={FadeInDown.duration(MOTION_TOKENS.duration.slow)}
         >
           {I18n.t("onboarding.privacy")}
         </Animated.Text>
@@ -838,7 +862,9 @@ function StepPrivacy({ onNext, onBack }) {
           <Animated.View
             key={`privacy-${i}`}
             style={styles.privacyItem}
-            entering={FadeInDown.delay(i * 100).duration(500)}
+            entering={FadeInDown
+              .delay(i * MOTION_TOKENS.duration.quick)
+              .duration(MOTION_TOKENS.duration.slow)}
           >
             <Ionicons
               name={point.icon}
@@ -857,7 +883,9 @@ function StepPrivacy({ onNext, onBack }) {
 
       <Animated.Text
         style={[styles.stepDescription, { color: theme.colors.onSurfaceVariant }]}
-        entering={FadeInDown.delay(400).duration(500)}
+        entering={FadeInDown
+          .delay(MOTION_TOKENS.duration.substantial)
+          .duration(MOTION_TOKENS.duration.slow)}
       >
         {I18n.t("onboarding.privacyDescription")}
       </Animated.Text>
@@ -884,20 +912,27 @@ function StepFinale({ onComplete, onBack }) {
       {showConfetti && <ConfettiBurst />}
 
       <View style={styles.finaleContent}>
-        <Animated.View entering={FadeIn.duration(500)} style={{ marginBottom: spacing.xl }}>
+        <Animated.View
+          entering={FadeIn.duration(MOTION_TOKENS.duration.slow)}
+          style={{ marginBottom: spacing.xl }}
+        >
           <Ionicons name="checkmark-circle-outline" size={80} color={theme.colors.primary} />
         </Animated.View>
 
         <Animated.Text
           style={[styles.finaleMessage, { color: theme.colors.onBackground }]}
-          entering={FadeInDown.delay(300).duration(500)}
+          entering={FadeInDown
+            .delay(MOTION_TOKENS.duration.base)
+            .duration(MOTION_TOKENS.duration.slow)}
         >
           {I18n.t("onboarding.youreIn")}
         </Animated.Text>
 
         <Animated.Text
           style={[styles.finaleSubtext, { color: theme.colors.onSurfaceVariant }]}
-          entering={FadeInDown.delay(600).duration(500)}
+          entering={FadeInDown
+            .delay(MOTION_TOKENS.duration.base + MOTION_TOKENS.duration.base)
+            .duration(MOTION_TOKENS.duration.slow)}
         >
           {I18n.t("onboarding.readyToBegin")}
         </Animated.Text>
@@ -931,11 +966,6 @@ export default function Onboarding({ navigation, route }) {
       }
       setIsRestoringStep(false);
     });
-  }, []);
-
-  // Initialize location permission status on mount
-  useEffect(() => {
-    Location.getForegroundPermissionsAsync();
   }, []);
 
   const goNext = () => {
@@ -1039,7 +1069,9 @@ export default function Onboarding({ navigation, route }) {
           <ProgressBar step={step} />
           <Animated.View
             key={`step-${step}`}
-            entering={directionRef.current === "forward" ? SlideInRight.duration(300) : SlideInLeft.duration(300)}
+            entering={directionRef.current === "forward"
+              ? SlideInRight.duration(MOTION_TOKENS.duration.base)
+              : SlideInLeft.duration(MOTION_TOKENS.duration.base)}
             style={styles.stepWrapper}
           >
             {renderStep()}
