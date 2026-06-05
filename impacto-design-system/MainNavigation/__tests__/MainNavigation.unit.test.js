@@ -1,10 +1,8 @@
-import React from "react";
-import { Text, View } from "react-native";
-import { render, screen, waitFor } from "@testing-library/react-native";
-
-import MainNavigation from "../index";
 import { AlertContext } from "@context/alert.context";
+import MainNavigation from "@impacto-design-system/MainNavigation/index";
 import { getHasSeenOnboarding } from "@modules/settings";
+import { render, screen, waitFor } from "@testing-library/react-native";
+import React from "react";
 
 jest.mock("@modules/settings", () => ({
   getHasSeenOnboarding: jest.fn(),
@@ -19,11 +17,11 @@ jest.mock("@modules/utils/animations", () => ({
 }));
 
 jest.mock("react-native-reanimated", () => {
-  const React = require("react");
-  const { View } = require("react-native");
+  const ActualReact = jest.requireActual("react");
+  const { View: ActualView } = jest.requireActual("react-native");
   return {
     __esModule: true,
-    default: ({ children }) => React.createElement(View, null, children),
+    default: ({ children }) => ActualReact.createElement(ActualView, null, children),
   };
 });
 
@@ -36,27 +34,27 @@ jest.mock("react-native-paper", () => ({
 }));
 
 jest.mock("@react-navigation/native", () => {
-  const React = require("react");
-  const { View } = require("react-native");
+  const ActualReact = jest.requireActual("react");
+  const { View: ActualView } = jest.requireActual("react-native");
   return {
-    NavigationContainer: ({ children }) => React.createElement(View, { testID: "navigation-container" }, children),
+    NavigationContainer: ({ children }) => ActualReact.createElement(ActualView, { testID: "navigation-container" }, children),
   };
 });
 
 jest.mock("@react-navigation/native-stack", () => {
-  const React = require("react");
-  const { View, Text } = require("react-native");
+  const ActualReact = jest.requireActual("react");
+  const { View: ActualView, Text: ActualText } = jest.requireActual("react-native");
 
   return {
     createNativeStackNavigator: () => ({
       Navigator: ({ initialRouteName, children }) =>
-        React.createElement(
-          View,
+        ActualReact.createElement(
+          ActualView,
           { testID: "stack-navigator" },
-          React.createElement(Text, null, `initial-route:${initialRouteName}`),
+          ActualReact.createElement(ActualText, null, `initial-route:${initialRouteName}`),
           children
         ),
-      Screen: ({ name }) => React.createElement(Text, null, `screen:${name}`),
+      Screen: ({ name }) => ActualReact.createElement(ActualText, null, `screen:${name}`),
     }),
   };
 });

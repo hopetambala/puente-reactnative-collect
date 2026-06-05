@@ -3,6 +3,9 @@
  * Tests that callbacks are called directly from PanResponder release, without runOnJS wrapper
  */
 
+import { useGestureResponder } from '@app/domains/Onboarding/hooks/useGestureResponder';
+import { renderHook } from '@testing-library/react-native';
+
 // Mock runOnJS to throw, ensuring it's NOT called
 jest.mock('react-native-reanimated', () => ({
   __esModule: true,
@@ -26,9 +29,6 @@ jest.mock('react-native', () => ({
   View: jest.fn(),
   Text: jest.fn(),
 }));
-
-import { renderHook } from '@testing-library/react-native';
-import { useGestureResponder } from '../useGestureResponder';
 
 describe('useGestureResponder - direct callback invocation without runOnJS', () => {
   beforeEach(() => {
