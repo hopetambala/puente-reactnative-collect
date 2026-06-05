@@ -1,14 +1,15 @@
 import { OfflineContext } from "@context/offline.context";
-import { getData } from "@modules/async-storage";
-import handleParseError from "@modules/cached-resources/error-handling";
+import { getData, storeData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
 import {
   cleanupPostedOfflineForms,
   postOfflineForms,
 } from "@modules/offline/post";
+
+import { handleUpload } from "./upload";
 import { MOTION_TOKENS } from "@modules/utils/animations";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
 import Emoji from "react-native-emoji";
 import { Button, IconButton, Text, useTheme } from "react-native-paper";
@@ -37,8 +38,34 @@ function Header({ setSettings, onOpenSettings, onBack }) {
   const [submission, setSubmission] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCounts, setShowCounts] = useState(false);
+  const [isOnline, setIsOnline] = useState(null);
+  const [lastSyncTimestamp, setLastSyncTimestamp] = useState(null);
   const { populateResidentDataCache, isLoading: isOfflineLoading } =
     useContext(OfflineContext);
+
+  useEffect(() => {
+    const loadStatusBar = async () => {
+      const [online, ts, idForms, supForms, assetIdForms, assetSupForms] =
+        await Promise.all([
+          checkOnlineStatus().catch(() => false),
+          getData("lastSyncTimestamp"),
+          getData("offlineIDForms"),
+          getData("offlineSupForms"),
+          getData("offlineAssetIDForms"),
+          getData("offlineAssetSupForms"),
+        ]);
+      setIsOnline(online);
+      setLastSyncTimestamp(ts);
+      const total =
+        (idForms?.length ?? 0) +
+        (supForms?.length ?? 0) +
+        (assetIdForms?.length ?? 0) +
+        (assetSupForms?.length ?? 0);
+      setOfflineFormCount(total);
+      setOfflineForms(total > 0);
+    };
+    loadStatusBar();
+  }, []);
 
   const volunteerLength = (object) => {
     const date = new Date(object.createdAt);
@@ -68,89 +95,19 @@ function Header({ setSettings, onOpenSettings, onBack }) {
     }
   };
 
-  // eslint-disable-next-line no-unused-vars
-  const count = async () => {
-    getData("currentUser").then((user) => {
-      calculateTime(user.firstname);
-      setVolunteerDate(volunteerLength(user));
+  const upload = () =>
+    handleUpload({
+      postOfflineForms,
+      cleanupPostedOfflineForms,
+      setIsSubmitting,
+      setSubmission,
+      getQueuedFormCount: async () => offlineFormCount,
+      storeLastSyncTimestamp: async () => {
+        const ts = Date.now();
+        await storeData(ts, "lastSyncTimestamp");
+        setLastSyncTimestamp(ts);
+      },
     });
-
-    const idFormCount = await getData("offlineIDForms").then((idForms) => {
-      if (idForms) {
-        setOfflineForms(true);
-        return idForms.length;
-      }
-      return 0;
-    });
-
-    const supplementaryCount = await getData("offlineSupForms").then(
-      (supForms) => {
-        if (supForms) {
-          setOfflineForms(true);
-          return supForms.length;
-        }
-        return 0;
-      }
-    );
-
-    const assetIdFormCount = await getData("offlineAssetIDForms").then(
-      (assetIdForms) => {
-        if (assetIdForms) {
-          setOfflineForms(true);
-          return assetIdForms.length;
-        }
-        return 0;
-      }
-    );
-
-    const assetSupForms = await getData("offlineAssetSupForms").then(
-      (assetSuppForms) => {
-        if (assetSuppForms) {
-          setOfflineForms(true);
-          return assetSuppForms.length;
-        }
-        return 0;
-      }
-    );
-
-    const allFormOfflineCount =
-      idFormCount + supplementaryCount + assetIdFormCount + assetSupForms;
-
-    setOfflineFormCount(allFormOfflineCount);
-
-    setOfflineForms(allFormOfflineCount > 0);
-
-    setDrawerOpen(!drawerOpen);
-  };
-
-  const upload = async () => {
-    setIsSubmitting(true);
-    const offlineRecords = await postOfflineForms().catch((error) =>
-      handleParseError(error, postOfflineForms).then(async (records) => {
-        const { status } = records;
-
-        if (status === "Error") {
-          setIsSubmitting(false);
-          setSubmission(false);
-          return;
-        }
-        setSubmission(true);
-        setIsSubmitting(false);
-        await cleanupPostedOfflineForms();
-      })
-    );
-
-    const { status } = offlineRecords;
-    if (status === "Error") {
-      setIsSubmitting(false);
-      setSubmission(false);
-      return;
-    }
-
-    setSubmission(true);
-    setIsSubmitting(false);
-    await cleanupPostedOfflineForms();
-  };
 
   const cacheOfflineData = async () =>
     checkOnlineStatus().then(async (connected) => {
@@ -187,6 +144,9 @@ function Header({ setSettings, onOpenSettings, onBack }) {
           <View style={{ width: 48 }} />
         )}
         <Text style={styles.title}>{I18n.t("header.puente")}</Text>
+        {offlineFormCount > 0 && (
+          <Text>{String(offlineFormCount)}</Text>
+        )}
         <IconButton
           icon="tune"
           iconColor={styles.iconButton.color}
@@ -194,6 +154,30 @@ function Header({ setSettings, onOpenSettings, onBack }) {
           onPress={navToSettings}
         />
       </View>
+
+      {/* Persistent sync status bar — visible without opening drawer */}
+      <View>
+        {isOnline !== null && (
+          <Text>
+            {isOnline ? I18n.t("header.online") : I18n.t("header.offline")}
+          </Text>
+        )}
+        {lastSyncTimestamp != null && (
+          <Text>{String(lastSyncTimestamp)}</Text>
+        )}
+        <Button onPress={upload}>{I18n.t("header.retry")}</Button>
+      </View>
+
+      {submission === "SessionExpired" && (
+        <View>
+          <Text style={styles.errorText}>
+            {I18n.t("header.sessionExpired")}
+          </Text>
+          <Button onPress={() => setSubmission(null)}>
+            {I18n.t("header.ok")}
+          </Button>
+        </View>
+      )}
 
       {drawerOpen && (
         <Animated.View
@@ -246,6 +230,9 @@ function Header({ setSettings, onOpenSettings, onBack }) {
                   <Text style={styles.successText}>
                     {I18n.t("header.tryAgain")}
                   </Text>
+                  <Button onPress={upload}>
+                    {I18n.t("header.retry")}
+                  </Button>
                   <Button onPress={() => setSubmission(null)}>
                     {I18n.t("header.ok")}
                   </Button>

@@ -8,15 +8,21 @@ import { Platform } from "react-native";
 import checkOnlineStatus from "..";
 
 const cleanupPostedOfflineForms = async () => {
-  await deleteData("offlineIDForms");
-  await deleteData("offlineSupForms");
-  await deleteData("offlineAssetIDForms");
-  await deleteData("offlineAssetSupForms");
-  await deleteData("offlineHouseholds");
+  await Promise.allSettled([
+    deleteData("offlineIDForms"),
+    deleteData("offlineSupForms"),
+    deleteData("offlineAssetIDForms"),
+    deleteData("offlineAssetSupForms"),
+    deleteData("offlineHouseholds"),
+  ]);
 };
 
 const postOfflineForms = async () => {
   const user = await getData("currentUser");
+
+  if (!user) {
+    return { status: "Error" };
+  }
 
   const surveyUser = await surveyingUserFailsafe(user, undefined, isEmpty);
   const { organization } = user;
@@ -47,16 +53,23 @@ const postOfflineForms = async () => {
   const isConnected = await checkOnlineStatus();
 
   if (isConnected) {
-    const uploadedForms = await uploadOfflineForms(offlineForms).catch(() => ({
+    const uploadResult = await uploadOfflineForms(offlineForms).catch(() => ({
       status: "Error",
     }));
+    if (uploadResult.status === "Error") {
+      return {
+        offlineForms,
+        uploadedForms: uploadResult,
+        status: "Error",
+      };
+    }
     getAWSLogger().log({
       type: "OFFLINE_FORM_UPLOADED",
       parseUser: user.objectId,
     });
     return {
       offlineForms,
-      uploadedForms,
+      uploadedForms: uploadResult,
       status: "Success",
     };
   }
