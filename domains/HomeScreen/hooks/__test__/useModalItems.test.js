@@ -70,7 +70,7 @@ describe('useModalItems Hook', () => {
     const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
 
     await act(async () => {
-      result.current.loadMore('mySurveys', 'today');
+      result.current.loadMore('mySurveys', 'last7');
     });
 
     await waitFor(() => {
@@ -82,7 +82,7 @@ describe('useModalItems Hook', () => {
       'mySurveys',
       expect.any(String),
       expect.any(String),
-      'today',
+      'last7',
       0,
       10
     );
@@ -96,14 +96,14 @@ describe('useModalItems Hook', () => {
     const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
 
     await act(async () => {
-      result.current.loadMore('mySurveys', 'today');
+      result.current.loadMore('mySurveys', 'last7');
     });
     await waitFor(() => {
       expect(result.current.items).toHaveLength(10);
     });
 
     await act(async () => {
-      result.current.loadMore('mySurveys', 'today');
+      result.current.loadMore('mySurveys', 'last7');
     });
     await waitFor(() => {
       expect(result.current.items).toHaveLength(12);
@@ -115,7 +115,7 @@ describe('useModalItems Hook', () => {
       'mySurveys',
       expect.any(String),
       expect.any(String),
-      'today',
+      'last7',
       10,
       10
     );
@@ -127,7 +127,7 @@ describe('useModalItems Hook', () => {
     const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
 
     await act(async () => {
-      result.current.loadMore('mySurveys', 'today');
+      result.current.loadMore('mySurveys', 'last7');
     });
 
     await waitFor(() => {
@@ -144,21 +144,21 @@ describe('useModalItems Hook', () => {
     const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
 
     await act(async () => {
-      result.current.loadMore('mySurveys', 'today');
+      result.current.loadMore('mySurveys', 'last7');
     });
     await waitFor(() => {
       expect(result.current.items).toHaveLength(10);
     });
 
     await act(async () => {
-      result.current.loadMore('mySurveys', 'today');
+      result.current.loadMore('mySurveys', 'last7');
     });
     await waitFor(() => {
       expect(result.current.items).toHaveLength(12);
     });
 
     await act(async () => {
-      result.current.reset('mySurveys', 'today');
+      result.current.reset('mySurveys', 'last7');
     });
     await waitFor(() => {
       expect(result.current.items).toHaveLength(10);
@@ -170,7 +170,7 @@ describe('useModalItems Hook', () => {
       'mySurveys',
       expect.any(String),
       expect.any(String),
-      'today',
+      'last7',
       0,
       10
     );
@@ -182,7 +182,7 @@ describe('useModalItems Hook', () => {
     const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
 
     await act(async () => {
-      result.current.loadMore('mySurveys', 'today');
+      result.current.loadMore('mySurveys', 'last7');
     });
 
     await waitFor(() => {
@@ -197,7 +197,7 @@ describe('useModalItems Hook', () => {
     const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
 
     await act(async () => {
-      result.current.loadMore('mySurveys', 'today');
+      result.current.loadMore('mySurveys', 'last7');
     });
     await waitFor(() => {
       expect(result.current.hasMore).toBe(false);
@@ -205,7 +205,7 @@ describe('useModalItems Hook', () => {
 
     // Attempt to load more - should be no-op
     await act(async () => {
-      result.current.loadMore('mySurveys', 'today');
+      result.current.loadMore('mySurveys', 'last7');
     });
 
     // Still only 1 call
@@ -218,7 +218,7 @@ describe('useModalItems Hook', () => {
     const { result } = renderHook(() => useModalItems(), { wrapper: Wrapper });
 
     await act(async () => {
-      result.current.loadMore('orgVitals', 'week');
+      result.current.loadMore('orgVitals', 'last7');
     });
 
     await waitFor(() => {

@@ -108,7 +108,7 @@ function ProgressBar({ step }) {
 
   return (
     <View style={[styles.progressBarContainer, { marginTop: spacing.xxl }]}>
-      <View style={styles.progressBarTrack}>
+      <View style={[styles.progressBarTrack, { backgroundColor: theme.colors.outlineVariant }]}>
         <Animated.View
           style={[
             styles.progressBarFill,
@@ -916,7 +916,7 @@ function StepFinale({ onComplete, onBack }) {
 /**
  * Main Onboarding Screen
  */
-export default function Onboarding({ navigation }) {
+export default function Onboarding({ navigation, route }) {
   const [step, setStep] = useState(0);
   const [isRestoringStep, setIsRestoringStep] = useState(true);
   const theme = useTheme();
@@ -931,6 +931,11 @@ export default function Onboarding({ navigation }) {
       }
       setIsRestoringStep(false);
     });
+  }, []);
+
+  // Initialize location permission status on mount
+  useEffect(() => {
+    Location.getForegroundPermissionsAsync();
   }, []);
 
   const goNext = () => {
@@ -958,7 +963,8 @@ export default function Onboarding({ navigation }) {
       triggerHaptic("Medium");
       await clearOnboardingStep();
       await setHasSeenOnboarding(true);
-      navigation.replace("Sign In");
+        const targetRoute = route?.params?.returnTo || "Sign In";
+        navigation.replace(targetRoute);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("Error skipping onboarding:", e);
@@ -970,7 +976,8 @@ export default function Onboarding({ navigation }) {
       triggerHaptic("Heavy");
       await clearOnboardingStep();
       await setHasSeenOnboarding(true);
-      navigation.replace("Sign In");
+        const targetRoute = route?.params?.returnTo || "Sign In";
+        navigation.replace(targetRoute);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("Error completing onboarding:", e);
@@ -1065,7 +1072,6 @@ const styles = StyleSheet.create({
   },
   progressBarTrack: {
     height: 4,
-    backgroundColor: "rgba(0, 0, 0, 0.1)",
     borderRadius: 2,
     overflow: "hidden",
   },

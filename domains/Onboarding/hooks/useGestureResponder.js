@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { PanResponder } from "react-native";
-import Animated, { runOnJS } from "react-native-reanimated";
 
 /**
  * useGestureResponder - Detects left/right swipe gestures
@@ -24,13 +23,13 @@ export function useGestureResponder(onSwipeLeft, onSwipeRight, threshold = 50) {
         // Swipe left (next)
         if (dx < -threshold) {
           if (onSwipeLeft) {
-            runOnJS(onSwipeLeft)();
+            onSwipeLeft();
           }
         }
         // Swipe right (back)
         else if (dx > threshold) {
           if (onSwipeRight) {
-            runOnJS(onSwipeRight)();
+            onSwipeRight();
           }
         }
       },

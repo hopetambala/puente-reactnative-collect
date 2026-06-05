@@ -62,7 +62,7 @@ jest.mock('../hooks/useHomeStats', () => function useHomeStats() {
     },
     isLoading: false,
     isOffline: false,
-    timeFilter: 'week',
+    timeFilter: 'last7',
     setTimeFilter: jest.fn(),
     refresh: jest.fn(),
   };

@@ -115,10 +115,10 @@ describe('useHomeStats - RED/GREEN Tests', () => {
       });
 
       act(() => {
-        result.current.setTimeFilter('today');
+        result.current.setTimeFilter('last7');
       });
 
-      expect(result.current.timeFilter).toBe('today');
+      expect(result.current.timeFilter).toBe('last7');
     });
   });
 

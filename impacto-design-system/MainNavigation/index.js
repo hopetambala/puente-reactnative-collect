@@ -37,6 +37,7 @@ function MainNavigation() {
   const theme = useTheme();
   const { visible, message, dismiss } = useContext(AlertContext);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
+  const [isOnboardingStateLoaded, setIsOnboardingStateLoaded] = useState(false);
   const [initialRouteName, setInitialRouteName] = useState("Onboarding");
 
   // Load onboarding state on mount
@@ -51,6 +52,8 @@ function MainNavigation() {
         // eslint-disable-next-line no-console
         console.error("Error loading onboarding state:", e);
         setInitialRouteName("Onboarding");
+      } finally {
+        setIsOnboardingStateLoaded(true);
       }
     };
     loadOnboardingState();
@@ -67,55 +70,57 @@ function MainNavigation() {
     <View style={styles.container}>
       {Platform.OS === "ios" && <StatusBar />}
       <NavigationContainer linking={LinkingConfiguration}>
-        <Stack.Navigator
-          initialRouteName={initialRouteName}
-        >
-          <Stack.Screen
-            name="Onboarding"
-            component={Onboarding}
-            options={{
-              headerShown: false,
-              gestureEnabled: false,
-              animation: "fade",
-            }}
-          />
-          <Stack.Screen
-            name="Sign In"
-            component={SignIn}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Sign Up"
-            component={SignUp}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="GetPincode"
-            component={GetPinCode}
-            options={{ headerShown: true }}
-          />
-          <Stack.Screen
-            name="StorePincode"
-            component={StorePinCode}
-            options={{ headerShown: true }}
-          />
-          <Stack.Screen
-            name="Root"
-            component={RootScreenWrapper}
-            options={{ headerShown: false, gestureEnabled: false, animation: "none" }}
-          />
-          <Stack.Screen
-            name="SettingsModal"
-            component={SettingsView}
-            options={{
-              headerShown: false,
-              presentation: "modal",
-              animation: "slide_from_bottom",
-              gestureDirection: "vertical",
-              gestureEnabled: true,
-            }}
-          />
-        </Stack.Navigator>
+        {isOnboardingStateLoaded && (
+          <Stack.Navigator
+            initialRouteName={initialRouteName}
+          >
+            <Stack.Screen
+              name="Onboarding"
+              component={Onboarding}
+              options={{
+                headerShown: false,
+                gestureEnabled: false,
+                animation: "fade",
+              }}
+            />
+            <Stack.Screen
+              name="Sign In"
+              component={SignIn}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="Sign Up"
+              component={SignUp}
+              options={{ headerShown: false }}
+            />
+            <Stack.Screen
+              name="GetPincode"
+              component={GetPinCode}
+              options={{ headerShown: true }}
+            />
+            <Stack.Screen
+              name="StorePincode"
+              component={StorePinCode}
+              options={{ headerShown: true }}
+            />
+            <Stack.Screen
+              name="Root"
+              component={RootScreenWrapper}
+              options={{ headerShown: false, gestureEnabled: false, animation: "none" }}
+            />
+            <Stack.Screen
+              name="SettingsModal"
+              component={SettingsView}
+              options={{
+                headerShown: false,
+                presentation: "modal",
+                animation: "slide_from_bottom",
+                gestureDirection: "vertical",
+                gestureEnabled: true,
+              }}
+            />
+          </Stack.Navigator>
+        )}
       </NavigationContainer>
       <Toast
         text={message}

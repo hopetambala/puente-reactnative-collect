@@ -11,35 +11,34 @@ const Parse = client(TEST_MODE);
 
 /**
  * Build date range for filtering by timeFilter
- * @param {string} timeFilter - 'today', 'week', or 'all'
+ * @param {string} timeFilter - 'last7', 'last30', or 'all'
  * @returns {object} { start, end, prevStart, prevEnd } as Date objects
  */
 function buildDateRange(timeFilter) {
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  const startOfThisWeek = new Date(today);
-  startOfThisWeek.setDate(startOfThisWeek.getDate() - startOfThisWeek.getDay());
-
-  const startOfLastWeek = new Date(startOfThisWeek);
-  startOfLastWeek.setDate(startOfLastWeek.getDate() - 7);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   let start; let end; let prevStart; let prevEnd;
 
-  if (timeFilter === 'today') {
-    start = today;
+  if (timeFilter === 'last7') {
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const fourteenDaysAgo = new Date(today);
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    start = sevenDaysAgo;
     end = new Date();
-    prevStart = new Date(yesterday);
-    prevStart.setHours(0, 0, 0, 0);
-    prevEnd = yesterday;
-    prevEnd.setHours(23, 59, 59, 999);
-  } else if (timeFilter === 'week') {
-    start = startOfThisWeek;
+    prevStart = fourteenDaysAgo;
+    prevEnd = new Date(sevenDaysAgo);
+    prevEnd.setMilliseconds(prevEnd.getMilliseconds() - 1);
+  } else if (timeFilter === 'last30') {
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const sixtyDaysAgo = new Date(today);
+    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+    start = thirtyDaysAgo;
     end = new Date();
-    prevStart = startOfLastWeek;
-    prevEnd = new Date(startOfThisWeek);
+    prevStart = sixtyDaysAgo;
+    prevEnd = new Date(thirtyDaysAgo);
     prevEnd.setMilliseconds(prevEnd.getMilliseconds() - 1);
   } else {
     // 'all'
@@ -140,7 +139,7 @@ async function fetchItemsPage(
  * Aggregate stats for HomeScreen
  * @param {string} surveyingUser - Stored surveyingUser string ("Firstname Lastname" or username)
  * @param {string} organization - Organization name/ID matching surveyingOrganization field
- * @param {string} timeFilter - 'today', 'week', or 'all'
+ * @param {string} timeFilter - 'last7', 'last30', or 'all'
  * @returns {Promise<object>} stats object with mySurveys, orgSurveys, etc.
  */
 async function aggregateStats(surveyingUser, organization, timeFilter) {
@@ -148,7 +147,6 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
     if (!surveyingUser || !timeFilter) {
       throw new Error('Missing required parameters: surveyingUser, timeFilter');
     }
-    // organization is optional - some card types (recentActivity) don't use it
 
     const dateRange = buildDateRange(timeFilter);
     const prevDateRange = {
@@ -178,11 +176,6 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
       myCustomFormsPrev,
       orgCustomFormsCurrent,
       orgCustomFormsPrev,
-      recentActivityCurrent,
-      recentActivityVitalsCurrent,
-      recentActivityEnvHealthCurrent,
-      recentActivityMedEvalCurrent,
-      recentActivityCustomFormsCurrent,
       orgSurveysVitalsCurrent,
       orgSurveysEnvHealthCurrent,
       orgSurveysMedEvalCurrent,
@@ -308,36 +301,6 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
         { surveyingOrganization: organization },
         prevDateRange,
       ),
-      // Recent Activity (all time, current user)
-      countWithRange(
-        'SurveyData',
-        { surveyingUser },
-        { start: new Date(0), end: new Date() },
-      ),
-      // Recent Activity - Vitals (all time, current user)
-      countWithRange(
-        'Vitals',
-        { surveyingUser },
-        { start: new Date(0), end: new Date() },
-      ),
-      // Recent Activity - Environmental Health (all time, current user)
-      countWithRange(
-        'HistoryEnvironmentalHealth',
-        { surveyingUser },
-        { start: new Date(0), end: new Date() },
-      ),
-      // Recent Activity - Medical Evaluation (all time, current user)
-      countWithRange(
-        'EvaluationMedical',
-        { surveyingUser },
-        { start: new Date(0), end: new Date() },
-      ),
-      // Recent Activity - Custom Forms (all time, current user)
-      countWithRange(
-        'FormResults',
-        { surveyingUser },
-        { start: new Date(0), end: new Date() },
-      ),
       // Org Surveys - Vitals (current period)
       countWithRange(
         'Vitals',
@@ -381,8 +344,10 @@ async function aggregateStats(surveyingUser, organization, timeFilter) {
       orgMedicalEvaluation: { count: orgMedEvalCurrent, previous: orgMedEvalPrev },
       myCustomForms: { count: myCustomFormsCurrent, previous: myCustomFormsPrev },
       orgCustomForms: { count: orgCustomFormsCurrent, previous: orgCustomFormsPrev },
+      // recentActivity mirrors orgSurveys — org-wide activity across all form types
       recentActivity: {
-        count: recentActivityCurrent + recentActivityVitalsCurrent + recentActivityEnvHealthCurrent + recentActivityMedEvalCurrent + recentActivityCustomFormsCurrent,
+        count: orgSurveysCurrent + orgSurveysVitalsCurrent + orgSurveysEnvHealthCurrent + orgSurveysMedEvalCurrent + orgSurveysCustomFormsCurrent,
+        previous: orgSurveysPrev + orgVitalsPrev + orgEnvHealthPrev + orgMedEvalPrev + orgCustomFormsPrev,
       },
     };
 
@@ -451,7 +416,7 @@ async function fetchMultiClassItems(classes, dateRange, offset, limit) {
  * @param {string} cardType - 'mySurveys', 'orgSurveys', 'myVitals', 'orgVitals', 'recentActivity'
  * @param {string} surveyingUser - Current user name/username string
  * @param {string} organization - Organization ID or name (optional, required only for org-scoped card types)
- * @param {string} timeFilter - 'today', 'week', or 'all'
+ * @param {string} timeFilter - 'last7', 'last30', or 'all'
  * @param {number} offset - pagination offset
  * @param {number} limit - pagination limit
  * @returns {Promise<object>} { items[], total, hasMore }
@@ -469,7 +434,7 @@ async function fetchCardItems(
       throw new Error('Missing required parameters');
     }
     // organization is required only for org-scoped card types
-    const organizationRequiredCardTypes = ['mySurveys', 'orgSurveys', 'myVitals', 'orgVitals'];
+    const organizationRequiredCardTypes = ['mySurveys', 'orgSurveys', 'myVitals', 'orgVitals', 'recentActivity', 'myEnvironmentalHealth', 'orgEnvironmentalHealth'];
     if (organizationRequiredCardTypes.includes(cardType) && !organization) {
       throw new Error(`Missing required parameters: organization required for ${cardType}`);
     }
@@ -512,7 +477,6 @@ async function fetchCardItems(
       });
     } else if (cardType === 'orgSurveys') {
       // Fetch from all form types for organization
-      const allTimeRange = dateRange;
       const multiClassResult = await fetchMultiClassItems(
         [
           { className: 'SurveyData', fields: ['fname', 'lname', 'createdAt'], equalToParams: { surveyingOrganization: organization } },
@@ -521,7 +485,7 @@ async function fetchCardItems(
           { className: 'EvaluationMedical', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingOrganization: organization } },
           { className: 'FormResults', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingOrganization: organization } },
         ],
-        allTimeRange,
+        dateRange,
         offset,
         limit,
       );
@@ -583,18 +547,57 @@ async function fetchCardItems(
         createdAt: record.createdAt,
         _parseClass: 'Vitals',
       }));
+    } else if (cardType === 'myEnvironmentalHealth') {
+      const itemsResult = await fetchItemsPage(
+        'HistoryEnvironmentalHealth',
+        ['surveyingUser', 'createdAt'],
+        { surveyingUser, surveyingOrganization: organization },
+        dateRange,
+        offset,
+        limit,
+      );
+      totalCount = await countWithRange(
+        'HistoryEnvironmentalHealth',
+        { surveyingUser, surveyingOrganization: organization },
+        dateRange,
+      );
+      formattedItems = itemsResult.map((record) => ({
+        objectId: record.id,
+        label: record.get('surveyingUser') || 'Unknown User',
+        createdAt: record.createdAt,
+        _parseClass: 'HistoryEnvironmentalHealth',
+      }));
+    } else if (cardType === 'orgEnvironmentalHealth') {
+      const itemsResult = await fetchItemsPage(
+        'HistoryEnvironmentalHealth',
+        ['surveyingUser', 'createdAt'],
+        { surveyingOrganization: organization },
+        dateRange,
+        offset,
+        limit,
+      );
+      totalCount = await countWithRange(
+        'HistoryEnvironmentalHealth',
+        { surveyingOrganization: organization },
+        dateRange,
+      );
+      formattedItems = itemsResult.map((record) => ({
+        objectId: record.id,
+        label: record.get('surveyingUser') || 'Unknown User',
+        createdAt: record.createdAt,
+        _parseClass: 'HistoryEnvironmentalHealth',
+      }));
     } else if (cardType === 'recentActivity') {
-      // Fetch from all form types for current user (all time)
-      const allTimeRange = { start: new Date(0), end: new Date() };
+      // Org-wide activity across all form types, filtered by timeframe
       const multiClassResult = await fetchMultiClassItems(
         [
-          { className: 'SurveyData', fields: ['fname', 'lname', 'createdAt'], equalToParams: { surveyingUser } },
-          { className: 'Vitals', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingUser } },
-          { className: 'HistoryEnvironmentalHealth', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingUser } },
-          { className: 'EvaluationMedical', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingUser } },
-          { className: 'FormResults', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingUser } },
+          { className: 'SurveyData', fields: ['fname', 'lname', 'createdAt'], equalToParams: { surveyingOrganization: organization } },
+          { className: 'Vitals', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingOrganization: organization } },
+          { className: 'HistoryEnvironmentalHealth', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingOrganization: organization } },
+          { className: 'EvaluationMedical', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingOrganization: organization } },
+          { className: 'FormResults', fields: ['surveyingUser', 'createdAt'], equalToParams: { surveyingOrganization: organization } },
         ],
-        allTimeRange,
+        dateRange,
         offset,
         limit,
       );

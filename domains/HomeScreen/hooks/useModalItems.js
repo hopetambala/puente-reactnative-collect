@@ -21,7 +21,7 @@ export default function useModalItems() {
   /**
    * Load a specific page of items
    * @param {string} cardType - 'mySurveys'|'orgSurveys'|'myVitals'|'orgVitals'|'recentActivity'
-   * @param {string} timeFilter - 'today'|'week'|'all'
+   * @param {string} timeFilter - 'last7'|'last30'|'all'
    * @param {boolean} reset - if true, clears items and starts from offset 0
    */
   const loadPage = async (cardType, timeFilter, reset = false) => {

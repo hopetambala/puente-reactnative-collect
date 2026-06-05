@@ -68,7 +68,7 @@ describe('StatCard - RED/GREEN Tests', () => {
     icon: 'clipboard-check',
     count: 42,
     previous: 40,
-    timeFilter: 'week',
+    timeFilter: 'last7',
     onPress: jest.fn(),
     isLoading: false,
     fullWidth: false,
