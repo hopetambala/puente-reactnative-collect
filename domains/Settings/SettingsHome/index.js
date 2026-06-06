@@ -5,7 +5,7 @@ import { spacing, typography } from "@modules/theme";
 import { useAccessibilityContext } from "@modules/theme/useAccessibilityContext";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useContext, useMemo, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
   IconButton,
@@ -118,7 +118,7 @@ function SettingsHome({
   return (
     <View>
       {settingsView === "Settings" && accountSettingsView === "" && (
-        <View>
+        <ScrollView>
           <View style={settingsStyles.settingsContainer}>
             <Text style={{ ...typography.heading2, fontWeight: "bold", color: paperTheme.colors.onSurface, marginTop: spacing.sm }}>
               {I18n.t("accountSettings.accountSettings")}
@@ -265,7 +265,7 @@ function SettingsHome({
           >
             {I18n.t("accountSettings.logout")}
           </Button>
-        </View>
+        </ScrollView>
       )}
       {accountSettingsView !== "" && (
         <View>
