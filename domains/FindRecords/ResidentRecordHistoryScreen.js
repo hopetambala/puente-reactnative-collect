@@ -60,10 +60,9 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   const { resident, fromTab } = route.params;
 
   const handleBack = () => {
+    navigation.goBack();
     if (fromTab) {
       navigation.getParent()?.navigate(fromTab);
-    } else {
-      navigation.goBack();
     }
   };
   const [recordsByType, setRecordsByType] = useState({});

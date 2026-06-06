@@ -501,10 +501,11 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
     });
   });
 
-  describe('RED: fromTab back-navigation regression', () => {
-    test('pressing back with fromTab=Home should call navigation.getParent().navigate(Home) and NOT call goBack', () => {
-      const mockParentNavigate = jest.fn();
-      const mockGoBack = jest.fn();
+  describe('FIX: fromTab back-navigation must pop stack then switch tab', () => {
+    test('pressing back with fromTab=Home must call goBack() first, then getParent().navigate("Home")', () => {
+      const callOrder = [];
+      const mockParentNavigate = jest.fn(() => callOrder.push('parentNavigate'));
+      const mockGoBack = jest.fn(() => callOrder.push('goBack'));
       const mockNavigation = {
         goBack: mockGoBack,
         getParent: jest.fn(() => ({ navigate: mockParentNavigate })),
@@ -513,13 +514,12 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
 
       render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
 
-      // The Button mock renders <button> (non-Text host element); getByText won't
-      // traverse into it, so we locate by children prop directly.
       const [backButton] = screen.UNSAFE_getAllByProps({ children: 'global.back' });
       fireEvent.press(backButton);
 
+      expect(mockGoBack).toHaveBeenCalledTimes(1);
       expect(mockParentNavigate).toHaveBeenCalledWith('Home');
-      expect(mockGoBack).not.toHaveBeenCalled();
+      expect(callOrder).toEqual(['goBack', 'parentNavigate']);
     });
   });
 });
