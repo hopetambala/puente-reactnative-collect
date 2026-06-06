@@ -3,6 +3,12 @@ import HomeScreen from '@app/domains/HomeScreen/index';
 import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
+const mockFetchResidentById = jest.fn(() => Promise.resolve(null));
+
+jest.mock('@impacto-design-system/Extensions/FindResidents/_utils', () => ({
+  fetchResidentById: (...args) => mockFetchResidentById(...args),
+}));
+
 // Mock Text component early to prevent theme loading errors
 jest.mock('@app/impacto-design-system/Base/Text', () => function MockText({ children, style }) {
   // eslint-disable-next-line global-require
@@ -15,18 +21,51 @@ jest.mock('@app/impacto-design-system/Base/Text', () => function MockText({ chil
 jest.mock('../hooks/useHomeStats', () => ({ __esModule: true, default: jest.fn() }));
 
 // Mock child components to keep HomeScreen render simple
-jest.mock('../components/StatCard', () => function MockStatCard({ title, count }) {
+jest.mock('../components/StatCard', () => function MockStatCard({ title, count, onPress }) {
   // eslint-disable-next-line global-require
   const { Text } = require('react-native');
   // eslint-disable-next-line global-require
-  return require('react').createElement(Text, {}, `${title}: ${count}`);
+  return require('react').createElement(Text, { onPress }, `${title}: ${count}`);
 });
 
-jest.mock('../components/StatDetailModal', () => function MockStatDetailModal() {
+jest.mock('../components/StatDetailModal', () => function MockStatDetailModal({ visible, onSurveyDataPress }) {
   // eslint-disable-next-line global-require
   const { Text } = require('react-native');
   // eslint-disable-next-line global-require
-  return require('react').createElement(Text, {}, 'Modal');
+  const ReactLib = require('react');
+  return ReactLib.createElement(
+    ReactLib.Fragment,
+    null,
+    ReactLib.createElement(Text, {}, 'Modal'),
+    visible
+      ? ReactLib.createElement(
+        Text,
+        {
+          accessibilityRole: 'button',
+          onPress: () => {
+            onSurveyDataPress?.({ resident: { objectId: 'resident-123' } });
+          },
+        },
+        'Open resident forms'
+      )
+      : null,
+    visible
+      ? ReactLib.createElement(
+        Text,
+        {
+          accessibilityRole: 'button',
+          onPress: () => {
+            onSurveyDataPress?.({
+              objectId: 'resident-123',
+              _parseClass: 'Survey',
+              label: 'My Survey Item',
+            });
+          },
+        },
+        'Open resident forms (item)'
+      )
+      : null
+  );
 });
 
 jest.mock('../components/CoachmarkOverlay', () => ({
@@ -152,6 +191,7 @@ const mockRefresh = jest.fn();
 describe('HomeScreen Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockFetchResidentById.mockResolvedValue({ objectId: 'resident-123', firstname: 'Fresh Name' });
     useHomeStats.mockReturnValue({
       stats: mockStatsData,
       isLoading: false,
@@ -371,6 +411,75 @@ describe('HomeScreen Component', () => {
     await waitFor(() => {
       // StatCard mock renders title:count; verify a stat renders
       expect(getByText(/Activity across the Organization/i)).toBeDefined();
+    });
+  });
+
+  test('pressing a SurveyData row fetches resident, navigates to Find_Records -> ResidentRecordHistory, and closes modal', async () => {
+    const mockNavigate = jest.fn();
+    const navigation = { navigate: mockNavigate };
+
+    const { getByText, queryByText } = render(<HomeScreen navigation={navigation} />);
+
+    fireEvent.press(getByText(/My Surveys/i));
+    fireEvent.press(getByText('Open resident forms'));
+
+    await waitFor(() => {
+      expect(mockFetchResidentById).toHaveBeenCalledWith('resident-123');
+      expect(mockNavigate).toHaveBeenCalledWith('Find_Records', {
+        screen: 'ResidentRecordHistory',
+        params: {
+          resident: {
+            objectId: 'resident-123',
+            firstname: 'Fresh Name',
+          },
+        },
+      });
+      expect(queryByText('Open resident forms')).toBeNull();
+    });
+  });
+
+  test('shows Alert and does not navigate when fetchResidentById returns null', async () => {
+    // eslint-disable-next-line global-require
+    const { Alert } = require('react-native');
+    jest.spyOn(Alert, 'alert');
+
+    mockFetchResidentById.mockResolvedValueOnce(null);
+
+    const mockNavigate = jest.fn();
+    const navigation = { navigate: mockNavigate };
+
+    const { getByText } = render(<HomeScreen navigation={navigation} />);
+
+    fireEvent.press(getByText(/My Surveys/i));
+    fireEvent.press(getByText('Open resident forms'));
+
+    await waitFor(() => {
+      expect(Alert.alert).toHaveBeenCalled();
+    });
+
+    expect(mockNavigate).not.toHaveBeenCalledWith('Find_Records', expect.anything());
+  });
+
+  test('pressing a SurveyData item (flat payload) fetches resident by item.objectId and navigates', async () => {
+    const mockNavigate = jest.fn();
+    const navigation = { navigate: mockNavigate };
+
+    const { getByText } = render(<HomeScreen navigation={navigation} />);
+
+    fireEvent.press(getByText(/My Surveys/i));
+    fireEvent.press(getByText('Open resident forms (item)'));
+
+    await waitFor(() => {
+      expect(mockFetchResidentById).toHaveBeenCalledWith('resident-123');
+      expect(mockNavigate).toHaveBeenCalledWith('Find_Records', {
+        screen: 'ResidentRecordHistory',
+        params: {
+          resident: {
+            objectId: 'resident-123',
+            firstname: 'Fresh Name',
+          },
+        },
+      });
     });
   });
 });
