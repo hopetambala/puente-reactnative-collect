@@ -501,7 +501,11 @@
     "success": "Siksè!",
     "justSubmitted": "Ou fenk soumèt",
     "form": "fòm!",
-    "forms": "fòm!"
+    "forms": "fòm!",
+    "offline": "San koneksyon",
+    "online": "Anliy",
+    "retry": "Eseye ankò",
+    "sessionExpired": "Sesyon ekspire. Tanpri konekte ankò."
   },
   "languagePicker": {
     "english": "English",

@@ -1,3 +1,4 @@
+import { postObjectsToClass, postObjectsToClassWithRelation } from "@app/services/parse/crud";
 import {
   postAssetForm,
   postHousehold,
@@ -5,8 +6,9 @@ import {
   postSupplementaryForm,
 } from "@modules/cached-resources/Post/post";
 import checkOnlineStatus from "@modules/offline";
+import { fulfillWithTimeLimit } from "@modules/utils";
 
-jest.mock("../../../offline", () => jest.fn());
+jest.mock("@modules/offline", () => jest.fn());
 
 jest.mock("@modules/async-storage", () => ({
   getData: jest.fn().mockResolvedValue(null),
@@ -33,7 +35,6 @@ describe("postSupplementaryAssetForm", () => {
   });
 
   test("should throw when fulfillWithTimeLimit returns a null value, not silently return null", async () => {
-    const { fulfillWithTimeLimit } = require("@modules/utils");
     checkOnlineStatus.mockResolvedValue(true);
     fulfillWithTimeLimit.mockResolvedValue({ timedOut: false, error: null, value: null });
 
@@ -47,7 +48,6 @@ describe("postSupplementaryAssetForm", () => {
 });
 
 describe("timeout protection", () => {
-  const { postObjectsToClass, postObjectsToClassWithRelation } = require("@app/services/parse/crud");
   const RACE_TIMEOUT_MS = 200;
   const TIMED_OUT_SENTINEL = "TIMED_OUT";
 
@@ -63,9 +63,9 @@ describe("timeout protection", () => {
     const resultPromise = postAssetForm({ localObject: { objectId: null } });
     const raceResult = await Promise.race([
       resultPromise.then(() => "RESOLVED").catch(() => "THREW"),
-      new Promise((resolve) =>
-        setTimeout(() => resolve(TIMED_OUT_SENTINEL), RACE_TIMEOUT_MS)
-      ),
+      new Promise((resolve) => {
+        setTimeout(() => resolve(TIMED_OUT_SENTINEL), RACE_TIMEOUT_MS);
+      }),
     ]);
 
     // The function should have thrown (caught as "THREW") rather than hanging
@@ -80,9 +80,9 @@ describe("timeout protection", () => {
     const resultPromise = postHousehold({ localObject: { objectId: null } });
     const raceResult = await Promise.race([
       resultPromise.then(() => "RESOLVED").catch(() => "THREW"),
-      new Promise((resolve) =>
-        setTimeout(() => resolve(TIMED_OUT_SENTINEL), RACE_TIMEOUT_MS)
-      ),
+      new Promise((resolve) => {
+        setTimeout(() => resolve(TIMED_OUT_SENTINEL), RACE_TIMEOUT_MS);
+      }),
     ]);
 
     // The function should have thrown (caught as "THREW") rather than hanging
@@ -100,9 +100,9 @@ describe("timeout protection", () => {
     });
     const raceResult = await Promise.race([
       resultPromise.then(() => "RESOLVED").catch(() => "THREW"),
-      new Promise((resolve) =>
-        setTimeout(() => resolve(TIMED_OUT_SENTINEL), RACE_TIMEOUT_MS)
-      ),
+      new Promise((resolve) => {
+        setTimeout(() => resolve(TIMED_OUT_SENTINEL), RACE_TIMEOUT_MS);
+      }),
     ]);
 
     // The function should have thrown (caught as "THREW") rather than hanging indefinitely
@@ -120,9 +120,9 @@ describe("timeout protection", () => {
     });
     const raceResult = await Promise.race([
       resultPromise.then(() => "RESOLVED").catch(() => "THREW"),
-      new Promise((resolve) =>
-        setTimeout(() => resolve(TIMED_OUT_SENTINEL), RACE_TIMEOUT_MS)
-      ),
+      new Promise((resolve) => {
+        setTimeout(() => resolve(TIMED_OUT_SENTINEL), RACE_TIMEOUT_MS);
+      }),
     ]);
 
     // The function should have thrown (caught as "THREW") rather than hanging indefinitely

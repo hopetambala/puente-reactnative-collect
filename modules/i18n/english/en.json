@@ -501,7 +501,11 @@
     "success": "Success!",
     "justSubmitted": "You have just submitted",
     "form": "form!",
-    "forms": "forms!"
+    "forms": "forms!",
+    "offline": "Offline",
+    "online": "Online",
+    "retry": "Retry",
+    "sessionExpired": "Session expired. Please sign in again."
   },
   "languagePicker": {
     "english": "English",

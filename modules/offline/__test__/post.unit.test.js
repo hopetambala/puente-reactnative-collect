@@ -1,12 +1,12 @@
+import { uploadOfflineForms } from "@app/services/parse/crud";
+import { deleteData,getData } from "@modules/async-storage";
+import getAWSLogger from "@modules/aws-logging/logger";
 import {
   postIdentificationForm,
   postSupplementaryForm,
 } from "@modules/cached-resources";
-import { postOfflineForms, cleanupPostedOfflineForms } from "@modules/offline/post";
+import { cleanupPostedOfflineForms,postOfflineForms } from "@modules/offline/post";
 
-import getAWSLogger from "@modules/aws-logging/logger";
-import { getData, deleteData } from "@modules/async-storage";
-import { uploadOfflineForms } from "@app/services/parse/crud";
 import checkOnlineStatus from "..";
 import {
   createOfflineUserMockData,

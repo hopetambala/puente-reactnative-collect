@@ -6,8 +6,6 @@ import {
   cleanupPostedOfflineForms,
   postOfflineForms,
 } from "@modules/offline/post";
-
-import { handleUpload } from "./upload";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
@@ -18,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import FormCounts from "./FormCounts";
 import { createHeaderStyles } from "./index.styles";
+import { handleUpload } from "./upload";
 
 // Spec §5.5 STANDARD: drawer content slides in from top when opened
 const DrawerEntrance = new Keyframe({

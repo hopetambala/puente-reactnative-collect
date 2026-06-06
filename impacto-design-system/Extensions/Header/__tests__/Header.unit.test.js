@@ -1,5 +1,6 @@
+/* eslint-disable global-require */
+import { act, render, waitFor } from "@testing-library/react-native";
 import React from "react";
-import { render, act, waitFor } from "@testing-library/react-native";
 
 jest.mock("react-native-paper", () => {
   const mockReact = require("react");
@@ -32,7 +33,6 @@ jest.mock("react-native-reanimated", () => {
       View: ({ children }) => mockReact.createElement(mockRN.View, null, children),
     },
     Keyframe: class {
-      constructor() {}
       duration() {
         return this;
       }
@@ -94,7 +94,7 @@ jest.mock("@modules/utils/animations", () => ({
   MOTION_TOKENS: { duration: { base: 300 } },
 }));
 
-const Header = require("../index").default;
+const Header = require("@impacto-design-system/Extensions/Header").default;
 
 // Helper: configure getData to return a user and optional key overrides
 const setupGetDataWithUser = (overrides = {}) => {
@@ -162,8 +162,8 @@ describe("Header component", () => {
     if (resolvers[4]) resolvers[4](null);  // offlineAssetSupForms
 
     // Flush microtasks so the async continuation executes.
-    await new Promise((res) => setImmediate(res));
-    await new Promise((res) => setImmediate(res));
+    await new Promise((res) => { setImmediate(res); });
+    await new Promise((res) => { setImmediate(res); });
 
     // With the cancellation guard the spy is never reached → 0 calls.
     // Without the guard the spy fires → test fails (RED).

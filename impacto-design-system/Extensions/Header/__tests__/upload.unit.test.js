@@ -1,4 +1,4 @@
-import { handleUpload } from "../upload";
+import { handleUpload } from "@impacto-design-system/Extensions/Header/upload";
 
 describe("handleUpload", () => {
   it("should not cleanup offline forms when postOfflineForms returns No Internet Access", async () => {

@@ -1,5 +1,5 @@
+import { deleteData,getAllData, getData, storeData } from '@modules/async-storage/index';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { storeData, getData, getAllData, deleteData } from '../index';
 
 jest.mock('@react-native-async-storage/async-storage');
 
