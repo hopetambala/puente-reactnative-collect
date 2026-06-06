@@ -164,9 +164,9 @@ function StatDetailModal({
           {metaText}
         </Text>
         {isSurveyData ? (
-          <View style={styles.affordanceContainer} accessibilityLabel={`Open survey details for ${item.label}`}>
+          <View style={styles.affordanceContainer} accessibilityLabel={`Open Collection History for ${item.label}`}>
             <Text style={styles.affordanceText}>
-              Open survey details
+              Open Collection History
             </Text>
             <MaterialCommunityIcons
               name="chevron-right"

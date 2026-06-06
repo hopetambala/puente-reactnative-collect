@@ -125,14 +125,14 @@ describe('StatDetailModal', () => {
     );
 
     expect(screen.getByRole('button', { name: /initial household survey/i })).toBeTruthy();
-    expect(screen.getByLabelText(/open survey details/i)).toBeTruthy();
+    expect(screen.getByLabelText(/open collection history/i)).toBeTruthy();
 
     expect(screen.queryByRole('button', { name: /bp check/i })).toBeNull();
     fireEvent.press(screen.getByText('BP check'));
-    expect(screen.queryByLabelText(/open survey details for bp check/i)).toBeNull();
+    expect(screen.queryByLabelText(/open collection history for bp check/i)).toBeNull();
   });
 
-  it('displays a chevron-right icon next to "Open survey details" to signal the row is tappable', () => {
+  it('displays a chevron-right icon next to "Open Collection History" to signal the row is tappable', () => {
     render(
       <StatDetailModal
         visible

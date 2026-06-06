@@ -501,6 +501,26 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
     });
   });
 
+  describe('FIX: identification record always shown even with no supplementary forms', () => {
+    test('renders identification section and noSubmissionsYet note when resident has no supplementary forms', async () => {
+      mockFind.mockResolvedValue([]); // All 4 supplementary queries return empty
+      const mockNavigation = { goBack: jest.fn(), dispatch: jest.fn(), getParent: jest.fn() };
+      const mockRoute = { params: { resident: mockResident } };
+
+      render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
+
+      await waitFor(() => {
+        // Identification section MUST be visible — not replaced by the empty state
+        expect(screen.getByText('residentHistory.identification')).toBeDefined();
+        // Informational note about no supplementary forms should appear
+        expect(screen.getByText(/residentHistory\.noSubmissionsYet/)).toBeDefined();
+      });
+
+      // The hard "no records found" heading from the old early-return must NOT appear
+      expect(screen.queryByText('residentHistory.noRecordsFound')).toBeNull();
+    });
+  });
+
   describe('FIX: fromTab back-navigation navigates to originating tab then resets FindRecords stack', () => {
     test('pressing back with fromTab=Home calls getParent().navigate("Home") then dispatch(RESET to FindRecordsHome), not goBack()', () => {
       const callOrder = [];

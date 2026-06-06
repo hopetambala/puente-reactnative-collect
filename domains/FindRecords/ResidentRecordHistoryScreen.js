@@ -222,23 +222,8 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
     .filter((key) => recordsByType[key])
     .map((key) => [key, recordsByType[key]]);
 
-  // SurveyData is always present (the resident's identification record).
-  // Show empty state only when there are no supplementary form submissions.
-  const hasRecords = Object.keys(recordsByType).length > 1;
-
-  if (!hasRecords) {
-    return (
-      <SafeAreaView edges={['top']} style={{ flex: 1, padding: 20, backgroundColor: theme.colors.background }}>
-        <Button icon="arrow-left" onPress={handleBack} style={{ marginBottom: 8 }}>{I18n.t('global.back')}</Button>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: theme.colors.onBackground }}>{I18n.t('residentHistory.noRecordsFound')}</Text>
-          <Text style={{ textAlign: 'center', color: theme.colors.onSurfaceVariant }}>
-            {I18n.t('residentHistory.noSubmissionsYet', { name: residentName })}
-          </Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  // True only when supplementary forms exist beyond the always-present SurveyData record.
+  const hasSupplementaryRecords = Object.keys(recordsByType).length > 1;
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: theme.colors.background }}>
@@ -293,6 +278,12 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
               </View>
             </Animated.View>
           ))}
+
+          {!hasSupplementaryRecords && (
+            <Text style={{ textAlign: 'center', color: theme.colors.onSurfaceVariant, marginTop: 16 }}>
+              {I18n.t('residentHistory.noSubmissionsYet', { name: residentName })}
+            </Text>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
