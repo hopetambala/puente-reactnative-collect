@@ -45,10 +45,11 @@ function OfflineData({
           initialValues={{}}
           onSubmit={async (values) => {
             await cacheResidentDataMulti(values.communityname);
-            await getData("residentData").then((forms) => {
+            const forms = await getData("residentData").catch(() => null);
+            if (forms) {
               setSubmittedForms(Object.keys(forms).length);
               setCacheSuccess(true);
-            });
+            }
           }}
         >
           {(formikProps) => (

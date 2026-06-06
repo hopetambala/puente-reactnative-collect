@@ -2,14 +2,28 @@ import useModalItems from '@app/domains/HomeScreen/hooks/useModalItems';
 import Text from '@app/impacto-design-system/Base/Text';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import I18n from '@modules/i18n';
+import { spacing } from '@modules/theme/spacing';
+import { typography } from '@modules/theme/typography';
 import { MOTION_TOKENS } from '@modules/utils/animations';
 import React, { useEffect } from 'react';
 import {
-FlatList,   Modal, Pressable,
-StyleSheet, useColorScheme, View, } from 'react-native';
-import { Button,useTheme } from 'react-native-paper';
+  FlatList, Modal, Pressable,
+  StyleSheet, useColorScheme, View,
+} from 'react-native';
+import { Button, useTheme } from 'react-native-paper';
 import Animated, { Keyframe } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const formatDate = (date) => {
+  if (!date) return 'N/A';
+  const d = new Date(date);
+  return d.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+};
 
 // Spec §5.4: Bottom-up staggered row entrance
 const RowEntrance = new Keyframe({
@@ -27,6 +41,7 @@ function StatDetailModal({
   title,
   cardType,
   timeFilter,
+  onSurveyDataPress,
 }) {
   const theme = useTheme();
   const colorScheme = useColorScheme();
@@ -103,20 +118,25 @@ function StatDetailModal({
       fontSize: 14,
       textAlign: 'center',
     },
+    affordanceContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: spacing.sm,
+    },
+    affordanceText: {
+      fontSize: typography.label2.fontSize,
+      fontWeight: typography.label2.fontWeight,
+      color: theme.colors.primary,
+      marginRight: spacing.xs,
+    },
+    affordanceIcon: {
+      color: theme.colors.primary,
+    },
   });
 
-  const formatDate = (date) => {
-    if (!date) return 'N/A';
-    const d = new Date(date);
-    return d.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-    });
-  };
-
   const renderItem = ({ item, index }) => {
+    // eslint-disable-next-line no-underscore-dangle
+    const isSurveyData = item?._parseClass === 'SurveyData';
     let metaText = '';
     if (cardType === 'recentActivity') {
       // eslint-disable-next-line no-underscore-dangle
@@ -125,17 +145,12 @@ function StatDetailModal({
       metaText = `${formatDate(item.createdAt)}`;
     }
 
-    return (
-      <Animated.View
-        style={styles.itemRow}
-        entering={RowEntrance
-          .delay(Math.min(index * 50, 300))
-          .duration(MOTION_TOKENS.duration.base)}
-      >
+    const rowContent = (
+      <>
         <Text
           style={[
             styles.itemLabel,
-            { color: isDark ? theme.colors.onSurface : theme.colors.onSurface },
+            { color: theme.colors.onSurface },
           ]}
         >
           {item.label}
@@ -143,11 +158,38 @@ function StatDetailModal({
         <Text
           style={[
             styles.itemMeta,
-            { color: isDark ? theme.colors.onSurfaceVariant : theme.colors.onSurfaceVariant },
+            { color: theme.colors.onSurfaceVariant },
           ]}
         >
           {metaText}
         </Text>
+        {isSurveyData ? (
+          <View style={styles.affordanceContainer} accessibilityLabel={`Open survey details for ${item.label}`}>
+            <Text style={styles.affordanceText}>
+              Open survey details
+            </Text>
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={16}
+              style={styles.affordanceIcon}
+            />
+          </View>
+        ) : null}
+      </>
+    );
+
+    return (
+      <Animated.View
+        style={styles.itemRow}
+        entering={RowEntrance
+          .delay(Math.min(index * 50, 300))
+          .duration(MOTION_TOKENS.duration.base)}
+      >
+        {isSurveyData ? (
+          <Pressable accessibilityRole="button" onPress={() => onSurveyDataPress?.(item)}>
+            {rowContent}
+          </Pressable>
+        ) : rowContent}
       </Animated.View>
     );
   };
@@ -202,7 +244,7 @@ function StatDetailModal({
             <Text
               style={[
                 styles.emptyText,
-                { color: isDark ? theme.colors.onSurfaceVariant : theme.colors.onSurfaceVariant },
+                { color: theme.colors.onSurfaceVariant },
               ]}
             >
               {isLoading ? 'Loading...' : 'No items found'}

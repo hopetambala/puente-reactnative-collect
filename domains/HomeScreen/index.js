@@ -1,17 +1,19 @@
 import { UserContext } from '@app/context/auth.context';
 import Text from '@app/impacto-design-system/Base/Text';
+import { fetchResidentById } from '@impacto-design-system/Extensions/FindResidents/_utils';
 import I18n from '@modules/i18n';
 import { spacing, typography } from '@modules/theme';
 import { MOTION_TOKENS } from '@modules/utils/animations';
-import React, { useContext,useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
+  Alert,
   RefreshControl,
   ScrollView,
   StyleSheet,
   useColorScheme,
   View,
 } from 'react-native';
-import { SegmentedButtons,useTheme } from 'react-native-paper';
+import { SegmentedButtons, useTheme } from 'react-native-paper';
 import Animated, { Keyframe } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -26,7 +28,7 @@ const SectionEntrance = new Keyframe({
   100: { opacity: 1, transform: [{ translateY: 0 }] },
 });
 
-function HomeScreen() {
+function HomeScreen({ navigation }) {
   const theme = useTheme();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -38,6 +40,20 @@ function HomeScreen() {
 
   const [selectedCard, setSelectedCard] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+
+  const handleSurveyDataPress = async (item) => {
+    const residentId = item?.resident?.objectId ?? item?.objectId;
+    const fetched = await fetchResidentById(residentId);
+    if (!fetched) {
+      Alert.alert('Error', 'Resident not found.');
+      return;
+    }
+    navigation?.navigate('Find_Records', {
+      screen: 'ResidentRecordHistory',
+      params: { resident: fetched, fromTab: 'Home' },
+    });
+    setSelectedCard(null);
+  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -53,7 +69,7 @@ function HomeScreen() {
     scrollContent: {
       paddingHorizontal: 0,
       paddingTop: 0,
-      paddingBottom: 32,
+      paddingBottom: spacing.xxl,
     },
     welcomeSection: {
       paddingHorizontal: spacing.lg,
@@ -61,18 +77,18 @@ function HomeScreen() {
     greeting: {
       fontSize: 16,
       fontWeight: '500',
-      marginBottom: 4,
+      marginBottom: spacing.xs,
     },
     organization: {
       fontSize: 14,
       fontWeight: '400',
-      marginBottom: 16,
+      marginBottom: spacing.lg,
     },
     offlineBanner: {
-      marginBottom: 16,
+      marginBottom: spacing.lg,
       marginHorizontal: spacing.lg,
-      padding: 12,
-      borderRadius: 8,
+      padding: spacing.md,
+      borderRadius: spacing.radiusMedium,
       backgroundColor: isDark ? '#ff9800' : '#fff3e0',
     },
     offlineText: {
@@ -85,7 +101,7 @@ function HomeScreen() {
       paddingVertical: spacing.xs,
     },
     recentActivityRow: {
-      marginBottom: 12,
+      marginBottom: spacing.md,
       paddingHorizontal: spacing.lg,
     },
     grid: {
@@ -251,6 +267,7 @@ function HomeScreen() {
       <StatDetailModal
         visible={!!selectedCard}
         onClose={() => setSelectedCard(null)}
+        onSurveyDataPress={handleSurveyDataPress}
         title={selectedCard ? selectedCard.replace(/([A-Z])/g, ' $1').trim() : ''}
         cardType={selectedCard}
         timeFilter={timeFilter}

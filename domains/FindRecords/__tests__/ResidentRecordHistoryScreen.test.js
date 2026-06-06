@@ -5,7 +5,7 @@
 /* eslint-disable no-promise-executor-return, global-require */
 
 import ResidentRecordHistoryScreen from '@app/domains/FindRecords/ResidentRecordHistoryScreen';
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
 // Mock Parse query
@@ -498,6 +498,28 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
         expect(screen.getByText(/Dog Intake Form/)).toBeDefined();
         expect(screen.getByText(/Cat Adoption Survey/)).toBeDefined();
       });
+    });
+  });
+
+  describe('RED: fromTab back-navigation regression', () => {
+    test('pressing back with fromTab=Home should call navigation.getParent().navigate(Home) and NOT call goBack', () => {
+      const mockParentNavigate = jest.fn();
+      const mockGoBack = jest.fn();
+      const mockNavigation = {
+        goBack: mockGoBack,
+        getParent: jest.fn(() => ({ navigate: mockParentNavigate })),
+      };
+      const mockRoute = { params: { resident: mockResident, fromTab: 'Home' } };
+
+      render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
+
+      // The Button mock renders <button> (non-Text host element); getByText won't
+      // traverse into it, so we locate by children prop directly.
+      const [backButton] = screen.UNSAFE_getAllByProps({ children: 'global.back' });
+      fireEvent.press(backButton);
+
+      expect(mockParentNavigate).toHaveBeenCalledWith('Home');
+      expect(mockGoBack).not.toHaveBeenCalled();
     });
   });
 });

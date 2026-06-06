@@ -55,12 +55,15 @@ const postIdentificationForm = async (postParams) => {
 const postAssetForm = async (postParams) => {
   const isConnected = await checkOnlineStatus();
   if (isConnected) {
-    return postObjectsToClass(postParams)
-      .then((asset) => {
-        const assetSanitized = JSON.parse(JSON.stringify(asset));
-        return assetSanitized;
-      })
-      .catch((error) => { throw error; });
+    const result = await fulfillWithTimeLimit(
+      POST_TIMEOUT_MS,
+      postObjectsToClass(postParams),
+      null
+    );
+    if (result.timedOut) throw new Error("postAssetForm timed out");
+    if (result.error) throw result.error;
+    if (!result.value) throw new Error("postAssetForm returned null");
+    return JSON.parse(JSON.stringify(result.value));
   }
   return getData("offlineAssetIDForms").then(async (offlineData) => {
     const id = `AssetID-${generateRandomID()}`;
@@ -74,15 +77,22 @@ const postAssetForm = async (postParams) => {
     }
 
     const idData = [assetIdParams];
-    const storedData = await storeData(idData, "offlineAssetIDForms");
-    return storedData;
+    return storeData(idData, "offlineAssetIDForms");
   });
 };
 
 const postSupplementaryForm = async (postParams) => {
   const isConnected = await checkOnlineStatus();
   if (isConnected && !postParams?.parseParentClassID?.includes("PatientID-")) {
-    return postObjectsToClassWithRelation(postParams);
+    const result = await fulfillWithTimeLimit(
+      POST_TIMEOUT_MS,
+      postObjectsToClassWithRelation(postParams),
+      null
+    );
+    if (result.timedOut) throw new Error("postSupplementaryForm timed out");
+    if (result.error) throw result.error;
+    if (!result.value) throw new Error("postSupplementaryForm returned null");
+    return result.value;
   }
 
   return getData("offlineSupForms").then(async (supForms) => {
@@ -107,8 +117,16 @@ const postSupplementaryForm = async (postParams) => {
 const postSupplementaryAssetForm = async (postParams) => {
   const isConnected = await checkOnlineStatus();
 
-  if (isConnected && !postParams.parseParentClassID.includes("AssetID-")) {
-    return postObjectsToClassWithRelation(postParams);
+  if (isConnected && postParams?.parseParentClassID && !postParams.parseParentClassID.includes("AssetID-")) {
+    const result = await fulfillWithTimeLimit(
+      POST_TIMEOUT_MS,
+      postObjectsToClassWithRelation(postParams),
+      null
+    );
+    if (result.timedOut) throw new Error("postSupplementaryAssetForm timed out");
+    if (result.error) throw result.error;
+    if (!result.value) throw new Error("postSupplementaryAssetForm returned null");
+    return result.value;
   }
   return getData("offlineAssetSupForms").then(async (supForms) => {
     if (supForms) {
@@ -129,9 +147,15 @@ const postHousehold = async (postParams) => {
   const isConnected = await checkOnlineStatus();
 
   if (isConnected) {
-    return postObjectsToClass(postParams)
-      .then((result) => result.id)
-      .catch((error) => { throw error; });
+    const result = await fulfillWithTimeLimit(
+      POST_TIMEOUT_MS,
+      postObjectsToClass(postParams),
+      null
+    );
+    if (result.timedOut) throw new Error("postHousehold timed out");
+    if (result.error) throw result.error;
+    if (!result.value) throw new Error("postHousehold returned null");
+    return result.value.id;
   }
 
   return getData("offlineHouseholds").then(async (offlineHouseholds) => {

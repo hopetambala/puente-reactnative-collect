@@ -28,11 +28,7 @@ const checkOnlineStatus = () => {
       NetInfo.fetch().then(
         (state) => {
           // check if signal strength is strong enough to support online functionality
-          if (
-            state.isConnected &&
-            state.details.strength !== undefined &&
-            state.details.strength > 10
-          ) {
+          if (state.isConnected && (state.details?.strength ?? 0) > 10) {
             getAWSLogger().log({
               type: "CHECK_ONLINE_STATUS_SUCCESS_TIMER_SUCCESS",
               duration: new Date() - startTime,

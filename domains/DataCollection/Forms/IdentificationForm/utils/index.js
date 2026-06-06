@@ -8,7 +8,7 @@ const backgroundPostPatient = () => {
   checkOnlineStatus().then((isConnected) => {
     // only post if connected to internet
     if (isConnected) {
-      getAllData().then((allAsyncData) => {
+      getAllData().catch(() => []).then((allAsyncData) => {
         // contains all the available keys
         const allKeys = allAsyncData.map((a) => a[0]);
         allKeys.forEach((item) => {

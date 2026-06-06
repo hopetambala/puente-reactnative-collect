@@ -16,44 +16,46 @@ function GetPinCode({ navigation }) {
     <Formik
       initialValues={{ pincode: "" }}
       onSubmit={(values, actions) => {
-        getData("pincode").then((pincode) => {
-          if (values.pincode === pincode) {
-            // IF ONLINE, otherwise just log in
-            checkOnlineStatus().then((connected) => {
-              if (connected) {
-                getData("currentUser").then(
-                  (asyncUser) => {
-                    retrieveSignInFunction(
-                      asyncUser.username,
-                      asyncUser.credentials.password
-                    ).then((signedInUser) => {
-                      populateCache(signedInUser);
-                    });
-                    navigation.navigate("Root");
-                  },
-                  () => {
-                    // error with stored currentUser
-                  }
-                );
-              } else {
-                navigation.navigate("Root");
-              }
-            });
-          } else {
-            setFailedAttempts(failedAttempts + 1);
-            // go back to sign in on 3rd attempt
-            if (failedAttempts >= 3) {
-              deleteData("currentUser");
-              deleteData("pincode");
-              deleteData("organization");
-              navigation.navigate("Sign In");
-            } else if (failedAttempts === 2) {
-              alert(I18n.t("pinCode.getPinCode.incorrect1")); // eslint-disable-line
+        getData("pincode")
+          .then((pincode) => {
+            if (values.pincode === pincode) {
+              // IF ONLINE, otherwise just log in
+              checkOnlineStatus().then((connected) => {
+                if (connected) {
+                  getData("currentUser").then(
+                    (asyncUser) => {
+                      retrieveSignInFunction(
+                        asyncUser.username,
+                        asyncUser.credentials.password
+                      ).then((signedInUser) => {
+                        populateCache(signedInUser);
+                      });
+                      navigation.navigate("Root");
+                    },
+                    () => {
+                      // error with stored currentUser
+                    }
+                  );
+                } else {
+                  navigation.navigate("Root");
+                }
+              });
             } else {
-              alert(I18n.t("pinCode.getPinCode.incorrect2")); // eslint-disable-line
+              setFailedAttempts(failedAttempts + 1);
+              // go back to sign in on 3rd attempt
+              if (failedAttempts >= 3) {
+                deleteData("currentUser");
+                deleteData("pincode");
+                deleteData("organization");
+                navigation.navigate("Sign In");
+              } else if (failedAttempts === 2) {
+                alert(I18n.t("pinCode.getPinCode.incorrect1")); // eslint-disable-line
+              } else {
+                alert(I18n.t("pinCode.getPinCode.incorrect2")); // eslint-disable-line
+              }
             }
-          }
-        });
+          })
+          .catch(() => {});
 
         setTimeout(() => {
           actions.setSubmitting(false);

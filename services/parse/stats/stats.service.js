@@ -430,8 +430,12 @@ async function fetchCardItems(
   limit,
 ) {
   try {
-    if (!cardType || !surveyingUser || !timeFilter || offset === undefined || !limit) {
+    if (!cardType || !timeFilter || offset === undefined || !limit) {
       throw new Error('Missing required parameters');
+    }
+    const userScopedCardTypes = ['mySurveys', 'myVitals', 'myEnvironmentalHealth'];
+    if (userScopedCardTypes.includes(cardType) && !surveyingUser) {
+      throw new Error(`Missing required parameters: surveyingUser required for ${cardType}`);
     }
     // organization is required only for org-scoped card types
     const organizationRequiredCardTypes = ['mySurveys', 'orgSurveys', 'myVitals', 'orgVitals', 'recentActivity', 'myEnvironmentalHealth', 'orgEnvironmentalHealth'];

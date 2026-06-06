@@ -7,8 +7,6 @@ import { Button, Text, useTheme } from "react-native-paper";
 import Animated, { Keyframe } from "react-native-reanimated";
 
 import Demographics from "./Demographics";
-import Forms from "./Forms";
-import Household from "./Housheold";
 
 // Spec §1 MEGA: profile picture pops in with energy on detail screen open
 const ProfileEntrance = new Keyframe({
@@ -40,9 +38,6 @@ function ResidentPage({
   const theme = useTheme();
   const styles = createStyles(theme);
   const [pictureUrl, setPictureUrl] = useState();
-  const [demographics, setDemographics] = useState(true);
-  const [forms, setForms] = useState(false);
-  const [household, setHousehold] = useState(false);
 
   useEffect(() => {
     const pic = picture;
@@ -51,23 +46,6 @@ function ResidentPage({
     }
   }, []);
 
-  const showDemographics = () => {
-    setForms(false);
-    setHousehold(false);
-    setDemographics(true);
-  };
-
-  const showForms = () => {
-    setHousehold(false);
-    setDemographics(false);
-    setForms(true);
-  };
-
-  const showHousehold = () => {
-    setForms(false);
-    setDemographics(false);
-    setHousehold(true);
-  };
   return (
     <ScrollView style={{ backgroundColor: theme.colors.background, flex: 1 }}>
       <Button icon="arrow-left" width={100} onPress={() => setSelectPerson()}>
@@ -98,46 +76,19 @@ function ResidentPage({
         <Button
           style={styles.navigationButton}
           labelStyle={styles.navigationButtonText}
-          onPress={() => showDemographics()}
         >
           {I18n.t("findResident.residentPage.household.demographics")}
         </Button>
-        <Button
-          style={styles.navigationButton}
-          labelStyle={styles.navigationButtonText}
-          onPress={() => showForms(true)}
-        >
-          {I18n.t("findResident.residentPage.household.forms")}
-        </Button>
-        <Button
-          style={styles.navigationButton}
-          labelStyle={styles.navigationButtonText}
-          onPress={() => showHousehold(true)}
-        >
-          {I18n.t("findResident.residentPage.household.household")}
-        </Button>
       </View>
       <View style={styles.horizontalLine} />
-      {demographics && (
-        <Demographics
-          dob={selectPerson.dob}
-          city={city}
-          community={selectPerson.communityname}
-          province={selectPerson.province}
-          license={selectPerson.license}
-          selectPerson={selectPerson}
-        />
-      )}
-      {forms && (
-        <Forms
-          puenteForms={puenteForms}
-          navigateToNewRecord={navigateToNewRecord}
-          surveyee={selectPerson}
-          setSurveyee={setSurveyee}
-          setView={setView}
-        />
-      )}
-      {household && <Household />}
+      <Demographics
+        dob={selectPerson.dob}
+        city={city}
+        community={selectPerson.communityname}
+        province={selectPerson.province}
+        license={selectPerson.license}
+        selectPerson={selectPerson}
+      />
       {navigateToRecordHistory && (
         <Button
           icon="history"

@@ -12,15 +12,14 @@ function Maps({ organization }) {
     let isSubscribed = true;
 
     async function fetchRegion() {
-      await getData("homeMapRegion").then((data) => {
-        if (isSubscribed) {
-          if (!data) {
-            handleLocation();
-          } else {
-            setRegion(data);
-          }
+      const data = await getData("homeMapRegion").catch(() => null);
+      if (isSubscribed) {
+        if (!data) {
+          handleLocation();
+        } else {
+          setRegion(data);
         }
-      });
+      }
     }
 
     fetchRegion();

@@ -117,7 +117,7 @@ function SignIn({ navigation, route }) {
 
   useEffect(() => {
     async function checkLanguage() {
-      const currentLocale = await getData("locale");
+      const currentLocale = await getData("locale").catch(() => null);
 
       if (
         currentLocale !== "en" &&

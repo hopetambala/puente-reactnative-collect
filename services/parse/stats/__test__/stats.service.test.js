@@ -74,5 +74,13 @@ describe('Stats Service - TDD RED/GREEN', () => {
       expect(result).toHaveProperty('hasMore');
       expect(Array.isArray(result.items)).toBe(true);
     });
+
+    test('should resolve for orgSurveys when surveyingUser is empty string', async () => {
+      // orgSurveys only uses organization in its queries — surveyingUser is irrelevant
+      // Bug: the guard `!surveyingUser` incorrectly throws for org-scoped card types
+      await expect(
+        statsService.fetchCardItems('orgSurveys', '', 'SomeOrg', 'last7', 0, 10)
+      ).resolves.toHaveProperty('items');
+    });
   });
 });

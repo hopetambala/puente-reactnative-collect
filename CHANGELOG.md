@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [15.5.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.4.1...v15.5.0) (2026-06-06)
+
+
+### New Features
+
+* add claude code that's appropriate ([3a8b0dd](https://github.com/hopetambala/puente-reactnative-collect/commit/3a8b0dd4b6a41bce8c0f0e3fe3ac4ed8d17acc0f))
+* update homescreen and fix onboarding issues ([f2f9084](https://github.com/hopetambala/puente-reactnative-collect/commit/f2f90848dffc5ea4d633fbd5ce44a3c45c617f4c))
+
+
+### Bug fixes
+
+* address auth, header, offline post, and stats service issues ([e74167b](https://github.com/hopetambala/puente-reactnative-collect/commit/e74167b28442331fc9135a21d23066e19cd837c2))
+* **offline:** restore offline data collection and upload flow ([6def89f](https://github.com/hopetambala/puente-reactnative-collect/commit/6def89fef02276405275916d674d78b930886e42))
+
 ### [15.4.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.4.0...v15.4.1) (2026-05-06)
 
 

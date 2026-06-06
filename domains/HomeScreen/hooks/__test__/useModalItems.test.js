@@ -251,6 +251,30 @@ describe('useModalItems Hook', () => {
     });
   });
 
+  test('does not call fetchCardItems when user has no id or objectId', async () => {
+    const UnauthWrapper = ({ children }) => {
+      const value = useMemo(
+        () => ({
+          user: {},
+        }),
+        []
+      );
+      return (
+        <UserContext.Provider value={value}>
+          {children}
+        </UserContext.Provider>
+      );
+    };
+
+    const { result } = renderHook(() => useModalItems(), { wrapper: UnauthWrapper });
+
+    await act(async () => {
+      result.current.loadMore('orgSurveys', 'last7');
+    });
+
+    expect(statsService.fetchCardItems).not.toHaveBeenCalled();
+  });
+
   test('handles mixed-class items from recentActivity', async () => {
     const mixedItems = [
       { objectId: '1', label: 'John Doe', _parseClass: 'SurveyData' },

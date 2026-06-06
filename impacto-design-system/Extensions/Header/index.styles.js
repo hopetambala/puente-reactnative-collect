@@ -70,6 +70,18 @@ export const createHeaderStyles = (theme) => {
     buttonContainer: {
       marginVertical: spacing.sm,
     },
+    syncStatusText: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+    },
+    syncTimestampText: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      paddingHorizontal: spacing.md,
+      paddingBottom: spacing.xs,
+    },
     // FormCounts styles
     headerFormText: {
       ...typography.heading2,
