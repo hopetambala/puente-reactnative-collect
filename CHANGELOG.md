@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.5.2](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.1...v15.5.2) (2026-06-06)
+
+
+### Bug fixes
+
+* find records going back and such ([b20da0e](https://github.com/hopetambala/puente-reactnative-collect/commit/b20da0ecb93b5818039b8390e92f19b4670cb250))
+* scroll view in settings page ([6fd41ed](https://github.com/hopetambala/puente-reactnative-collect/commit/6fd41ed355be234e81f019b79bb04bb1c461ce26))
+
 ### [15.5.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.0...v15.5.1) (2026-06-06)
 
 
