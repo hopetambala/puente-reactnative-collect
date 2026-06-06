@@ -501,25 +501,61 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
     });
   });
 
-  describe('RED: fromTab back-navigation regression', () => {
-    test('pressing back with fromTab=Home should call navigation.getParent().navigate(Home) and NOT call goBack', () => {
-      const mockParentNavigate = jest.fn();
-      const mockGoBack = jest.fn();
+  describe('FIX: identification record always shown even with no supplementary forms', () => {
+    test('renders identification section and noSubmissionsYet note when resident has no supplementary forms', async () => {
+      mockFind.mockResolvedValue([]); // All 4 supplementary queries return empty
+      const mockNavigation = { goBack: jest.fn(), dispatch: jest.fn(), getParent: jest.fn() };
+      const mockRoute = { params: { resident: mockResident } };
+
+      render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
+
+      await waitFor(() => {
+        // Identification section MUST be visible — not replaced by the empty state
+        expect(screen.getByText('residentHistory.identification')).toBeDefined();
+        // Informational note about no supplementary forms should appear
+        expect(screen.getByText(/residentHistory\.noSubmissionsYet/)).toBeDefined();
+      });
+
+      // The hard "no records found" heading from the old early-return must NOT appear
+      expect(screen.queryByText('residentHistory.noRecordsFound')).toBeNull();
+    });
+  });
+
+  describe('FIX: fromTab back-navigation navigates to originating tab then resets FindRecords stack', () => {
+    test('pressing back with fromTab=Home calls getParent().navigate("Home") then dispatch(RESET to FindRecordsHome), not goBack()', () => {
+      const callOrder = [];
+      const mockParentNavigate = jest.fn(() => callOrder.push('parentNavigate'));
+      const mockDispatch = jest.fn(() => callOrder.push('dispatch'));
+      const mockGoBack = jest.fn(() => callOrder.push('goBack'));
       const mockNavigation = {
         goBack: mockGoBack,
+        dispatch: mockDispatch,
         getParent: jest.fn(() => ({ navigate: mockParentNavigate })),
       };
       const mockRoute = { params: { resident: mockResident, fromTab: 'Home' } };
 
       render(<ResidentRecordHistoryScreen navigation={mockNavigation} route={mockRoute} />);
 
-      // The Button mock renders <button> (non-Text host element); getByText won't
-      // traverse into it, so we locate by children prop directly.
       const [backButton] = screen.UNSAFE_getAllByProps({ children: 'global.back' });
       fireEvent.press(backButton);
 
+      // Parent tab navigation happens first
       expect(mockParentNavigate).toHaveBeenCalledWith('Home');
+      // Stack is reset via CommonActions.reset — NEVER via goBack() or pop().
+      // reset() is always handled by the current navigator and never propagates to parent
+      // navigators (unlike goBack/pop which propagate when stack depth is 1 and reach Sign In).
+      expect(mockDispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'RESET',
+          payload: expect.objectContaining({
+            index: 0,
+            routes: expect.arrayContaining([expect.objectContaining({ name: 'FindRecordsHome' })]),
+          }),
+        })
+      );
       expect(mockGoBack).not.toHaveBeenCalled();
+      // Order: tab switch FIRST, then stack reset
+      expect(callOrder).toEqual(['parentNavigate', 'dispatch']);
     });
   });
 });
