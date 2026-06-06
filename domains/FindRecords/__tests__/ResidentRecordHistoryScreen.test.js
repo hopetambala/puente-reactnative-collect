@@ -501,13 +501,15 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
     });
   });
 
-  describe('FIX: fromTab back-navigation must pop stack then switch tab', () => {
-    test('pressing back with fromTab=Home must call goBack() first, then getParent().navigate("Home")', () => {
+  describe('FIX: fromTab back-navigation navigates to originating tab then resets FindRecords stack', () => {
+    test('pressing back with fromTab=Home calls getParent().navigate("Home") then dispatch(RESET to FindRecordsHome), not goBack()', () => {
       const callOrder = [];
       const mockParentNavigate = jest.fn(() => callOrder.push('parentNavigate'));
+      const mockDispatch = jest.fn(() => callOrder.push('dispatch'));
       const mockGoBack = jest.fn(() => callOrder.push('goBack'));
       const mockNavigation = {
         goBack: mockGoBack,
+        dispatch: mockDispatch,
         getParent: jest.fn(() => ({ navigate: mockParentNavigate })),
       };
       const mockRoute = { params: { resident: mockResident, fromTab: 'Home' } };
@@ -517,9 +519,23 @@ describe('ResidentRecordHistoryScreen - RED-GREEN TDD', () => {
       const [backButton] = screen.UNSAFE_getAllByProps({ children: 'global.back' });
       fireEvent.press(backButton);
 
-      expect(mockGoBack).toHaveBeenCalledTimes(1);
+      // Parent tab navigation happens first
       expect(mockParentNavigate).toHaveBeenCalledWith('Home');
-      expect(callOrder).toEqual(['goBack', 'parentNavigate']);
+      // Stack is reset via CommonActions.reset — NEVER via goBack() or pop().
+      // reset() is always handled by the current navigator and never propagates to parent
+      // navigators (unlike goBack/pop which propagate when stack depth is 1 and reach Sign In).
+      expect(mockDispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'RESET',
+          payload: expect.objectContaining({
+            index: 0,
+            routes: expect.arrayContaining([expect.objectContaining({ name: 'FindRecordsHome' })]),
+          }),
+        })
+      );
+      expect(mockGoBack).not.toHaveBeenCalled();
+      // Order: tab switch FIRST, then stack reset
+      expect(callOrder).toEqual(['parentNavigate', 'dispatch']);
     });
   });
 });
