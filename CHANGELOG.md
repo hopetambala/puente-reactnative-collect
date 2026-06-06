@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.5.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.0...v15.5.1) (2026-06-06)
+
+
+### Bug fixes
+
+* resolve ESLint and i18n CI failures on fix-offline branch ([d282b65](https://github.com/hopetambala/puente-reactnative-collect/commit/d282b651bea918505d492c1afd8e4de59ee2f543))
+* update HomeScreen integration tests for fromTab navigation param ([4acf47d](https://github.com/hopetambala/puente-reactnative-collect/commit/4acf47d4a9a07d89d640220375dcc118bde886a3))
+
 ## [15.5.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.4.1...v15.5.0) (2026-06-06)
 
 
