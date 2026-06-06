@@ -432,6 +432,7 @@ describe('HomeScreen Component', () => {
             objectId: 'resident-123',
             firstname: 'Fresh Name',
           },
+          fromTab: 'Home',
         },
       });
       expect(queryByText('Open resident forms')).toBeNull();
@@ -478,6 +479,7 @@ describe('HomeScreen Component', () => {
             objectId: 'resident-123',
             firstname: 'Fresh Name',
           },
+          fromTab: 'Home',
         },
       });
     });
