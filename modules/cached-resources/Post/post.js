@@ -117,15 +117,16 @@ const postSupplementaryForm = async (postParams) => {
 const postSupplementaryAssetForm = async (postParams) => {
   const isConnected = await checkOnlineStatus();
 
-  if (isConnected && !postParams?.parseParentClassID?.includes("AssetID-")) {
+  if (isConnected && postParams?.parseParentClassID && !postParams.parseParentClassID.includes("AssetID-")) {
     const result = await fulfillWithTimeLimit(
       POST_TIMEOUT_MS,
       postObjectsToClassWithRelation(postParams),
       null
     );
-    if (result?.timedOut) throw new Error("postSupplementaryAssetForm timed out");
-    if (result?.error) throw result.error;
-    return result?.value ?? null;
+    if (result.timedOut) throw new Error("postSupplementaryAssetForm timed out");
+    if (result.error) throw result.error;
+    if (!result.value) throw new Error("postSupplementaryAssetForm returned null");
+    return result.value;
   }
   return getData("offlineAssetSupForms").then(async (supForms) => {
     if (supForms) {

@@ -150,6 +150,37 @@ describe("Testing full feature of offline posting", () => {
   });
 });
 
+describe("cleanupPostedOfflineForms logging", () => {
+  beforeEach(() => {
+    getAWSLogger.mockReturnValue({ log: mockLog });
+    mockLog.mockClear();
+    deleteData.mockImplementation(() => Promise.resolve());
+  });
+
+  afterEach(() => {
+    deleteData.mockReset();
+    deleteData.mockImplementation(() => Promise.resolve());
+  });
+
+  it("should log CLEANUP_DELETE_FAILED with the key when a delete is rejected", async () => {
+    deleteData.mockImplementation((key) => {
+      if (key === "offlineIDForms") {
+        return Promise.reject(new Error("removeItem failed"));
+      }
+      return Promise.resolve();
+    });
+
+    await cleanupPostedOfflineForms();
+
+    expect(mockLog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "CLEANUP_DELETE_FAILED",
+        key: "offlineIDForms",
+      })
+    );
+  });
+});
+
 describe("cleanupPostedOfflineForms", () => {
   afterEach(() => {
     deleteData.mockReset();

@@ -8,13 +8,19 @@ import { Platform } from "react-native";
 import checkOnlineStatus from "..";
 
 const cleanupPostedOfflineForms = async () => {
-  await Promise.allSettled([
-    deleteData("offlineIDForms"),
-    deleteData("offlineSupForms"),
-    deleteData("offlineAssetIDForms"),
-    deleteData("offlineAssetSupForms"),
-    deleteData("offlineHouseholds"),
-  ]);
+  const keys = [
+    "offlineIDForms",
+    "offlineSupForms",
+    "offlineAssetIDForms",
+    "offlineAssetSupForms",
+    "offlineHouseholds",
+  ];
+  const results = await Promise.allSettled(keys.map((key) => deleteData(key)));
+  results.forEach((result, i) => {
+    if (result.status === "rejected") {
+      getAWSLogger().log({ type: "CLEANUP_DELETE_FAILED", key: keys[i] });
+    }
+  });
 };
 
 const postOfflineForms = async () => {

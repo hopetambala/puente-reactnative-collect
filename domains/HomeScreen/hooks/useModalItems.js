@@ -25,6 +25,7 @@ export default function useModalItems() {
    * @param {boolean} reset - if true, clears items and starts from offset 0
    */
   const loadPage = async (cardType, timeFilter, reset = false) => {
+    if (!user?.id && !user?.objectId) return;
     try {
       setIsLoading(true);
       setError(null);

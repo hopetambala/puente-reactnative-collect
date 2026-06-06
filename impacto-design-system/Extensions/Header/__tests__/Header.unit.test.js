@@ -1,5 +1,5 @@
 import React from "react";
-import { render, fireEvent, act, waitFor } from "@testing-library/react-native";
+import { render, act, waitFor } from "@testing-library/react-native";
 
 jest.mock("react-native-paper", () => {
   const mockReact = require("react");
@@ -112,30 +112,6 @@ const setupGetDataWithUser = (overrides = {}) => {
   });
 };
 
-// Helper: press the tune icon button to trigger count() which opens the drawer
-const openDrawer = async (getByText) => {
-  // The Header renders an IconButton with icon "tune" that calls navToSettings,
-  // not count(). The count() function opens the drawer.
-  // Looking at the source, there is no direct "open drawer" button exposed
-  // via accessible text — count() is called inline from somewhere else, or
-  // the drawer starts closed. We need to find what triggers count().
-  //
-  // Re-reading the source: count() is an async function marked
-  // // eslint-disable-next-line no-unused-vars, meaning it is currently NOT
-  // hooked up to any UI button. The drawer never opens via user interaction
-  // in the current code. We must drive state by firing the only available
-  // interactive element that could trigger it, or test without the drawer.
-  //
-  // For tests 1-3 we'll use internal React test utilities to set state.
-  // Since we can't do that externally, we'll work around it by checking the
-  // rendered tree after calling the tune button (which opens settings, not
-  // the drawer). The drawer simply won't open — and the assertions will still
-  // fail for the right reason (element not found).
-  const tuneButton = getByText("tune");
-  await act(async () => {
-    fireEvent.press(tuneButton);
-  });
-};
 
 describe("Header component", () => {
   beforeEach(() => {
@@ -143,14 +119,62 @@ describe("Header component", () => {
     mockGetData.mockResolvedValue(null);
   });
 
-  it("Test 1 — shows a Retry button when submission is false (drawer error state)", async () => {
-    setupGetDataWithUser();
+  it("Test 7 — useEffect loadStatusBar does not call setIsOnline after the component unmounts (cancellation guard)", async () => {
+    // React 19 silently ignores setState on unmounted components, so we cannot
+    // rely on console.error warnings.  Instead, we inject a getter spy into the
+    // resolved value that loadStatusBar reads AFTER await Promise.all():
+    //
+    //   const total = (idForms?.length ?? 0) + ...;
+    //
+    // If a cancellation guard (`if (cancelled) return`) is in place, this line
+    // is never reached after unmount and the spy is never called.
+    // Without the guard the spy IS called — making the test RED.
+    const lengthAccessSpy = jest.fn(() => 0);
 
-    const { getByText, queryByText } = render(<Header />);
+    // Hold Promise.all hostage until after we unmount.
+    let resolveOnline;
+    const checkOnlineStatus = require("@modules/offline");
+    checkOnlineStatus.mockReturnValue(
+      new Promise((res) => { resolveOnline = res; })
+    );
 
-    // The drawer is never opened by user interaction in current code
-    // (count() is unused). Even if the drawer were opened, there is no
-    // "header.retry" button — only "header.ok". This assertion MUST FAIL.
+    const resolvers = [];
+    mockGetData.mockImplementation(() => {
+      let res;
+      const p = new Promise((r) => { res = r; });
+      resolvers.push(res);
+      return p;
+    });
+
+    const { unmount } = render(<Header />);
+
+    // Unmount BEFORE the Promise.all settles.
+    unmount();
+
+    // Resolve all deferred promises so the async continuation in loadStatusBar runs.
+    // One of the resolved values has a .length getter wired to our spy.
+    resolveOnline(true);
+    if (resolvers[0]) resolvers[0](null);  // lastSyncTimestamp
+    const spyArray = { get length() { return lengthAccessSpy(); } };
+    if (resolvers[1]) resolvers[1](spyArray);  // offlineIDForms — spy here
+    if (resolvers[2]) resolvers[2](null);  // offlineSupForms
+    if (resolvers[3]) resolvers[3](null);  // offlineAssetIDForms
+    if (resolvers[4]) resolvers[4](null);  // offlineAssetSupForms
+
+    // Flush microtasks so the async continuation executes.
+    await new Promise((res) => setImmediate(res));
+    await new Promise((res) => setImmediate(res));
+
+    // With the cancellation guard the spy is never reached → 0 calls.
+    // Without the guard the spy fires → test fails (RED).
+    expect(lengthAccessSpy).not.toHaveBeenCalled();
+  });
+
+  it("Test 1 — shows a Retry button when there are queued offline forms", async () => {
+    setupGetDataWithUser({ offlineIDForms: [{}] });
+
+    const { queryByText } = render(<Header />);
+
     await waitFor(
       () => {
         const retry = queryByText("header.retry");
@@ -189,15 +213,61 @@ describe("Header component", () => {
 
     await waitFor(
       () => {
-        const ts = queryByText(String(timestamp));
+        const ts = queryByText(new Date(timestamp).toLocaleTimeString());
         if (!ts) {
           throw new Error(
-            `Unable to find an element with text: "${timestamp}"`
+            `Unable to find an element with text: "${new Date(timestamp).toLocaleTimeString()}"`
           );
         }
       },
       { timeout: 1000 }
     );
+  });
+
+  it("Test 5 — displays last sync timestamp as a formatted time string, not as a raw millisecond number", async () => {
+    const timestamp = 1717574400000;
+    setupGetDataWithUser({ lastSyncTimestamp: timestamp });
+
+    const { queryByText } = render(<Header />);
+
+    const formattedTime = new Date(timestamp).toLocaleTimeString();
+
+    await waitFor(
+      () => {
+        const formatted = queryByText(formattedTime);
+        if (!formatted) {
+          throw new Error(
+            `Unable to find an element with the formatted time: "${formattedTime}". The component may still be rendering the raw number "${timestamp}".`
+          );
+        }
+      },
+      { timeout: 2000 }
+    );
+
+    // The raw number must NOT appear
+    expect(queryByText(String(timestamp))).toBeNull();
+  });
+
+  it("Test 6 — does NOT render the Retry button when offlineFormCount is 0", async () => {
+    // All four offline form keys return null → offlineFormCount === 0
+    mockGetData.mockImplementation((key) => {
+      if (key === "currentUser") {
+        return Promise.resolve({
+          firstname: "TestUser",
+          createdAt: new Date().toISOString(),
+        });
+      }
+      // offlineIDForms, offlineSupForms, offlineAssetIDForms, offlineAssetSupForms
+      return Promise.resolve(null);
+    });
+
+    const { queryByText } = render(<Header />);
+
+    // Allow the useEffect / Promise.all to resolve
+    await act(async () => {});
+
+    // When there are no queued forms the Retry button must be absent
+    expect(queryByText("header.retry")).toBeNull();
   });
 
   it("Test 4 — shows offline form count badge in header without opening the drawer", async () => {
@@ -217,9 +287,7 @@ describe("Header component", () => {
 
     const { queryByText } = render(<Header />);
 
-    // The badge must be visible WITHOUT pressing any button.
-    // offlineIDForms (3) + offlineSupForms (1) = 4 total.
-    // There is no persistent badge in the current implementation.
+    // Badge visible without pressing any button. offlineIDForms (3) + offlineSupForms (1) = 4.
     await waitFor(
       () => {
         const badge = queryByText("4");

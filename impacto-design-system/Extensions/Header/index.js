@@ -44,6 +44,7 @@ function Header({ setSettings, onOpenSettings, onBack }) {
     useContext(OfflineContext);
 
   useEffect(() => {
+    let cancelled = false;
     const loadStatusBar = async () => {
       const [online, ts, idForms, supForms, assetIdForms, assetSupForms] =
         await Promise.all([
@@ -54,6 +55,7 @@ function Header({ setSettings, onOpenSettings, onBack }) {
           getData("offlineAssetIDForms"),
           getData("offlineAssetSupForms"),
         ]);
+      if (cancelled) return;
       setIsOnline(online);
       setLastSyncTimestamp(ts);
       const total =
@@ -65,6 +67,7 @@ function Header({ setSettings, onOpenSettings, onBack }) {
       setOfflineForms(total > 0);
     };
     loadStatusBar();
+    return () => { cancelled = true; };
   }, []);
 
   const volunteerLength = (object) => {
@@ -158,14 +161,16 @@ function Header({ setSettings, onOpenSettings, onBack }) {
       {/* Persistent sync status bar — visible without opening drawer */}
       <View>
         {isOnline !== null && (
-          <Text>
+          <Text style={styles.syncStatusText}>
             {isOnline ? I18n.t("header.online") : I18n.t("header.offline")}
           </Text>
         )}
         {lastSyncTimestamp != null && (
-          <Text>{String(lastSyncTimestamp)}</Text>
+          <Text style={styles.syncTimestampText}>{new Date(lastSyncTimestamp).toLocaleTimeString()}</Text>
         )}
-        <Button onPress={upload}>{I18n.t("header.retry")}</Button>
+        {offlineFormCount > 0 && (
+          <Button onPress={upload}>{I18n.t("header.retry")}</Button>
+        )}
       </View>
 
       {submission === "SessionExpired" && (

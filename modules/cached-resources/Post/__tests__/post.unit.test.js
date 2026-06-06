@@ -31,6 +31,19 @@ describe("postSupplementaryAssetForm", () => {
       postSupplementaryAssetForm({ parseParentClassID: undefined, localObject: {} })
     ).resolves.not.toThrow();
   });
+
+  test("should throw when fulfillWithTimeLimit returns a null value, not silently return null", async () => {
+    const { fulfillWithTimeLimit } = require("@modules/utils");
+    checkOnlineStatus.mockResolvedValue(true);
+    fulfillWithTimeLimit.mockResolvedValue({ timedOut: false, error: null, value: null });
+
+    await expect(
+      postSupplementaryAssetForm({
+        parseParentClassID: "SomeOther-123",
+        localObject: {},
+      })
+    ).rejects.toThrow();
+  });
 });
 
 describe("timeout protection", () => {

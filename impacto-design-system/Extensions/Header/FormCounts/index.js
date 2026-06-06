@@ -31,10 +31,12 @@ function FormCounts({ setShowCounts }) {
   const [queryDone, setQueryDone] = useState(false);
 
   useEffect(() => {
-    getData("currentUser").then((user) => {
-      const username = `${user.firstname || ""} ${user.lastname || ""}`;
-      setUserName(username);
-    });
+    getData("currentUser")
+      .then((user) => {
+        const username = `${user.firstname || ""} ${user.lastname || ""}`;
+        setUserName(username);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
