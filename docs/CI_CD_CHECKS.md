@@ -51,7 +51,6 @@ Linters run as **independent checks**:
   - Unit tests: `yarn test:unit`
   - Integration tests: `yarn test:integration`
   - Snapshot tests: `yarn test:snapshot`
-  - Coverage report uploaded to Codecov
 
 ---
 
