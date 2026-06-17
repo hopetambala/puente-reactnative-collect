@@ -106,8 +106,8 @@ Each agent applies ONLY its fixes and confirms clean.
 **Automatically:** After completing any screen, component, or significant UI feature.
 
 **Manually:** `/ux-review` — runs the full pipeline on the files you specify or,
-if no files specified, on all recently modified files in `app/`, `components/`,
-`modules/`, and `games/`.
+if no files specified, on all recently modified files in `domains/`, `modules/`,
+`impacto-design-system/`, and `context/`.
 
 ---
 
