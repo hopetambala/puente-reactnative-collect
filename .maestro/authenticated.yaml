@@ -1,0 +1,86 @@
+# Puente Collect — full visual QA flow incl. authenticated tab screens.
+#
+# Prerequisites:
+#   1. App built and running against staging backend:
+#      EXPO_PUBLIC_APP_ENV=staging APP_ENV=staging yarn ios
+#   2. Run once to accept Terms (clears AsyncStorage):
+#      maestro test -e PARSE_USERNAME=Test -e PARSE_PASSWORD=test .maestro/accept-terms.yaml
+#   3. Then run this flow:
+#      maestro test -e PARSE_USERNAME=Test -e PARSE_PASSWORD=test .maestro/authenticated.yaml
+#
+# On subsequent runs (after Terms accepted), this flow alone is sufficient.
+appId: io.ionic.starter1270348
+---
+# Launch WITHOUT clearing state (Terms already accepted; starting fresh would
+# re-trigger the Terms modal and lose the session token).
+- launchApp
+
+# If we land on onboarding (first install), skip to Sign In.
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+
+- extendedWaitUntil:
+    visible: "Log-In"
+    timeout: 20000
+- takeScreenshot: .claude/screenshots/01-sign-in
+
+# Enter credentials via coordinate taps to target the editable TextInput
+# (not the floating label). Coordinates are absolute % of 393x852 screen,
+# matching field centers from the accessibility hierarchy.
+#   Username field center: ~(50%, 38%)
+#   Password field center: ~(50%, 48%)
+#   Log-In button — tap its TOP third at ~(50%, 58%) to stay above the keyboard.
+- tapOn:
+    point: "50%, 38%"
+- inputText: ${PARSE_USERNAME}
+- tapOn:
+    point: "50%, 48%"
+- inputText: ${PARSE_PASSWORD}
+- tapOn:
+    point: "50%, 58%"
+
+# Handle Terms modal if it appears (triggered by clearState on first run).
+- runFlow:
+    when:
+      visible: "Terms and Service"
+    commands:
+      - tapOn: "Terms and Service"
+      - scroll
+      - scroll
+      - scroll
+      - scroll
+      - scroll
+      - scroll
+      - scroll
+      - scroll
+      - scroll
+      - scroll
+      - tapOn: "Ok"
+      - waitForAnimationToEnd
+
+# After login + Terms dismissed, the Root (BottomTabNavigator) screen is active.
+# Wait for any visible Home screen content (the heading rendered by HomeScreen).
+- extendedWaitUntil:
+    visible: "Activity across the Organization"
+    timeout: 30000
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/04-home
+
+- tapOn: "Data Collection"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/05-data-collection
+
+- tapOn: "Find Record"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/06-find-records
+
+- tapOn: "View All Assets"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/07-assets
+
+- tapOn: "Settings"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/08-settings

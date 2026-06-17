@@ -1,0 +1,24 @@
+# Puente Collect — visual QA flow (iOS simulator, via Maestro)
+#
+# Captures the UNAUTHENTICATED screens (onboarding, sign-in). No backend or
+# credentials needed. For the full audit including the tab screens, run
+# .maestro/authenticated.yaml instead (it reuses this flow, then logs in).
+#
+# Run:
+#   maestro test .maestro/visual-qa.yaml
+appId: io.ionic.starter1270348
+---
+- launchApp:
+    clearState: true
+# Wait out the dev-client splash / JS bundle download before screenshotting.
+- extendedWaitUntil:
+    visible: "Skip"
+    timeout: 60000
+- takeScreenshot: .claude/screenshots/00-onboarding
+
+# Skip onboarding -> Sign In
+- tapOn: "Skip"
+- extendedWaitUntil:
+    visible: "Log-In"
+    timeout: 20000
+- takeScreenshot: .claude/screenshots/01-sign-in

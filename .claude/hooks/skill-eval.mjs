@@ -85,7 +85,12 @@ function buildInstruction(skills) {
     '',
     'Rule of thumb: any change to a function, component, page, epic, hook, or a',
     'bug fix MUST go through red-green-tdd (test written and seen failing first).',
-    'Any styling change MUST honor dlite-design-system. Do not skip to',
+    'Any styling change MUST honor dlite-design-system. When any UI screen or',
+    'component is complete or needs a quality pass, invoke ux-review to run all',
+    'three design-layer agents (dlite-auditor for tokens, motion-auditor for',
+    'animations, mobile-delight-auditor for haptics/copy/empty states) and',
+    'synthesize a unified fix plan. Use visual-qa to screenshot the running iOS',
+    'simulator and verify the change looks correct on device. Do not skip to',
     'implementation without evaluating these.',
   ].join('\n');
 }
