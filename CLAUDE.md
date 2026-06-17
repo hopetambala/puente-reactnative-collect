@@ -47,7 +47,7 @@ __mocks__/        # Global jest mocks
 
 ## Path aliases
 
-Defined in `jsconfig.json` and `jest.config moduleNameMapper`:
+Defined in `jsconfig.json` and `package.json` (Jest `moduleNameMapper`):
 
 | Alias | Resolves to |
 |---|---|

@@ -22,8 +22,8 @@ import Animated, {
   withSpring, withTiming, withRepeat, withSequence,
   FadeIn, FadeInDown, FadeOut,
 } from 'react-native-reanimated'
-import { MOTION_TOKENS } from '@/modules/utils/animations'
-import { getSpringForComponent, getStaggerDelay } from '@/modules/utils/animationRules'
+import { MOTION_TOKENS } from '@modules/utils/animations'
+import { getSpringForComponent, getStaggerDelay } from '@modules/utils/animationRules'
 ```
 
 ### Spring presets (via `getSpringForComponent`)

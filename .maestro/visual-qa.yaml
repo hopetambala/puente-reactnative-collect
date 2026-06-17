@@ -2,7 +2,7 @@
 #
 # Captures the UNAUTHENTICATED screens (onboarding, sign-in). No backend or
 # credentials needed. For the full audit including the tab screens, run
-# .maestro/authenticated.yaml instead (it reuses this flow, then logs in).
+# .maestro/authenticated.yaml instead (it logs in, then screenshots the tabs).
 #
 # Run:
 #   maestro test .maestro/visual-qa.yaml

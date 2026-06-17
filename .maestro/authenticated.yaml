@@ -39,30 +39,11 @@ appId: io.ionic.starter1270348
 - tapOn:
     point: "50%, 48%"
 - inputText: ${PARSE_PASSWORD}
-- tapOn:
-    point: "50%, 58%"
+# Scroll the form UP so the Log-In button clears the keyboard, then tap it.
+- scroll
+- tapOn: "Log-In"
 
-# Handle Terms modal if it appears (triggered by clearState on first run).
-- runFlow:
-    when:
-      visible: "Terms and Service"
-    commands:
-      - tapOn: "Terms and Service"
-      - scroll
-      - scroll
-      - scroll
-      - scroll
-      - scroll
-      - scroll
-      - scroll
-      - scroll
-      - scroll
-      - scroll
-      - tapOn: "Ok"
-      - waitForAnimationToEnd
-
-# After login + Terms dismissed, the Root (BottomTabNavigator) screen is active.
-# Wait for any visible Home screen content (the heading rendered by HomeScreen).
+# Wait for the Home screen content to appear after successful login.
 - extendedWaitUntil:
     visible: "Activity across the Organization"
     timeout: 30000

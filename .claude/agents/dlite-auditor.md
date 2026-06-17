@@ -17,7 +17,7 @@ Do not touch animations, UX copy, haptics, or anything outside your layer.
 ## Your token system
 
 ```js
-import { getTokens } from '@/modules/theme/tokens'
+import { getTokens } from '@modules/theme/tokens'
 const t = getTokens('light')
 ```
 

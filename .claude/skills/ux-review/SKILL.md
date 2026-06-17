@@ -12,7 +12,7 @@ description: >
 
 ## Core Principle
 
-Every touchpoint in Loiter Maxx must satisfy three design layers simultaneously.
+Every touchpoint in Puente Collect must satisfy three design layers simultaneously.
 No layer can be fixed in isolation — a cohesive fix plan prevents agents from
 working against each other (e.g., fixing a color while breaking an animation).
 
@@ -51,8 +51,8 @@ that resolves all violations without conflicts. Consider:
   animation references the same element
 - **Cross-cutting fixes** — a button that needs a haptic, a token fix, AND a copy
   change should be described as one atomic edit, not three separate ones
-- **Priority** — violations that affect game correctness (missing haptic on pick,
-  broken empty state in lobby) outrank cosmetic ones (placeholder copy)
+- **Priority** — violations that affect workflow correctness (missing haptic on save,
+  broken empty state in data collection) outrank cosmetic ones (placeholder copy)
 
 Output the unified plan in this format:
 
@@ -106,8 +106,8 @@ Each agent applies ONLY its fixes and confirms clean.
 **Automatically:** After completing any screen, component, or significant UI feature.
 
 **Manually:** `/ux-review` — runs the full pipeline on the files you specify or,
-if no files specified, on all recently modified files in `app/`, `components/`,
-`modules/`, and `games/`.
+if no files specified, on all recently modified files in `domains/`, `modules/`,
+`impacto-design-system/`, and `context/`.
 
 ---
 
@@ -117,5 +117,5 @@ A UI touchpoint is done when:
 
 1. `dlite-auditor` reports zero violations — no hardcoded colors, spacing, or radius
 2. `motion-auditor` reports zero violations — no forbidden libraries, hardcoded springs, or scale breaches
-3. `mobile-delight-auditor` reports zero critical gaps — haptics on key interactions, personality in empty states, celebration on game moments, human copy
+3. `mobile-delight-auditor` reports zero critical gaps — haptics on key interactions, personality in empty states, celebration on form-submit moments, human copy
 4. All three agents have confirmed `DONE` in this session
