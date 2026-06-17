@@ -47,9 +47,3 @@ jobs:
 
       - name: Run unit tests
         run: yarn test:unit
-      
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        with:
-          flags: unit
-          fail_ci_if_error: false

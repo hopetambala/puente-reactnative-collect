@@ -48,12 +48,6 @@ jobs:
       - name: Run snapshot tests
         run: yarn test:snapshot
       
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        with:
-          flags: snapshot
-          fail_ci_if_error: false
-      
       - name: Comment on PR if snapshots changed
         if: failure() && github.event_name == 'pull_request'
         uses: actions/github-script@v7
