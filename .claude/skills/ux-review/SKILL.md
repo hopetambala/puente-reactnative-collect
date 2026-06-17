@@ -12,7 +12,7 @@ description: >
 
 ## Core Principle
 
-Every touchpoint in Loiter Maxx must satisfy three design layers simultaneously.
+Every touchpoint in Puente Collect must satisfy three design layers simultaneously.
 No layer can be fixed in isolation — a cohesive fix plan prevents agents from
 working against each other (e.g., fixing a color while breaking an animation).
 
