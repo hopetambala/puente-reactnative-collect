@@ -38,18 +38,20 @@ not a browser. UI navigation and screenshots are driven by
    xcrun simctl list devices booted        # check
    xcrun simctl boot "iPhone 16" && open -a Simulator   # if empty
    ```
-2. Build & launch the app on the simulator against the **staging** backend
-   (first run compiles the dev client and can take several minutes). Always use
+2. Start the app with the **staging** backend and keep it running. Always use
    staging — the default `dev` env points Parse at `localhost:1337`, which has
-   no running server, so login can't succeed:
+   no running server, so login can't succeed. **The Metro bundler must stay
+   running in the background while Maestro runs** — Maestro's `launchApp`
+   relaunches the already-installed app, which then connects to Metro to load
+   the JS bundle. If Metro isn't running the app shows
+   "No script URL provided" and Maestro can't find any UI elements.
    ```
    EXPO_PUBLIC_APP_ENV=staging APP_ENV=staging yarn ios
    ```
-   Staging talks to Back4App (`https://parseapi.back4app.com/`), set in
-   `environment.js`. The app id is `io.ionic.starter1270348`; once installed
-   Maestro can relaunch it on its own. If the app is already built, this just
-   re-bundles the JS with the staging env — no full rebuild.
-3. Run a flow:
+   Run this in a separate terminal and leave it open. First run compiles the
+   native dev client (can take several minutes); subsequent runs just re-bundle
+   JS. Staging talks to Back4App (`https://parseapi.back4app.com/`).
+3. Run a flow (in a different terminal, from the repo root):
    - Unauthenticated screens only (no backend needed):
      ```
      maestro test .maestro/visual-qa.yaml

@@ -43,25 +43,74 @@ appId: io.ionic.starter1270348
 - scroll
 - tapOn: "Log-In"
 
-# Wait for the Home screen content to appear after successful login.
+# Dismiss the "Your Impact Dashboard" onboarding tooltip if it appears
+# (shown on first login; a runFlow guard makes this safe to include always).
+- runFlow:
+    when:
+      visible: "Your Impact Dashboard"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+# Wait for the Home screen title — it renders before async stats load.
+# Then let animations and network data settle before screenshotting.
 - extendedWaitUntil:
-    visible: "Activity across the Organization"
+    visible: "Home"
     timeout: 30000
 - waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/04-home
 
-- tapOn: "Data Collection"
+# Tab bar layout (5 tabs, 393x852 screen, tabBarShowLabel: false):
+#   Find Records  (tab 1): x≈10%, y≈94%
+#   Data Collection(tab 2): x≈30%, y≈94%
+#   Home          (tab 3): x≈50%, y≈94%
+#   Assets        (tab 4): x≈70%, y≈94%
+#   Settings      (tab 5): x≈90%, y≈94%
+# Text-based tapOn hits accessibility labels, which may not match; coordinate
+# taps on the tab bar are used for reliability.
+
+# --- Data Collection ---
+- tapOn:
+    point: "30%, 94%"
 - waitForAnimationToEnd
+# Dismiss the "Capture Field Data" onboarding tooltip if it appears.
+- runFlow:
+    when:
+      visible: "Capture Field Data"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/05-data-collection
 
-- tapOn: "Find Record"
+# --- Find Records ---
+- tapOn:
+    point: "10%, 94%"
 - waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/06-find-records
+# Dismiss "Search All Records" tooltip before tapping next tab — the tooltip
+# sits at the bottom of the screen and blocks the tab bar at y≈94%.
+- runFlow:
+    when:
+      visible: "Search All Records"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
 
-- tapOn: "View All Assets"
+# --- Assets ---
+- tapOn:
+    point: "70%, 94%"
 - waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/07-assets
 
-- tapOn: "Settings"
+# --- Settings ---
+- tapOn:
+    point: "90%, 94%"
 - waitForAnimationToEnd
+# Dismiss "Your Preferences" onboarding tooltip if present.
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/08-settings
