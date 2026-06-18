@@ -131,6 +131,7 @@ jobs:
         run: yarn test:integration
         env:
           MONGOMS_PREFER_GLOBAL_PATH: 1
+      # Codecov upload intentionally removed — re-add codecov/codecov-action if coverage reporting is needed.
 
 
   snapshot-tests:

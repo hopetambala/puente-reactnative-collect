@@ -13,7 +13,8 @@ yarn ios                          # run on iOS simulator (dev env)
 EXPO_PUBLIC_APP_ENV=staging APP_ENV=staging yarn ios  # staging backend (needed for login)
 yarn android                      # run on Android emulator
 yarn test                         # jest watch mode
-yarn test-run                     # full suite, no watch — use this before declaring done
+yarn test-run                     # one-shot Jest run (unit + snapshot; integration excluded by global jest config)
+yarn test-all:parallel            # full suite — unit + integration + snapshot in parallel
 yarn test:unit                    # unit tests only (excludes *.integration.test.js)
 yarn test:integration             # integration tests only
 yarn lint-fix                     # ESLint auto-fix
@@ -47,7 +48,7 @@ __mocks__/        # Global jest mocks
 
 ## Path aliases
 
-Defined in `jsconfig.json` and `package.json` (Jest `moduleNameMapper`):
+Defined in `babel.config.js` (`module-resolver`, runtime), mirrored in `jsconfig.json` (editor) and `package.json` (Jest `moduleNameMapper`):
 
 | Alias | Resolves to |
 |---|---|
@@ -55,15 +56,15 @@ Defined in `jsconfig.json` and `package.json` (Jest `moduleNameMapper`):
 | `@context/*` | `context/*` |
 | `@assets/*` | `assets/*` |
 | `@impacto-design-system/*` | `impacto-design-system/*` |
-| `@app/*` | `./*` (repo root) |
+| `@app` | `.` (repo root — use as `@app/some/path`) |
 
 ## Environment
 
-Three environments: `dev` (default, points to localhost Parse — no server running),
-`staging` (Back4App — use this for anything requiring a real login), `prod`.
+Three environments: `dev` (default), `staging` (Back4App — use this for anything requiring a real login), `prod`.
 
 Config lives in `environment.js` (git-ignored, copy from `environment-example.js`).
-The staging backend URL is `https://parseapi.back4app.com/`.
+The example config points all three environments at `https://parseapi.back4app.com/`;
+a local dev setup may override `dev` to point at a local Parse server.
 
 The mobile Parse SDK cannot use the Master Key — never use `masterKey` in app code.
 Use `equalTo`, `limit`, `find` on queries; never `distinct`.

@@ -47,6 +47,7 @@ jobs:
 
       - name: Run snapshot tests
         run: yarn test:snapshot
+      # Codecov upload intentionally removed — re-add codecov/codecov-action if coverage reporting is needed.
       
       - name: Comment on PR if snapshots changed
         if: failure() && github.event_name == 'pull_request'

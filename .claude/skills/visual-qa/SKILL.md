@@ -39,8 +39,8 @@ not a browser. UI navigation and screenshots are driven by
    xcrun simctl boot "iPhone 16" && open -a Simulator   # if empty
    ```
 2. Start the app with the **staging** backend and keep it running. Always use
-   staging — the default `dev` env points Parse at `localhost:1337`, which has
-   no running server, so login can't succeed. **The Metro bundler must stay
+   staging — the `dev` env in a local setup may point at a local Parse server
+   with no running instance, so login may fail. **The Metro bundler must stay
    running in the background while Maestro runs** — Maestro's `launchApp`
    relaunches the already-installed app, which then connects to Metro to load
    the JS bundle. If Metro isn't running the app shows
