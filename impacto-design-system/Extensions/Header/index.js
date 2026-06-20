@@ -2,12 +2,12 @@ import { OfflineContext } from "@context/offline.context";
 import { getData, storeData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
-import NetInfo from "@react-native-community/netinfo";
 import {
   cleanupPostedOfflineForms,
   postOfflineForms,
 } from "@modules/offline/post";
 import { MOTION_TOKENS } from "@modules/utils/animations";
+import NetInfo from "@react-native-community/netinfo";
 import React, { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
 import Emoji from "react-native-emoji";

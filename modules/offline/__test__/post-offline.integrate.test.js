@@ -1,4 +1,5 @@
 import hooks from "@app/test/hooks";
+import { getData } from "@modules/async-storage";
 import {
   postAssetForm,
   postHousehold,
@@ -6,7 +7,6 @@ import {
   postSupplementaryAssetForm,
   postSupplementaryForm,
 } from "@modules/cached-resources";
-import { getData } from "@modules/async-storage";
 import {
   cleanupPostedOfflineForms,
   postOfflineForms,

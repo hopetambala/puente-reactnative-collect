@@ -1,9 +1,10 @@
-import { residentQuery, populateCache } from "@modules/cached-resources";
 import { getData, storeData } from "@modules/async-storage";
+import { populateCache,residentQuery } from "@modules/cached-resources";
 import { act, render } from "@testing-library/react-native";
 import React, { useContext } from "react";
-import { OfflineContext, OfflineContextProvider } from "../offline.context";
+
 import { UserContext } from "../auth.context";
+import { OfflineContext, OfflineContextProvider } from "../offline.context";
 
 jest.mock("@modules/async-storage", () => ({
   getData: jest.fn(),

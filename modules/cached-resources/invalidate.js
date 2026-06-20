@@ -1,5 +1,5 @@
-import getAWSLogger from "@modules/aws-logging/logger";
 import { deleteData } from "@modules/async-storage";
+import getAWSLogger from "@modules/aws-logging/logger";
 
 async function invalidateResidentCache(residentId) {
   try {
