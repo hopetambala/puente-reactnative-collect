@@ -180,7 +180,7 @@ describe('SupplementaryForm - RED-GREEN TDD', () => {
     });
   });
 
-  describe('RED: isOfflineLocal propagation to postSupplementaryForm', () => {
+  describe('isOfflineLocal propagation to postSupplementaryForm', () => {
     it('passes isOfflineLocal: true in postParams when surveyee.isOfflineLocal is true', async () => {
       render(
         <SupplementaryForm

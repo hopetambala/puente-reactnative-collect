@@ -31,32 +31,29 @@ export function OfflineContextProvider({ children }) {
   }, [user]);
 
   const populateResidentDataCache = useCallback(
-    async () =>
-      residentOnlineData().then((records) => {
-        populateCache(user);
-        return records;
-      }),
+    async () => {
+      const records = await residentOnlineData();
+      await populateCache(user);
+      return records;
+    },
     [user, residentOnlineData]
   );
 
   // getData and setResidents are both stable references — empty dep array is intentional
-  const residentOfflineData = useCallback(
-    () =>
-      getData("residentData").then(async (data) => {
-        const residentData = data || [];
-        let offlineData = [];
-        const offlineResidentData = await getData("offlineIDForms");
-        if (offlineResidentData !== null) {
-          Object.entries(offlineResidentData).forEach(([, valueOne]) => {
-            offlineData = offlineData.concat(valueOne.localObject);
-          });
-        }
-        const allData = residentData.concat(offlineData);
-        setResidents(allData.slice());
-        return allData.slice();
-      }),
-    []
-  );
+  const residentOfflineData = useCallback(async () => {
+    const data = await getData("residentData");
+    const residentData = data || [];
+    let offlineData = [];
+    const offlineResidentData = await getData("offlineIDForms");
+    if (offlineResidentData !== null) {
+      Object.entries(offlineResidentData).forEach(([, valueOne]) => {
+        offlineData = offlineData.concat(valueOne.localObject);
+      });
+    }
+    const allData = residentData.concat(offlineData);
+    setResidents(allData.slice());
+    return allData.slice();
+  }, []);
 
   const contextValue = useMemo(
     () => ({

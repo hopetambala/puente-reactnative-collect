@@ -24,11 +24,7 @@ import {
 
 hooks();
 
-// Note: online posting (checkOnlineStatus=true path) is covered by unit tests in
-// modules/cached-resources/Post/__tests__/post.unit.test.js and by the partial-reconnect
-// scenario below. A dedicated online integration test was removed because the Parse
-// mock infrastructure here cannot distinguish online vs. offline Parse responses —
-// that distinction is exercised at the unit level with fulfillWithTimeLimit mocks.
+
 jest.mock("..", () => jest.fn());
 
 /**

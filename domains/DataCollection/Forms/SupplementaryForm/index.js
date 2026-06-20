@@ -131,7 +131,7 @@ function SupplementaryForm({
   return (
     <Formik
       enableReinitialize
-      initialValues={editMode && editFormValues ? editFormValues : {}}
+      initialValues={editFormValues}
       onSubmit={async (values) => {
         setSubmitting(true);
         let formObjectUpdated;

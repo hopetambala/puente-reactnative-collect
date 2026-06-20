@@ -87,6 +87,15 @@ const postSupplementaryFormBase = async (postParams, { offlineKey, fnName }) => 
   });
 };
 
+/** ***********************************************
+ * Function to post supplementary form offline
+ * @name postForms
+ * @example
+ * postSupplementaryForm(postParam);
+ *
+ * @param {Object} postParams Object normally configured for Parse-Server Cloud Code
+ *
+ *********************************************** */
 const postSupplementaryForm = (postParams) =>
   postSupplementaryFormBase(postParams, {
     offlineKey: "offlineSupForms",

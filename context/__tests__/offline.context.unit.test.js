@@ -1,5 +1,5 @@
 import { getData, storeData } from "@modules/async-storage";
-import { residentQuery } from "@modules/cached-resources";
+import { populateCache, residentQuery } from "@modules/cached-resources";
 import { act, render } from "@testing-library/react-native";
 import React, { useContext } from "react";
 
@@ -177,5 +177,31 @@ describe("OfflineContext — residentOnlineData", () => {
         await capturedCtx.residentOnlineData();
       })
     ).rejects.toThrow("storage full");
+  });
+});
+
+describe("OfflineContext — populateResidentDataCache", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    storeData.mockResolvedValue(undefined);
+    getData.mockResolvedValue(null);
+  });
+
+  it("propagates populateCache rejection to the caller", async () => {
+    const records = [{ objectId: "r1" }];
+    residentQuery.mockResolvedValue(records);
+    storeData.mockResolvedValue(undefined);
+    populateCache.mockRejectedValue(new Error("cache failure"));
+
+    let capturedCtx;
+    renderWithContext((ctx) => {
+      capturedCtx = ctx;
+    });
+
+    await expect(
+      act(async () => {
+        await capturedCtx.populateResidentDataCache();
+      })
+    ).rejects.toThrow("cache failure");
   });
 });

@@ -331,4 +331,51 @@ describe('Asset Forms Edit Mode - RED-GREEN TDD', () => {
       });
     });
   });
+
+  describe('RED: offline asset - isOfflineLocal forwarded to postParams', () => {
+    beforeEach(() => {
+      jest.mock(
+        '@app/domains/DataCollection/Assets/NewAssets/AssetSupplementary/AssetFormSelect',
+        () => {
+          const React = require('react');
+          return function MockAssetFormSelect({ setSelectedForm }) {
+            React.useEffect(() => {
+              setSelectedForm({ objectId: 'form-type-456', name: 'Mock Form', fields: [] });
+            }, []);
+            return null;
+          };
+        },
+        { virtual: true }
+      );
+    });
+
+    test('postSupplementaryAssetForm receives isOfflineLocal:true when selectedAsset is offline-local', async () => {
+      postSupplementaryAssetForm.mockResolvedValue({});
+
+      const offlineAsset = {
+        objectId: 'AssetID-offline-123',
+        isOfflineLocal: true,
+        name: 'Test Asset',
+      };
+
+      const { getByTestId } = renderWithContext(
+        <AssetSupplementary
+          selectedAsset={offlineAsset}
+          setSelectedAsset={() => {}}
+          surveyingOrganization="Test Org"
+          surveyingUser="Test User"
+          setPage={() => {}}
+        />
+      );
+
+      const submitButton = getByTestId('formSubmit');
+      fireEvent.press(submitButton);
+
+      await waitFor(() => {
+        expect(postSupplementaryAssetForm).toHaveBeenCalledWith(
+          expect.objectContaining({ isOfflineLocal: true })
+        );
+      });
+    });
+  });
 });
