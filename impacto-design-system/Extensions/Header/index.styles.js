@@ -44,12 +44,6 @@ export const createHeaderStyles = (theme) => {
       marginVertical: spacing.md,
       textAlign: "center",
     },
-    volunteerDate: {
-      ...typography.body1,
-      color: colors.textSecondary,
-      textAlign: "center",
-      marginVertical: spacing.md,
-    },
     divider: {
       height: 1,
       backgroundColor: colors.outline,
@@ -81,31 +75,6 @@ export const createHeaderStyles = (theme) => {
       color: colors.textSecondary,
       paddingHorizontal: spacing.md,
       paddingBottom: spacing.xs,
-    },
-    // FormCounts styles
-    headerFormText: {
-      ...typography.heading2,
-      color: colors.textPrimary,
-      marginVertical: spacing.md,
-    },
-    horizontalLineGray: {
-      height: 1,
-      backgroundColor: colors.outline,
-      marginVertical: spacing.sm,
-    },
-    countContainer: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      marginVertical: spacing.sm,
-    },
-    label: {
-      ...typography.body1,
-      color: colors.textPrimary,
-    },
-    count: {
-      ...typography.body1,
-      color: colors.textSecondary,
-      fontWeight: "600",
     },
   });
 };

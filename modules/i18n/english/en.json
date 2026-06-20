@@ -483,14 +483,7 @@
     "addCreateHousehold": "Add or Create a Household"
   },
   "header": {
-    "goodMorning": "Good morning",
-    "goodAfternoon": "Good afternoon",
-    "goodEvening": "Good evening",
-    "goodMorning!": "Good morning!",
-    "goodAfternoon!": "Good afternoon!",
-    "goodEvening!": "Good evening!",
     "puente": "PUENTE",
-    "volunteerSince": "Volunteer Since",
     "surveysCollected": "Surveys Collected",
     "submitOffline": "Submit Offline Forms",
     "populateOffline": "Populate Resident's Cache",

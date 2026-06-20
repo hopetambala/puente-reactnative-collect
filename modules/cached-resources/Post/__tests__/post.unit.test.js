@@ -1,4 +1,5 @@
 import { postObjectsToClass, postObjectsToClassWithRelation } from "@app/services/parse/crud";
+import { getData, storeData } from "@modules/async-storage";
 import {
   postAssetForm,
   postHousehold,
@@ -33,7 +34,6 @@ describe("postIdentificationForm offline — isOfflineLocal flag", () => {
 
   it("should store postParams with isOfflineLocal: true when offline", async () => {
     const capturedStored = [];
-    const { storeData } = require("@modules/async-storage");
     storeData.mockImplementation((value, key) => {
       if (key === "offlineIDForms") capturedStored.push(value);
       return Promise.resolve(value);
@@ -54,7 +54,6 @@ describe("postSupplementaryForm — isOfflineLocal routing", () => {
 
   it("should queue offline when isOfflineLocal is true on the params, even when connected", async () => {
     const capturedStored = [];
-    const { storeData } = require("@modules/async-storage");
     storeData.mockImplementation((value, key) => {
       if (key === "offlineSupForms") capturedStored.push(value);
       return Promise.resolve(value);
@@ -96,7 +95,6 @@ describe("postIdentificationForm offline — return value includes isOfflineLoca
   beforeEach(() => {
     jest.clearAllMocks();
     checkOnlineStatus.mockResolvedValue(false);
-    const { storeData, getData } = require("@modules/async-storage");
     getData.mockResolvedValue(null);
     storeData.mockResolvedValue([]);
   });
@@ -117,14 +115,11 @@ describe("postSupplementaryForm partial-reconnect — isOfflineLocal guard when 
   beforeEach(() => {
     jest.clearAllMocks();
     checkOnlineStatus.mockResolvedValue(true);
-    const { storeData, getData } = require("@modules/async-storage");
     getData.mockResolvedValue(null);
     storeData.mockResolvedValue([]);
   });
 
   it("does NOT call postObjectsToClassWithRelation and queues to offlineSupForms when isConnected but postParams.isOfflineLocal is true", async () => {
-    const { storeData } = require("@modules/async-storage");
-
     await postSupplementaryForm({
       parseParentClassID: "PatientID-abc123",
       isOfflineLocal: true,
@@ -148,13 +143,11 @@ describe("postIdentificationForm offline — localObject must not carry isOfflin
   beforeEach(() => {
     jest.clearAllMocks();
     checkOnlineStatus.mockResolvedValue(false);
-    const { getData } = require("@modules/async-storage");
     getData.mockResolvedValue(null);
   });
 
   it("stores localObject without isOfflineLocal so it does not pollute the Parse data model on sync", async () => {
     const capturedArrays = [];
-    const { storeData } = require("@modules/async-storage");
     storeData.mockImplementation((value, key) => {
       if (key === "offlineIDForms") capturedArrays.push(value);
       return Promise.resolve(value);
@@ -178,7 +171,6 @@ describe("postAssetForm offline — return value includes isOfflineLocal", () =>
   beforeEach(() => {
     jest.clearAllMocks();
     checkOnlineStatus.mockResolvedValue(false);
-    const { storeData, getData } = require("@modules/async-storage");
     getData.mockResolvedValue(null);
     storeData.mockResolvedValue([]);
   });

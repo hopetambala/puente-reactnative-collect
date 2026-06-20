@@ -4,6 +4,7 @@
  */
 
 import SupplementaryForm from '@app/domains/DataCollection/Forms/SupplementaryForm';
+import { postSupplementaryForm } from '@modules/cached-resources';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
@@ -181,8 +182,6 @@ describe('SupplementaryForm - RED-GREEN TDD', () => {
 
   describe('RED: isOfflineLocal propagation to postSupplementaryForm', () => {
     it('passes isOfflineLocal: true in postParams when surveyee.isOfflineLocal is true', async () => {
-      const { postSupplementaryForm } = require('@modules/cached-resources');
-
       render(
         <SupplementaryForm
           {...baseProps}

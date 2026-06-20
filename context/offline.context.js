@@ -39,6 +39,7 @@ export function OfflineContextProvider({ children }) {
     [user, residentOnlineData]
   );
 
+  // getData and setResidents are both stable references — empty dep array is intentional
   const residentOfflineData = useCallback(
     () =>
       getData("residentData").then(async (data) => {

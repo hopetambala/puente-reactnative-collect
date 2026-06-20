@@ -105,7 +105,8 @@ function SupplementaryForm({
 
     const excluded = new Set([
       ...PARSE_METADATA_FIELDS,
-      'client', 'appVersion', 'phoneOS', 'editedAt', 'editedBy',
+      ...FORM_RESULT_METADATA,
+      'phoneOS',
     ]);
     if (selectedForm === "custom") {
       FORM_STRUCTURE_FIELDS.forEach((f) => excluded.add(f));
