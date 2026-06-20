@@ -214,6 +214,7 @@ function SupplementaryForm({
             parseClass: config.class,
             localObject: formObjectUpdated,
             loop: loopsAdded !== 0,
+            isOfflineLocal: surveyee?.isOfflineLocal || false,
           };
 
           if (selectedForm === "custom") {

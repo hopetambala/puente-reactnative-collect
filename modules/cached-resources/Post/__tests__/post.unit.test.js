@@ -92,6 +92,58 @@ describe("postSupplementaryAssetForm", () => {
   });
 });
 
+describe("postIdentificationForm offline — return value includes isOfflineLocal", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    checkOnlineStatus.mockResolvedValue(false);
+    const { storeData, getData } = require("@modules/async-storage");
+    getData.mockResolvedValue(null);
+    storeData.mockResolvedValue([]);
+  });
+
+  it("returns an object with isOfflineLocal: true so callers can propagate it into supplementary forms", async () => {
+    const result = await postIdentificationForm({
+      parseClass: "SurveyData",
+      localObject: { name: "Maria" },
+    });
+
+    expect(result).toEqual(
+      expect.objectContaining({ isOfflineLocal: true })
+    );
+  });
+});
+
+describe("postSupplementaryForm partial-reconnect — isOfflineLocal guard when connected", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    checkOnlineStatus.mockResolvedValue(true);
+    const { storeData, getData } = require("@modules/async-storage");
+    getData.mockResolvedValue(null);
+    storeData.mockResolvedValue([]);
+  });
+
+  it("does NOT call postObjectsToClassWithRelation and queues to offlineSupForms when isConnected but postParams.isOfflineLocal is true", async () => {
+    const { storeData } = require("@modules/async-storage");
+
+    await postSupplementaryForm({
+      parseParentClassID: "PatientID-abc123",
+      isOfflineLocal: true,
+      localObject: { note: "followup" },
+    });
+
+    expect(postObjectsToClassWithRelation).not.toHaveBeenCalled();
+    expect(storeData).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({
+          parseParentClassID: "PatientID-abc123",
+          isOfflineLocal: true,
+        }),
+      ]),
+      "offlineSupForms"
+    );
+  });
+});
+
 describe("timeout protection", () => {
   const RACE_TIMEOUT_MS = 200;
   const TIMED_OUT_SENTINEL = "TIMED_OUT";

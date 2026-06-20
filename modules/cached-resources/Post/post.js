@@ -23,7 +23,7 @@ const postIdentificationForm = async (postParams) => {
   }
 
   return getData("offlineIDForms").then(async (offlineResidentIdForms) => {
-    const localObject = { ...postParams.localObject, objectId: `PatientID-${generateRandomID()}` };
+    const localObject = { ...postParams.localObject, objectId: `PatientID-${generateRandomID()}`, isOfflineLocal: true };
     const idParams = { ...postParams, localObject, isOfflineLocal: true };
 
     const existing = offlineResidentIdForms ?? [];
