@@ -6,7 +6,11 @@ import {
   postSupplementaryAssetForm,
   postSupplementaryForm,
 } from "@modules/cached-resources";
-import { postOfflineForms } from "@modules/offline/post";
+import { getData } from "@modules/async-storage";
+import {
+  cleanupPostedOfflineForms,
+  postOfflineForms,
+} from "@modules/offline/post";
 
 import checkOnlineStatus from "..";
 import {
@@ -168,4 +172,104 @@ describe("Testing full feature of offline posting", () => {
       offlineForms.assetSupplementaryForms.length
     );
   });
+
+  test(
+    "partial-reconnect: supplementary form is queued when parent resident was collected offline",
+    async () => {
+      // Step 1: start offline
+      checkOnlineStatus.mockResolvedValue(false);
+
+      const user = await createOfflineUserMockData();
+
+      // Step 2: post identification form offline and capture the return value
+      const residentPostParams = {
+        parseClass: "SurveyData",
+        parseUser: user.objectId,
+        localObject: { fname: "Maria" },
+      };
+      const resident = await postIdentificationForm(residentPostParams);
+
+      // Step 3: the return value must carry isOfflineLocal so callers know the parent is not yet on the server
+      expect(resident.isOfflineLocal).toBe(true);
+
+      // Step 4: build supplementary form postParams propagating the flag (as SupplementaryForm.js now does)
+      const supPostParams = {
+        parseParentClassID: resident.objectId,
+        parseParentClass: "SurveyData",
+        parseUser: user.objectId,
+        parseClass: "FormResults",
+        isOfflineLocal: resident.isOfflineLocal,
+        localObject: {
+          title: "Water Survey",
+          fields: [],
+          surveyingUser: user.username,
+          surveyingOrganization: user.organization,
+        },
+      };
+
+      // Step 5: connectivity returns before supplementary form is submitted
+      checkOnlineStatus.mockResolvedValue(true);
+
+      // Snapshot queue length before posting (other tests may have added items)
+      const supFormsBeforePost = await getData("offlineSupForms");
+      const queueLengthBefore = supFormsBeforePost ? supFormsBeforePost.length : 0;
+
+      // Step 6: post the supplementary form — isOfflineLocal flag must prevent an online post
+      await postSupplementaryForm(supPostParams);
+
+      // Step 7: the supplementary form must be in the offline queue, not posted online
+      const queuedSupForms = await getData("offlineSupForms");
+      expect(queuedSupForms).not.toBeNull();
+      expect(queuedSupForms).toHaveLength(queueLengthBefore + 1);
+
+      // Steps 8-9: uploading offline forms reconciles both queues
+      const { uploadedForms, offlineForms } = await postOfflineForms();
+      expect(uploadedForms.residentForms.length).toEqual(
+        offlineForms.residentForms.length
+      );
+      expect(uploadedForms.residentSupplementaryForms.length).toEqual(
+        offlineForms.residentSupplementaryForms.length
+      );
+    },
+    60000
+  );
+
+  test(
+    "cleanup after upload empties offlineIDForms and offlineSupForms queue keys",
+    async () => {
+      // Collect offline: one resident and two supplementary forms
+      checkOnlineStatus.mockResolvedValue(false);
+
+      const user = await createOfflineUserMockData();
+
+      const residents = createResidentMockData(1, user.objectId);
+      const resident = await postIdentificationForm(residents[0]);
+
+      const supplementaryForms = createSupplementaryFormMockData(
+        2,
+        resident.objectId,
+        user.objectId
+      );
+      await supplementaryForms.reduce(
+        (p, form) => p.then(() => postSupplementaryForm(form)),
+        Promise.resolve(null)
+      );
+
+      // Go back online and run upload + cleanup cycle
+      checkOnlineStatus.mockResolvedValue(true);
+
+      const { status } = await postOfflineForms();
+      expect(status).toBe("Success");
+
+      await cleanupPostedOfflineForms();
+
+      // After cleanup both queue keys must be null — the queue is truly empty
+      const idFormsAfterCleanup = await getData("offlineIDForms");
+      const supFormsAfterCleanup = await getData("offlineSupForms");
+
+      expect(idFormsAfterCleanup).toBeNull();
+      expect(supFormsAfterCleanup).toBeNull();
+    },
+    60000
+  );
 });

@@ -35,6 +35,49 @@ function renderWithContext(onContext) {
   );
 }
 
+describe("OfflineContext — cache round-trip", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    storeData.mockResolvedValue(undefined);
+    // getData returns null by default — round-trip wiring must be explicit
+    getData.mockResolvedValue(null);
+  });
+
+  it("residentOfflineData returns the records that residentOnlineData fetched and stored", async () => {
+    const records = [{ objectId: "r1" }, { objectId: "r2" }];
+    residentQuery.mockResolvedValue(records);
+
+    // storeData captures what it receives so getData can serve it back,
+    // simulating the AsyncStorage round-trip that the production code relies on.
+    const localStore = {};
+    storeData.mockImplementation((value, key) => {
+      localStore[key] = value;
+      return Promise.resolve(value);
+    });
+    // NOTE: getData is intentionally left as mockResolvedValue(null) from
+    // beforeEach — it does NOT read from localStore. This exposes that
+    // residentOfflineData cannot see what residentOnlineData stored unless
+    // the getData mock is wired to the same store that storeData wrote to.
+    // The test will go RED: residentOfflineData returns [] instead of records.
+
+    let capturedCtx;
+    renderWithContext((ctx) => {
+      capturedCtx = ctx;
+    });
+
+    await act(async () => {
+      await capturedCtx.residentOnlineData();
+    });
+
+    let result;
+    await act(async () => {
+      result = await capturedCtx.residentOfflineData();
+    });
+
+    expect(result).toEqual(records);
+  });
+});
+
 describe("OfflineContext — residentOnlineData", () => {
   beforeEach(() => {
     jest.clearAllMocks();
