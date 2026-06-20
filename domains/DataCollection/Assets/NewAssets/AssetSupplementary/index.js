@@ -121,7 +121,7 @@ function AssetSupplementary({
             photoFile,
             localObject: formObjectUpdated,
             typeOfForm: "Asset",
-            isOfflineLocal: selectedAsset.isOfflineLocal,
+            isOfflineLocal: selectedAsset?.isOfflineLocal ?? false,
           };
 
           const fieldsArray = Object.entries(formObject).map((obj) => ({

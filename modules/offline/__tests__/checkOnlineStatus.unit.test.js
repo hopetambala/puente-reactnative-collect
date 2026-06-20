@@ -8,9 +8,6 @@ jest.mock("@react-native-community/netinfo", () => ({
   default: { fetch: jest.fn() },
 }));
 jest.mock("expo-network", () => ({ getNetworkStateAsync: jest.fn() }));
-jest.mock("@modules/aws-logging/logger", () =>
-  jest.fn().mockReturnValue({ log: jest.fn() })
-);
 
 describe("checkOnlineStatus on Android", () => {
   it("should resolve false when state.details is null", async () => {

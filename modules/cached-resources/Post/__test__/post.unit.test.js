@@ -1,3 +1,4 @@
+import * as asyncStorage from "@modules/async-storage";
 import {
   postHousehold,
   postIdentificationForm,
@@ -75,7 +76,7 @@ describe("test offline", () => {
 
     const postedSupplementaryForm = await postSupplementaryForm(postParams);
 
-    expect(postedSupplementaryForm[0].parseParentClassID).toContain(
+    expect(postedSupplementaryForm.parseParentClassID).toContain(
       "PatientID"
     ); // signifies it is an offline form
   });
@@ -126,6 +127,41 @@ describe("test offline", () => {
     );
     expect(postedHouseholdWithRelation[0].localObject.objectId).toContain(
       "Household"
+    );
+  });
+});
+
+describe("postSupplementaryForm offline — return value must be postParams, not the storeData array", () => {
+  let getDataSpy;
+  let storeDataSpy;
+
+  beforeEach(() => {
+    checkOnlineStatus.mockResolvedValue(false);
+    getDataSpy = jest
+      .spyOn(asyncStorage, "getData")
+      .mockResolvedValue(null);
+    storeDataSpy = jest
+      .spyOn(asyncStorage, "storeData")
+      .mockResolvedValue([{ queued: true }]);
+  });
+
+  afterEach(() => {
+    getDataSpy.mockRestore();
+    storeDataSpy.mockRestore();
+  });
+
+  it("resolves to the queued postParams object, not the storeData array", async () => {
+    const postParams = {
+      parseParentClassID: "PatientID-xxx",
+      isOfflineLocal: true,
+      localObject: {},
+    };
+
+    const result = await postSupplementaryForm(postParams);
+
+    expect(Array.isArray(result)).toBe(false);
+    expect(result).toEqual(
+      expect.objectContaining({ parseParentClassID: "PatientID-xxx" })
     );
   });
 });

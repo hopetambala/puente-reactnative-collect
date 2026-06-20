@@ -8,7 +8,6 @@ import {
   YupValidationPicker as yupValidationPicker,
 } from "@impacto-design-system/Extensions";
 import { getData } from "@modules/async-storage";
-import getAWSLogger from "@modules/aws-logging/logger";
 import {
   invalidateResidentCache,
   postIdentificationForm,
@@ -249,7 +248,7 @@ function IdentificationFormWrapper({
       setSelectedForm("");
 
     } catch (e) {
-      getAWSLogger().log({ type: "IDENTIFICATION_FORM_SUBMIT_ERROR", message: String(e) });
+      console.error("IdentificationForm submit error:", e);
       setSubmitting(false);
       setSubmissionError(true);
       alert(I18n.t("submissionError.error"));

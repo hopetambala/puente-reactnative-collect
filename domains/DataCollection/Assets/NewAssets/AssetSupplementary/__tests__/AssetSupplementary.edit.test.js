@@ -337,9 +337,10 @@ describe('Asset Forms Edit Mode - RED-GREEN TDD', () => {
       jest.mock(
         '@app/domains/DataCollection/Assets/NewAssets/AssetSupplementary/AssetFormSelect',
         () => {
-          const React = require('react');
+          // eslint-disable-next-line global-require
+          const MockReact = require('react');
           return function MockAssetFormSelect({ setSelectedForm }) {
-            React.useEffect(() => {
+            MockReact.useEffect(() => {
               setSelectedForm({ objectId: 'form-type-456', name: 'Mock Form', fields: [] });
             }, []);
             return null;

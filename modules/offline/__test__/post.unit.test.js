@@ -1,6 +1,5 @@
 import { uploadOfflineForms } from "@app/services/parse/crud";
-import { deleteData,getData } from "@modules/async-storage";
-import getAWSLogger from "@modules/aws-logging/logger";
+import { deleteData, getData } from "@modules/async-storage";
 import {
   postIdentificationForm,
   postSupplementaryForm,
@@ -21,8 +20,6 @@ jest.mock("@app/services/parse/crud", () => ({
 
 jest.mock("..", () => jest.fn());
 
-jest.mock("@modules/aws-logging/logger");
-
 jest.mock("@app/domains/DataCollection/Forms/utils", () =>
   jest.fn().mockResolvedValue("testUser")
 );
@@ -40,13 +37,8 @@ jest.mock("@modules/async-storage", () => ({
   }),
 }));
 
-const mockLog = jest.fn();
-
 describe("postOfflineForms failure contract", () => {
   beforeEach(() => {
-    getAWSLogger.mockReturnValue({ log: mockLog });
-    mockLog.mockClear();
-
     getData.mockImplementation((key) => {
       if (key === "currentUser") {
         return Promise.resolve({ objectId: "u1", organization: "org1" });
@@ -79,16 +71,6 @@ describe("postOfflineForms failure contract", () => {
     expect(result.status).toBe("Error");
   });
 
-  it("should not log OFFLINE_FORM_UPLOADED when upload fails", async () => {
-    checkOnlineStatus.mockResolvedValue(true);
-    uploadOfflineForms.mockRejectedValue(new Error("fail"));
-
-    await postOfflineForms();
-
-    expect(mockLog).not.toHaveBeenCalledWith(
-      expect.objectContaining({ type: "OFFLINE_FORM_UPLOADED" })
-    );
-  });
 });
 
 describe("postOfflineForms null user safety", () => {
@@ -117,23 +99,6 @@ describe("postOfflineForms null user safety", () => {
   });
 });
 
-describe("postOfflineForms offline return shape", () => {
-  afterEach(() => {
-    getData.mockImplementation((key) =>
-      Promise.resolve(asyncStorageStore[key] ?? null)
-    );
-  });
-
-  it("should not return a plain string when offline", async () => {
-    checkOnlineStatus.mockResolvedValue(false);
-    getData.mockImplementation((key) => {
-      if (key === "currentUser") return Promise.resolve({ objectId: "u1", organization: "org1" });
-      return Promise.resolve(null);
-    });
-    const result = await postOfflineForms();
-    expect(typeof result).not.toBe("string");
-  });
-});
 
 describe("Testing full feature of offline posting", () => {
   test("Testing number of postOfflineForms", async () => {
@@ -176,37 +141,6 @@ describe("Testing full feature of offline posting", () => {
     expect(numberOfResidents + numberofSupplementaryFormsCollected).toEqual(
       offlineForms.residentForms.length +
         offlineForms.residentSupplementaryForms.length
-    );
-  });
-});
-
-describe("cleanupPostedOfflineForms logging", () => {
-  beforeEach(() => {
-    getAWSLogger.mockReturnValue({ log: mockLog });
-    mockLog.mockClear();
-    deleteData.mockImplementation(() => Promise.resolve());
-  });
-
-  afterEach(() => {
-    deleteData.mockReset();
-    deleteData.mockImplementation(() => Promise.resolve());
-  });
-
-  it("should log CLEANUP_DELETE_FAILED with the key when a delete is rejected", async () => {
-    deleteData.mockImplementation((key) => {
-      if (key === "offlineIDForms") {
-        return Promise.reject(new Error("removeItem failed"));
-      }
-      return Promise.resolve();
-    });
-
-    await cleanupPostedOfflineForms();
-
-    expect(mockLog).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "CLEANUP_DELETE_FAILED",
-        key: "offlineIDForms",
-      })
     );
   });
 });

@@ -80,9 +80,7 @@ function Header({ setSettings, onOpenSettings, onBack }) {
       setIsSubmitting,
       setSubmission,
       getQueuedFormCount: async () => offlineFormCount,
-      resetFormCount: (count) => {
-        setOfflineFormCount(count);
-      },
+      resetFormCount: setOfflineFormCount,
       storeLastSyncTimestamp: async () => {
         const ts = Date.now();
         await storeData(ts, "lastSyncTimestamp");
@@ -163,68 +161,68 @@ function Header({ setSettings, onOpenSettings, onBack }) {
           entering={DrawerEntrance.duration(MOTION_TOKENS.duration.base)}
         >
           <>
-              <View style={styles.divider} />
+            <View style={styles.divider} />
 
-              <View style={styles.buttonContainer}>
-                {offlineFormCount > 0 ? (
-                  <Button
-                    mode="contained"
-                    onPress={upload}
-                    loading={isSubmitting}
-                  >
-                    {I18n.t("header.submitOffline")}
-                  </Button>
-                ) : (
-                  <Button mode="contained" disabled>
-                    {I18n.t("header.submitOffline")}
-                  </Button>
-                )}
-              </View>
-
-              <View style={styles.buttonContainer}>
+            <View style={styles.buttonContainer}>
+              {offlineFormCount > 0 ? (
                 <Button
-                  mode="outlined"
-                  onPress={cacheOfflineData}
-                  loading={isOfflineLoading}
+                  mode="contained"
+                  onPress={upload}
+                  loading={isSubmitting}
                 >
-                  {I18n.t("header.populateOffline")}
+                  {I18n.t("header.submitOffline")}
+                </Button>
+              ) : (
+                <Button mode="contained" disabled>
+                  {I18n.t("header.submitOffline")}
+                </Button>
+              )}
+            </View>
+
+            <View style={styles.buttonContainer}>
+              <Button
+                mode="outlined"
+                onPress={cacheOfflineData}
+                loading={isOfflineLoading}
+              >
+                {I18n.t("header.populateOffline")}
+              </Button>
+            </View>
+
+            {submission === false && (
+              <View>
+                <Text style={styles.errorText}>
+                  {I18n.t("header.failedAttempt")}
+                </Text>
+                <Text style={styles.successText}>
+                  {I18n.t("header.tryAgain")}
+                </Text>
+                <Button onPress={upload}>
+                  {I18n.t("header.retry")}
+                </Button>
+                <Button onPress={() => setSubmission(null)}>
+                  {I18n.t("header.ok")}
                 </Button>
               </View>
+            )}
 
-              {submission === false && (
-                <View>
-                  <Text style={styles.errorText}>
-                    {I18n.t("header.failedAttempt")}
-                  </Text>
-                  <Text style={styles.successText}>
-                    {I18n.t("header.tryAgain")}
-                  </Text>
-                  <Button onPress={upload}>
-                    {I18n.t("header.retry")}
-                  </Button>
-                  <Button onPress={() => setSubmission(null)}>
-                    {I18n.t("header.ok")}
-                  </Button>
-                </View>
-              )}
-
-              {submission === true && (
-                <View>
-                  <Text style={styles.successText}>
-                    {I18n.t("header.success")}
-                  </Text>
-                  <Text style={styles.successText}>
-                    {I18n.t("header.justSubmitted")} {offlineFormCount}{" "}
-                    {offlineFormCount > 1
-                      ? I18n.t("header.forms")
-                      : I18n.t("header.form")}
-                  </Text>
-                  <Button onPress={() => setSubmission(null)}>
-                    {I18n.t("header.ok")}
-                  </Button>
-                </View>
-              )}
-            </>
+            {typeof submission === 'number' && submission > 0 && (
+              <View>
+                <Text style={styles.successText}>
+                  {I18n.t("header.success")}
+                </Text>
+                <Text style={styles.successText}>
+                  {I18n.t("header.justSubmitted")} {submission}{" "}
+                  {submission > 1
+                    ? I18n.t("header.forms")
+                    : I18n.t("header.form")}
+                </Text>
+                <Button onPress={() => setSubmission(null)}>
+                  {I18n.t("header.ok")}
+                </Button>
+              </View>
+            )}
+          </>
         </Animated.View>
       )}
     </View>

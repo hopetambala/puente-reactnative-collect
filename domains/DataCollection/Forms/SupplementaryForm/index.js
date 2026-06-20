@@ -6,7 +6,6 @@ import ErrorPicker from "@impacto-design-system/Extensions/FormikFields/ErrorPic
 import PaperInputPicker from "@impacto-design-system/Extensions/FormikFields/PaperInputPicker";
 import yupValidationPicker from "@impacto-design-system/Extensions/FormikFields/YupValidation";
 import { getData } from "@modules/async-storage";
-import getAWSLogger from "@modules/aws-logging/logger";
 import {
   invalidateResidentCache,
   postSupplementaryForm,
@@ -178,7 +177,7 @@ function SupplementaryForm({
                   JSON.stringify(value);
                   cleanedUpdateFields[key] = value;
                 } catch (e) {
-                  getAWSLogger().log({ type: "SUPPLEMENTARY_FORM_NON_SERIALIZABLE_FIELD", key });
+                  console.warn("SupplementaryForm: skipping non-serializable field", key);
                 }
               }
             });
@@ -236,7 +235,7 @@ function SupplementaryForm({
           setSubmitting(false);
           toRoot();
         } catch (e) {
-          getAWSLogger().log({ type: "SUPPLEMENTARY_FORM_SUBMIT_ERROR", message: String(e) });
+          console.error("SupplementaryForm submit error:", e);
           setSubmitting(false);
           setSubmissionError(true);
           alert(I18n.t("submissionError.error"));

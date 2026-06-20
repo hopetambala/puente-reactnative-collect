@@ -22,16 +22,15 @@ const postIdentificationForm = async (postParams) => {
     return JSON.parse(JSON.stringify(result.value));
   }
 
-  return getData("offlineIDForms").then(async (offlineResidentIdForms) => {
-    const localObject = { ...postParams.localObject, objectId: `PatientID-${generateRandomID()}` };
-    // isOfflineLocal is on idParams (queue routing), NOT inside localObject —
-    // Cloud Code reads only form.localObject so this never reaches Parse on sync.
-    const idParams = { ...postParams, localObject, isOfflineLocal: true };
+  const offlineResidentIdForms = await getData("offlineIDForms");
+  const localObject = { ...postParams.localObject, objectId: `PatientID-${generateRandomID()}` };
+  // isOfflineLocal is on idParams (queue routing), NOT inside localObject —
+  // Cloud Code reads only form.localObject so this never reaches Parse on sync.
+  const idParams = { ...postParams, localObject, isOfflineLocal: true };
 
-    const existing = offlineResidentIdForms ?? [];
-    await storeData([...existing, idParams], "offlineIDForms");
-    return { ...localObject, isOfflineLocal: true };
-  });
+  const existing = offlineResidentIdForms ?? [];
+  await storeData([...existing, idParams], "offlineIDForms");
+  return { ...localObject, isOfflineLocal: true };
 };
 
 /** ***********************************************
@@ -57,14 +56,13 @@ const postAssetForm = async (postParams) => {
     if (!result.value) throw new Error("postAssetForm returned null");
     return JSON.parse(JSON.stringify(result.value));
   }
-  return getData("offlineAssetIDForms").then(async (offlineData) => {
-    const localObject = { ...postParams.localObject, objectId: `AssetID-${generateRandomID()}` };
-    const assetIdParams = { ...postParams, localObject, isOfflineLocal: true };
+  const offlineData = await getData("offlineAssetIDForms");
+  const localObject = { ...postParams.localObject, objectId: `AssetID-${generateRandomID()}` };
+  const assetIdParams = { ...postParams, localObject, isOfflineLocal: true };
 
-    const existing = offlineData ?? [];
-    await storeData([...existing, assetIdParams], "offlineAssetIDForms");
-    return { ...localObject, isOfflineLocal: true };
-  });
+  const existing = offlineData ?? [];
+  await storeData([...existing, assetIdParams], "offlineAssetIDForms");
+  return { ...localObject, isOfflineLocal: true };
 };
 
 const postSupplementaryFormBase = async (postParams, { offlineKey, fnName }) => {
@@ -81,10 +79,10 @@ const postSupplementaryFormBase = async (postParams, { offlineKey, fnName }) => 
     return result.value;
   }
 
-  return getData(offlineKey).then(async (supForms) => {
-    const existing = supForms ?? [];
-    return storeData([...existing, postParams], offlineKey);
-  });
+  const supForms = await getData(offlineKey);
+  const existing = supForms ?? [];
+  await storeData([...existing, postParams], offlineKey);
+  return postParams;
 };
 
 /** ***********************************************
@@ -137,22 +135,20 @@ const postHousehold = async (postParams) => {
     return result.value.id;
   }
 
-  return getData("offlineHouseholds").then(async (offlineHouseholds) => {
-    const households = offlineHouseholds;
-    const householdParams = postParams;
+  const households = await getData("offlineHouseholds");
+  const householdParams = postParams;
 
-    const { localObject } = householdParams;
-    localObject.objectId = `Household-${generateRandomID()}`;
+  const { localObject } = householdParams;
+  localObject.objectId = `Household-${generateRandomID()}`;
 
-    if (households) {
-      const forms = households.concat(householdParams);
-      await storeData(forms, "offlineHouseholds");
-      return forms;
-    }
-    const householdData = [householdParams];
-    await storeData(householdData, "offlineHouseholds");
-    return householdData;
-  });
+  if (households) {
+    const forms = households.concat(householdParams);
+    await storeData(forms, "offlineHouseholds");
+    return forms;
+  }
+  const householdData = [householdParams];
+  await storeData(householdData, "offlineHouseholds");
+  return householdData;
 };
 
 export {
