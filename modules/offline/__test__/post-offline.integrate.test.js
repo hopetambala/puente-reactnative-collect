@@ -128,24 +128,24 @@ describe("Testing full feature of offline posting", () => {
     const user = await createOfflineUserMockData();
 
     const mockedAssets = createAssetMockData(numberOfAssets, user.objectId);
-    await postAssetForm(mockedAssets[0]);
-    await postAssetForm(mockedAssets[1]);
-    const assets = await postAssetForm(mockedAssets[2]);
+    const asset1 = await postAssetForm(mockedAssets[0]);
+    const asset2 = await postAssetForm(mockedAssets[1]);
+    const asset3 = await postAssetForm(mockedAssets[2]);
 
     const supplementaryForms1 = createAssetSupplementaryFormMockData(
       numberofAssetSupplementaryFormsCollected / numberOfAssets,
-      assets[0].localObject.objectId,
+      asset1.objectId,
       user.objectId
     );
     const supplementaryForms2 = createAssetSupplementaryFormMockData(
       numberofAssetSupplementaryFormsCollected / numberOfAssets,
-      assets[1].localObject.objectId,
+      asset2.objectId,
       user.objectId
     );
 
     const supplementaryForms3 = createAssetSupplementaryFormMockData(
       numberofAssetSupplementaryFormsCollected / numberOfAssets,
-      assets[2].localObject.objectId,
+      asset3.objectId,
       user.objectId
     );
 
@@ -231,7 +231,7 @@ describe("Testing full feature of offline posting", () => {
         offlineForms.residentSupplementaryForms.length
       );
     },
-    60000
+    10000
   );
 
   test(
@@ -270,6 +270,6 @@ describe("Testing full feature of offline posting", () => {
       expect(idFormsAfterCleanup).toBeNull();
       expect(supFormsAfterCleanup).toBeNull();
     },
-    60000
+    10000
   );
 });

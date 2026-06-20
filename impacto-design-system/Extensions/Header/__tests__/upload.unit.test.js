@@ -21,7 +21,7 @@ describe("handleUpload", () => {
 
     await handleUpload({ postOfflineForms, cleanupPostedOfflineForms, setIsSubmitting, setSubmission, resetFormCount });
 
-    expect(resetFormCount).toHaveBeenCalled();
+    expect(resetFormCount).toHaveBeenCalledWith(0);
   });
 
   it("should not call postOfflineForms when queue is empty", async () => {

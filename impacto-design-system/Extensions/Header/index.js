@@ -15,7 +15,6 @@ import { Button, IconButton, Text, useTheme } from "react-native-paper";
 import Animated, { Keyframe } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import FormCounts from "./FormCounts";
 import { createHeaderStyles } from "./index.styles";
 import { handleUpload } from "./upload";
 
@@ -31,11 +30,9 @@ function Header({ setSettings, onOpenSettings, onBack }) {
   const styles = createHeaderStyles(theme);
   const { header } = styles;
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [volunteerGreeting, setVolunteerGreeting] = useState("");
   const [offlineFormCount, setOfflineFormCount] = useState(0);
   const [submission, setSubmission] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showCounts, setShowCounts] = useState(false);
   const [isOnline, setIsOnline] = useState(null);
   const [lastSyncTimestamp, setLastSyncTimestamp] = useState(null);
   const { populateResidentDataCache, isLoading: isOfflineLoading } =
@@ -74,28 +71,6 @@ function Header({ setSettings, onOpenSettings, onBack }) {
       unsubscribe();
     };
   }, []);
-
-  const calculateTime = (name) => {
-    const today = new Date();
-    const curHr = today.getHours();
-
-    if (curHr < 12) {
-      setVolunteerGreeting(
-        `${I18n.t("header.goodMorning")} ${name}!` ||
-          I18n.t("header.goodMorning!")
-      );
-    } else if (curHr < 18) {
-      setVolunteerGreeting(
-        `${I18n.t("header.goodAfternoon")} ${name}!` ||
-          I18n.t("header.goodAfternoon!")
-      );
-    } else {
-      setVolunteerGreeting(
-        `${I18n.t("header.goodEvening")} ${name}!` ||
-          I18n.t("header.goodEvening!")
-      );
-    }
-  };
 
   const upload = () =>
     handleUpload({
@@ -186,10 +161,8 @@ function Header({ setSettings, onOpenSettings, onBack }) {
           style={styles.drawerContent}
           entering={DrawerEntrance.duration(MOTION_TOKENS.duration.base)}
         >
-          {!showCounts ? (
-            <>
+          <>
               <Text style={styles.greeting}>
-                {volunteerGreeting}
                 <Emoji name="coffee" />
               </Text>
 
@@ -255,9 +228,6 @@ function Header({ setSettings, onOpenSettings, onBack }) {
                 </View>
               )}
             </>
-          ) : (
-            <FormCounts />
-          )}
         </Animated.View>
       )}
     </View>

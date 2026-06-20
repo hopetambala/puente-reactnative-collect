@@ -23,12 +23,12 @@ const postIdentificationForm = async (postParams) => {
   }
 
   return getData("offlineIDForms").then(async (offlineResidentIdForms) => {
-    const localObject = { ...postParams.localObject, objectId: `PatientID-${generateRandomID()}`, isOfflineLocal: true };
+    const localObject = { ...postParams.localObject, objectId: `PatientID-${generateRandomID()}` };
     const idParams = { ...postParams, localObject, isOfflineLocal: true };
 
     const existing = offlineResidentIdForms ?? [];
     await storeData([...existing, idParams], "offlineIDForms");
-    return localObject;
+    return { ...localObject, isOfflineLocal: true };
   });
 };
 
@@ -60,7 +60,8 @@ const postAssetForm = async (postParams) => {
     const assetIdParams = { ...postParams, localObject, isOfflineLocal: true };
 
     const existing = offlineData ?? [];
-    return storeData([...existing, assetIdParams], "offlineAssetIDForms");
+    await storeData([...existing, assetIdParams], "offlineAssetIDForms");
+    return { ...localObject, isOfflineLocal: true };
   });
 };
 
@@ -79,12 +80,8 @@ const postSupplementaryForm = async (postParams) => {
   }
 
   return getData("offlineSupForms").then(async (supForms) => {
-    if (supForms) {
-      const forms = supForms.concat(postParams);
-      return storeData(forms, "offlineSupForms");
-    }
-    const supData = [postParams];
-    return storeData(supData, "offlineSupForms");
+    const existing = supForms ?? [];
+    return storeData([...existing, postParams], "offlineSupForms");
   });
 };
 
@@ -112,12 +109,8 @@ const postSupplementaryAssetForm = async (postParams) => {
     return result.value;
   }
   return getData("offlineAssetSupForms").then(async (supForms) => {
-    if (supForms) {
-      const forms = supForms.concat(postParams);
-      return storeData(forms, "offlineAssetSupForms");
-    }
-    const supData = [postParams];
-    return storeData(supData, "offlineAssetSupForms");
+    const existing = supForms ?? [];
+    return storeData([...existing, postParams], "offlineAssetSupForms");
   });
 };
 

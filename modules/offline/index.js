@@ -29,7 +29,8 @@ const checkOnlineStatus = () => {
     } else {
       NetInfo.fetch().then(
         (state) => {
-          if (state.isConnected && state.details !== null) {
+          // Android reports strength on a 0–4 RSSI bucket scale (not 0–100); details===null means no interface at all
+      if (state.isConnected && state.details !== null) {
             getAWSLogger().log({
               type: "CHECK_ONLINE_STATUS_SUCCESS",
               duration: elapsed(),

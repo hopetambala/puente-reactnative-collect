@@ -1,5 +1,5 @@
 import { getData, storeData } from "@modules/async-storage";
-import { populateCache,residentQuery } from "@modules/cached-resources";
+import { residentQuery } from "@modules/cached-resources";
 import { act, render } from "@testing-library/react-native";
 import React, { useContext } from "react";
 
@@ -48,18 +48,17 @@ describe("OfflineContext — cache round-trip", () => {
     const records = [{ objectId: "r1" }, { objectId: "r2" }];
     residentQuery.mockResolvedValue(records);
 
-    // storeData captures what it receives so getData can serve it back,
-    // simulating the AsyncStorage round-trip that the production code relies on.
+    // Wire storeData and getData to the same localStore so the AsyncStorage
+    // round-trip is correctly simulated. The test passes because getData reads
+    // what storeData wrote — not because of any in-memory residents fallback.
     const localStore = {};
     storeData.mockImplementation((value, key) => {
       localStore[key] = value;
       return Promise.resolve(value);
     });
-    // NOTE: getData is intentionally left as mockResolvedValue(null) from
-    // beforeEach — it does NOT read from localStore. This exposes that
-    // residentOfflineData cannot see what residentOnlineData stored unless
-    // the getData mock is wired to the same store that storeData wrote to.
-    // The test will go RED: residentOfflineData returns [] instead of records.
+    getData.mockImplementation((key) =>
+      Promise.resolve(localStore[key] ?? null)
+    );
 
     let capturedCtx;
     renderWithContext((ctx) => {
@@ -76,6 +75,47 @@ describe("OfflineContext — cache round-trip", () => {
     });
 
     expect(result).toEqual(records);
+  });
+
+  it("residentOfflineData returns [] when getData returns null even if residents state was populated by residentOnlineData", async () => {
+    const records = [{ objectId: "r1" }];
+    residentQuery.mockResolvedValue(records);
+
+    // storeData writes to localStore so residentOnlineData succeeds and
+    // populates the residents state inside the provider.
+    const localStore = {};
+    storeData.mockImplementation((value, key) => {
+      localStore[key] = value;
+      return Promise.resolve(value);
+    });
+    // Start with getData wired to localStore so residentOnlineData's storeData
+    // call is stored, then override to null to simulate cleared AsyncStorage.
+    getData.mockImplementation((key) =>
+      Promise.resolve(localStore[key] ?? null)
+    );
+
+    let capturedCtx;
+    renderWithContext((ctx) => {
+      capturedCtx = ctx;
+    });
+
+    // Populate residents state via residentOnlineData — this sets residents = records
+    await act(async () => {
+      await capturedCtx.residentOnlineData();
+    });
+
+    // Now simulate cleared AsyncStorage: getData always returns null
+    getData.mockResolvedValue(null);
+
+    let result;
+    await act(async () => {
+      result = await capturedCtx.residentOfflineData();
+    });
+
+    // residentOfflineData must only read from AsyncStorage (getData), not fall
+    // back to the in-memory residents state. With getData returning null it must
+    // return [] — NOT [{ objectId: "r1" }].
+    expect(result).toEqual([]);
   });
 });
 

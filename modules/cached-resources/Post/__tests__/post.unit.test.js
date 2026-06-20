@@ -144,6 +144,63 @@ describe("postSupplementaryForm partial-reconnect — isOfflineLocal guard when 
   });
 });
 
+describe("postIdentificationForm offline — localObject must not carry isOfflineLocal", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    checkOnlineStatus.mockResolvedValue(false);
+    const { getData } = require("@modules/async-storage");
+    getData.mockResolvedValue(null);
+  });
+
+  it("stores localObject without isOfflineLocal so it does not pollute the Parse data model on sync", async () => {
+    const capturedArrays = [];
+    const { storeData } = require("@modules/async-storage");
+    storeData.mockImplementation((value, key) => {
+      if (key === "offlineIDForms") capturedArrays.push(value);
+      return Promise.resolve(value);
+    });
+
+    const result = await postIdentificationForm({
+      parseClass: "SurveyData",
+      localObject: { name: "Test" },
+    });
+
+    expect(capturedArrays.length).toBeGreaterThan(0);
+    const stored = capturedArrays[capturedArrays.length - 1];
+    // isOfflineLocal belongs on idParams (queue routing), NOT inside localObject (data payload)
+    expect(stored[stored.length - 1].localObject.isOfflineLocal).toBeUndefined();
+    // the return value should still carry isOfflineLocal so callers can propagate it
+    expect(result.isOfflineLocal).toBe(true);
+  });
+});
+
+describe("postAssetForm offline — return value includes isOfflineLocal", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    checkOnlineStatus.mockResolvedValue(false);
+    const { storeData, getData } = require("@modules/async-storage");
+    getData.mockResolvedValue(null);
+    storeData.mockResolvedValue([]);
+  });
+
+  it("returns an object with isOfflineLocal: true and the original localObject fields so callers can propagate it into supplementary asset forms", async () => {
+    const result = await postAssetForm({
+      parseClass: "Assets",
+      localObject: { name: "Water Pump" },
+    });
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        name: "Water Pump",
+        isOfflineLocal: true,
+      })
+    );
+    expect(typeof result).toBe("object");
+    expect(Array.isArray(result)).toBe(false);
+    expect(result.objectId).toMatch(/^AssetID-/);
+  });
+});
+
 describe("timeout protection", () => {
   const RACE_TIMEOUT_MS = 200;
   const TIMED_OUT_SENTINEL = "TIMED_OUT";

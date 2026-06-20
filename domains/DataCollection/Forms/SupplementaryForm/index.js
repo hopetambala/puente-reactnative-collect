@@ -38,6 +38,7 @@ const PARSE_METADATA_FIELDS = new Set([
 
 const FORM_STRUCTURE_FIELDS = new Set(['fields', 'title', 'description', 'formSpecificationsId']);
 
+// Fields written by the app, not entered by the user — excluded from the field-building loop
 const FORM_RESULT_METADATA = new Set([
   'surveyingUser', 'surveyingOrganization', 'client', 'appVersion', 'editedBy', 'editedAt',
 ]);

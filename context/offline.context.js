@@ -42,7 +42,7 @@ export function OfflineContextProvider({ children }) {
   const residentOfflineData = useCallback(
     () =>
       getData("residentData").then(async (data) => {
-        const residentData = data || residents || [];
+        const residentData = data || [];
         let offlineData = [];
         const offlineResidentData = await getData("offlineIDForms");
         if (offlineResidentData !== null) {
@@ -54,7 +54,7 @@ export function OfflineContextProvider({ children }) {
         setResidents(allData.slice());
         return allData.slice();
       }),
-    [residents]
+    []
   );
 
   const contextValue = useMemo(
