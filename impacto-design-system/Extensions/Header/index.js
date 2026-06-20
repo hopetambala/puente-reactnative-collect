@@ -10,7 +10,6 @@ import { MOTION_TOKENS } from "@modules/utils/animations";
 import NetInfo from "@react-native-community/netinfo";
 import React, { useContext, useEffect, useState } from "react";
 import { View } from "react-native";
-import Emoji from "react-native-emoji";
 import { Button, IconButton, Text, useTheme } from "react-native-paper";
 import Animated, { Keyframe } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -41,9 +40,8 @@ function Header({ setSettings, onOpenSettings, onBack }) {
   useEffect(() => {
     let cancelled = false;
     const loadStatusBar = async () => {
-      const [online, ts, idForms, supForms, assetIdForms, assetSupForms] =
+      const [ts, idForms, supForms, assetIdForms, assetSupForms] =
         await Promise.all([
-          checkOnlineStatus().catch(() => false),
           getData("lastSyncTimestamp"),
           getData("offlineIDForms"),
           getData("offlineSupForms"),
@@ -51,7 +49,6 @@ function Header({ setSettings, onOpenSettings, onBack }) {
           getData("offlineAssetSupForms"),
         ]);
       if (cancelled) return;
-      setIsOnline(online);
       setLastSyncTimestamp(ts);
       const total =
         (idForms?.length ?? 0) +
@@ -61,6 +58,10 @@ function Header({ setSettings, onOpenSettings, onBack }) {
       setOfflineFormCount(total);
     };
     loadStatusBar();
+
+    NetInfo.fetch().then((state) => {
+      if (!cancelled) setIsOnline(state.isConnected && state.details !== null);
+    });
 
     const unsubscribe = NetInfo.addEventListener((state) => {
       if (!cancelled) setIsOnline(state.isConnected && state.details !== null);
@@ -162,10 +163,6 @@ function Header({ setSettings, onOpenSettings, onBack }) {
           entering={DrawerEntrance.duration(MOTION_TOKENS.duration.base)}
         >
           <>
-              <Text style={styles.greeting}>
-                <Emoji name="coffee" />
-              </Text>
-
               <View style={styles.divider} />
 
               <View style={styles.buttonContainer}>

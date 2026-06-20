@@ -24,6 +24,8 @@ const postIdentificationForm = async (postParams) => {
 
   return getData("offlineIDForms").then(async (offlineResidentIdForms) => {
     const localObject = { ...postParams.localObject, objectId: `PatientID-${generateRandomID()}` };
+    // isOfflineLocal is on idParams (queue routing), NOT inside localObject —
+    // Cloud Code reads only form.localObject so this never reaches Parse on sync.
     const idParams = { ...postParams, localObject, isOfflineLocal: true };
 
     const existing = offlineResidentIdForms ?? [];
@@ -65,25 +67,31 @@ const postAssetForm = async (postParams) => {
   });
 };
 
-const postSupplementaryForm = async (postParams) => {
+const postSupplementaryFormBase = async (postParams, { offlineKey, fnName }) => {
   const isConnected = await checkOnlineStatus();
-  if (isConnected && !postParams?.isOfflineLocal) {
+  if (isConnected && postParams?.parseParentClassID && !postParams?.isOfflineLocal) {
     const result = await fulfillWithTimeLimit(
       POST_TIMEOUT_MS,
       postObjectsToClassWithRelation(postParams),
       null
     );
-    if (result.timedOut) throw new Error("postSupplementaryForm timed out");
+    if (result.timedOut) throw new Error(`${fnName} timed out`);
     if (result.error) throw result.error;
-    if (!result.value) throw new Error("postSupplementaryForm returned null");
+    if (!result.value) throw new Error(`${fnName} returned null`);
     return result.value;
   }
 
-  return getData("offlineSupForms").then(async (supForms) => {
+  return getData(offlineKey).then(async (supForms) => {
     const existing = supForms ?? [];
-    return storeData([...existing, postParams], "offlineSupForms");
+    return storeData([...existing, postParams], offlineKey);
   });
 };
+
+const postSupplementaryForm = (postParams) =>
+  postSupplementaryFormBase(postParams, {
+    offlineKey: "offlineSupForms",
+    fnName: "postSupplementaryForm",
+  });
 
 /** ***********************************************
  * Function to post asset supplementary form offline
@@ -94,25 +102,11 @@ const postSupplementaryForm = async (postParams) => {
  * @param {Object} postParams Object normally configured for for Parse-Server Cloud Code
  *
  *********************************************** */
-const postSupplementaryAssetForm = async (postParams) => {
-  const isConnected = await checkOnlineStatus();
-
-  if (isConnected && postParams?.parseParentClassID && !postParams?.isOfflineLocal) {
-    const result = await fulfillWithTimeLimit(
-      POST_TIMEOUT_MS,
-      postObjectsToClassWithRelation(postParams),
-      null
-    );
-    if (result.timedOut) throw new Error("postSupplementaryAssetForm timed out");
-    if (result.error) throw result.error;
-    if (!result.value) throw new Error("postSupplementaryAssetForm returned null");
-    return result.value;
-  }
-  return getData("offlineAssetSupForms").then(async (supForms) => {
-    const existing = supForms ?? [];
-    return storeData([...existing, postParams], "offlineAssetSupForms");
+const postSupplementaryAssetForm = (postParams) =>
+  postSupplementaryFormBase(postParams, {
+    offlineKey: "offlineAssetSupForms",
+    fnName: "postSupplementaryAssetForm",
   });
-};
 
 /**
  * Function to post household form. Used for creating a new household

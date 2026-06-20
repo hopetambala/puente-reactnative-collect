@@ -38,12 +38,6 @@ export const createHeaderStyles = (theme) => {
       paddingVertical: spacing.md,
       backgroundColor: colors.background,
     },
-    greeting: {
-      ...typography.heading2,
-      color: colors.textPrimary,
-      marginVertical: spacing.md,
-      textAlign: "center",
-    },
     divider: {
       height: 1,
       backgroundColor: colors.outline,

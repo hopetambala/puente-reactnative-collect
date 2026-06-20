@@ -275,3 +275,26 @@ describe("timeout protection", () => {
     expect(raceResult).not.toBe(TIMED_OUT_SENTINEL);
   });
 });
+
+describe("postSupplementaryForm — missing parseParentClassID guard", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    checkOnlineStatus.mockResolvedValue(true);
+    getData.mockResolvedValue(null);
+    storeData.mockResolvedValue([]);
+  });
+
+  it("should route to offlineSupForms queue and NOT call postObjectsToClassWithRelation when parseParentClassID is undefined, even when online and isOfflineLocal is false", async () => {
+    await postSupplementaryForm({
+      parseParentClassID: undefined,
+      isOfflineLocal: false,
+      localObject: {},
+    });
+
+    expect(postObjectsToClassWithRelation).not.toHaveBeenCalled();
+    expect(storeData).toHaveBeenCalledWith(
+      expect.anything(),
+      "offlineSupForms"
+    );
+  });
+});

@@ -298,6 +298,34 @@ describe("Header component", () => {
     expect(mockUnsubscribe).toHaveBeenCalled();
   });
 
+  it("Test 10 — shows online/offline status text on initial mount via NetInfo.fetch, not just on next network change", async () => {
+    // Block the checkOnlineStatus (Promise.all) path so it never resolves during this test.
+    // If the component calls NetInfo.fetch() on mount, isOnline is set immediately and the
+    // status text appears. Without NetInfo.fetch() the status bar stays hidden (isOnline===null).
+    const checkOnlineStatus = require("@modules/offline");
+    checkOnlineStatus.mockReturnValue(new Promise(() => {})); // never resolves
+
+    const NetInfo = require("@react-native-community/netinfo");
+    NetInfo.fetch.mockResolvedValue({ isConnected: true, details: {} });
+
+    mockGetData.mockResolvedValue(null);
+
+    const { queryByText } = render(<Header />);
+
+    await waitFor(
+      () => {
+        const online = queryByText("header.online");
+        const offline = queryByText("header.offline");
+        if (!online && !offline) {
+          throw new Error(
+            'Unable to find "header.online" or "header.offline" — status text not shown on initial mount'
+          );
+        }
+      },
+      { timeout: 1000 }
+    );
+  });
+
   it("Test 4 — shows offline form count badge in header without opening the drawer", async () => {
     mockGetData.mockImplementation((key) => {
       if (key === "currentUser") {

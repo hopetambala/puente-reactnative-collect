@@ -143,7 +143,7 @@ describe("OfflineContext — residentOnlineData", () => {
     expect(capturedCtx.isLoading).toBe(false);
   });
 
-  it("should reset isLoading to false even when residentQuery throws (BUG: currently stuck true)", async () => {
+  it("resets isLoading to false when residentQuery throws", async () => {
     residentQuery.mockRejectedValue(new Error("network error"));
 
     let capturedCtx;
@@ -159,11 +159,10 @@ describe("OfflineContext — residentOnlineData", () => {
       }
     });
 
-    // BUG: currently isLoading stays true because there is no try/finally
     expect(capturedCtx.isLoading).toBe(false);
   });
 
-  it("should propagate storeData errors rather than swallowing them (BUG: currently silent)", async () => {
+  it("propagates storeData errors instead of swallowing them", async () => {
     const records = [{ objectId: "r1" }];
     residentQuery.mockResolvedValue(records);
     storeData.mockRejectedValue(new Error("storage full"));
@@ -173,8 +172,6 @@ describe("OfflineContext — residentOnlineData", () => {
       capturedCtx = ctx;
     });
 
-    // BUG: currently storeData is not awaited so the error is silently lost
-    // After fix: the error should propagate (either thrown or returned as rejection)
     await expect(
       act(async () => {
         await capturedCtx.residentOnlineData();
