@@ -1,8 +1,8 @@
 import { handleUpload } from "@impacto-design-system/Extensions/Header/upload";
 
 describe("handleUpload", () => {
-  it("should not cleanup offline forms when postOfflineForms returns No Internet Access", async () => {
-    const postOfflineForms = jest.fn().mockResolvedValue("No Internet Access");
+  it("should not cleanup offline forms when postOfflineForms returns { status: 'Offline' }", async () => {
+    const postOfflineForms = jest.fn().mockResolvedValue({ status: "Offline" });
     const cleanupPostedOfflineForms = jest.fn();
     const setIsSubmitting = jest.fn();
     const setSubmission = jest.fn();
@@ -10,6 +10,18 @@ describe("handleUpload", () => {
     await handleUpload({ postOfflineForms, cleanupPostedOfflineForms, setIsSubmitting, setSubmission });
 
     expect(cleanupPostedOfflineForms).not.toHaveBeenCalled();
+  });
+
+  it("should call resetFormCount(0) after successful upload", async () => {
+    const postOfflineForms = jest.fn().mockResolvedValue({ status: "Success", offlineForms: {}, uploadedForms: {} });
+    const cleanupPostedOfflineForms = jest.fn().mockResolvedValue();
+    const setIsSubmitting = jest.fn();
+    const setSubmission = jest.fn();
+    const resetFormCount = jest.fn();
+
+    await handleUpload({ postOfflineForms, cleanupPostedOfflineForms, setIsSubmitting, setSubmission, resetFormCount });
+
+    expect(resetFormCount).toHaveBeenCalled();
   });
 
   it("should not call postOfflineForms when queue is empty", async () => {

@@ -2,6 +2,11 @@
 import { act, render, waitFor } from "@testing-library/react-native";
 import React from "react";
 
+jest.mock("@react-native-community/netinfo", () => ({
+  addEventListener: jest.fn(() => jest.fn()),
+  fetch: jest.fn().mockResolvedValue({ isConnected: true, details: {} }),
+}));
+
 jest.mock("react-native-paper", () => {
   const mockReact = require("react");
   const mockRN = jest.requireActual("react-native");
@@ -268,6 +273,29 @@ describe("Header component", () => {
 
     // When there are no queued forms the Retry button must be absent
     expect(queryByText("header.retry")).toBeNull();
+  });
+
+  it("Test 8 — subscribes to NetInfo changes on mount for live connectivity updates", async () => {
+    const NetInfo = require("@react-native-community/netinfo");
+    mockGetData.mockResolvedValue(null);
+
+    render(<Header />);
+
+    await act(async () => {});
+
+    expect(NetInfo.addEventListener).toHaveBeenCalled();
+  });
+
+  it("Test 9 — unsubscribes from NetInfo on unmount to prevent memory leaks", async () => {
+    const NetInfo = require("@react-native-community/netinfo");
+    const mockUnsubscribe = jest.fn();
+    NetInfo.addEventListener.mockReturnValue(mockUnsubscribe);
+    mockGetData.mockResolvedValue(null);
+
+    const { unmount } = render(<Header />);
+    unmount();
+
+    expect(mockUnsubscribe).toHaveBeenCalled();
   });
 
   it("Test 4 — shows offline form count badge in header without opening the drawer", async () => {

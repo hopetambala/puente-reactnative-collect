@@ -2,6 +2,7 @@ import { OfflineContext } from "@context/offline.context";
 import { getData, storeData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
+import NetInfo from "@react-native-community/netinfo";
 import {
   cleanupPostedOfflineForms,
   postOfflineForms,
@@ -30,9 +31,7 @@ function Header({ setSettings, onOpenSettings, onBack }) {
   const styles = createHeaderStyles(theme);
   const { header } = styles;
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [volunteerDate, setVolunteerDate] = useState("");
   const [volunteerGreeting, setVolunteerGreeting] = useState("");
-  const [offlineForms, setOfflineForms] = useState(false);
   const [offlineFormCount, setOfflineFormCount] = useState(0);
   const [submission, setSubmission] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,17 +62,18 @@ function Header({ setSettings, onOpenSettings, onBack }) {
         (assetIdForms?.length ?? 0) +
         (assetSupForms?.length ?? 0);
       setOfflineFormCount(total);
-      setOfflineForms(total > 0);
     };
     loadStatusBar();
-    return () => { cancelled = true; };
-  }, []);
 
-  const volunteerLength = (object) => {
-    const date = new Date(object.createdAt);
-    const convertedDate = date.toDateString();
-    return convertedDate;
-  };
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      if (!cancelled) setIsOnline(state.isConnected && state.details !== null);
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
+  }, []);
 
   const calculateTime = (name) => {
     const today = new Date();
@@ -104,6 +104,9 @@ function Header({ setSettings, onOpenSettings, onBack }) {
       setIsSubmitting,
       setSubmission,
       getQueuedFormCount: async () => offlineFormCount,
+      resetFormCount: (count) => {
+        setOfflineFormCount(count);
+      },
       storeLastSyncTimestamp: async () => {
         const ts = Date.now();
         await storeData(ts, "lastSyncTimestamp");
@@ -125,11 +128,6 @@ function Header({ setSettings, onOpenSettings, onBack }) {
     if (setSettings) {
       setSettings(true);
     }
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  const navToCounts = () => {
-    setShowCounts(true);
   };
 
   return (
@@ -194,14 +192,11 @@ function Header({ setSettings, onOpenSettings, onBack }) {
                 {volunteerGreeting}
                 <Emoji name="coffee" />
               </Text>
-              <Text style={styles.volunteerDate}>
-                {`${I18n.t("header.volunteerSince")}\n${volunteerDate}`}
-              </Text>
 
               <View style={styles.divider} />
 
               <View style={styles.buttonContainer}>
-                {offlineForms ? (
+                {offlineFormCount > 0 ? (
                   <Button
                     mode="contained"
                     onPress={upload}

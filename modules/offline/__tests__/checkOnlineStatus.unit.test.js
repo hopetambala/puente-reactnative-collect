@@ -16,17 +16,27 @@ describe("checkOnlineStatus on Android", () => {
   it("should resolve false when state.details is null", async () => {
     NetInfo.fetch.mockResolvedValue({ isConnected: true, details: null });
 
-    // Bug: state.details.strength throws a TypeError when details is null.
-    // The thrown error is swallowed inside the outer Promise constructor, so
-    // the promise never settles — it hangs indefinitely instead of resolving
-    // false. We race against a 500 ms sentinel to detect the hang.
-    const TIMEOUT_SENTINEL = "TIMED_OUT";
-    const timeout = new Promise((resolve) => {
-      setTimeout(() => resolve(TIMEOUT_SENTINEL), 500);
+    await expect(checkOnlineStatus()).resolves.toBe(false);
+  });
+
+  it("should resolve true when isConnected is true and strength is 4", async () => {
+    // Android reports signal strength as 0–4 (RSSI buckets), not 0–100.
+    // strength: 4 means excellent signal. The device is genuinely online.
+    // The buggy condition `> 10` rejects this valid connection and returns false.
+    NetInfo.fetch.mockResolvedValue({
+      isConnected: true,
+      details: { strength: 4 },
     });
 
-    const result = await Promise.race([checkOnlineStatus(), timeout]);
+    await expect(checkOnlineStatus()).resolves.toBe(true);
+  });
 
-    expect(result).toBe(false);
+  it("should resolve false when isConnected is false regardless of strength", async () => {
+    NetInfo.fetch.mockResolvedValue({
+      isConnected: false,
+      details: { strength: 4 },
+    });
+
+    await expect(checkOnlineStatus()).resolves.toBe(false);
   });
 });

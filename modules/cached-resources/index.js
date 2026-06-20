@@ -1,7 +1,4 @@
-import {
-  invalidateAllResidentData,
-  invalidateResidentCache,
-} from "./invalidate";
+import { invalidateResidentCache } from "./invalidate";
 import populateCache from "./populate-cache";
 import {
   postAssetForm,
@@ -27,7 +24,6 @@ export {
   cacheResidentDataMulti,
   customFormsQuery,
   getTasksAsync,
-  invalidateAllResidentData,
   invalidateResidentCache,
   populateCache,
   postAssetForm,

@@ -32,14 +32,24 @@ const postOfflineForms = async () => {
 
   const surveyUser = await surveyingUserFailsafe(user, undefined, isEmpty);
   const { organization } = user;
-  const appVersion = (await getData("appVersion")) || "";
   const phoneOS = Platform.OS || "";
 
-  const idFormsAsync = await getData("offlineIDForms");
-  const supplementaryFormsAsync = await getData("offlineSupForms");
-  const assetIdFormsAsync = await getData("offlineAssetIDForms");
-  const assetSupFormsAsync = await getData("offlineAssetSupForms");
-  const householdsAsync = await getData("offlineHouseholds");
+  const [
+    idFormsAsync,
+    supplementaryFormsAsync,
+    assetIdFormsAsync,
+    assetSupFormsAsync,
+    householdsAsync,
+    appVersionRaw,
+  ] = await Promise.all([
+    getData("offlineIDForms"),
+    getData("offlineSupForms"),
+    getData("offlineAssetIDForms"),
+    getData("offlineAssetSupForms"),
+    getData("offlineHouseholds"),
+    getData("appVersion"),
+  ]);
+  const appVersion = appVersionRaw || "";
 
   const offlineForms = {
     residentForms: idFormsAsync,
@@ -80,7 +90,7 @@ const postOfflineForms = async () => {
     };
   }
 
-  return "No Internet Access";
+  return { status: "Offline" };
 };
 
 export { cleanupPostedOfflineForms, postOfflineForms };

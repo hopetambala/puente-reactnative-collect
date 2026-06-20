@@ -103,6 +103,36 @@ describe("postOfflineForms null user safety", () => {
 
     await expect(postOfflineForms()).resolves.toMatchObject({ status: "Error" });
   });
+
+  it("should return { status: 'Offline' } (not a string) when not connected", async () => {
+    checkOnlineStatus.mockResolvedValue(false);
+    getData.mockImplementation((key) => {
+      if (key === "currentUser") return Promise.resolve({ objectId: "u1", organization: "org1" });
+      return Promise.resolve(null);
+    });
+    const result = await postOfflineForms();
+    // Currently returns the string "No Internet Access" — must be an object
+    expect(typeof result).toBe("object");
+    expect(result).toMatchObject({ status: "Offline" });
+  });
+});
+
+describe("postOfflineForms offline return shape", () => {
+  afterEach(() => {
+    getData.mockImplementation((key) =>
+      Promise.resolve(asyncStorageStore[key] ?? null)
+    );
+  });
+
+  it("should not return a plain string when offline", async () => {
+    checkOnlineStatus.mockResolvedValue(false);
+    getData.mockImplementation((key) => {
+      if (key === "currentUser") return Promise.resolve({ objectId: "u1", organization: "org1" });
+      return Promise.resolve(null);
+    });
+    const result = await postOfflineForms();
+    expect(typeof result).not.toBe("string");
+  });
 });
 
 describe("Testing full feature of offline posting", () => {

@@ -8,6 +8,7 @@ import {
   YupValidationPicker as yupValidationPicker,
 } from "@impacto-design-system/Extensions";
 import { getData } from "@modules/async-storage";
+import getAWSLogger from "@modules/aws-logging/logger";
 import {
   invalidateResidentCache,
   postIdentificationForm,
@@ -37,7 +38,6 @@ function IdentificationForm({
   validationSchema,
   setValidationSchema,
   inputs,
-  setInputs,
   submitting,
   submissionError,
   setSubmissionError,
@@ -50,10 +50,6 @@ function IdentificationForm({
   useEffect(() => {
     setValidationSchema(yupValidationPicker(configArray));
   }, []);
-
-  useEffect(() => {
-    setInputs(configArray);
-  }, [setInputs, configArray]);
 
   return (
     <View>
@@ -128,7 +124,7 @@ function IdentificationFormWrapper({
   navigation,
 }) {
   const { alert } = useContext(AlertContext);
-  const [inputs, setInputs] = useState([]);
+  const [inputs] = useState(configArray);
   const [validationSchema, setValidationSchema] = useState();
   const [submitting, setSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState(false);
@@ -175,8 +171,11 @@ function IdentificationFormWrapper({
     try {
       const { photoFile } = values;
 
-      const formObject = values;
-      const user = await getData("currentUser");
+      const formObject = { ...values };
+      const [user, appVersion] = await Promise.all([
+        getData("currentUser"),
+        withTimeoutAbort(storeAppVersion, 300, ""),
+      ]);
 
       formObject.surveyingOrganization =
         surveyingOrganization || user.organization;
@@ -186,7 +185,7 @@ function IdentificationFormWrapper({
         isEmpty
       );
 
-      formObject.appVersion = await withTimeoutAbort(storeAppVersion, 300, "");
+      formObject.appVersion = appVersion;
       formObject.phoneOS = Platform.OS || "";
 
       formObject.latitude = values.location?.latitude || 0;
@@ -250,8 +249,7 @@ function IdentificationFormWrapper({
       setSelectedForm("");
 
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
+      getAWSLogger().log({ type: "IDENTIFICATION_FORM_SUBMIT_ERROR", message: String(e) });
       setSubmitting(false);
       setSubmissionError(true);
       alert(I18n.t("submissionError.error"));
@@ -264,15 +262,11 @@ function IdentificationFormWrapper({
       setScrollViewScroll={setScrollViewScroll}
       onSubmit={onSubmit}
       inputs={inputs}
-      setInputs={setInputs}
       validationSchema={validationSchema}
       setValidationSchema={setValidationSchema}
       submitting={submitting}
-      setSubmitting={setSubmitting}
       submissionError={submissionError}
       setSubmissionError={setSubmissionError}
-      setSelectedForm={setSelectedForm}
-      setSurveyee={setSurveyee}
       editMode={editMode}
       editFormValues={editFormValues}
     />

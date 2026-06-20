@@ -2,6 +2,7 @@ import { postObjectsToClass, postObjectsToClassWithRelation } from "@app/service
 import {
   postAssetForm,
   postHousehold,
+  postIdentificationForm,
   postSupplementaryAssetForm,
   postSupplementaryForm,
 } from "@modules/cached-resources/Post/post";
@@ -24,6 +25,50 @@ jest.mock("@modules/utils", () => ({
   fulfillWithTimeLimit: jest.fn(),
   generateRandomID: jest.fn().mockReturnValue("abc123"),
 }));
+
+describe("postIdentificationForm offline — isOfflineLocal flag", () => {
+  beforeEach(() => {
+    checkOnlineStatus.mockResolvedValue(false);
+  });
+
+  it("should store postParams with isOfflineLocal: true when offline", async () => {
+    const capturedStored = [];
+    const { storeData } = require("@modules/async-storage");
+    storeData.mockImplementation((value, key) => {
+      if (key === "offlineIDForms") capturedStored.push(value);
+      return Promise.resolve(value);
+    });
+
+    await postIdentificationForm({ parseClass: "SurveyData", localObject: {} });
+
+    expect(capturedStored.length).toBeGreaterThan(0);
+    const storedForms = capturedStored[capturedStored.length - 1];
+    expect(storedForms[storedForms.length - 1].isOfflineLocal).toBe(true);
+  });
+});
+
+describe("postSupplementaryForm — isOfflineLocal routing", () => {
+  beforeEach(() => {
+    checkOnlineStatus.mockResolvedValue(true);
+  });
+
+  it("should queue offline when isOfflineLocal is true on the params, even when connected", async () => {
+    const capturedStored = [];
+    const { storeData } = require("@modules/async-storage");
+    storeData.mockImplementation((value, key) => {
+      if (key === "offlineSupForms") capturedStored.push(value);
+      return Promise.resolve(value);
+    });
+
+    await postSupplementaryForm({
+      parseParentClassID: "PatientID-abc123",
+      isOfflineLocal: true,
+      localObject: {},
+    });
+
+    expect(capturedStored.length).toBeGreaterThan(0);
+  });
+});
 
 describe("postSupplementaryAssetForm", () => {
   test("should queue offline when parseParentClassID is undefined", async () => {

@@ -22,22 +22,12 @@ const postIdentificationForm = async (postParams) => {
     return JSON.parse(JSON.stringify(result.value));
   }
 
-  return getData("offlineIDForms").then(async (offlineIDForms) => {
-    const offlineResidentIdForms = offlineIDForms;
+  return getData("offlineIDForms").then(async (offlineResidentIdForms) => {
+    const localObject = { ...postParams.localObject, objectId: `PatientID-${generateRandomID()}` };
+    const idParams = { ...postParams, localObject, isOfflineLocal: true };
 
-    const idParams = postParams;
-    const { localObject } = idParams;
-
-    localObject.objectId = `PatientID-${generateRandomID()}`;
-
-    if (offlineResidentIdForms) {
-      const forms = offlineResidentIdForms.concat(idParams);
-      await storeData(forms, "offlineIDForms");
-      return localObject;
-    }
-
-    const idData = [idParams];
-    await storeData(idData, "offlineIDForms");
+    const existing = offlineResidentIdForms ?? [];
+    await storeData([...existing, idParams], "offlineIDForms");
     return localObject;
   });
 };
@@ -66,24 +56,17 @@ const postAssetForm = async (postParams) => {
     return JSON.parse(JSON.stringify(result.value));
   }
   return getData("offlineAssetIDForms").then(async (offlineData) => {
-    const id = `AssetID-${generateRandomID()}`;
-    const assetIdParams = postParams;
-    const offlineAssetForms = offlineData;
-    assetIdParams.localObject.objectId = id;
+    const localObject = { ...postParams.localObject, objectId: `AssetID-${generateRandomID()}` };
+    const assetIdParams = { ...postParams, localObject, isOfflineLocal: true };
 
-    if (offlineAssetForms) {
-      const forms = offlineAssetForms.concat(assetIdParams);
-      return storeData(forms, "offlineAssetIDForms");
-    }
-
-    const idData = [assetIdParams];
-    return storeData(idData, "offlineAssetIDForms");
+    const existing = offlineData ?? [];
+    return storeData([...existing, assetIdParams], "offlineAssetIDForms");
   });
 };
 
 const postSupplementaryForm = async (postParams) => {
   const isConnected = await checkOnlineStatus();
-  if (isConnected && !postParams?.parseParentClassID?.includes("PatientID-")) {
+  if (isConnected && !postParams?.isOfflineLocal) {
     const result = await fulfillWithTimeLimit(
       POST_TIMEOUT_MS,
       postObjectsToClassWithRelation(postParams),
@@ -117,7 +100,7 @@ const postSupplementaryForm = async (postParams) => {
 const postSupplementaryAssetForm = async (postParams) => {
   const isConnected = await checkOnlineStatus();
 
-  if (isConnected && postParams?.parseParentClassID && !postParams.parseParentClassID.includes("AssetID-")) {
+  if (isConnected && postParams?.parseParentClassID && !postParams?.isOfflineLocal) {
     const result = await fulfillWithTimeLimit(
       POST_TIMEOUT_MS,
       postObjectsToClassWithRelation(postParams),

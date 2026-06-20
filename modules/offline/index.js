@@ -6,20 +6,22 @@ import { Platform } from "react-native";
 // checks whether user is connected to internet, return true if connected, false otherwise
 const checkOnlineStatus = () => {
   const startTime = new Date();
+  const elapsed = () => new Date() - startTime;
+
   return new Promise((resolve, reject) => {
     if (Platform.OS === "ios") {
       Network.getNetworkStateAsync().then(
         (status) => {
           getAWSLogger().log({
-            type: "CHECK_ONLINE_STATUS_SUCCESS_TIMER_SUCCESS",
-            duration: new Date() - startTime,
+            type: "CHECK_ONLINE_STATUS_SUCCESS",
+            duration: elapsed(),
           });
           resolve(status.isConnected);
         },
         (error) => {
           getAWSLogger().log({
-            type: "CHECK_ONLINE_STATUS_SUCCESS_TIMER_ERROR",
-            duration: new Date() - startTime,
+            type: "CHECK_ONLINE_STATUS_ERROR",
+            duration: elapsed(),
           });
           reject(error);
         }
@@ -27,22 +29,25 @@ const checkOnlineStatus = () => {
     } else {
       NetInfo.fetch().then(
         (state) => {
-          // check if signal strength is strong enough to support online functionality
-          if (state.isConnected && (state.details?.strength ?? 0) > 10) {
+          if (state.isConnected && state.details !== null) {
             getAWSLogger().log({
-              type: "CHECK_ONLINE_STATUS_SUCCESS_TIMER_SUCCESS",
-              duration: new Date() - startTime,
+              type: "CHECK_ONLINE_STATUS_SUCCESS",
+              duration: elapsed(),
             });
             resolve(true);
           } else {
             getAWSLogger().log({
-              type: "CHECK_ONLINE_STATUS_SUCCESS_TIMER_ERROR",
-              duration: new Date() - startTime,
+              type: "CHECK_ONLINE_STATUS_OFFLINE",
+              duration: elapsed(),
             });
             resolve(false);
           }
         },
         (error) => {
+          getAWSLogger().log({
+            type: "CHECK_ONLINE_STATUS_ERROR",
+            duration: elapsed(),
+          });
           reject(error);
         }
       );
