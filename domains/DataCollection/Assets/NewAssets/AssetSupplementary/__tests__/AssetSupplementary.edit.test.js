@@ -1,11 +1,9 @@
 /**
  * Asset Forms Edit Mode - RED-GREEN TDD Tests
- * Phase 7: Tests for FormAssetResults edit mode with fields reversal
  */
 
 import { AlertContextProvider } from '@app/context/alert.context';
 import AssetSupplementary from '@app/domains/DataCollection/Assets/NewAssets/AssetSupplementary/index';
-import { reverseFormResultsFields } from '@app/domains/DataCollection/Forms/SupplementaryForm/utils';
 import { updateObjectInClass } from '@app/services/parse/crud';
 import { postSupplementaryAssetForm } from '@modules/cached-resources';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
@@ -22,8 +20,7 @@ jest.mock(
       }, []);
       return null;
     };
-  },
-  { virtual: true }
+  }
 );
 
 jest.mock('@modules/cached-resources', () => ({
@@ -57,12 +54,6 @@ describe('Asset Forms Edit Mode - RED-GREEN TDD', () => {
     objectId: 'asset-123',
     name: 'Community Center',
     communityName: 'Springfield',
-  };
-
-  const mockAssetForm = {
-    objectId: 'form-type-456',
-    name: 'Asset Maintenance Form',
-    description: 'Track asset maintenance activities',
   };
 
   // Helper to render component with AlertContextProvider

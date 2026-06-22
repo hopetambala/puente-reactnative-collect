@@ -36,4 +36,10 @@ describe("checkOnlineStatus on Android", () => {
 
     await expect(checkOnlineStatus()).resolves.toBe(false);
   });
+
+  it("should resolve false when state.details is undefined", async () => {
+    NetInfo.fetch.mockResolvedValue({ isConnected: true, details: undefined });
+
+    await expect(checkOnlineStatus()).resolves.toBe(false);
+  });
 });

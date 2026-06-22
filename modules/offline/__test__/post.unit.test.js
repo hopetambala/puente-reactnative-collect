@@ -93,12 +93,10 @@ describe("postOfflineForms null user safety", () => {
       return Promise.resolve(null);
     });
     const result = await postOfflineForms();
-    // Currently returns the string "No Internet Access" — must be an object
     expect(typeof result).toBe("object");
     expect(result).toMatchObject({ status: "Offline" });
   });
 });
-
 
 describe("Testing full feature of offline posting", () => {
   test("Testing number of postOfflineForms", async () => {

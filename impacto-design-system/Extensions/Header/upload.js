@@ -41,7 +41,10 @@ export async function handleUpload({
 
   setSubmission(count);
   setIsSubmitting(false);
-  await cleanupPostedOfflineForms();
-  if (resetFormCount) resetFormCount(0);
-  if (storeLastSyncTimestamp) await storeLastSyncTimestamp();
+  try {
+    await cleanupPostedOfflineForms();
+  } finally {
+    if (storeLastSyncTimestamp) await storeLastSyncTimestamp();
+    if (resetFormCount) resetFormCount(0);
+  }
 }

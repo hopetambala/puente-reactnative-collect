@@ -81,9 +81,27 @@ describe("handleUpload", () => {
 
     try {
       await handleUpload({ cleanupPostedOfflineForms, getQueuedFormCount, postOfflineForms, setIsSubmitting, setSubmission, resetFormCount });
-    } catch (_) {}
+    } catch (_) { /* expected: cleanup throws, we only care that resetFormCount ran */ }
 
     expect(resetFormCount).toHaveBeenCalledWith(0);
+  });
+
+  it("should store last sync timestamp even when cleanupPostedOfflineForms throws", async () => {
+    const postOfflineForms = jest.fn().mockResolvedValue({ status: "Success", offlineForms: {}, uploadedForms: {} });
+    const cleanupPostedOfflineForms = jest.fn().mockRejectedValue(new Error("delete failed"));
+    const setIsSubmitting = jest.fn();
+    const setSubmission = jest.fn();
+    const storeLastSyncTimestamp = jest.fn().mockResolvedValue();
+
+    await handleUpload({
+      postOfflineForms,
+      cleanupPostedOfflineForms,
+      setIsSubmitting,
+      setSubmission,
+      storeLastSyncTimestamp,
+    }).catch(() => {}); // expected: cleanup throws, timestamp must still be stored
+
+    expect(storeLastSyncTimestamp).toHaveBeenCalledTimes(1);
   });
 
   it("should call setSubmission with the queued form count, not true, on successful upload", async () => {
@@ -96,6 +114,7 @@ describe("handleUpload", () => {
     const cleanupPostedOfflineForms = jest.fn().mockResolvedValue();
     const setIsSubmitting = jest.fn();
     const setSubmission = jest.fn();
+    const resetFormCount = jest.fn();
 
     await handleUpload({
       getQueuedFormCount,
@@ -103,8 +122,10 @@ describe("handleUpload", () => {
       cleanupPostedOfflineForms,
       setIsSubmitting,
       setSubmission,
+      resetFormCount,
     });
 
     expect(setSubmission).toHaveBeenCalledWith(3);
+    expect(resetFormCount).toHaveBeenCalledWith(0);
   });
 });
