@@ -483,14 +483,7 @@
     "addCreateHousehold": "Agrega o crea un hogar"
   },
   "header": {
-    "goodMorning": "Buenos días",
-    "goodAfternoon": "Buenas tardes",
-    "goodEvening": "Buena noches",
-    "goodMorning!": "¡Buenos días!",
-    "goodAfternoon!": "¡Buenas tardes!",
-    "goodEvening!": "¡Buena noches!",
     "puente": "PUENTE",
-    "volunteerSince": "Voluntaria desde",
     "surveysCollected": "Encuestas recopiladas",
     "submitOffline": "Enviar formularios sin conexión",
     "populateOffline": "Almacenar los datos del residente",

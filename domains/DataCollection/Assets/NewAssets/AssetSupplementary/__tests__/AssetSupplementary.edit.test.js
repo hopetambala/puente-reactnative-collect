@@ -11,6 +11,21 @@ import { postSupplementaryAssetForm } from '@modules/cached-resources';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
+jest.mock(
+  '@app/domains/DataCollection/Assets/NewAssets/AssetSupplementary/AssetFormSelect',
+  () => {
+    // eslint-disable-next-line global-require
+    const MockReact = require('react');
+    return function MockAssetFormSelect({ setSelectedForm }) {
+      MockReact.useEffect(() => {
+        setSelectedForm({ objectId: 'form-type-456', name: 'Mock Form', fields: [] });
+      }, []);
+      return null;
+    };
+  },
+  { virtual: true }
+);
+
 jest.mock('@modules/cached-resources', () => ({
   postSupplementaryAssetForm: jest.fn(() => Promise.resolve({})),
   assetFormsQuery: jest.fn(() => Promise.resolve([])),
@@ -332,24 +347,7 @@ describe('Asset Forms Edit Mode - RED-GREEN TDD', () => {
     });
   });
 
-  describe('RED: offline asset - isOfflineLocal forwarded to postParams', () => {
-    beforeEach(() => {
-      jest.mock(
-        '@app/domains/DataCollection/Assets/NewAssets/AssetSupplementary/AssetFormSelect',
-        () => {
-          // eslint-disable-next-line global-require
-          const MockReact = require('react');
-          return function MockAssetFormSelect({ setSelectedForm }) {
-            MockReact.useEffect(() => {
-              setSelectedForm({ objectId: 'form-type-456', name: 'Mock Form', fields: [] });
-            }, []);
-            return null;
-          };
-        },
-        { virtual: true }
-      );
-    });
-
+  describe('offline asset — isOfflineLocal forwarded to postParams', () => {
     test('postSupplementaryAssetForm receives isOfflineLocal:true when selectedAsset is offline-local', async () => {
       postSupplementaryAssetForm.mockResolvedValue({});
 

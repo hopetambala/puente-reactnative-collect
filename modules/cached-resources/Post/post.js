@@ -136,19 +136,13 @@ const postHousehold = async (postParams) => {
   }
 
   const households = await getData("offlineHouseholds");
-  const householdParams = postParams;
+  const localObject = { ...postParams.localObject, objectId: `Household-${generateRandomID()}` };
+  const householdParams = { ...postParams, localObject };
 
-  const { localObject } = householdParams;
-  localObject.objectId = `Household-${generateRandomID()}`;
-
-  if (households) {
-    const forms = households.concat(householdParams);
-    await storeData(forms, "offlineHouseholds");
-    return forms;
-  }
-  const householdData = [householdParams];
-  await storeData(householdData, "offlineHouseholds");
-  return householdData;
+  const existing = households ?? [];
+  const forms = [...existing, householdParams];
+  await storeData(forms, "offlineHouseholds");
+  return forms;
 };
 
 export {

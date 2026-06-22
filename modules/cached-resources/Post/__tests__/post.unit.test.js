@@ -298,3 +298,66 @@ describe("postSupplementaryForm — missing parseParentClassID guard", () => {
     );
   });
 });
+
+describe("postSupplementaryForm offline — return value is postParams, not the storeData array", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    checkOnlineStatus.mockResolvedValue(false);
+    getData.mockResolvedValue(null);
+    storeData.mockResolvedValue([{ queued: true }]);
+  });
+
+  it("resolves to the queued postParams object, not the storeData array", async () => {
+    const postParams = {
+      parseParentClassID: "PatientID-xxx",
+      isOfflineLocal: true,
+      localObject: {},
+    };
+
+    const result = await postSupplementaryForm(postParams);
+
+    expect(Array.isArray(result)).toBe(false);
+    expect(result).toEqual(
+      expect.objectContaining({ parseParentClassID: "PatientID-xxx" })
+    );
+  });
+});
+
+describe("postHousehold offline — queue accumulation", () => {
+  const store = {};
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    checkOnlineStatus.mockResolvedValue(false);
+    getData.mockImplementation((key) => Promise.resolve(store[key] ?? null));
+    storeData.mockImplementation((value, key) => {
+      store[key] = value;
+      return Promise.resolve(value);
+    });
+  });
+
+  afterEach(() => {
+    Object.keys(store).forEach((key) => delete store[key]);
+  });
+
+  test("first call creates a queue of one; second call accumulates to two", async () => {
+    const params = { parseClass: "Household", localObject: { latitude: 0, longitude: 0 } };
+
+    const first = await postHousehold(params);
+    expect(first).toHaveLength(1);
+    expect(first[0].localObject.objectId).toMatch(/^Household-/);
+
+    const second = await postHousehold(params);
+    expect(second).toHaveLength(2);
+    expect(second[1].localObject.objectId).toMatch(/^Household-/);
+  });
+
+  test("does not mutate the original postParams.localObject", async () => {
+    const localObject = { latitude: 0, longitude: 0 };
+    const params = { parseClass: "Household", localObject };
+
+    await postHousehold(params);
+
+    expect(localObject.objectId).toBeUndefined();
+  });
+});
