@@ -333,7 +333,7 @@ describe("Header component", () => {
     // Track whether the rejection was caught by the component.
     // We do this by making handleUpload return a specially-crafted promise:
     // its .catch is wrapped so we know if the component called .catch on it.
-    const { handleUpload } = require("../upload");
+    const { handleUpload } = require("@impacto-design-system/Extensions/Header/upload");
     let rejectionWasCaught = false;
     const rejectedPromise = Promise.reject(new Error("network failure"));
     // Attach a no-op catch on our side so Node doesn't fire unhandledRejection
@@ -364,7 +364,7 @@ describe("Header component", () => {
 
     // Flush microtasks
     await act(async () => {
-      await new Promise((res) => setImmediate(res));
+      await new Promise((res) => { setImmediate(res); });
     });
 
     // With current code: upload() returns handleUpload(...) without .catch,
@@ -373,6 +373,44 @@ describe("Header component", () => {
     // After the fix: upload() calls .catch(...) on the returned promise
     // → rejectionWasCaught is true → assertion passes (GREEN).
     expect(rejectionWasCaught).toBe(true);
+  });
+
+  it("calls console.error with the rejection error in the upload catch handler", async () => {
+    // Arrange: queue one offline form so the Retry button renders
+    setupGetDataWithUser({ offlineIDForms: [{}] });
+
+    const { handleUpload } = require("@impacto-design-system/Extensions/Header/upload");
+    const uploadError = new Error("upload network failure");
+    const rejectedPromise = Promise.reject(uploadError);
+    // Suppress unhandledRejection from our test setup; the component's .catch must also catch it
+    rejectedPromise.catch(() => {});
+    handleUpload.mockReturnValueOnce(rejectedPromise);
+
+    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+
+    const { queryByText } = render(<Header />);
+
+    // Wait for the Retry button to appear
+    await waitFor(
+      () => {
+        const retry = queryByText("header.retry");
+        if (!retry) throw new Error('Unable to find "header.retry"');
+      },
+      { timeout: 1000 }
+    );
+
+    // Act: press Retry — upload() calls handleUpload() which rejects
+    fireEvent.press(queryByText("header.retry"));
+
+    // Flush microtasks so the .catch() handler runs
+    await act(async () => {
+      await new Promise((res) => { setImmediate(res); });
+    });
+
+    // Assert: the catch handler must have called console.error with the error
+    expect(consoleErrorSpy).toHaveBeenCalledWith(uploadError);
+
+    consoleErrorSpy.mockRestore();
   });
 
   it("shows offline form count badge in header without opening the drawer", async () => {

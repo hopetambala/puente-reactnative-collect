@@ -59,9 +59,13 @@ function Header({ setSettings, onOpenSettings, onBack }) {
     };
     loadStatusBar();
 
-    NetInfo.fetch().then((state) => {
-      if (!cancelled) setIsOnline(state.isConnected && state.details !== null);
-    });
+    NetInfo.fetch()
+      .then((state) => {
+        if (!cancelled) setIsOnline(state.isConnected && state.details !== null);
+      })
+      .catch(() => {
+        if (!cancelled) setIsOnline(false);
+      });
 
     const unsubscribe = NetInfo.addEventListener((state) => {
       if (!cancelled) setIsOnline(state.isConnected && state.details !== null);
@@ -86,7 +90,8 @@ function Header({ setSettings, onOpenSettings, onBack }) {
         await storeData(ts, "lastSyncTimestamp");
         setLastSyncTimestamp(ts);
       },
-    }).catch(() => {
+    }).catch((error) => {
+      console.error(error);
       setIsSubmitting(false);
       setSubmission(false);
     });
