@@ -87,7 +87,7 @@ const postSupplementaryFormBase = async (postParams, { offlineKey, fnName }) => 
 
 /** ***********************************************
  * Function to post supplementary form offline
- * @name postForms
+ * @name postSupplementaryForm
  * @example
  * postSupplementaryForm(postParam);
  *
@@ -102,7 +102,7 @@ const postSupplementaryForm = (postParams) =>
 
 /** ***********************************************
  * Function to post asset supplementary form offline
- * @name postForms
+ * @name postSupplementaryAssetForm
  * @example
  * postSupplementaryAssetForm(postParam);
  *

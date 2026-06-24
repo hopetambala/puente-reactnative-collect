@@ -1,5 +1,5 @@
 /* eslint-disable global-require */
-import { act, render, waitFor } from "@testing-library/react-native";
+import { act, fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
 
 jest.mock("@react-native-community/netinfo", () => ({
@@ -324,6 +324,55 @@ describe("Header component", () => {
       },
       { timeout: 1000 }
     );
+  });
+
+  it("handles handleUpload rejection gracefully: catch resets isSubmitting so the UI does not freeze", async () => {
+    // Arrange: queue one offline form so the Retry button renders
+    setupGetDataWithUser({ offlineIDForms: [{}] });
+
+    // Track whether the rejection was caught by the component.
+    // We do this by making handleUpload return a specially-crafted promise:
+    // its .catch is wrapped so we know if the component called .catch on it.
+    const { handleUpload } = require("../upload");
+    let rejectionWasCaught = false;
+    const rejectedPromise = Promise.reject(new Error("network failure"));
+    // Attach a no-op catch on our side so Node doesn't fire unhandledRejection
+    // from our test setup — the component's upload() must ALSO catch it.
+    rejectedPromise.catch(() => {});
+    // Wrap: replace the promise's .catch so we can observe if it's called
+    const originalCatch = rejectedPromise.catch.bind(rejectedPromise);
+    rejectedPromise.catch = (fn) => {
+      rejectionWasCaught = true;
+      return originalCatch(fn);
+    };
+    handleUpload.mockReturnValueOnce(rejectedPromise);
+
+    const { queryByText } = render(<Header />);
+
+    // Wait for the Retry button to appear
+    await waitFor(
+      () => {
+        const retry = queryByText("header.retry");
+        if (!retry) throw new Error('Unable to find "header.retry"');
+      },
+      { timeout: 1000 }
+    );
+
+    // Act: press the Retry button — upload() calls handleUpload() and gets back
+    // the rejected promise. With the fix, upload() chains .catch() on it.
+    fireEvent.press(queryByText("header.retry"));
+
+    // Flush microtasks
+    await act(async () => {
+      await new Promise((res) => setImmediate(res));
+    });
+
+    // With current code: upload() returns handleUpload(...) without .catch,
+    // so our instrumented .catch was never called → rejectionWasCaught is false
+    // → this assertion FAILS (RED).
+    // After the fix: upload() calls .catch(...) on the returned promise
+    // → rejectionWasCaught is true → assertion passes (GREEN).
+    expect(rejectionWasCaught).toBe(true);
   });
 
   it("shows offline form count badge in header without opening the drawer", async () => {

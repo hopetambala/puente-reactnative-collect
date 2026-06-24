@@ -86,6 +86,9 @@ function Header({ setSettings, onOpenSettings, onBack }) {
         await storeData(ts, "lastSyncTimestamp");
         setLastSyncTimestamp(ts);
       },
+    }).catch(() => {
+      setIsSubmitting(false);
+      setSubmission(false);
     });
 
   const cacheOfflineData = async () =>

@@ -24,15 +24,15 @@ jest.mock("@app/domains/DataCollection/Forms/utils", () =>
   jest.fn().mockResolvedValue("testUser")
 );
 
-const asyncStorageStore = {};
+const mockAsyncStorageStore = {};
 jest.mock("@modules/async-storage", () => ({
-  getData: jest.fn((key) => Promise.resolve(asyncStorageStore[key] ?? null)),
+  getData: jest.fn((key) => Promise.resolve(mockAsyncStorageStore[key] ?? null)),
   deleteData: jest.fn((key) => {
-    delete asyncStorageStore[key];
+    delete mockAsyncStorageStore[key];
     return Promise.resolve();
   }),
   storeData: jest.fn((value, key) => {
-    asyncStorageStore[key] = value;
+    mockAsyncStorageStore[key] = value;
     return Promise.resolve(value);
   }),
 }));
@@ -49,7 +49,7 @@ describe("postOfflineForms failure contract", () => {
 
   afterEach(() => {
     getData.mockImplementation((key) =>
-      Promise.resolve(asyncStorageStore[key] ?? null)
+      Promise.resolve(mockAsyncStorageStore[key] ?? null)
     );
   });
 
@@ -76,7 +76,7 @@ describe("postOfflineForms failure contract", () => {
 describe("postOfflineForms null user safety", () => {
   afterEach(() => {
     getData.mockImplementation((key) =>
-      Promise.resolve(asyncStorageStore[key] ?? null)
+      Promise.resolve(mockAsyncStorageStore[key] ?? null)
     );
   });
 
@@ -140,6 +140,38 @@ describe("Testing full feature of offline posting", () => {
       offlineForms.residentForms.length +
         offlineForms.residentSupplementaryForms.length
     );
+  });
+});
+
+describe("postOfflineForms online success path", () => {
+  beforeEach(() => {
+    uploadOfflineForms.mockClear();
+    getData.mockImplementation((key) => {
+      if (key === "currentUser") {
+        return Promise.resolve({ objectId: "u1", organization: "org1" });
+      }
+      return Promise.resolve(null);
+    });
+  });
+
+  afterEach(() => {
+    getData.mockImplementation((key) =>
+      Promise.resolve(mockAsyncStorageStore[key] ?? null)
+    );
+  });
+
+  it("should call uploadOfflineForms and return status Success when device is online from the start", async () => {
+    checkOnlineStatus.mockResolvedValue(true);
+    uploadOfflineForms.mockResolvedValue({
+      status: "Success",
+      residentForms: [],
+      residentSupplementaryForms: [],
+    });
+
+    const result = await postOfflineForms();
+
+    expect(result.status).toBe("Success");
+    expect(uploadOfflineForms).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -44,7 +44,7 @@ export async function handleUpload({
   try {
     await cleanupPostedOfflineForms();
   } finally {
-    if (storeLastSyncTimestamp) await storeLastSyncTimestamp();
     if (resetFormCount) resetFormCount(0);
+    if (storeLastSyncTimestamp) await storeLastSyncTimestamp();
   }
 }

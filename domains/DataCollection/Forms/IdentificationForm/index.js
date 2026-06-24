@@ -268,6 +268,7 @@ function IdentificationFormWrapper({
       setSubmissionError={setSubmissionError}
       editMode={editMode}
       editFormValues={editFormValues}
+      surveyingOrganization={surveyingOrganization}
     />
   );
 }

@@ -104,6 +104,21 @@ describe("handleUpload", () => {
     expect(storeLastSyncTimestamp).toHaveBeenCalledTimes(1);
   });
 
+  it("should call resetFormCount(0) even when storeLastSyncTimestamp throws", async () => {
+    const postOfflineForms = jest.fn().mockResolvedValue({ status: "Success", offlineForms: {}, uploadedForms: {} });
+    const cleanupPostedOfflineForms = jest.fn().mockResolvedValue();
+    const setIsSubmitting = jest.fn();
+    const setSubmission = jest.fn();
+    const storeLastSyncTimestamp = jest.fn().mockRejectedValue(new Error("timestamp store failed"));
+    const resetFormCount = jest.fn();
+
+    try {
+      await handleUpload({ postOfflineForms, cleanupPostedOfflineForms, setIsSubmitting, setSubmission, storeLastSyncTimestamp, resetFormCount });
+    } catch (_) { /* expected: storeLastSyncTimestamp throws, we only care that resetFormCount ran */ }
+
+    expect(resetFormCount).toHaveBeenCalledWith(0);
+  });
+
   it("should call setSubmission with the queued form count, not true, on successful upload", async () => {
     const getQueuedFormCount = jest.fn().mockResolvedValue(3);
     const postOfflineForms = jest.fn().mockResolvedValue({
