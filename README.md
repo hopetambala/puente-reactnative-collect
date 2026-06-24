@@ -16,6 +16,10 @@ Here are some quick commands to get started (we use **yarn**):
 - `yarn test`: Run the test suite and watch for changes
 - `yarn lint-fix`: Run ESLint and auto-fix issues
 
+## UI Automation (Maestro)
+
+End-to-end flows for the iOS simulator live in [`.maestro/`](.maestro/). See [`.maestro/README.md`](.maestro/README.md) for setup and usage.
+
 ## Async Storage Values
 
 | Name of Value       | Description of Data                                                                  |

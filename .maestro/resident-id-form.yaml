@@ -1,0 +1,185 @@
+# Puente Collect — online Resident ID form data collection flow.
+#
+# Taps through login, navigates to the Data Collection tab, opens the
+# Resident ID form, fills required fields (First Name, Last Name), and submits.
+#
+# Prerequisites:
+#   1. App running against staging backend:
+#      EXPO_PUBLIC_APP_ENV=staging APP_ENV=staging yarn ios
+#   2. Terms already accepted (run accept-terms.yaml first if needed)
+#   3. Run:
+#      maestro test -e PARSE_USERNAME=Test -e PARSE_PASSWORD=test .maestro/resident-id-form.yaml
+#
+# Screenshots written to .claude/screenshots/resident-id-*.png
+appId: io.ionic.starter1270348
+---
+- launchApp
+
+# Skip onboarding if present (first install)
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+
+- extendedWaitUntil:
+    visible: "Log-In"
+    timeout: 20000
+
+# Sign in with coordinate taps (avoids floating-label ambiguity)
+- tapOn:
+    point: "50%, 38%"
+- inputText: ${PARSE_USERNAME}
+- tapOn:
+    point: "50%, 48%"
+- inputText: ${PARSE_PASSWORD}
+- scroll
+- tapOn: "Log-In"
+
+# Dismiss "Your Impact Dashboard" coachmark if shown on first login
+- runFlow:
+    when:
+      visible: "Your Impact Dashboard"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Home"
+    timeout: 30000
+
+# Navigate to Data Collection tab (tab 2 of 5, x≈30%, y≈94%)
+- tapOn:
+    point: "30%, 94%"
+- waitForAnimationToEnd
+
+# Dismiss "Capture Field Data" coachmark if present
+- runFlow:
+    when:
+      visible: "Capture Field Data"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- takeScreenshot: .claude/screenshots/resident-id-01-gallery
+
+# Open Resident ID form card
+- tapOn: "Resident ID"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/resident-id-02-consent
+
+# Accept the GDPR consent form before the fields are shown.
+# Dismiss any stale alert first, then check the checkbox.
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+# The Checkbox component has no text — tap its bounding box directly.
+# On a 393×852 screen the checkbox sits at approximately (10%, 66%).
+# "Continue to Form" is at ~75%; the checkbox row is ~10 points above it.
+- tapOn:
+    point: "10%, 66%"
+- waitForAnimationToEnd
+- tapOn: "Continue to Form"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/resident-id-03-form-empty
+
+# Fill required text fields (fname, lname are validation: true).
+# PaperInputPicker renders a native TextInput; tap the placeholder text to focus.
+- tapOn: "First Name"
+- inputText: "Maestro"
+- tapOn: "Last Name"
+- inputText: "Test"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/resident-id-04-form-names-filled
+
+# Dismiss keyboard and scroll to Submit WITHOUT filling the three required select fields
+# (sex, marriageStatus, educationLevel). This triggers Formik inline validation errors,
+# which is an intentional part of the workflow.
+- hideKeyboard
+- waitForAnimationToEnd
+- scroll
+- scroll
+- scroll
+- scroll
+- scroll
+- scroll
+- takeScreenshot: .claude/screenshots/resident-id-05-form-bottom-before-validation
+
+# Tap Submit — Formik validates and marks sex/marriageStatus/educationLevel as required.
+# The form stays on screen; ErrorPicker shows a red Snackbar listing the missing fields.
+# Custom Button (Pressable > Animated.View > PaperButton) is not in the accessibility
+# tree so text/id matching doesn't work; use coordinate. The Submit button sits below
+# "Link this individual to an existing house" which is at ~73%. Submit center ≈ (50%, 82%).
+- tapOn:
+    point: "50%, 82%"
+- waitForAnimationToEnd
+# If the tap accidentally opened Household Manager, go back before continuing.
+- runFlow:
+    when:
+      visible: "Household Manager"
+    commands:
+      - tapOn: "<"
+      - waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/resident-id-06-validation-errors
+
+# Swipe DOWN (finger moves downward) to scroll content back UP,
+# revealing the required select fields (sex, marriageStatus, educationLevel).
+# PaperInputPicker renders select options as plain Text inside TouchableWithoutFeedback,
+# so they are accessible to Maestro by text label.
+- swipe:
+    direction: DOWN
+    duration: 600
+- swipe:
+    direction: DOWN
+    duration: 600
+- swipe:
+    direction: DOWN
+    duration: 600
+- swipe:
+    direction: DOWN
+    duration: 600
+- swipe:
+    direction: DOWN
+    duration: 600
+- waitForAnimationToEnd
+
+# Sex is now visible after one scroll down.
+- scroll
+- tapOn: "Female"
+- waitForAnimationToEnd
+
+# Marriage Status is immediately below Sex (no extra scroll needed).
+- tapOn: "Single"
+- waitForAnimationToEnd
+
+# Education Level is one scroll further down.
+- scroll
+- tapOn: "Highschool"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/resident-id-07-selects-filled
+
+# Scroll down past location, photo, and household sections to reach Submit.
+- scroll
+- scroll
+- scroll
+- takeScreenshot: .claude/screenshots/resident-id-08-form-bottom-ready
+
+# Submit the form with all required fields filled.
+# Same Submit coordinate as the first attempt.
+- tapOn:
+    point: "50%, 82%"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/resident-id-09-form-submitted
+
+# After a successful save, IdentificationFormWrapper calls setSelectedForm("") which renders
+# the Forms success page — a full screen with SVG, "Form successfully submitted" headline,
+# "Great job, grab yourself a coffee" subtitle, and "View Forms Gallery" / "Return Home" CTAs.
+# This is a stable static page (not a dismissable toast), so extendedWaitUntil is reliable.
+- extendedWaitUntil:
+    visible: "Form successfully submitted"
+    timeout: 10000
+- takeScreenshot: .claude/screenshots/resident-id-10-form-success
