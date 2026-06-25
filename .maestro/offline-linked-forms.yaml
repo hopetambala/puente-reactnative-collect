@@ -1,0 +1,258 @@
+# Puente Collect — offline Resident ID + linked Environmental Health form.
+#
+# Verifies the cross-form linking workflow when offline:
+#   1. Toggle force-offline ON via Settings.
+#   2. Submit Resident ID form ("Link" / "Test") — queued in offlineIDForms.
+#   3. Return to gallery via "View Forms Gallery" (surveyee persists in state).
+#   4. Open Environmental Health form — ResidentIdSearchbar shows the offline
+#      resident because residentOfflineData() reads offlineIDForms from
+#      AsyncStorage directly.
+#   5. Type "Link" to surface the resident card, tap to select it.
+#   6. Fill the one required numberInput field, then submit offline.
+#   7. Navigate to Offline tab — both forms are queued (Retry visible).
+#   8. Toggle force-offline OFF, then sync via Retry.
+#   9. Retry disappears — both forms uploaded successfully.
+#
+# Prerequisites:
+#   1. App running with staging backend:
+#      EXPO_PUBLIC_APP_ENV=staging APP_ENV=staging yarn ios
+#   2. Terms already accepted (run accept-terms.yaml first if needed).
+#   3. Run:
+#      yarn maestro .maestro/offline-linked-forms.yaml
+#
+# Screenshots written to .claude/screenshots/offline-linked-*.png
+appId: io.ionic.starter1270348
+---
+- launchApp
+
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+
+- extendedWaitUntil:
+    visible: "Log-In"
+    timeout: 20000
+
+- tapOn:
+    point: "50%, 38%"
+- inputText: ${PARSE_USERNAME}
+- tapOn:
+    point: "50%, 48%"
+- inputText: ${PARSE_PASSWORD}
+- scroll
+- tapOn: "Log-In"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Your Impact Dashboard"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Home"
+    timeout: 30000
+
+- tapOn:
+    point: "30%, 94%"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Capture Field Data"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- takeScreenshot: .claude/screenshots/offline-linked-01-gallery-online
+
+# ─── ENABLE FORCE OFFLINE ──────────────────────────────────────────────────
+- tapOn:
+    point: "90%, 94%"
+- waitForAnimationToEnd
+- tapOn:
+    id: "dev-offline-toggle"
+- waitForAnimationToEnd
+- tapOn:
+    id: "settings-close-button"
+- waitForAnimationToEnd
+- tapOn:
+    point: "30%, 94%"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-linked-02-offline-mode
+
+# ─── RESIDENT ID FORM ──────────────────────────────────────────────────────
+- tapOn: "Resident ID"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+- tapOn:
+    point: "10%, 66%"
+- waitForAnimationToEnd
+- tapOn: "Continue to Form"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-linked-03-id-form-empty
+
+- tapOn: "First Name"
+- inputText: "Link"
+- tapOn: "Last Name"
+- inputText: "Test"
+- waitForAnimationToEnd
+- hideKeyboard
+- waitForAnimationToEnd
+
+- scroll
+- tapOn: "Female"
+- waitForAnimationToEnd
+- tapOn: "Single"
+- waitForAnimationToEnd
+- scroll
+- tapOn: "Highschool"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-linked-04-id-form-filled
+
+- scroll
+- scroll
+- scroll
+- takeScreenshot: .claude/screenshots/offline-linked-05-id-ready-to-submit
+
+- tapOn:
+    id: "formSubmit"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Household Manager"
+    commands:
+      - tapOn: "<"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Form successfully submitted"
+    timeout: 10000
+- takeScreenshot: .claude/screenshots/offline-linked-06-id-success
+
+# ─── NAVIGATE TO GALLERY → ENVIRONMENTAL HEALTH ────────────────────────────
+# "View Forms Gallery" returns to the gallery with surveyee still in state.
+- tapOn: "View Forms Gallery"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-linked-07-gallery-after-id
+
+- tapOn: "Environmental Health"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+- tapOn:
+    point: "10%, 66%"
+- waitForAnimationToEnd
+- tapOn: "Continue to Form"
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-linked-08-env-form-with-searchbar
+
+# ─── SELECT THE OFFLINE RESIDENT ───────────────────────────────────────────
+# ResidentIdSearchbar is offline-aware: it reads offlineIDForms from
+# AsyncStorage via residentOfflineData(). Type "Link" to surface the card for
+# the resident just created ("Link Test"), then tap to attach.
+# Coordinate tap bypasses the accessibility tree lookup entirely — the
+# "kAXErrorInvalidUIElement" crash happens during tree scan, not during
+# the tap itself. Searchbar sits at ~22% height in the env form layout.
+- tapOn:
+    point: "50%, 22%"
+- inputText: "Link"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible:
+      id: "resident-result-0"
+    timeout: 5000
+# Wait for Reanimated entering animation to finish (screenshot-based).
+# Even after visual completion, XCTest frames lag — the tapOn: id: form
+# causes kAXErrorInvalidUIElement because it queries the tree for the element
+# frame during that lag window. Use coordinate tap to bypass tree lookup.
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-linked-09-resident-card-visible
+
+# Coordinate tap: "Link Test" row is ~34% from top; bypasses accessibility
+# tree so kAXErrorInvalidUIElement cannot fire. FlatList has
+# keyboardShouldPersistTaps="handled" so onPress fires even with keyboard open.
+- tapOn:
+    point: "50%, 34%"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-linked-10-resident-attached
+
+# ─── FILL REQUIRED FIELD AND SUBMIT ENV HEALTH FORM ────────────────────────
+# All select fields are optional (validation: false). Only
+# "Number of Individuals Living in the House" (numberInput) has validation: true.
+# Scroll to that field, enter a value, then submit.
+- scroll
+- scroll
+- scroll
+- scroll
+- scroll
+
+- tapOn:
+    id: "numberInput-numberofIndividualsLivingintheHouse"
+- inputText: "4"
+# Numeric keyboard has no hideKeyboard on iOS — scroll moves past the field
+# so formSubmit comes into view; keyboardShouldPersistTaps="handled" on the
+# parent ScrollView lets the formSubmit tap fire even with keyboard open.
+- scroll
+- takeScreenshot: .claude/screenshots/offline-linked-11-env-form-filled
+
+- scroll
+
+- tapOn:
+    id: "formSubmit"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Form successfully submitted"
+    timeout: 10000
+- takeScreenshot: .claude/screenshots/offline-linked-12-env-success
+
+# ─── VERIFY OFFLINE QUEUE HAS BOTH FORMS ───────────────────────────────────
+- tapOn:
+    point: "70%, 94%"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "Retry"
+    timeout: 5000
+- takeScreenshot: .claude/screenshots/offline-linked-13-retry-badge-both-forms
+
+# ─── RESTORE ONLINE MODE AND SYNC ──────────────────────────────────────────
+- tapOn:
+    point: "90%, 94%"
+- waitForAnimationToEnd
+- tapOn:
+    id: "dev-offline-toggle"
+- waitForAnimationToEnd
+- tapOn:
+    id: "settings-close-button"
+- waitForAnimationToEnd
+
+- tapOn:
+    point: "70%, 94%"
+- waitForAnimationToEnd
+- tapOn: "Retry"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    notVisible: "Retry"
+    timeout: 60000
+- takeScreenshot: .claude/screenshots/offline-linked-14-both-synced

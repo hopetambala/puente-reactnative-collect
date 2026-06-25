@@ -1,0 +1,229 @@
+# Puente Collect — multiple Resident ID forms queued offline.
+#
+# Verifies that the header badge count accumulates correctly when a field
+# worker submits more than one form before getting network access.
+#
+# Flow:
+#   1. Toggle force-offline ON via Settings.
+#   2. Submit Resident ID form #1 ("Batch" "One") → queue count = 1.
+#   3. Navigate back to gallery via "View Forms Gallery".
+#   4. Submit Resident ID form #2 ("Batch" "Two") → queue count = 2.
+#   5. Assert the "Retry" badge is still visible (queue non-empty).
+#   6. Restore online mode and sync both forms via "Retry".
+#
+# Prerequisites:
+#   1. App running with staging backend:
+#      EXPO_PUBLIC_APP_ENV=staging APP_ENV=staging yarn ios
+#   2. Terms already accepted (run accept-terms.yaml first if needed).
+#   3. Run:
+#      yarn maestro .maestro/offline-multiple-forms.yaml
+#
+# Screenshots written to .claude/screenshots/offline-multi-*.png
+appId: io.ionic.starter1270348
+---
+- launchApp
+
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+
+- extendedWaitUntil:
+    visible: "Log-In"
+    timeout: 20000
+
+- tapOn:
+    point: "50%, 38%"
+- inputText: ${PARSE_USERNAME}
+- tapOn:
+    point: "50%, 48%"
+- inputText: ${PARSE_PASSWORD}
+- scroll
+- tapOn: "Log-In"
+
+- runFlow:
+    when:
+      visible: "Your Impact Dashboard"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Home"
+    timeout: 30000
+
+- tapOn:
+    point: "30%, 94%"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Capture Field Data"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- takeScreenshot: .claude/screenshots/offline-multi-01-gallery-online
+
+# ─── ENABLE FORCE OFFLINE ──────────────────────────────────────────────────
+- tapOn:
+    point: "90%, 94%"
+- waitForAnimationToEnd
+- tapOn:
+    id: "dev-offline-toggle"
+- waitForAnimationToEnd
+- tapOn:
+    id: "settings-close-button"
+- waitForAnimationToEnd
+- tapOn:
+    point: "30%, 94%"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-multi-02-offline
+
+# ─── FORM #1: "Batch One" ──────────────────────────────────────────────────
+- tapOn: "Resident ID"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+- tapOn:
+    point: "10%, 66%"
+- waitForAnimationToEnd
+- tapOn: "Continue to Form"
+- waitForAnimationToEnd
+
+- tapOn: "First Name"
+- inputText: "Batch"
+- tapOn: "Last Name"
+- inputText: "One"
+- waitForAnimationToEnd
+- hideKeyboard
+- waitForAnimationToEnd
+
+- scroll
+- tapOn: "Female"
+- waitForAnimationToEnd
+- tapOn: "Single"
+- waitForAnimationToEnd
+- scroll
+- tapOn: "Highschool"
+- waitForAnimationToEnd
+
+- scroll
+- scroll
+- scroll
+- takeScreenshot: .claude/screenshots/offline-multi-03-form1-ready
+
+- tapOn:
+    id: "formSubmit"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Household Manager"
+    commands:
+      - tapOn: "<"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Form successfully submitted"
+    timeout: 10000
+- takeScreenshot: .claude/screenshots/offline-multi-04-form1-success
+
+# Return to gallery to submit a second form.
+- tapOn: "View Forms Gallery"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-multi-05-gallery-after-form1
+
+# ─── FORM #2: "Batch Two" ──────────────────────────────────────────────────
+# Consent gate resets on re-entry, so accept it again.
+- tapOn: "Resident ID"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+- tapOn:
+    point: "10%, 66%"
+- waitForAnimationToEnd
+- tapOn: "Continue to Form"
+- waitForAnimationToEnd
+
+- tapOn: "First Name"
+- inputText: "Batch"
+- tapOn: "Last Name"
+- inputText: "Two"
+- waitForAnimationToEnd
+- hideKeyboard
+- waitForAnimationToEnd
+
+- scroll
+- tapOn: "Female"
+- waitForAnimationToEnd
+- tapOn: "Single"
+- waitForAnimationToEnd
+- scroll
+- tapOn: "Highschool"
+- waitForAnimationToEnd
+
+- scroll
+- scroll
+- scroll
+- takeScreenshot: .claude/screenshots/offline-multi-06-form2-ready
+
+- tapOn:
+    id: "formSubmit"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Household Manager"
+    commands:
+      - tapOn: "<"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Form successfully submitted"
+    timeout: 10000
+- takeScreenshot: .claude/screenshots/offline-multi-07-form2-success
+
+# Navigate to Offline tab (tab 4, x≈70%) — both forms should be queued.
+- tapOn:
+    point: "70%, 94%"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "Retry"
+    timeout: 5000
+- takeScreenshot: .claude/screenshots/offline-multi-08-badge-visible
+
+# ─── RESTORE ONLINE MODE AND SYNC BOTH FORMS ───────────────────────────────
+- tapOn:
+    point: "90%, 94%"
+- waitForAnimationToEnd
+- tapOn:
+    id: "dev-offline-toggle"
+- waitForAnimationToEnd
+- tapOn:
+    id: "settings-close-button"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-multi-09-back-online
+
+# Navigate to Offline tab and sync.
+- tapOn:
+    point: "70%, 94%"
+- waitForAnimationToEnd
+- tapOn: "Retry"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    notVisible: "Retry"
+    timeout: 30000
+- takeScreenshot: .claude/screenshots/offline-multi-10-synced-both

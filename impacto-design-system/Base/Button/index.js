@@ -7,6 +7,7 @@ import { Button as PaperButton, useTheme } from "react-native-paper";
 import Animated from "react-native-reanimated";
 
 function Button({
+  testID,
   onPress,
   buttonText,
   mode,
@@ -61,7 +62,7 @@ function Button({
   ];
 
   return (
-    <Pressable onPressIn={onPressIn} onPressOut={onPressOut} disabled={disabled}>
+    <Pressable testID={testID} onPressIn={onPressIn} onPressOut={onPressOut} disabled={disabled}>
       <Animated.View
         style={[
           {
@@ -93,6 +94,7 @@ function Button({
 }
 
 Button.defaultProps = {
+  testID: undefined,
   color: "primary",
   icon: "",
   disabled: false,
@@ -103,6 +105,7 @@ Button.defaultProps = {
 };
 
 Button.propTypes = {
+  testID: PropTypes.string,
   color: PropTypes.oneOf([
     "primary",
     "accent",

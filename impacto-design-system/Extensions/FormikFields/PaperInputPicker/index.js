@@ -131,6 +131,7 @@ function PaperInputPicker({
               </Text>
             )}
             <TextInput
+              testID={`numberInput-${formikKey}`}
               label={translatedLabel.length > 30 ? "" : translatedLabel}
               onChangeText={handleChange(formikKey)}
               onBlur={(e) => {

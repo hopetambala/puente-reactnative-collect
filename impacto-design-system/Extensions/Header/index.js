@@ -8,7 +8,8 @@ import {
 } from "@modules/offline/post";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import NetInfo from "@react-native-community/netinfo";
-import React, { useContext, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import { Button, IconButton, Text, useTheme } from "react-native-paper";
 import Animated, { Keyframe } from "react-native-reanimated";
@@ -37,45 +38,54 @@ function Header({ setSettings, onOpenSettings, onBack }) {
   const { populateResidentDataCache, isLoading: isOfflineLoading } =
     useContext(OfflineContext);
 
+  const cancelledRef = useRef(false);
+
+  const loadStatusBar = useCallback(async () => {
+    const [ts, idForms, supForms, assetIdForms, assetSupForms] =
+      await Promise.all([
+        getData("lastSyncTimestamp"),
+        getData("offlineIDForms"),
+        getData("offlineSupForms"),
+        getData("offlineAssetIDForms"),
+        getData("offlineAssetSupForms"),
+      ]);
+    if (cancelledRef.current) return;
+    setLastSyncTimestamp(ts);
+    const total =
+      (idForms?.length ?? 0) +
+      (supForms?.length ?? 0) +
+      (assetIdForms?.length ?? 0) +
+      (assetSupForms?.length ?? 0);
+    setOfflineFormCount(total);
+  }, []);
+
   useEffect(() => {
-    let cancelled = false;
-    const loadStatusBar = async () => {
-      const [ts, idForms, supForms, assetIdForms, assetSupForms] =
-        await Promise.all([
-          getData("lastSyncTimestamp"),
-          getData("offlineIDForms"),
-          getData("offlineSupForms"),
-          getData("offlineAssetIDForms"),
-          getData("offlineAssetSupForms"),
-        ]);
-      if (cancelled) return;
-      setLastSyncTimestamp(ts);
-      const total =
-        (idForms?.length ?? 0) +
-        (supForms?.length ?? 0) +
-        (assetIdForms?.length ?? 0) +
-        (assetSupForms?.length ?? 0);
-      setOfflineFormCount(total);
-    };
+    cancelledRef.current = false;
     loadStatusBar();
 
     NetInfo.fetch()
       .then((state) => {
-        if (!cancelled) setIsOnline(state.isConnected && state.details !== null);
+        if (!cancelledRef.current) setIsOnline(state.isConnected && state.details !== null);
       })
       .catch(() => {
-        if (!cancelled) setIsOnline(false);
+        if (!cancelledRef.current) setIsOnline(false);
       });
 
     const unsubscribe = NetInfo.addEventListener((state) => {
-      if (!cancelled) setIsOnline(state.isConnected && state.details !== null);
+      if (!cancelledRef.current) setIsOnline(state.isConnected && state.details !== null);
     });
 
     return () => {
-      cancelled = true;
+      cancelledRef.current = true;
       unsubscribe();
     };
-  }, []);
+  }, [loadStatusBar]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadStatusBar();
+    }, [loadStatusBar])
+  );
 
   const upload = () =>
     handleUpload({

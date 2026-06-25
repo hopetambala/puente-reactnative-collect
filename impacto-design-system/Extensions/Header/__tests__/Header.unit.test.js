@@ -49,6 +49,10 @@ jest.mock("react-native-safe-area-context", () => ({
   useSafeAreaInsets: () => ({ top: 0 }),
 }));
 
+jest.mock("@react-navigation/native", () => ({
+  useFocusEffect: jest.fn((cb) => cb()),
+}));
+
 jest.mock("@modules/i18n", () => ({ t: (key) => key }));
 
 jest.mock("@modules/offline", () => jest.fn().mockResolvedValue(true));
