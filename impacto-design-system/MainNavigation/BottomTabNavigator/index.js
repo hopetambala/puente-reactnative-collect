@@ -125,7 +125,7 @@ export default function BottomTabNavigator() {
         options={{
           title: I18n.t("bottomTab.offline"),
           headerShown: false,
-          tabBarIcon: tabIcon("cloud-sync-outline"),
+          tabBarIcon: tabIcon("cloud-upload-outline"),
         }}
       >
         {(props) => (

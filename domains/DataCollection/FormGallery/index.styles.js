@@ -1,12 +1,15 @@
 
 import { spacing, typography } from "@modules/theme";
+import { getTokens } from "@modules/theme/tokens";
 import { StyleSheet } from "react-native";
+
+const t = getTokens("light");
 
 const createStyles = (theme) => StyleSheet.create({
   cardContainer: {
     alignItems: "center",
     justifyContent: "center",
-    padding: 12,
+    padding: t.tkDliteSemanticSpacing300, // spacing.sm = 12px
   },
   textContainer: {
     flexDirection: "row",
@@ -18,8 +21,8 @@ const createStyles = (theme) => StyleSheet.create({
     textAlign: "center",
     color: theme.colors.onSurface,
     fontWeight: "600",
-    marginVertical: 0,
-    fontSize: 13,
+    marginVertical: 0, // TODO(dlite): zero-reset, no token maps to 0
+    fontSize: typography.label2.fontSize, // typography.size.sm ~13px, using label2=12px (closest token)
   },
   header: {
     ...typography.title1,
@@ -35,7 +38,7 @@ const createStyles = (theme) => StyleSheet.create({
   card: {
     borderWidth: 1,
     borderColor: theme.colors.outline,
-    borderRadius: 12,
+    borderRadius: t.tkDliteSemanticBorderRadiusMedium, // borderRadius.md
     backgroundColor: theme.colors.surfaceBase,
   },
   cardTitle: {
@@ -46,7 +49,7 @@ const createStyles = (theme) => StyleSheet.create({
   comingSoonCard: {
     borderWidth: 1,
     borderColor: theme.colors.outline,
-    borderRadius: 12,
+    borderRadius: t.tkDliteSemanticBorderRadiusMedium, // borderRadius.md
     backgroundColor: theme.colors.surfaceBase,
     padding: spacing.lg,
   },

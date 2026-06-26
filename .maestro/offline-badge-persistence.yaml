@@ -29,7 +29,8 @@
 # Screenshots written to .claude/screenshots/offline-persist-*.png
 appId: io.ionic.starter1270348
 ---
-- launchApp
+- launchApp:
+    clearState: true
 
 - runFlow:
     when:
@@ -78,6 +79,12 @@ appId: io.ionic.starter1270348
 - tapOn:
     point: "90%, 94%"
 - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
 - tapOn:
     id: "dev-offline-toggle"
 - waitForAnimationToEnd
@@ -100,9 +107,10 @@ appId: io.ionic.starter1270348
       - waitForAnimationToEnd
 
 - tapOn:
-    point: "10%, 66%"
+    point: "10%, 71%"
 - waitForAnimationToEnd
-- tapOn: "Continue to Form"
+- tapOn:
+    point: "50%, 79%"
 - waitForAnimationToEnd
 
 - tapOn: "First Name"
@@ -110,7 +118,7 @@ appId: io.ionic.starter1270348
 - tapOn: "Last Name"
 - inputText: "Test"
 - waitForAnimationToEnd
-- hideKeyboard
+- tapOn: "Demographics"
 - waitForAnimationToEnd
 
 - scroll
@@ -157,12 +165,13 @@ appId: io.ionic.starter1270348
 - stopApp
 
 # ─── COLD RELAUNCH ─────────────────────────────────────────────────────────
-# The Parse session token is stored in AsyncStorage so the user is typically
-# still logged in after a cold restart.
+# Do NOT use clearState here — a real cold restart keeps disk data (AsyncStorage
+# / SQLite) intact; only in-memory state is lost.  clearState would wipe the
+# session token AND offlineIDForms, making the badge check below meaningless.
 - launchApp
 - waitForAnimationToEnd
 
-# Re-login only if the session was not preserved
+# Re-login only if the session token expired between the two launches.
 - runFlow:
     when:
       visible: "Log-In"
@@ -206,6 +215,12 @@ appId: io.ionic.starter1270348
 - tapOn:
     point: "90%, 94%"
 - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
 - tapOn:
     id: "dev-offline-toggle"
 - waitForAnimationToEnd

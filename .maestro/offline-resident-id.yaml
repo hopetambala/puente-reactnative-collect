@@ -22,7 +22,8 @@
 # Screenshots written to .claude/screenshots/offline-id-*.png
 appId: io.ionic.starter1270348
 ---
-- launchApp
+- launchApp:
+    clearState: true
 
 # Skip onboarding if present (first install)
 - runFlow:
@@ -79,6 +80,12 @@ appId: io.ionic.starter1270348
 - tapOn:
     point: "90%, 94%"
 - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
 - tapOn:
     id: "dev-offline-toggle"
 - waitForAnimationToEnd
@@ -103,11 +110,31 @@ appId: io.ionic.starter1270348
       - tapOn: "OK"
       - waitForAnimationToEnd
 
-# Checkbox has no text — tap its bounding box at ~(10%, 66%)
+# The consent form XCTest accessibility tree only shows status-bar elements
+# after clearState — all id/text taps fail. Coordinate taps always work.
+#
+# Empirical bounds from previous runs on this screen with offline banner:
+#   (10%, 68%) → empty space below "View Full Policy"
+#   (10%, 75%) → hit "Continue to Form" top edge (mustConsent alert fired)
+# Checkbox center is therefore at approximately (10%, 71%).
+# "Continue to Form" center: top edge ~75% + half button height (≈4%) → ~79%.
 - tapOn:
-    point: "10%, 66%"
+    point: "10%, 71%"
 - waitForAnimationToEnd
-- tapOn: "Continue to Form"
+- takeScreenshot: .claude/screenshots/offline-id-03b-after-checkbox
+
+# Dismiss mustConsent alert if the checkbox tap was slightly off.
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+# Coordinate tap on "Continue to Form" — XCTest tree is unreliable on this
+# screen after clearState launch, so text-based tap cannot be used.
+- tapOn:
+    point: "50%, 79%"
 - waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/offline-id-04-form-empty
 
@@ -117,7 +144,7 @@ appId: io.ionic.starter1270348
 - tapOn: "Last Name"
 - inputText: "Test"
 - waitForAnimationToEnd
-- hideKeyboard
+- tapOn: "Demographics"
 - waitForAnimationToEnd
 
 # Scroll to reveal required select fields (sex, marriageStatus, educationLevel)
@@ -172,6 +199,12 @@ appId: io.ionic.starter1270348
 - tapOn:
     point: "90%, 94%"
 - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
 - tapOn:
     id: "dev-offline-toggle"
 - waitForAnimationToEnd

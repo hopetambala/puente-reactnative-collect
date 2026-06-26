@@ -4,12 +4,26 @@ import { CoachmarkOverlay } from "@app/domains/HomeScreen/components/CoachmarkOv
 import { UserContext } from "@context/auth.context";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
+import checkOnlineStatus from "@modules/offline";
 import { createLayoutStyles, spacing, typography } from "@modules/theme";
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useCallback, useContext, useState } from "react";
-import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const galleryScreenStyles = StyleSheet.create({
+  offlineBanner: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    backgroundColor: "#fff3e0",
+  },
+  offlineBannerText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#f57c00",
+  },
+});
 
 function DataCollectionGalleryScreen({ navigation }) {
   const theme = useTheme();
@@ -18,11 +32,17 @@ function DataCollectionGalleryScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [pinnedForms, setPinnedForms] = useState([]);
   const [surveyingOrganization, setSurveyingOrganization] = useState("");
+  const [isOffline, setIsOffline] = useState(false);
 
   const { user } = useContext(UserContext);
 
+  useEffect(() => {
+    checkOnlineStatus().then((online) => setIsOffline(!online));
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
+      checkOnlineStatus().then((online) => setIsOffline(!online));
       getData("currentUser").then((currentUser) => {
         if (!currentUser) return;
         setSurveyingOrganization(currentUser.organization || "");
@@ -62,6 +82,13 @@ function DataCollectionGalleryScreen({ navigation }) {
         style={layout.screenContainer}
       >
         {loading === true && <ActivityIndicator />}
+        {isOffline && (
+          <View style={galleryScreenStyles.offlineBanner}>
+            <Text style={galleryScreenStyles.offlineBannerText}>
+              {I18n.t("forms.offlineBanner")}
+            </Text>
+          </View>
+        )}
         <ScrollView
           keyboardShouldPersistTaps="never"
           scrollEnabled={scrollViewScroll}

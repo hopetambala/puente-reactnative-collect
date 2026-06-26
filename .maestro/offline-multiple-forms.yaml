@@ -21,7 +21,8 @@
 # Screenshots written to .claude/screenshots/offline-multi-*.png
 appId: io.ionic.starter1270348
 ---
-- launchApp
+- launchApp:
+    clearState: true
 
 - runFlow:
     when:
@@ -70,6 +71,12 @@ appId: io.ionic.starter1270348
 - tapOn:
     point: "90%, 94%"
 - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
 - tapOn:
     id: "dev-offline-toggle"
 - waitForAnimationToEnd
@@ -93,9 +100,10 @@ appId: io.ionic.starter1270348
       - waitForAnimationToEnd
 
 - tapOn:
-    point: "10%, 66%"
+    point: "10%, 71%"
 - waitForAnimationToEnd
-- tapOn: "Continue to Form"
+- tapOn:
+    point: "50%, 79%"
 - waitForAnimationToEnd
 
 - tapOn: "First Name"
@@ -103,7 +111,7 @@ appId: io.ionic.starter1270348
 - tapOn: "Last Name"
 - inputText: "One"
 - waitForAnimationToEnd
-- hideKeyboard
+- tapOn: "Demographics"
 - waitForAnimationToEnd
 
 - scroll
@@ -153,9 +161,10 @@ appId: io.ionic.starter1270348
       - waitForAnimationToEnd
 
 - tapOn:
-    point: "10%, 66%"
+    point: "10%, 71%"
 - waitForAnimationToEnd
-- tapOn: "Continue to Form"
+- tapOn:
+    point: "50%, 79%"
 - waitForAnimationToEnd
 
 - tapOn: "First Name"
@@ -163,7 +172,7 @@ appId: io.ionic.starter1270348
 - tapOn: "Last Name"
 - inputText: "Two"
 - waitForAnimationToEnd
-- hideKeyboard
+- tapOn: "Demographics"
 - waitForAnimationToEnd
 
 - scroll
@@ -208,6 +217,12 @@ appId: io.ionic.starter1270348
 - tapOn:
     point: "90%, 94%"
 - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
 - tapOn:
     id: "dev-offline-toggle"
 - waitForAnimationToEnd

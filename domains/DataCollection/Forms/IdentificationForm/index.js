@@ -16,6 +16,7 @@ import { storeAppVersion } from "@modules/cached-resources/populate-cache";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
 import { isEmpty, withTimeoutAbort } from "@modules/utils";
+import * as Haptics from "expo-haptics";
 import { Formik } from "formik";
 import _ from "lodash";
 import React, { useContext, useEffect, useState } from "react";
@@ -86,7 +87,7 @@ function IdentificationForm({
                   buttonText={
                     _.isEmpty(formikProps.values)
                       ? I18n.t("global.emptyForm")
-                      : I18n.t("global.submit")
+                      : I18n.t("global.saveRecord")
                   }
                   icon={
                     _.isEmpty(formikProps.values) ? "alert-octagon" : "plus"
@@ -223,6 +224,7 @@ function IdentificationFormWrapper({
         await invalidateResidentCache(existingRecord.objectId);
         const fname = formObject.fname || "";
         const lname = formObject.lname || "";
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         alert(`${fname} ${lname} ${I18n.t("forms.successfullySubmitted")}`.trim());
         setSubmitting(false);
         if (navigation) {
@@ -243,12 +245,18 @@ function IdentificationFormWrapper({
       setSurveyee(surveyee);
       const fname = surveyee?.fname || "";
       const lname = surveyee?.lname || "";
-      alert(`${fname} ${lname} ${I18n.t("forms.successfullySubmitted")}`.trim());
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      if (surveyee?.isOfflineLocal === true) {
+        alert(I18n.t("forms.savedOffline"));
+      } else {
+        alert(`${fname} ${lname} ${I18n.t("forms.successfullySubmitted")}`.trim());
+      }
       setSubmitting(false);
       setSelectedForm("");
 
     } catch (e) {
       console.error("IdentificationForm submit error:", e);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setSubmitting(false);
       setSubmissionError(true);
       alert(I18n.t("submissionError.error"));

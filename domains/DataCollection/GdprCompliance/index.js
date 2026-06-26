@@ -1,7 +1,7 @@
 import TermsModal from "@impacto-design-system/Extensions/TermsModal";
 import I18n from "@modules/i18n";
 import React, { useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { Button, Checkbox, Text, Title,useTheme  } from "react-native-paper";
 
 function GdprCompliance({ setConsent }) {
@@ -69,22 +69,25 @@ function GdprCompliance({ setConsent }) {
         </Button>
       </View>
       <TermsModal visible={visible} setVisible={setVisible} />
-      <View style={styles.checkboxContainer}>
-        <View style={styles.checkbox}>
+      {/* Pressable wraps the full row so XCTest/Maestro can find it by testID.
+          pointerEvents="none" on the inner View passes touches through to the
+          Pressable (react-native-paper Checkbox would otherwise consume them). */}
+      <Pressable
+        testID="gdpr-consent-row"
+        onPress={() => setChecked(!checked)}
+        style={styles.checkboxContainer}
+      >
+        <View style={styles.checkbox} pointerEvents="none">
           <Checkbox
             disabled={false}
-            // theme={theme}
             color={theme.colors.primary}
             status={checked ? "checked" : "unchecked"}
-            onPress={() => {
-              setChecked(!checked);
-            }}
           />
         </View>
         <Text style={styles.checkboxText}>
           {I18n.t("gdpr.communityMemAgrees")}
         </Text>
-      </View>
+      </Pressable>
 
       <Button
         style={{ margin: 15 }}

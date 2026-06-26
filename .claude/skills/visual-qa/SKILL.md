@@ -112,8 +112,10 @@ After typing both fields, `scroll` brings the Log-In button into view, then
 
 | Element | x%, y% | Notes |
 |---|---|---|
-| Searchbar input | `50%, 22%` | coordinate tap only — `tapOn: id:` crashes during navigation animation |
-| First result row ("Link Test") | `50%, 34%` | coordinate tap only — `tapOn: id:` crashes during Reanimated entering animation |
+| Searchbar input (online) | `50%, 22%` | coordinate tap only — `tapOn: id:` crashes during navigation animation |
+| Searchbar input (offline, with banner) | `50%, 26%` | offline banner shifts layout ~4% down |
+| First result row (online, no banner) | `50%, 34%` | coordinate tap only — `tapOn: id:` crashes during Reanimated entering animation |
+| First result row (offline, with banner) | `50%, 40%` | banner + keyboard avoidance shift combined; confirmed from screenshot |
 
 ### Settings — force offline toggle
 
@@ -307,15 +309,17 @@ Substitute the form name (e.g. `"Resident ID"`, `"Environmental Health"`).
     timeout: 10000
 ```
 
-### Search for the offline resident in an env-health form
+### Search for the offline resident in an env-health form (offline mode)
 
 Use this block after the env-health form opens (after 3× `waitForAnimationToEnd`
-for the navigation animation):
+for the navigation animation). The offline banner is showing, so coordinates are
+shifted ~4% down vs. the online flow.
 
 ```yaml
-# Coordinate tap — bypasses accessibility tree to avoid kAXErrorInvalidUIElement
+# Coordinate tap — bypasses accessibility tree to avoid kAXErrorInvalidUIElement.
+# Offline: searchbar at 26% (online: 22%).
 - tapOn:
-    point: "50%, 22%"
+    point: "50%, 26%"
 - inputText: "Link"
 - waitForAnimationToEnd
 
@@ -324,13 +328,44 @@ for the navigation animation):
       id: "resident-result-0"
     timeout: 5000
 - waitForAnimationToEnd
+- waitForAnimationToEnd
 
-# Coordinate tap — Reanimated entering animation makes the XCTest frame
-# invalid even after waitForAnimationToEnd; coordinate tap bypasses tree.
+# Dismiss the keyboard BEFORE selecting the resident.
+# The outer ScrollView has keyboardShouldPersistTaps="never" (default), so
+# tapping the resident card while keyboard is showing only dismisses the keyboard
+# without firing onPress. Tap an empty area (TWFB → Keyboard.dismiss) first.
 - tapOn:
-    point: "50%, 34%"
+    point: "50%, 47%"
+- waitForAnimationToEnd
+
+# With keyboard gone, text tap finds "Link Test" and fires Pressable onPress.
+# The Reanimated Animated.View frame is unreliable in XCTest while keyboard is
+# active — text tap on the static Text node is stable.
+- tapOn: "Link Test"
 - waitForAnimationToEnd
 ```
+
+### Submit SupplementaryForm with numeric keyboard open
+
+The outer ScrollView around the form has `keyboardShouldPersistTaps="never"`.
+When a number field has the numeric keyboard open, `tapOn: id: formSubmit` only
+dismisses the keyboard on the first tap. A second tap is required to fire `handleSubmit`.
+
+```yaml
+# First tap: dismisses numeric keyboard (keyboardShouldPersistTaps="never")
+- tapOn:
+    id: "formSubmit"
+- waitForAnimationToEnd
+# Second tap: fires handleSubmit now that keyboard is gone
+- tapOn:
+    id: "formSubmit"
+- waitForAnimationToEnd
+```
+
+After submission, SupplementaryForm calls `toRoot()` → `navigation.navigate("Root")`
+→ navigates to BottomTabNavigator. **"Form successfully submitted" never appears
+for SupplementaryForm** — that screen is IdentificationForm-only (`setSelectedForm("")`).
+Add extra `waitForAnimationToEnd` calls and navigate directly to the Offline tab.
 
 ### Navigate to Offline tab + sync
 

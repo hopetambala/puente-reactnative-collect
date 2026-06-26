@@ -13,6 +13,7 @@ import {
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
 import { isEmpty } from "@modules/utils";
+import * as Haptics from "expo-haptics";
 import { Formik } from "formik";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Platform, View } from "react-native";
@@ -202,6 +203,7 @@ function SupplementaryForm({
             if (surveyee && surveyee.objectId) {
               await invalidateResidentCache(surveyee.objectId);
             }
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             alert(I18n.t("forms.successfullySubmitted"));
             setSubmitting(false);
             if (navigation) navigation.goBack();
@@ -230,12 +232,18 @@ function SupplementaryForm({
             };
           }
 
-          await postSupplementaryForm(postParams);
-          alert(I18n.t("forms.successfullySubmitted"));
+          const result = await postSupplementaryForm(postParams);
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          if (result?.isOfflineLocal === true || surveyee?.isOfflineLocal === true) {
+            alert(I18n.t("forms.savedOffline"));
+          } else {
+            alert(I18n.t("forms.successfullySubmitted"));
+          }
           setSubmitting(false);
           toRoot();
         } catch (e) {
           console.error("SupplementaryForm submit error:", e);
+          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
           setSubmitting(false);
           setSubmissionError(true);
           alert(I18n.t("submissionError.error"));
@@ -274,7 +282,7 @@ function SupplementaryForm({
               disabled={!surveyee.objectId}
               onPress={formikProps.handleSubmit}
             >
-              {surveyee.objectId && <Text>{I18n.t("global.submit")}</Text>}
+              {surveyee.objectId && <Text>{I18n.t("global.saveRecord")}</Text>}
               {!surveyee.objectId && (
                 <Text>{I18n.t("supplementaryForms.attachResident")}</Text>
               )}

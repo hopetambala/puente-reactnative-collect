@@ -67,6 +67,7 @@ describe("checkOnlineStatus DEV-only offline override", () => {
 
     expect(result).toBe(false);
     expect(NetInfo.fetch).not.toHaveBeenCalled();
+    // eslint-disable-next-line global-require
     const { getNetworkStateAsync } = require("expo-network");
     expect(getNetworkStateAsync).not.toHaveBeenCalled();
   });

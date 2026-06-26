@@ -23,7 +23,8 @@
 # Screenshots written to .claude/screenshots/offline-linked-*.png
 appId: io.ionic.starter1270348
 ---
-- launchApp
+- launchApp:
+    clearState: true
 
 - runFlow:
     when:
@@ -73,6 +74,12 @@ appId: io.ionic.starter1270348
 - tapOn:
     point: "90%, 94%"
 - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
 - tapOn:
     id: "dev-offline-toggle"
 - waitForAnimationToEnd
@@ -96,9 +103,10 @@ appId: io.ionic.starter1270348
       - waitForAnimationToEnd
 
 - tapOn:
-    point: "10%, 66%"
+    point: "10%, 71%"
 - waitForAnimationToEnd
-- tapOn: "Continue to Form"
+- tapOn:
+    point: "50%, 79%"
 - waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/offline-linked-03-id-form-empty
 
@@ -107,7 +115,7 @@ appId: io.ionic.starter1270348
 - tapOn: "Last Name"
 - inputText: "Test"
 - waitForAnimationToEnd
-- hideKeyboard
+- tapOn: "Demographics"
 - waitForAnimationToEnd
 
 - scroll
@@ -157,9 +165,10 @@ appId: io.ionic.starter1270348
       - waitForAnimationToEnd
 
 - tapOn:
-    point: "10%, 66%"
+    point: "10%, 71%"
 - waitForAnimationToEnd
-- tapOn: "Continue to Form"
+- tapOn:
+    point: "50%, 79%"
 - waitForAnimationToEnd
 - waitForAnimationToEnd
 - waitForAnimationToEnd
@@ -171,9 +180,10 @@ appId: io.ionic.starter1270348
 # the resident just created ("Link Test"), then tap to attach.
 # Coordinate tap bypasses the accessibility tree lookup entirely — the
 # "kAXErrorInvalidUIElement" crash happens during tree scan, not during
-# the tap itself. Searchbar sits at ~22% height in the env form layout.
+# the tap itself. Offline banner adds ~5% vertical shift vs the online
+# coordinate (22%), so searchbar center is at ~26% in offline mode.
 - tapOn:
-    point: "50%, 22%"
+    point: "50%, 26%"
 - inputText: "Link"
 - waitForAnimationToEnd
 
@@ -186,13 +196,18 @@ appId: io.ionic.starter1270348
 # causes kAXErrorInvalidUIElement because it queries the tree for the element
 # frame during that lag window. Use coordinate tap to bypass tree lookup.
 - waitForAnimationToEnd
+- waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/offline-linked-09-resident-card-visible
 
-# Coordinate tap: "Link Test" row is ~34% from top; bypasses accessibility
-# tree so kAXErrorInvalidUIElement cannot fire. FlatList has
-# keyboardShouldPersistTaps="handled" so onPress fires even with keyboard open.
+# Dismiss keyboard by tapping empty space (no interactive element → TWFB catches it
+# → Keyboard.dismiss()). The query "Link" stays in state so the FlatList persists.
 - tapOn:
-    point: "50%, 34%"
+    point: "50%, 47%"
+- waitForAnimationToEnd
+
+# With keyboard gone, no keyboardShouldPersistTaps ambiguity.
+# Text tap fires the Pressable's onPress → onSelectSurveyee → query cleared, surveyee set.
+- tapOn: "Link Test"
 - waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/offline-linked-10-resident-attached
 
@@ -217,14 +232,22 @@ appId: io.ionic.starter1270348
 
 - scroll
 
+# The outer ScrollView has keyboardShouldPersistTaps="never" (default). With the
+# numeric keyboard still open, the first tap only dismisses the keyboard without
+# firing onPress. The second tap fires handleSubmit once keyboard is gone.
+- tapOn:
+    id: "formSubmit"
+- waitForAnimationToEnd
 - tapOn:
     id: "formSubmit"
 - waitForAnimationToEnd
 
-- extendedWaitUntil:
-    visible: "Form successfully submitted"
-    timeout: 10000
-- takeScreenshot: .claude/screenshots/offline-linked-12-env-success
+# SupplementaryForm calls toRoot() after save → navigates to BottomTabNavigator.
+# "Form successfully submitted" is only shown by IdentificationForm (setSelectedForm("")).
+# Wait for the navigation animation to settle before tapping the Offline tab.
+- waitForAnimationToEnd
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-linked-12-env-submitted
 
 # ─── VERIFY OFFLINE QUEUE HAS BOTH FORMS ───────────────────────────────────
 - tapOn:
@@ -239,6 +262,12 @@ appId: io.ionic.starter1270348
 - tapOn:
     point: "90%, 94%"
 - waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
 - tapOn:
     id: "dev-offline-toggle"
 - waitForAnimationToEnd

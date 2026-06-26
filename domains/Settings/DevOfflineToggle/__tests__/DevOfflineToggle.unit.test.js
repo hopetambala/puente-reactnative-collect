@@ -7,6 +7,7 @@ jest.mock('react-native-paper', () => {
   return {
     useTheme: () => ({ colors: mockColors }),
     Switch: ({ value, onValueChange, testID }) => {
+      // eslint-disable-next-line global-require
       const { View, TouchableOpacity } = require('react-native');
       return (
         <TouchableOpacity testID={testID} onPress={() => onValueChange(!value)}>
@@ -15,6 +16,7 @@ jest.mock('react-native-paper', () => {
       );
     },
     Text: ({ children }) => {
+      // eslint-disable-next-line global-require
       const { Text: RNText } = require('react-native');
       return <RNText>{children}</RNText>;
     },

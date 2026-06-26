@@ -36,5 +36,5 @@ android/
 
 # AI
 .claude/handoff
-.claude/screenshots
+.claude/screenshots*
 

@@ -77,9 +77,8 @@ appId: io.ionic.starter1270348
       - tapOn: "OK"
       - waitForAnimationToEnd
 
-# The Checkbox component has no text — tap its bounding box directly.
-# On a 393×852 screen the checkbox sits at approximately (10%, 66%).
-# "Continue to Form" is at ~75%; the checkbox row is ~10 points above it.
+# Tap checkbox by coordinate. Online flow has no offline banner, so 66% is correct.
+# XCTest tree works in the non-clearState online flow, so "Continue to Form" uses text.
 - tapOn:
     point: "10%, 66%"
 - waitForAnimationToEnd
@@ -99,7 +98,7 @@ appId: io.ionic.starter1270348
 # Dismiss keyboard and scroll to Submit WITHOUT filling the three required select fields
 # (sex, marriageStatus, educationLevel). This triggers Formik inline validation errors,
 # which is an intentional part of the workflow.
-- hideKeyboard
+- tapOn: "Demographics"
 - waitForAnimationToEnd
 - scroll
 - scroll

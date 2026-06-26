@@ -1,4 +1,3 @@
-/* global __DEV__ */
 import Constants from "expo-constants";
 
 const ENV = {

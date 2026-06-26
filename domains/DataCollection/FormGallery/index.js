@@ -4,9 +4,10 @@ import { getData, storeData } from "@modules/async-storage";
 import { customFormsQuery } from "@modules/cached-resources";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
+import { getTokens } from "@modules/theme/tokens";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useEffect, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { IconButton,
   Text,
   useTheme ,
@@ -15,6 +16,22 @@ import Animated, { Keyframe } from "react-native-reanimated";
 
 import FormsHorizontalView from "./FormsHorizontalView";
 import createStyles from "./index.styles";
+
+const t = getTokens("light");
+const galleryInlineStyles = StyleSheet.create({
+  noPinnedFormsCard: {
+    padding: t.tkDliteSemanticSpacing400, // spacing.md = 16px
+  },
+  customFormsSection: {
+    marginHorizontal: t.tkDliteSemanticSpacing500, // spacing.md ~20px, using 500=20px
+  },
+  refreshIconButton: {
+    bottom: t.tkDliteSemanticSpacing200, // TODO(dlite): 7px has no exact token match, using 200=8px
+  },
+  workflowsSection: {
+    marginHorizontal: t.tkDliteSemanticSpacing500, // spacing.md ~20px, using 500=20px
+  },
+});
 
 // Spec §5.4: pinned form cards pop in horizontally staggered
 const PinnedCardEntrance = new Keyframe({
@@ -155,8 +172,8 @@ function FormGallery({
           {pinnedForms?.length < 1 && (
             <View style={layout.screenRow}>
               <ModernCard>
-                <View style={{ padding: 16 }}>
-                  <Text>{I18n.t("formsGallery.noPinnedForms")}</Text>
+                <View style={galleryInlineStyles.noPinnedFormsCard}>
+                  <Text>{"📌  "}{I18n.t("formsGallery.noPinnedForms")}</Text>
                 </View>
               </ModernCard>
             </View>
@@ -164,16 +181,17 @@ function FormGallery({
         </ScrollView>
       </View>
       {/* ALL custom forms */}
-      <View key="customForms" style={{ marginHorizontal: 20 }}>
+      <View key="customForms" style={galleryInlineStyles.customFormsSection}>
         <View style={{ flexDirection: "row" }}>
           <Text style={styles.header}>
             {I18n.t("formsGallery.customForms")}
           </Text>
           <IconButton
-            style={{ bottom: 7 }}
+            style={galleryInlineStyles.refreshIconButton}
             color={theme.colors.primary}
             size={20}
             icon="refresh"
+            accessibilityLabel={I18n.t("global.refresh")}
             onPress={refreshCustomForms}
           />
         </View>
@@ -186,14 +204,15 @@ function FormGallery({
         />
       )}
       {/* Workflows */}
-      <View key="workflows" style={{ marginHorizontal: 20 }}>
+      <View key="workflows" style={galleryInlineStyles.workflowsSection}>
         <View style={{ flexDirection: "row" }}>
           <Text style={styles.header}>{I18n.t("formsGallery.workflows")}</Text>
           <IconButton
-            style={{ bottom: 7 }}
+            style={galleryInlineStyles.refreshIconButton}
             color={theme.colors.primary}
             size={20}
             icon="refresh"
+            accessibilityLabel={I18n.t("global.refresh")}
             onPress={refreshCustomForms}
           />
         </View>

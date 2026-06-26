@@ -1,13 +1,21 @@
 import ModernCard from "@impacto-design-system/Cards/ModernCard";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
+import { getTokens } from "@modules/theme/tokens";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import React from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { Text, useTheme } from "react-native-paper";
 import Animated, { Easing, Keyframe } from "react-native-reanimated";
 
 import createStyles from "../index.styles";
+
+const t = getTokens("light");
+const hViewInlineStyles = StyleSheet.create({
+  noCustomFormsCard: {
+    padding: t.tkDliteSemanticSpacing400, // spacing.md = 16px
+  },
+});
 
 // Spec §5.4: Bottom-up staggered entrance — scale + translateY + opacity
 // Consistent with SmallCardsCarousel entrance pattern
@@ -65,8 +73,8 @@ function FormsHorizontalView({
       {safeForms.length < 1 && (
         <View style={layout.screenRow}>
           <ModernCard key="no-custom-forms">
-            <View style={{ padding: 16 }}>
-              <Text>{I18n.t("formsGallery.noCustomForms")}</Text>
+            <View style={hViewInlineStyles.noCustomFormsCard}>
+              <Text>{"📋  "}{I18n.t("formsGallery.noCustomForms")}</Text>
             </View>
           </ModernCard>
         </View>
