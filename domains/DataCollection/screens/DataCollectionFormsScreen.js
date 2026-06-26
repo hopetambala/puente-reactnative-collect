@@ -131,6 +131,7 @@ function DataCollectionFormsScreen({ navigation, route }) {
           </View>
         )}
         <ScrollView
+          keyboardShouldPersistTaps="handled"
           scrollEnabled={scrollViewScroll}
           style={layout.screenContainer}
         >

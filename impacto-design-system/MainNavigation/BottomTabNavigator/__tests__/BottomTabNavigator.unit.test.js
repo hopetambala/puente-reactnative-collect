@@ -1,22 +1,24 @@
-import React from 'react';
+import BottomTabNavigator from '@impacto-design-system/MainNavigation/BottomTabNavigator/index';
 import { render } from '@testing-library/react-native';
-import BottomTabNavigator from '../index';
+import React from 'react';
 
 // Capture screen options so we can inspect tabBarIcon per route
-const capturedScreens = {};
+const mockCapturedScreens = {};
 
 jest.mock('@react-navigation/bottom-tabs', () => {
-  const React = require('react');
+  // eslint-disable-next-line global-require
+  const MockReact = require('react');
+  // eslint-disable-next-line global-require
   const { View, Text } = require('react-native');
 
-  const Screen = ({ name, options, children }) => {
+  const Screen = ({ name, options }) => {
     // Store options keyed by screen name for later inspection
-    capturedScreens[name] = options;
-    return React.createElement(Text, null, name);
+    mockCapturedScreens[name] = options;
+    return MockReact.createElement(Text, null, name);
   };
 
   const Navigator = ({ children }) =>
-    React.createElement(View, { testID: 'bottom-tab-navigator' }, children);
+    MockReact.createElement(View, { testID: 'bottom-tab-navigator' }, children);
 
   return {
     createBottomTabNavigator: () => ({
@@ -52,9 +54,8 @@ jest.mock('../AnimatedTabBar', () => () => null);
 
 // Capture what name the TabBarIcon is rendered with.
 // Override the barrel mock from jest.setup.js so our spy TabBarIcon is used.
-let capturedIconName = null;
+let mockCapturedIconName = null;
 jest.mock('@impacto-design-system/Extensions', () => {
-  const React = require('react');
   const noop = () => null;
   return {
     ErrorPicker: noop,
@@ -70,7 +71,7 @@ jest.mock('@impacto-design-system/Extensions', () => {
     TermsModal: noop,
     // Spy version — records the icon name passed in
     TabBarIcon: ({ name }) => {
-      capturedIconName = name;
+      mockCapturedIconName = name;
       return null;
     },
   };
@@ -78,24 +79,24 @@ jest.mock('@impacto-design-system/Extensions', () => {
 
 describe('BottomTabNavigator', () => {
   beforeEach(() => {
-    capturedIconName = null;
-    Object.keys(capturedScreens).forEach((k) => delete capturedScreens[k]);
+    mockCapturedIconName = null;
+    Object.keys(mockCapturedScreens).forEach((k) => delete mockCapturedScreens[k]);
   });
 
   it('renders the Offline tab with icon name "cloud-upload-outline"', () => {
     render(<BottomTabNavigator />);
 
     // The Offline screen's options must have been captured during render
-    const offlineOptions = capturedScreens['Offline'];
+    const offlineOptions = mockCapturedScreens.Offline;
     expect(offlineOptions).toBeDefined();
 
     // tabBarIcon is a function: ({ focused }) => <TabBarIcon name={iconName} />
-    // Invoke it so our TabBarIcon mock runs and sets capturedIconName
+    // Invoke it so our TabBarIcon mock runs and sets mockCapturedIconName
     const tabBarIconFn = offlineOptions.tabBarIcon;
     expect(tabBarIconFn).toBeDefined();
 
     render(tabBarIconFn({ focused: false }));
 
-    expect(capturedIconName).toBe('cloud-upload-outline');
+    expect(mockCapturedIconName).toBe('cloud-upload-outline');
   });
 });
