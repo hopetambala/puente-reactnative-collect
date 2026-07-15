@@ -1,7 +1,6 @@
 import surveyingUserFailsafe from "@app/domains/DataCollection/Forms/utils";
 import { uploadOfflineForms } from "@app/services/parse/crud";
 import { deleteData, getData } from "@modules/async-storage";
-import getAWSLogger from "@modules/aws-logging/logger";
 import { isEmpty } from "@modules/utils";
 import { Platform } from "react-native";
 
@@ -18,7 +17,7 @@ const cleanupPostedOfflineForms = async () => {
   const results = await Promise.allSettled(keys.map((key) => deleteData(key)));
   results.forEach((result, i) => {
     if (result.status === "rejected") {
-      getAWSLogger().log({ type: "CLEANUP_DELETE_FAILED", key: keys[i] });
+      console.error("cleanupPostedOfflineForms: delete failed for key", keys[i]);
     }
   });
 };
@@ -32,14 +31,24 @@ const postOfflineForms = async () => {
 
   const surveyUser = await surveyingUserFailsafe(user, undefined, isEmpty);
   const { organization } = user;
-  const appVersion = (await getData("appVersion")) || "";
   const phoneOS = Platform.OS || "";
 
-  const idFormsAsync = await getData("offlineIDForms");
-  const supplementaryFormsAsync = await getData("offlineSupForms");
-  const assetIdFormsAsync = await getData("offlineAssetIDForms");
-  const assetSupFormsAsync = await getData("offlineAssetSupForms");
-  const householdsAsync = await getData("offlineHouseholds");
+  const [
+    idFormsAsync,
+    supplementaryFormsAsync,
+    assetIdFormsAsync,
+    assetSupFormsAsync,
+    householdsAsync,
+    appVersionRaw,
+  ] = await Promise.all([
+    getData("offlineIDForms"),
+    getData("offlineSupForms"),
+    getData("offlineAssetIDForms"),
+    getData("offlineAssetSupForms"),
+    getData("offlineHouseholds"),
+    getData("appVersion"),
+  ]);
+  const appVersion = appVersionRaw || "";
 
   const offlineForms = {
     residentForms: idFormsAsync,
@@ -69,10 +78,6 @@ const postOfflineForms = async () => {
         status: "Error",
       };
     }
-    getAWSLogger().log({
-      type: "OFFLINE_FORM_UPLOADED",
-      parseUser: user.objectId,
-    });
     return {
       offlineForms,
       uploadedForms: uploadResult,
@@ -80,7 +85,7 @@ const postOfflineForms = async () => {
     };
   }
 
-  return "No Internet Access";
+  return { status: "Offline" };
 };
 
 export { cleanupPostedOfflineForms, postOfflineForms };

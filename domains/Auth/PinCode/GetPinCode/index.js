@@ -20,7 +20,7 @@ function GetPinCode({ navigation }) {
           .then((pincode) => {
             if (values.pincode === pincode) {
               // IF ONLINE, otherwise just log in
-              checkOnlineStatus().then((connected) => {
+              checkOnlineStatus({ skipDevOverride: true }).then((connected) => {
                 if (connected) {
                   getData("currentUser").then(
                     (asyncUser) => {

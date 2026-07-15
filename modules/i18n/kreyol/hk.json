@@ -5,6 +5,7 @@
     "notSure": "Pa sèten",
     "other": "Lòt",
     "submit": "Envoyar",
+    "saveRecord": "Sove Dosye",
     "fName": "Non",
     "lName": "Sinyati",
     "city": "Vil",
@@ -101,8 +102,8 @@
     "ourMarketPlace": "Fòm Marketplace",
     "discoverForms": "Dekouvri fòm ki te kreye pa konpayi ou fè konfyans",
     "exploreForms": "Eksplore Fòm yo",
-    "noCustomForms": "Ou pa gen okenn fòm pèsonalize",
-    "noPinnedForms": "Ou pa gen okenn fòm ki kole",
+    "noCustomForms": "Pa gen fòm pèsonalize — eseye aktyalize",
+    "noPinnedForms": "Pa gen fòm pwen ankò — kenbe nenpòt fòm pou mare li",
     "checkOutMarketplace": "Ou pa gen okenn fòm koutim",
     "viewMarketplace": "VAl gade nan Marketplace",
     "marketPlace": "Marketplace",
@@ -375,6 +376,8 @@
   },
   "forms": {
     "successfullySubmitted": "Fòm soumèt avèk siksè",
+    "savedOffline": "Sove san koneksyon — pral senkronize lè ou rekonekte",
+    "offlineBanner": "Ou pa gen koneksyon. Dosye yo pral sove epi senkronize otomatikman.",
     "grabCoffee": "Gwo travay, pwan tèt ou yon kafe",
     "suggestedForms": "Sijere pwochen fòm yo",
     "viewGallery": "Gade Fòm Galeri",
@@ -483,14 +486,7 @@
     "addCreateHousehold": "Ajoute oswa kreye yon kay"
   },
   "header": {
-    "goodMorning": "Bonjou",
-    "goodAfternoon": "Bonswa",
-    "goodEvening": "Bonswa",
-    "goodMorning!": "Bonjou!",
-    "goodAfternoon!": "Bonswa!",
-    "goodEvening!": "Bonswa!",
     "puente": "PUENTE",
-    "volunteerSince": "Volontè depi",
     "surveysCollected": "Sondaj kolekte",
     "submitOffline": "Soumèt fòm san entènèt",
     "populateOffline": "Sere done rezidan yo",
@@ -598,7 +594,8 @@
   },
   "bottomTab":{
     "dataCollection": "Done Koleksyon",
-    "home": "Akèy"
+    "home": "Akèy",
+    "offline": "San entènèt"
   },
   "camera":{
     "useImage": "Sèvi ak imaj ki soti nan woulo kamera",
@@ -738,5 +735,10 @@
     "settingsTitle": "Prefèrans Ou",
     "settingsDescription": "Chanje lang, aktive mòd nwa, epi jère kont ou tout nan yon sèl kote.",
     "dismiss": "Femen konsèy"
+  },
+  "offlineSync": {
+    "title": "Senkronizasyon san entènèt",
+    "noForms": "Pa gen fòm nan fiel. Ou konplè!",
+    "lastSync": "Dènye senkronizasyon:"
   }
 }

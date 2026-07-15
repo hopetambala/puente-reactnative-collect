@@ -1,0 +1,217 @@
+# Puente Collect — offline Resident ID form submission.
+#
+# Simulates a field worker submitting a form with no network signal.
+# postIdentificationForm() checks connectivity; when offline it saves the form
+# object to offlineIDForms in AsyncStorage and returns a local stub — the
+# IdentificationFormWrapper still navigates to the success page exactly as if
+# the network save succeeded.  The header gains a "Retry" badge + button so
+# the user can push queued forms once signal is restored.
+#
+# Offline mode is driven by the DEV_FORCE_OFFLINE AsyncStorage flag toggled
+# via the "Force Offline Mode" switch in Settings (dev builds only).
+# The iOS simulator has no Airplane Mode in Settings, so this is the only
+# reliable approach for simulator-based E2E testing.
+#
+# Prerequisites:
+#   1. App running with staging backend (login requires network):
+#      EXPO_PUBLIC_APP_ENV=staging APP_ENV=staging yarn ios
+#   2. Terms already accepted (run accept-terms.yaml first if needed).
+#   3. Run:
+#      yarn maestro .maestro/offline-resident-id.yaml
+#
+# Screenshots written to .claude/screenshots/offline-id-*.png
+appId: io.ionic.starter1270348
+---
+- launchApp:
+    clearState: true
+
+# Skip onboarding if present (first install)
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+
+- extendedWaitUntil:
+    visible: "Log-In"
+    timeout: 20000
+
+# Sign in with coordinate taps (avoids floating-label ambiguity)
+- tapOn:
+    point: "50%, 38%"
+- inputText: ${PARSE_USERNAME}
+- tapOn:
+    point: "50%, 48%"
+- inputText: ${PARSE_PASSWORD}
+- scroll
+- tapOn: "Log-In"
+
+# Dismiss "Your Impact Dashboard" coachmark if shown on first login
+- runFlow:
+    when:
+      visible: "Your Impact Dashboard"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Home"
+    timeout: 30000
+
+# Navigate to Data Collection tab (tab 2 of 5, x≈30%, y≈94%)
+- tapOn:
+    point: "30%, 94%"
+- waitForAnimationToEnd
+
+# Dismiss "Capture Field Data" coachmark if present
+- runFlow:
+    when:
+      visible: "Capture Field Data"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- takeScreenshot: .claude/screenshots/offline-id-01-gallery-online
+
+# ─── ENABLE FORCE OFFLINE ──────────────────────────────────────────────────
+# Toggle the DEV_FORCE_OFFLINE flag via the Settings screen.
+# The DevOfflineToggle component is only rendered when __DEV__ === true
+# (dev builds), so it is dead code in production.
+- tapOn:
+    point: "90%, 94%"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+- tapOn:
+    id: "dev-offline-toggle"
+- waitForAnimationToEnd
+- tapOn:
+    id: "settings-close-button"
+- waitForAnimationToEnd
+- tapOn:
+    point: "30%, 94%"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-id-02-gallery-offline
+
+# Open Resident ID form (card in the Puente Forms carousel)
+- tapOn: "Resident ID"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-id-03-consent
+
+# Accept GDPR consent before fields appear
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+# The consent form XCTest accessibility tree only shows status-bar elements
+# after clearState — all id/text taps fail. Coordinate taps always work.
+#
+# Empirical bounds from previous runs on this screen with offline banner:
+#   (10%, 68%) → empty space below "View Full Policy"
+#   (10%, 75%) → hit "Continue to Form" top edge (mustConsent alert fired)
+# Checkbox center is therefore at approximately (10%, 71%).
+# "Continue to Form" center: top edge ~75% + half button height (≈4%) → ~79%.
+- tapOn:
+    point: "10%, 71%"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-id-03b-after-checkbox
+
+# Dismiss mustConsent alert if the checkbox tap was slightly off.
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+# Coordinate tap on "Continue to Form" — XCTest tree is unreliable on this
+# screen after clearState launch, so text-based tap cannot be used.
+- tapOn:
+    point: "50%, 79%"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-id-04-form-empty
+
+# Fill required text fields (fname and lname; validation: true)
+- tapOn: "First Name"
+- inputText: "Offline"
+- tapOn: "Last Name"
+- inputText: "Test"
+- waitForAnimationToEnd
+- tapOn: "Demographics"
+- waitForAnimationToEnd
+
+# Scroll to reveal required select fields (sex, marriageStatus, educationLevel)
+- scroll
+- tapOn: "Female"
+- waitForAnimationToEnd
+- tapOn: "Single"
+- waitForAnimationToEnd
+- scroll
+- tapOn: "Highschool"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-id-05-form-filled
+
+# Scroll to Submit button
+- scroll
+- scroll
+- scroll
+- takeScreenshot: .claude/screenshots/offline-id-06-ready-to-submit
+
+# Submit while OFFLINE.
+# postIdentificationForm detects isConnected===false, writes the form to
+# offlineIDForms AsyncStorage, and returns { ...localObject, isOfflineLocal: true }.
+- tapOn:
+    id: "formSubmit"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Household Manager"
+    commands:
+      - tapOn: "<"
+      - waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-id-07-submitting
+
+# Success page — identical appearance to an online save
+- extendedWaitUntil:
+    visible: "Form successfully submitted"
+    timeout: 10000
+- takeScreenshot: .claude/screenshots/offline-id-08-success-page
+
+# Navigate to Offline tab (tab 4 of 5, x≈70%) to check the queued form badge.
+# useFocusEffect re-reads offlineIDForms so the count reflects the just-saved form.
+- tapOn:
+    point: "70%, 94%"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "Retry"
+    timeout: 5000
+- takeScreenshot: .claude/screenshots/offline-id-09-retry-badge
+
+# ─── DISABLE FORCE OFFLINE (cleanup) ──────────────────────────────────────
+# Restore online mode so subsequent flows start from a known online state.
+- tapOn:
+    point: "90%, 94%"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+- tapOn:
+    id: "dev-offline-toggle"
+- waitForAnimationToEnd
+- tapOn:
+    id: "settings-close-button"
+- waitForAnimationToEnd
+- tapOn:
+    point: "30%, 94%"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-id-10-back-online

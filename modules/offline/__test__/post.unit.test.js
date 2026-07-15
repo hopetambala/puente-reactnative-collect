@@ -1,6 +1,5 @@
 import { uploadOfflineForms } from "@app/services/parse/crud";
-import { deleteData,getData } from "@modules/async-storage";
-import getAWSLogger from "@modules/aws-logging/logger";
+import { deleteData, getData } from "@modules/async-storage";
 import {
   postIdentificationForm,
   postSupplementaryForm,
@@ -21,32 +20,25 @@ jest.mock("@app/services/parse/crud", () => ({
 
 jest.mock("..", () => jest.fn());
 
-jest.mock("@modules/aws-logging/logger");
-
 jest.mock("@app/domains/DataCollection/Forms/utils", () =>
   jest.fn().mockResolvedValue("testUser")
 );
 
-const asyncStorageStore = {};
+const mockAsyncStorageStore = {};
 jest.mock("@modules/async-storage", () => ({
-  getData: jest.fn((key) => Promise.resolve(asyncStorageStore[key] ?? null)),
+  getData: jest.fn((key) => Promise.resolve(mockAsyncStorageStore[key] ?? null)),
   deleteData: jest.fn((key) => {
-    delete asyncStorageStore[key];
+    delete mockAsyncStorageStore[key];
     return Promise.resolve();
   }),
   storeData: jest.fn((value, key) => {
-    asyncStorageStore[key] = value;
+    mockAsyncStorageStore[key] = value;
     return Promise.resolve(value);
   }),
 }));
 
-const mockLog = jest.fn();
-
 describe("postOfflineForms failure contract", () => {
   beforeEach(() => {
-    getAWSLogger.mockReturnValue({ log: mockLog });
-    mockLog.mockClear();
-
     getData.mockImplementation((key) => {
       if (key === "currentUser") {
         return Promise.resolve({ objectId: "u1", organization: "org1" });
@@ -57,7 +49,7 @@ describe("postOfflineForms failure contract", () => {
 
   afterEach(() => {
     getData.mockImplementation((key) =>
-      Promise.resolve(asyncStorageStore[key] ?? null)
+      Promise.resolve(mockAsyncStorageStore[key] ?? null)
     );
   });
 
@@ -79,22 +71,12 @@ describe("postOfflineForms failure contract", () => {
     expect(result.status).toBe("Error");
   });
 
-  it("should not log OFFLINE_FORM_UPLOADED when upload fails", async () => {
-    checkOnlineStatus.mockResolvedValue(true);
-    uploadOfflineForms.mockRejectedValue(new Error("fail"));
-
-    await postOfflineForms();
-
-    expect(mockLog).not.toHaveBeenCalledWith(
-      expect.objectContaining({ type: "OFFLINE_FORM_UPLOADED" })
-    );
-  });
 });
 
 describe("postOfflineForms null user safety", () => {
   afterEach(() => {
     getData.mockImplementation((key) =>
-      Promise.resolve(asyncStorageStore[key] ?? null)
+      Promise.resolve(mockAsyncStorageStore[key] ?? null)
     );
   });
 
@@ -102,6 +84,17 @@ describe("postOfflineForms null user safety", () => {
     getData.mockImplementation(() => Promise.resolve(null));
 
     await expect(postOfflineForms()).resolves.toMatchObject({ status: "Error" });
+  });
+
+  it("should return { status: 'Offline' } (not a string) when not connected", async () => {
+    checkOnlineStatus.mockResolvedValue(false);
+    getData.mockImplementation((key) => {
+      if (key === "currentUser") return Promise.resolve({ objectId: "u1", organization: "org1" });
+      return Promise.resolve(null);
+    });
+    const result = await postOfflineForms();
+    expect(typeof result).toBe("object");
+    expect(result).toMatchObject({ status: "Offline" });
   });
 });
 
@@ -150,34 +143,35 @@ describe("Testing full feature of offline posting", () => {
   });
 });
 
-describe("cleanupPostedOfflineForms logging", () => {
+describe("postOfflineForms online success path", () => {
   beforeEach(() => {
-    getAWSLogger.mockReturnValue({ log: mockLog });
-    mockLog.mockClear();
-    deleteData.mockImplementation(() => Promise.resolve());
+    uploadOfflineForms.mockClear();
+    getData.mockImplementation((key) => {
+      if (key === "currentUser") {
+        return Promise.resolve({ objectId: "u1", organization: "org1" });
+      }
+      return Promise.resolve(null);
+    });
   });
 
   afterEach(() => {
-    deleteData.mockReset();
-    deleteData.mockImplementation(() => Promise.resolve());
+    getData.mockImplementation((key) =>
+      Promise.resolve(mockAsyncStorageStore[key] ?? null)
+    );
   });
 
-  it("should log CLEANUP_DELETE_FAILED with the key when a delete is rejected", async () => {
-    deleteData.mockImplementation((key) => {
-      if (key === "offlineIDForms") {
-        return Promise.reject(new Error("removeItem failed"));
-      }
-      return Promise.resolve();
+  it("should call uploadOfflineForms and return status Success when device is online from the start", async () => {
+    checkOnlineStatus.mockResolvedValue(true);
+    uploadOfflineForms.mockResolvedValue({
+      status: "Success",
+      residentForms: [],
+      residentSupplementaryForms: [],
     });
 
-    await cleanupPostedOfflineForms();
+    const result = await postOfflineForms();
 
-    expect(mockLog).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: "CLEANUP_DELETE_FAILED",
-        key: "offlineIDForms",
-      })
-    );
+    expect(result.status).toBe("Success");
+    expect(uploadOfflineForms).toHaveBeenCalledTimes(1);
   });
 });
 

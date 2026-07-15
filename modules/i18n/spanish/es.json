@@ -5,6 +5,7 @@
     "notSure": "No esta seguro",
     "other": "Otro",
     "submit": "Entrega",
+    "saveRecord": "Guardar Registro",
     "fName": "Primer Nombre",
     "lName": "Apellido",
     "city": "Ciudad",
@@ -101,8 +102,8 @@
     "ourMarketPlace": "Nuestro mercado de formularios",
     "discoverForms": "Descubra formularios creados por empresas de confianza",
     "exploreForms": "Explorar formularios",
-    "noCustomForms": "No tiene formularios personalizados",
-    "noPinnedForms": "No tiene formularios favoritos",
+    "noCustomForms": "Sin formularios personalizados — intenta actualizar",
+    "noPinnedForms": "Sin formularios fijados — mantén presionado para fijar",
     "checkOutMarketplace": "Visite nuestro mercado para ver los formularios disponibles",
     "viewMarketplace": "Ver mercado de formularios",
     "marketPlace": "Mercado de formularios",
@@ -375,6 +376,8 @@
   },
   "forms": {
     "successfullySubmitted": "Formulario entregado satisfactoriamente",
+    "savedOffline": "Guardado sin conexión — se sincronizará cuando te reconectes",
+    "offlineBanner": "Estás sin conexión. Los registros se guardarán y sincronizarán automáticamente.",
     "grabCoffee": "Buen trabajo, tómate un café",
     "suggestedForms": "Formularios siguientes sugeridos",
     "viewGallery": "Ver galería de formularios",
@@ -483,14 +486,7 @@
     "addCreateHousehold": "Agrega o crea un hogar"
   },
   "header": {
-    "goodMorning": "Buenos días",
-    "goodAfternoon": "Buenas tardes",
-    "goodEvening": "Buena noches",
-    "goodMorning!": "¡Buenos días!",
-    "goodAfternoon!": "¡Buenas tardes!",
-    "goodEvening!": "¡Buena noches!",
     "puente": "PUENTE",
-    "volunteerSince": "Voluntaria desde",
     "surveysCollected": "Encuestas recopiladas",
     "submitOffline": "Enviar formularios sin conexión",
     "populateOffline": "Almacenar los datos del residente",
@@ -598,7 +594,8 @@
   },
   "bottomTab":{
     "dataCollection": "Recopilación de datos",
-    "home": "Inicio"
+    "home": "Inicio",
+    "offline": "Sin conexión"
   },
   "camera":{
     "useImage": "Usar imagen del carrete de la cámara",
@@ -740,5 +737,10 @@
     "settingsTitle": "Tus Preferencias",
     "settingsDescription": "Cambia el idioma, activa el modo oscuro y administra tu cuenta todo en un solo lugar.",
     "dismiss": "Cerrar consejos"
+  },
+  "offlineSync": {
+    "title": "Sincronización sin conexión",
+    "noForms": "No hay formularios en cola. ¡Estás al día!",
+    "lastSync": "Última sincronización:"
   }
 }

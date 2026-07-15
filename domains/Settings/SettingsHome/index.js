@@ -1,3 +1,4 @@
+import DevOfflineToggle from "@app/domains/Settings/DevOfflineToggle";
 import { ThemeContext } from "@context/theme.context";
 import I18n from "@modules/i18n";
 import { clearOnboardingData } from "@modules/settings";
@@ -141,6 +142,7 @@ function SettingsHome({
               </Button>
             </View>
           </View>
+            <DevOfflineToggle />
             <View style={styles.horizontalLineGray} />
             {inputs.length &&
               inputs.map((input, i) => (
@@ -248,6 +250,7 @@ function SettingsHome({
             </Animated.View>
           </View>
           <Button
+            testID="settings-close-button"
             onPress={() => {
               onClose();
             }}

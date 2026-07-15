@@ -1,7 +1,7 @@
-import AssetsNavigator from "@app/domains/Assets/navigator";
 import DataCollectionNavigator from "@app/domains/DataCollection/navigator";
 import FindRecordsNavigator from "@app/domains/FindRecords/navigator";
 import HomeScreen from "@app/domains/HomeScreen";
+import OfflineSyncScreen from "@app/domains/Offline";
 import SettingsView from "@app/domains/Settings";
 import { TabBarIcon } from "@impacto-design-system/Extensions";
 import AnimatedTabBar from "@impacto-design-system/MainNavigation/BottomTabNavigator/AnimatedTabBar";
@@ -121,16 +121,16 @@ export default function BottomTabNavigator() {
         )}
       </BottomTab.Screen>
       <BottomTab.Screen
-        name="Assets"
+        name="Offline"
         options={{
-          title: I18n.t("dataCollection.viewAssets"),
+          title: I18n.t("bottomTab.offline"),
           headerShown: false,
-          tabBarIcon: tabIcon("map-outline"),
+          tabBarIcon: tabIcon("cloud-upload-outline"),
         }}
       >
         {(props) => (
           <TabScreenWrapper>
-            <AssetsNavigator {...props} />
+            <OfflineSyncScreen {...props} />
           </TabScreenWrapper>
         )}
       </BottomTab.Screen>

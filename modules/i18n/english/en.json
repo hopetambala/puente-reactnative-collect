@@ -5,6 +5,7 @@
     "notSure": "Not Sure",
     "other": "Other",
     "submit": "Submit",
+    "saveRecord": "Save Record",
     "fName": "First Name",
     "lName": "Last Name",
     "city": "City",
@@ -49,7 +50,7 @@
     }
   },
   "signIn": {
-    "user":"Username",
+    "user": "Username",
     "username": "Email or Phone Number",
     "password": "Password",
     "showPassword": "Show Password",
@@ -101,8 +102,8 @@
     "ourMarketPlace": "Our Marketplace",
     "discoverForms": "Discover forms created by trusted companies",
     "exploreForms": "Explore Forms",
-    "noCustomForms": "You do not have any custom forms",
-    "noPinnedForms": "You do not have any pinned forms",
+    "noCustomForms": "No custom forms — try refreshing",
+    "noPinnedForms": "No pinned forms yet — long-press any form to pin it",
     "checkOutMarketplace": "Check out our marketplace to view available forms",
     "viewMarketplace": "View Marketplace",
     "marketPlace": "Marketplace",
@@ -197,14 +198,14 @@
       "tap": "Tap",
       "filtered": "Filtered"
     },
-    "bathroomAccess":{
+    "bathroomAccess": {
       "label": "Bathroom Access",
       "Bathroom": "Bathroom",
       "Latrine": "Latrine",
       "None": "None"
     },
     "latrineAccess": "Latrine Access",
-    "clinicAccess":{
+    "clinicAccess": {
       "label": "Clinic Access",
       "Clinic": "Clinic/Medical Center",
       "Polyclinic": "Polyclinic",
@@ -223,8 +224,8 @@
     "trashBetweenPickups": "Where is trash left between pickups?",
     "houseOwnership": {
       "label": "House Ownership",
-      "Own":"Own",
-      "Rent":"Rent",
+      "Own": "Own",
+      "Rent": "Rent",
       "Provided": "Provided"
     },
     "floorCondition": {
@@ -279,7 +280,7 @@
     "numberIndividualsHouse": "Number of Individuals Living in the House",
     "numberChildrenUnder5": {
       "label": "Are there any children living in the house in the following age groups?",
-      "under_5":"Less than 5",
+      "under_5": "Less than 5",
       "6_12": "6-12",
       "13_18": "13-18",
       "under_5_textQuestion": "How many children under the age of 5?",
@@ -375,6 +376,8 @@
   },
   "forms": {
     "successfullySubmitted": "Form successfully submitted",
+    "savedOffline": "Saved offline — will sync when you reconnect",
+    "offlineBanner": "You're offline. Records will save and sync automatically.",
     "grabCoffee": "Great job, grab yourself a coffee",
     "suggestedForms": "Suggested next forms",
     "viewGallery": "View Forms Gallery",
@@ -483,14 +486,7 @@
     "addCreateHousehold": "Add or Create a Household"
   },
   "header": {
-    "goodMorning": "Good morning",
-    "goodAfternoon": "Good afternoon",
-    "goodEvening": "Good evening",
-    "goodMorning!": "Good morning!",
-    "goodAfternoon!": "Good afternoon!",
-    "goodEvening!": "Good evening!",
     "puente": "PUENTE",
-    "volunteerSince": "Volunteer Since",
     "surveysCollected": "Surveys Collected",
     "submitOffline": "Submit Offline Forms",
     "populateOffline": "Populate Resident's Cache",
@@ -538,7 +534,7 @@
     "language": "Language",
     "back": "Back",
     "logout": "Log out",
-    "deleteUser":"Delete user?",
+    "deleteUser": "Delete user?",
     "populateIdForms": "Populate all ID Forms",
     "clearCachedIdForms": "Clear Cached ID Forms",
     "resetOnboarding": "Reset Onboarding"
@@ -596,11 +592,12 @@
     "addAdditional": "Add Additional ",
     "removePrevious": "Remove Previous "
   },
-  "bottomTab":{
+  "bottomTab": {
     "dataCollection": "Data Collection",
-    "home": "Home"
+    "home": "Home",
+    "offline": "Offline"
   },
-  "camera":{
+  "camera": {
     "useImage": "Use image from camera roll",
     "noAccess": "No access to camera",
     "requestingPermission": "Requesting camera permission...",
@@ -608,8 +605,7 @@
     "flip": "Flip",
     "takePicture": "Take Picture",
     "done": "Done",
-    "sorryAlert":"Sorry, we need camera roll permissions to make this work!"
- 
+    "sorryAlert": "Sorry, we need camera roll permissions to make this work!"
   },
   "peopleModal": {
     "title": "People Manager",
@@ -635,15 +631,15 @@
   "assetFormSelect": {
     "supAssetForms": "Supplementary Asset Forms"
   },
-  "puenteForms":{
+  "puenteForms": {
     "ResidentID": "Resident ID",
     "EnvironmentalHealth": "Environmental Health",
     "MedicalEvaluation": "Medical Evaluation",
     "Vitals": "Vitals"
   },
-  "submissionError":{
+  "submissionError": {
     "error": "ERROR!\n\nYour form has not been submitted. Please try again or contact your supervisor if the issue persits.",
-    "geolocation":"TIMEOUT!\n\nYour phone's geolocation wasn't able to be retrieved from your device. Please try again"
+    "geolocation": "TIMEOUT!\n\nYour phone's geolocation wasn't able to be retrieved from your device. Please try again"
   },
   "dataAnalysis": {
     "welcome": "Welcome to the data analysis page."
@@ -741,5 +737,10 @@
     "settingsTitle": "Your Preferences",
     "settingsDescription": "Switch language, toggle dark mode, and manage your account all in one place.",
     "dismiss": "Dismiss tips"
+  },
+  "offlineSync": {
+    "title": "Offline Sync",
+    "noForms": "No forms queued. You are all caught up!",
+    "lastSync": "Last synced:"
   }
 }

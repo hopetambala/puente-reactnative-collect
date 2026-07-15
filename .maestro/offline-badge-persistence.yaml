@@ -1,0 +1,241 @@
+# Puente Collect — offline badge survives app force-restart.
+#
+# Verifies the data-durability guarantee: a form saved offline must survive
+# the app being killed and relaunched (e.g., phone restarts, OS kills the
+# process).  offlineIDForms lives in AsyncStorage (SQLite on iOS), which is
+# persisted to disk and survives process termination.
+#
+# Flow:
+#   1. Toggle force-offline ON via Settings.
+#   2. Submit a Resident ID form → offlineIDForms has 1 entry.
+#   3. Force-stop the app (stopApp).
+#   4. Cold-relaunch the app (fresh process, no in-memory state).
+#   5. Skip re-login if session token is still valid in AsyncStorage.
+#   6. Navigate to Data Collection — "Retry" badge must still be visible.
+#   7. Toggle force-offline OFF and sync to clean up.
+#
+# Note: DEV_FORCE_OFFLINE also persists in AsyncStorage across restarts,
+# so the flag is still set after the cold relaunch — no re-toggle needed
+# before syncing.  The sync step clears the offline queue; the toggle OFF
+# step clears the DEV flag.
+#
+# Prerequisites:
+#   1. App running with staging backend:
+#      EXPO_PUBLIC_APP_ENV=staging APP_ENV=staging yarn ios
+#   2. Terms already accepted (run accept-terms.yaml first if needed).
+#   3. Run:
+#      yarn maestro .maestro/offline-badge-persistence.yaml
+#
+# Screenshots written to .claude/screenshots/offline-persist-*.png
+appId: io.ionic.starter1270348
+---
+- launchApp:
+    clearState: true
+
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+
+- extendedWaitUntil:
+    visible: "Log-In"
+    timeout: 20000
+
+- tapOn:
+    point: "50%, 38%"
+- inputText: ${PARSE_USERNAME}
+- tapOn:
+    point: "50%, 48%"
+- inputText: ${PARSE_PASSWORD}
+- scroll
+- tapOn: "Log-In"
+
+- runFlow:
+    when:
+      visible: "Your Impact Dashboard"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Home"
+    timeout: 30000
+
+- tapOn:
+    point: "30%, 94%"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Capture Field Data"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- takeScreenshot: .claude/screenshots/offline-persist-01-gallery-online
+
+# ─── ENABLE FORCE OFFLINE ──────────────────────────────────────────────────
+- tapOn:
+    point: "90%, 94%"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+- tapOn:
+    id: "dev-offline-toggle"
+- waitForAnimationToEnd
+- tapOn:
+    id: "settings-close-button"
+- waitForAnimationToEnd
+- tapOn:
+    point: "30%, 94%"
+- waitForAnimationToEnd
+
+# ─── SUBMIT FORM OFFLINE ───────────────────────────────────────────────────
+- tapOn: "Resident ID"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+- tapOn:
+    point: "10%, 71%"
+- waitForAnimationToEnd
+- tapOn:
+    point: "50%, 79%"
+- waitForAnimationToEnd
+
+- tapOn: "First Name"
+- inputText: "Persist"
+- tapOn: "Last Name"
+- inputText: "Test"
+- waitForAnimationToEnd
+- tapOn: "Demographics"
+- waitForAnimationToEnd
+
+- scroll
+- tapOn: "Female"
+- waitForAnimationToEnd
+- tapOn: "Single"
+- waitForAnimationToEnd
+- scroll
+- tapOn: "Highschool"
+- waitForAnimationToEnd
+
+- scroll
+- scroll
+- scroll
+
+- tapOn:
+    id: "formSubmit"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Household Manager"
+    commands:
+      - tapOn: "<"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Form successfully submitted"
+    timeout: 10000
+- takeScreenshot: .claude/screenshots/offline-persist-02-success-offline
+
+# Navigate to Offline tab (tab 4, x≈70%) to confirm the queued form appears.
+- tapOn:
+    point: "70%, 94%"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "Retry"
+    timeout: 5000
+- takeScreenshot: .claude/screenshots/offline-persist-03-retry-before-kill
+
+# ─── FORCE-STOP THE APP ────────────────────────────────────────────────────
+# stopApp terminates the process entirely — no in-memory state survives.
+# AsyncStorage (SQLite) is on disk, so offlineIDForms AND DEV_FORCE_OFFLINE
+# both persist across process termination.
+- stopApp
+
+# ─── COLD RELAUNCH ─────────────────────────────────────────────────────────
+# Do NOT use clearState here — a real cold restart keeps disk data (AsyncStorage
+# / SQLite) intact; only in-memory state is lost.  clearState would wipe the
+# session token AND offlineIDForms, making the badge check below meaningless.
+- launchApp
+- waitForAnimationToEnd
+
+# Re-login only if the session token expired between the two launches.
+- runFlow:
+    when:
+      visible: "Log-In"
+    commands:
+      - tapOn:
+          point: "50%, 38%"
+      - inputText: ${PARSE_USERNAME}
+      - tapOn:
+          point: "50%, 48%"
+      - inputText: ${PARSE_PASSWORD}
+      - scroll
+      - tapOn: "Log-In"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Your Impact Dashboard"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Home"
+    timeout: 30000
+- takeScreenshot: .claude/screenshots/offline-persist-04-after-relaunch
+
+# ─── VERIFY BADGE SURVIVED ─────────────────────────────────────────────────
+# Navigate to Offline tab — "Retry" must still be present after cold relaunch,
+# confirming the offline form was not lost (AsyncStorage persists across restarts).
+- tapOn:
+    point: "70%, 94%"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "Retry"
+    timeout: 5000
+- takeScreenshot: .claude/screenshots/offline-persist-05-retry-after-relaunch
+
+# ─── RESTORE ONLINE MODE AND SYNC ──────────────────────────────────────────
+# DEV_FORCE_OFFLINE is still set (persisted across restart), so turn it OFF
+# first, then sync.
+- tapOn:
+    point: "90%, 94%"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+- tapOn:
+    id: "dev-offline-toggle"
+- waitForAnimationToEnd
+- tapOn:
+    id: "settings-close-button"
+- waitForAnimationToEnd
+
+# Navigate to Offline tab and sync.
+- tapOn:
+    point: "70%, 94%"
+- waitForAnimationToEnd
+- tapOn: "Retry"
+- waitForAnimationToEnd
+
+- extendedWaitUntil:
+    notVisible: "Retry"
+    timeout: 30000
+- takeScreenshot: .claude/screenshots/offline-persist-06-synced

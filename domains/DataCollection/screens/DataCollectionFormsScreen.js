@@ -2,17 +2,39 @@ import Forms from "@app/domains/DataCollection/Forms";
 import { UserContext } from "@context/auth.context";
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
+import checkOnlineStatus from "@modules/offline";
 import { createLayoutStyles } from "@modules/theme";
+import { getTokens } from "@modules/theme/tokens";
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  StyleSheet,
   View,
 } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const t = getTokens("light");
+const screenStyles = StyleSheet.create({
+  headingContainer: {
+    paddingHorizontal: t.tkDliteSemanticSpacing400, // spacing.md = 16px
+    paddingVertical: t.tkDliteSemanticSpacing300, // spacing.sm = 12px
+    marginTop: t.tkDliteSemanticSpacing200, // spacing.xs ~10px, using 200=8px (closest token)
+  },
+  offlineBanner: {
+    paddingHorizontal: t.tkDliteSemanticSpacing400,
+    paddingVertical: t.tkDliteSemanticSpacing300,
+    backgroundColor: "#fff3e0",
+  },
+  offlineBannerText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#f57c00",
+  },
+});
 
 function DataCollectionFormsScreen({ navigation, route }) {
   const theme = useTheme();
@@ -24,11 +46,18 @@ function DataCollectionFormsScreen({ navigation, route }) {
   const [pinnedForms, setPinnedForms] = useState([]);
   const [surveyingOrganization, setSurveyingOrganization] = useState("");
   const [surveyingUser, setSurveyingUser] = useState("");
+  const [isOffline, setIsOffline] = useState(false);
 
   const { user } = useContext(UserContext);
 
+  useEffect(() => {
+    checkOnlineStatus().then((online) => setIsOffline(!online));
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
+      checkOnlineStatus().then((online) => setIsOffline(!online));
+
       if (route?.params?.formTag) {
         setSelectedForm(route.params.formTag);
       }
@@ -94,13 +123,20 @@ function DataCollectionFormsScreen({ navigation, route }) {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={layout.screenContainer}
       >
+        {isOffline && (
+          <View style={screenStyles.offlineBanner}>
+            <Text style={screenStyles.offlineBannerText}>
+              {I18n.t("forms.offlineBanner")}
+            </Text>
+          </View>
+        )}
         <ScrollView
-          keyboardShouldPersistTaps="never"
+          keyboardShouldPersistTaps="handled"
           scrollEnabled={scrollViewScroll}
           style={layout.screenContainer}
         >
-          <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
-            <Text variant="headlineMedium" style={{ fontWeight: "bold", marginTop: 10 }}>
+          <View style={screenStyles.headingContainer}>
+            <Text variant="headlineMedium" style={{ fontWeight: "bold" }}>
               {I18n.t("dataCollection.collectData")}
             </Text>
           </View>

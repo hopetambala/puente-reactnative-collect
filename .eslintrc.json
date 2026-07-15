@@ -36,7 +36,11 @@
         "simple-import-sort/exports": "error",
         "import/no-extraneous-dependencies": ["error", {"devDependencies": ["**/*.test.js", "**/*.spec.js", "**/__test__/*.js" ]}],
         "import/prefer-default-export": "off",
-        "module-resolver/use-alias": 2
+        "module-resolver/use-alias": 2,
+        "no-underscore-dangle": ["error", { "allow": ["__DEV__"] }]
+    },
+    "globals": {
+        "__DEV__": "readonly"
     },
      "settings": {
         "import/resolver": {

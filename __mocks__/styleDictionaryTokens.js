@@ -21,7 +21,21 @@ const mockTokens = {
   tkDliteSemanticColorTextOnSurfaceVariant: '#666666',
   tkDliteSemanticColorSuccess: '#34C759',
   tkDliteSemanticColorWarning: '#FF9500',
-  
+
+  tkDliteSemanticSpacing100: 4,
+  tkDliteSemanticSpacing200: 8,
+  tkDliteSemanticSpacing300: 12,
+  tkDliteSemanticSpacing400: 16,
+  tkDliteSemanticSpacing500: 20,
+  tkDliteSemanticSpacing600: 24,
+  tkDliteSemanticSpacing700: 32,
+  tkDliteSemanticSpacing800: 40,
+
+  tkDliteSemanticBorderRadiusSmall: 4,
+  tkDliteSemanticBorderRadiusMedium: 8,
+  tkDliteSemanticBorderRadiusLarge: 16,
+  tkDliteSemanticBorderRadiusFull: 9999,
+
   colors: {
     primary: '#007AFF',
     onPrimary: '#FFFFFF',

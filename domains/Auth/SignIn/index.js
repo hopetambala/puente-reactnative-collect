@@ -190,7 +190,7 @@ function SignIn({ navigation, route }) {
   };
 
   const signin = async (enteredValues, actions) => {
-    const connected = await checkOnlineStatus();
+    const connected = await checkOnlineStatus({ skipDevOverride: true });
 
     if (connected === true) {
       return onlineLogin(enteredValues).then((status) => {

@@ -1,0 +1,100 @@
+# Puente Collect — Find Records → resident record history → view collected record.
+#
+# Taps through login, navigates to Find Records, selects the first visible
+# resident ("Rararo Long" in staging), opens their Record History screen,
+# and taps into the Identification record to view the previously collected form.
+#
+# Prerequisites:
+#   1. App running against staging backend:
+#      EXPO_PUBLIC_APP_ENV=staging APP_ENV=staging yarn ios
+#   2. Terms already accepted (run accept-terms.yaml first if needed)
+#   3. Staging DB must contain at least one resident (Rararo Long is used by default)
+#   4. Run:
+#      maestro test -e PARSE_USERNAME=Test -e PARSE_PASSWORD=test .maestro/find-records-history.yaml
+#
+# Screenshots written to .claude/screenshots/find-records-*.png
+appId: io.ionic.starter1270348
+---
+- launchApp
+
+# Skip onboarding if present (first install)
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+
+- extendedWaitUntil:
+    visible: "Log-In"
+    timeout: 20000
+
+# Sign in with coordinate taps (avoids floating-label ambiguity)
+- tapOn:
+    point: "50%, 38%"
+- inputText: ${PARSE_USERNAME}
+- tapOn:
+    point: "50%, 48%"
+- inputText: ${PARSE_PASSWORD}
+- scroll
+- tapOn: "Log-In"
+
+# Dismiss "Your Impact Dashboard" coachmark if shown on first login
+- runFlow:
+    when:
+      visible: "Your Impact Dashboard"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Home"
+    timeout: 30000
+
+# Navigate to Find Records tab (tab 1 of 5, x≈10%, y≈94%)
+- tapOn:
+    point: "10%, 94%"
+- waitForAnimationToEnd
+
+# Dismiss "Search All Records" coachmark if present
+- runFlow:
+    when:
+      visible: "Search All Records"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- takeScreenshot: .claude/screenshots/find-records-01-list
+
+# Tap the first resident in the list.
+# The FindResidents component doesn't expose names to the accessibility tree,
+# so a coordinate tap is used instead of text.
+# "Rararo Long" is the first row at approximately (50%, 30%) after the search bar.
+# If the list order changes, adjust this coordinate.
+- tapOn:
+    point: "50%, 30%"
+- waitForAnimationToEnd
+
+# FindResidents shows a ResidentPage detail panel first — wait for it to appear.
+# The panel shows the resident's name and a "View Record History" button.
+- extendedWaitUntil:
+    visible: "View Record History"
+    timeout: 10000
+- takeScreenshot: .claude/screenshots/find-records-02-resident-page
+
+# Navigate to the full record history screen
+- tapOn: "View Record History"
+- waitForAnimationToEnd
+
+# The ResidentRecordHistory heading sits inside a ScrollView whose accessibility tree
+# Maestro cannot assert against via extendedWaitUntil. The screen is already loaded
+# after waitForAnimationToEnd (confirmed by diagnostic screenshots).
+- takeScreenshot: .claude/screenshots/find-records-03-record-history
+
+# Tap the Identification row card (TouchableOpacity below the "Identification" header).
+# The section header is a plain Text (not tappable); the row card sits at ~(50%, 25%).
+# "Identification - <date>" contains the date which varies — coordinate is more reliable.
+# NOTE: Vitals is at ~55%, EnvironmentalHealth ~65%, Custom Forms ~80%.
+- tapOn:
+    point: "50%, 25%"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/find-records-04-edit-identification

@@ -16,6 +16,7 @@ import { storeAppVersion } from "@modules/cached-resources/populate-cache";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
 import { isEmpty, withTimeoutAbort } from "@modules/utils";
+import * as Haptics from "expo-haptics";
 import { Formik } from "formik";
 import _ from "lodash";
 import React, { useContext, useEffect, useState } from "react";
@@ -37,7 +38,6 @@ function IdentificationForm({
   validationSchema,
   setValidationSchema,
   inputs,
-  setInputs,
   submitting,
   submissionError,
   setSubmissionError,
@@ -50,10 +50,6 @@ function IdentificationForm({
   useEffect(() => {
     setValidationSchema(yupValidationPicker(configArray));
   }, []);
-
-  useEffect(() => {
-    setInputs(configArray);
-  }, [setInputs, configArray]);
 
   return (
     <View>
@@ -91,7 +87,7 @@ function IdentificationForm({
                   buttonText={
                     _.isEmpty(formikProps.values)
                       ? I18n.t("global.emptyForm")
-                      : I18n.t("global.submit")
+                      : I18n.t("global.saveRecord")
                   }
                   icon={
                     _.isEmpty(formikProps.values) ? "alert-octagon" : "plus"
@@ -128,7 +124,7 @@ function IdentificationFormWrapper({
   navigation,
 }) {
   const { alert } = useContext(AlertContext);
-  const [inputs, setInputs] = useState([]);
+  const [inputs] = useState(configArray);
   const [validationSchema, setValidationSchema] = useState();
   const [submitting, setSubmitting] = useState(false);
   const [submissionError, setSubmissionError] = useState(false);
@@ -175,8 +171,11 @@ function IdentificationFormWrapper({
     try {
       const { photoFile } = values;
 
-      const formObject = values;
-      const user = await getData("currentUser");
+      const formObject = { ...values };
+      const [user, appVersion] = await Promise.all([
+        getData("currentUser"),
+        withTimeoutAbort(storeAppVersion, 300, ""),
+      ]);
 
       formObject.surveyingOrganization =
         surveyingOrganization || user.organization;
@@ -186,7 +185,7 @@ function IdentificationFormWrapper({
         isEmpty
       );
 
-      formObject.appVersion = await withTimeoutAbort(storeAppVersion, 300, "");
+      formObject.appVersion = appVersion;
       formObject.phoneOS = Platform.OS || "";
 
       formObject.latitude = values.location?.latitude || 0;
@@ -225,6 +224,7 @@ function IdentificationFormWrapper({
         await invalidateResidentCache(existingRecord.objectId);
         const fname = formObject.fname || "";
         const lname = formObject.lname || "";
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         alert(`${fname} ${lname} ${I18n.t("forms.successfullySubmitted")}`.trim());
         setSubmitting(false);
         if (navigation) {
@@ -245,13 +245,18 @@ function IdentificationFormWrapper({
       setSurveyee(surveyee);
       const fname = surveyee?.fname || "";
       const lname = surveyee?.lname || "";
-      alert(`${fname} ${lname} ${I18n.t("forms.successfullySubmitted")}`.trim());
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      if (surveyee?.isOfflineLocal === true) {
+        alert(I18n.t("forms.savedOffline"));
+      } else {
+        alert(`${fname} ${lname} ${I18n.t("forms.successfullySubmitted")}`.trim());
+      }
       setSubmitting(false);
       setSelectedForm("");
 
     } catch (e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
+      console.error("IdentificationForm submit error:", e);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setSubmitting(false);
       setSubmissionError(true);
       alert(I18n.t("submissionError.error"));
@@ -264,17 +269,14 @@ function IdentificationFormWrapper({
       setScrollViewScroll={setScrollViewScroll}
       onSubmit={onSubmit}
       inputs={inputs}
-      setInputs={setInputs}
       validationSchema={validationSchema}
       setValidationSchema={setValidationSchema}
       submitting={submitting}
-      setSubmitting={setSubmitting}
       submissionError={submissionError}
       setSubmissionError={setSubmissionError}
-      setSelectedForm={setSelectedForm}
-      setSurveyee={setSurveyee}
       editMode={editMode}
       editFormValues={editFormValues}
+      surveyingOrganization={surveyingOrganization}
     />
   );
 }

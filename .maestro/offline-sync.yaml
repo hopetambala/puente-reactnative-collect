@@ -1,0 +1,183 @@
+# Puente Collect — offline form save, then reconnect and sync.
+#
+# Full end-to-end offline scenario:
+#   1. Toggle force-offline ON via Settings (DEV_FORCE_OFFLINE flag).
+#   2. Submit Resident ID form → form is queued in offlineIDForms AsyncStorage.
+#   3. Header shows "Retry" button + count badge.
+#   4. Toggle force-offline OFF (restores real network check).
+#   5. Tap "Retry" — handleUpload() posts all queued forms, clears the queue,
+#      and stores a lastSyncTimestamp.
+#
+# Prerequisites:
+#   1. App running with staging backend:
+#      EXPO_PUBLIC_APP_ENV=staging APP_ENV=staging yarn ios
+#   2. Terms already accepted (run accept-terms.yaml first if needed).
+#   3. Run:
+#      yarn maestro .maestro/offline-sync.yaml
+#
+# Screenshots written to .claude/screenshots/offline-sync-*.png
+appId: io.ionic.starter1270348
+---
+- launchApp:
+    clearState: true
+
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+
+- extendedWaitUntil:
+    visible: "Log-In"
+    timeout: 20000
+
+- tapOn:
+    point: "50%, 38%"
+- inputText: ${PARSE_USERNAME}
+- tapOn:
+    point: "50%, 48%"
+- inputText: ${PARSE_PASSWORD}
+- scroll
+- tapOn: "Log-In"
+
+- runFlow:
+    when:
+      visible: "Your Impact Dashboard"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Home"
+    timeout: 30000
+
+- tapOn:
+    point: "30%, 94%"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Capture Field Data"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- takeScreenshot: .claude/screenshots/offline-sync-01-gallery-online
+
+# ─── ENABLE FORCE OFFLINE ──────────────────────────────────────────────────
+- tapOn:
+    point: "90%, 94%"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+- tapOn:
+    id: "dev-offline-toggle"
+- waitForAnimationToEnd
+- tapOn:
+    id: "settings-close-button"
+- waitForAnimationToEnd
+- tapOn:
+    point: "30%, 94%"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-sync-02-offline-mode
+
+# ─── SUBMIT FORM OFFLINE ───────────────────────────────────────────────────
+- tapOn: "Resident ID"
+- waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+- tapOn:
+    point: "10%, 71%"
+- waitForAnimationToEnd
+- tapOn:
+    point: "50%, 79%"
+- waitForAnimationToEnd
+
+- tapOn: "First Name"
+- inputText: "Sync"
+- tapOn: "Last Name"
+- inputText: "Test"
+- waitForAnimationToEnd
+- tapOn: "Demographics"
+- waitForAnimationToEnd
+
+- scroll
+- tapOn: "Female"
+- waitForAnimationToEnd
+- tapOn: "Single"
+- waitForAnimationToEnd
+- scroll
+- tapOn: "Highschool"
+- waitForAnimationToEnd
+
+- scroll
+- scroll
+- scroll
+- takeScreenshot: .claude/screenshots/offline-sync-03-form-ready
+
+- tapOn:
+    id: "formSubmit"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Household Manager"
+    commands:
+      - tapOn: "<"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Form successfully submitted"
+    timeout: 10000
+- takeScreenshot: .claude/screenshots/offline-sync-04-success-offline
+
+# Navigate to Offline tab (tab 4, x≈70%) to see the queued form badge.
+- tapOn:
+    point: "70%, 94%"
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "Retry"
+    timeout: 5000
+- takeScreenshot: .claude/screenshots/offline-sync-05-retry-badge
+
+# ─── RESTORE ONLINE MODE ───────────────────────────────────────────────────
+# Clear DEV_FORCE_OFFLINE so postOfflineForms() can reach the Parse backend.
+- tapOn:
+    point: "90%, 94%"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+- tapOn:
+    id: "dev-offline-toggle"
+- waitForAnimationToEnd
+- tapOn:
+    id: "settings-close-button"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-sync-06-back-online
+
+# ─── SYNC ──────────────────────────────────────────────────────────────────
+# Navigate back to Offline tab and trigger sync.
+- tapOn:
+    point: "70%, 94%"
+- waitForAnimationToEnd
+- tapOn: "Retry"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/offline-sync-07-syncing
+
+- extendedWaitUntil:
+    notVisible: "Retry"
+    timeout: 30000
+- takeScreenshot: .claude/screenshots/offline-sync-08-synced

@@ -1,15 +1,27 @@
 /**
  * Asset Forms Edit Mode - RED-GREEN TDD Tests
- * Phase 7: Tests for FormAssetResults edit mode with fields reversal
  */
 
 import { AlertContextProvider } from '@app/context/alert.context';
 import AssetSupplementary from '@app/domains/DataCollection/Assets/NewAssets/AssetSupplementary/index';
-import { reverseFormResultsFields } from '@app/domains/DataCollection/Forms/SupplementaryForm/utils';
 import { updateObjectInClass } from '@app/services/parse/crud';
 import { postSupplementaryAssetForm } from '@modules/cached-resources';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
+
+jest.mock(
+  '@app/domains/DataCollection/Assets/NewAssets/AssetSupplementary/AssetFormSelect',
+  () => {
+    // eslint-disable-next-line global-require
+    const MockReact = require('react');
+    return function MockAssetFormSelect({ setSelectedForm }) {
+      MockReact.useEffect(() => {
+        setSelectedForm({ objectId: 'form-type-456', name: 'Mock Form', fields: [] });
+      }, []);
+      return null;
+    };
+  }
+);
 
 jest.mock('@modules/cached-resources', () => ({
   postSupplementaryAssetForm: jest.fn(() => Promise.resolve({})),
@@ -42,12 +54,6 @@ describe('Asset Forms Edit Mode - RED-GREEN TDD', () => {
     objectId: 'asset-123',
     name: 'Community Center',
     communityName: 'Springfield',
-  };
-
-  const mockAssetForm = {
-    objectId: 'form-type-456',
-    name: 'Asset Maintenance Form',
-    description: 'Track asset maintenance activities',
   };
 
   // Helper to render component with AlertContextProvider
@@ -328,6 +334,37 @@ describe('Asset Forms Edit Mode - RED-GREEN TDD', () => {
       await waitFor(() => {
         const callArgs = updateObjectInClass.mock.calls[0];
         expect(callArgs[3]).toBe('user-123'); // userId parameter
+      });
+    });
+  });
+
+  describe('offline asset — isOfflineLocal forwarded to postParams', () => {
+    test('postSupplementaryAssetForm receives isOfflineLocal:true when selectedAsset is offline-local', async () => {
+      postSupplementaryAssetForm.mockResolvedValue({});
+
+      const offlineAsset = {
+        objectId: 'AssetID-offline-123',
+        isOfflineLocal: true,
+        name: 'Test Asset',
+      };
+
+      const { getByTestId } = renderWithContext(
+        <AssetSupplementary
+          selectedAsset={offlineAsset}
+          setSelectedAsset={() => {}}
+          surveyingOrganization="Test Org"
+          surveyingUser="Test User"
+          setPage={() => {}}
+        />
+      );
+
+      const submitButton = getByTestId('formSubmit');
+      fireEvent.press(submitButton);
+
+      await waitFor(() => {
+        expect(postSupplementaryAssetForm).toHaveBeenCalledWith(
+          expect.objectContaining({ isOfflineLocal: true })
+        );
       });
     });
   });

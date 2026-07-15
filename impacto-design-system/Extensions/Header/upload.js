@@ -5,9 +5,11 @@ export async function handleUpload({
   setSubmission,
   getQueuedFormCount,
   storeLastSyncTimestamp,
+  resetFormCount,
 }) {
+  let count = 0;
   if (getQueuedFormCount) {
-    const count = await getQueuedFormCount();
+    count = await getQueuedFormCount();
     if (count === 0) return;
   }
 
@@ -32,13 +34,17 @@ export async function handleUpload({
   }
 
   const { status } = offlineRecords;
-  if (status === "Error") {
+  if (status === "Error" || status === "Offline") {
     failWith();
     return;
   }
 
-  setSubmission(true);
+  setSubmission(count);
   setIsSubmitting(false);
-  await cleanupPostedOfflineForms();
-  if (storeLastSyncTimestamp) await storeLastSyncTimestamp();
+  try {
+    await cleanupPostedOfflineForms();
+  } finally {
+    if (resetFormCount) resetFormCount(0);
+    if (storeLastSyncTimestamp) await storeLastSyncTimestamp();
+  }
 }

@@ -147,6 +147,10 @@ const PROP_DRIVEN_PATTERNS = [
   /domains\/DataCollection\/Assets\/NewAssets\/index\.js$/,
   /domains\/DataCollection\/Assets\/ViewAssets\/index\.js$/,
   /domains\/DataCollection\/Assets\/index\.js$/,
+  /domains\/Onboarding\/components\/ConfettiBurst\.js$/,
+  /domains\/Onboarding\/components\/DriftingShapes\.js$/,
+  /domains\/Onboarding\/components\/PuenteMark\.js$/,
+  /domains\/Settings\/DevOfflineToggle\/index\.js$/,
 ];
 
 function* walkFiles(dir) {

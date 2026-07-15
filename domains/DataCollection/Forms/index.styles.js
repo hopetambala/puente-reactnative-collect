@@ -1,5 +1,8 @@
 import { spacing, typography } from "@modules/theme";
+import { getTokens } from "@modules/theme/tokens";
 import { StyleSheet } from "react-native";
+
+const t = getTokens("light");
 
 const createStyles = (theme) => StyleSheet.create({
   cardContainer: {
@@ -33,7 +36,7 @@ const createStyles = (theme) => StyleSheet.create({
   card: {
     borderWidth: 1,
     borderColor: theme.colors.outline,
-    borderRadius: 12,
+    borderRadius: t.tkDliteSemanticBorderRadiusMedium, // borderRadius.md
     backgroundColor: theme.colors.surfaceBase,
   },
 });

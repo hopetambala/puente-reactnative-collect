@@ -4,7 +4,8 @@
  */
 
 import SupplementaryForm from '@app/domains/DataCollection/Forms/SupplementaryForm';
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { postSupplementaryForm } from '@modules/cached-resources';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
 // --- Mocks ---
@@ -24,6 +25,7 @@ jest.mock('@modules/async-storage', () => ({
 
 jest.mock('@modules/cached-resources', () => ({
   postSupplementaryForm: jest.fn(() => Promise.resolve({})),
+  invalidateResidentCache: jest.fn(() => Promise.resolve()),
 }));
 
 jest.mock('@app/services/parse/crud', () => ({
@@ -174,6 +176,35 @@ describe('SupplementaryForm - RED-GREEN TDD', () => {
         const heightField = screen.getByTestId('field-height');
         // In create mode, initialValues is {} so field should be empty
         expect(heightField.props.value).toBe('');
+      });
+    });
+  });
+
+  describe('isOfflineLocal propagation to postSupplementaryForm', () => {
+    it('passes isOfflineLocal: true in postParams when surveyee.isOfflineLocal is true', async () => {
+      render(
+        <SupplementaryForm
+          {...baseProps}
+          selectedForm="vitals"
+          surveyee={{ objectId: 'PatientID-abc123', isOfflineLocal: true }}
+          editMode={false}
+          existingRecord={null}
+        />
+      );
+
+      // Wait for form to mount and fields to appear
+      await waitFor(() => {
+        expect(screen.getByTestId('formSubmit')).toBeTruthy();
+      });
+
+      // Submit the form
+      fireEvent.press(screen.getByTestId('formSubmit'));
+
+      // postSupplementaryForm must have been called with isOfflineLocal: true
+      await waitFor(() => {
+        expect(postSupplementaryForm).toHaveBeenCalledWith(
+          expect.objectContaining({ isOfflineLocal: true })
+        );
       });
     });
   });

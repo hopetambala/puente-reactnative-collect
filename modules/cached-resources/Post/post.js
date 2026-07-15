@@ -22,24 +22,15 @@ const postIdentificationForm = async (postParams) => {
     return JSON.parse(JSON.stringify(result.value));
   }
 
-  return getData("offlineIDForms").then(async (offlineIDForms) => {
-    const offlineResidentIdForms = offlineIDForms;
+  const offlineResidentIdForms = await getData("offlineIDForms");
+  const localObject = { ...postParams.localObject, objectId: `PatientID-${generateRandomID()}` };
+  // isOfflineLocal is on idParams (queue routing), NOT inside localObject —
+  // Cloud Code reads only form.localObject so this never reaches Parse on sync.
+  const idParams = { ...postParams, localObject, isOfflineLocal: true };
 
-    const idParams = postParams;
-    const { localObject } = idParams;
-
-    localObject.objectId = `PatientID-${generateRandomID()}`;
-
-    if (offlineResidentIdForms) {
-      const forms = offlineResidentIdForms.concat(idParams);
-      await storeData(forms, "offlineIDForms");
-      return localObject;
-    }
-
-    const idData = [idParams];
-    await storeData(idData, "offlineIDForms");
-    return localObject;
-  });
+  const existing = offlineResidentIdForms ?? [];
+  await storeData([...existing, idParams], "offlineIDForms");
+  return { ...localObject, isOfflineLocal: true };
 };
 
 /** ***********************************************
@@ -65,78 +56,64 @@ const postAssetForm = async (postParams) => {
     if (!result.value) throw new Error("postAssetForm returned null");
     return JSON.parse(JSON.stringify(result.value));
   }
-  return getData("offlineAssetIDForms").then(async (offlineData) => {
-    const id = `AssetID-${generateRandomID()}`;
-    const assetIdParams = postParams;
-    const offlineAssetForms = offlineData;
-    assetIdParams.localObject.objectId = id;
+  const offlineData = await getData("offlineAssetIDForms");
+  const localObject = { ...postParams.localObject, objectId: `AssetID-${generateRandomID()}` };
+  const assetIdParams = { ...postParams, localObject, isOfflineLocal: true };
 
-    if (offlineAssetForms) {
-      const forms = offlineAssetForms.concat(assetIdParams);
-      return storeData(forms, "offlineAssetIDForms");
-    }
-
-    const idData = [assetIdParams];
-    return storeData(idData, "offlineAssetIDForms");
-  });
+  const existing = offlineData ?? [];
+  await storeData([...existing, assetIdParams], "offlineAssetIDForms");
+  return { ...localObject, isOfflineLocal: true };
 };
 
-const postSupplementaryForm = async (postParams) => {
+const postSupplementaryFormBase = async (postParams, { offlineKey, fnName }) => {
   const isConnected = await checkOnlineStatus();
-  if (isConnected && !postParams?.parseParentClassID?.includes("PatientID-")) {
+  if (isConnected && postParams?.parseParentClassID && !postParams?.isOfflineLocal) {
     const result = await fulfillWithTimeLimit(
       POST_TIMEOUT_MS,
       postObjectsToClassWithRelation(postParams),
       null
     );
-    if (result.timedOut) throw new Error("postSupplementaryForm timed out");
+    if (result.timedOut) throw new Error(`${fnName} timed out`);
     if (result.error) throw result.error;
-    if (!result.value) throw new Error("postSupplementaryForm returned null");
+    if (!result.value) throw new Error(`${fnName} returned null`);
     return result.value;
   }
 
-  return getData("offlineSupForms").then(async (supForms) => {
-    if (supForms) {
-      const forms = supForms.concat(postParams);
-      return storeData(forms, "offlineSupForms");
-    }
-    const supData = [postParams];
-    return storeData(supData, "offlineSupForms");
-  });
+  const supForms = await getData(offlineKey);
+  const existing = supForms ?? [];
+  await storeData([...existing, postParams], offlineKey);
+  return postParams;
 };
 
 /** ***********************************************
+ * Function to post supplementary form offline
+ * @name postSupplementaryForm
+ * @example
+ * postSupplementaryForm(postParam);
+ *
+ * @param {Object} postParams Object normally configured for Parse-Server Cloud Code
+ *
+ *********************************************** */
+const postSupplementaryForm = (postParams) =>
+  postSupplementaryFormBase(postParams, {
+    offlineKey: "offlineSupForms",
+    fnName: "postSupplementaryForm",
+  });
+
+/** ***********************************************
  * Function to post asset supplementary form offline
- * @name postForms
+ * @name postSupplementaryAssetForm
  * @example
  * postSupplementaryAssetForm(postParam);
  *
  * @param {Object} postParams Object normally configured for for Parse-Server Cloud Code
  *
  *********************************************** */
-const postSupplementaryAssetForm = async (postParams) => {
-  const isConnected = await checkOnlineStatus();
-
-  if (isConnected && postParams?.parseParentClassID && !postParams.parseParentClassID.includes("AssetID-")) {
-    const result = await fulfillWithTimeLimit(
-      POST_TIMEOUT_MS,
-      postObjectsToClassWithRelation(postParams),
-      null
-    );
-    if (result.timedOut) throw new Error("postSupplementaryAssetForm timed out");
-    if (result.error) throw result.error;
-    if (!result.value) throw new Error("postSupplementaryAssetForm returned null");
-    return result.value;
-  }
-  return getData("offlineAssetSupForms").then(async (supForms) => {
-    if (supForms) {
-      const forms = supForms.concat(postParams);
-      return storeData(forms, "offlineAssetSupForms");
-    }
-    const supData = [postParams];
-    return storeData(supData, "offlineAssetSupForms");
+const postSupplementaryAssetForm = (postParams) =>
+  postSupplementaryFormBase(postParams, {
+    offlineKey: "offlineAssetSupForms",
+    fnName: "postSupplementaryAssetForm",
   });
-};
 
 /**
  * Function to post household form. Used for creating a new household
@@ -158,22 +135,14 @@ const postHousehold = async (postParams) => {
     return result.value.id;
   }
 
-  return getData("offlineHouseholds").then(async (offlineHouseholds) => {
-    const households = offlineHouseholds;
-    const householdParams = postParams;
+  const households = await getData("offlineHouseholds");
+  const localObject = { ...postParams.localObject, objectId: `Household-${generateRandomID()}` };
+  const householdParams = { ...postParams, localObject };
 
-    const { localObject } = householdParams;
-    localObject.objectId = `Household-${generateRandomID()}`;
-
-    if (households) {
-      const forms = households.concat(householdParams);
-      await storeData(forms, "offlineHouseholds");
-      return forms;
-    }
-    const householdData = [householdParams];
-    await storeData(householdData, "offlineHouseholds");
-    return householdData;
-  });
+  const existing = households ?? [];
+  const forms = [...existing, householdParams];
+  await storeData(forms, "offlineHouseholds");
+  return forms;
 };
 
 export {

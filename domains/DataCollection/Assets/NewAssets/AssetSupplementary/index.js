@@ -73,7 +73,7 @@ function AssetSupplementary({
     <ScrollView>
       <Formik
         enableReinitialize
-        initialValues={editMode && editFormValues ? editFormValues : {}}
+        initialValues={editFormValues}
         onSubmit={async (values, actions) => {
           setPhotoFile("Submitted Photo String");
           setSubmitting(true);
@@ -121,6 +121,7 @@ function AssetSupplementary({
             photoFile,
             localObject: formObjectUpdated,
             typeOfForm: "Asset",
+            isOfflineLocal: selectedAsset?.isOfflineLocal ?? false,
           };
 
           const fieldsArray = Object.entries(formObject).map((obj) => ({

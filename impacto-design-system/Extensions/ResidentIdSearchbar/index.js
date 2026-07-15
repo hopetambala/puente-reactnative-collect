@@ -5,7 +5,7 @@ import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useContext, useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, View } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
 import { Button, Searchbar, Text, useTheme } from "react-native-paper";
 import Animated, { Keyframe } from "react-native-reanimated";
 
@@ -112,9 +112,10 @@ function ResidentIdSearchbar({
         .delay(Math.min(index * 40, 200))
         .duration(MOTION_TOKENS.duration.base)}
     >
-      <Button
+      <Pressable
+        testID={`resident-result-${index}`}
         onPress={() => onSelectSurveyee(item)}
-        contentStyle={{ marginRight: 5 }}
+        style={{ flexDirection: "row", alignItems: "center", paddingVertical: 10, paddingHorizontal: 16 }}
       >
         <Text style={{ marginRight: 10 }}>{`${item?.fname || ""} ${
           item?.lname || ""
@@ -133,13 +134,14 @@ function ResidentIdSearchbar({
             }}
           />
         )}
-      </Button>
+      </Pressable>
     </Animated.View>
   );
 
   return (
     <View>
       <Searchbar
+        testID="resident-searchbar-input"
         placeholder={I18n.t("findResident.typeHere")}
         onChangeText={onChangeSearch}
         value={query}
@@ -153,6 +155,7 @@ function ResidentIdSearchbar({
 
       {query !== "" && (
         <FlatList
+          keyboardShouldPersistTaps="handled"
           data={online ? residentsData : filterOfflineList(residentsData)}
           renderItem={renderItem}
           keyExtractor={(item) => item.objectId}

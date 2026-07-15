@@ -7,14 +7,14 @@ import {
   postOfflineForms,
 } from "@modules/offline/post";
 import { MOTION_TOKENS } from "@modules/utils/animations";
-import React, { useContext, useEffect, useState } from "react";
+import NetInfo from "@react-native-community/netinfo";
+import { useFocusEffect } from "@react-navigation/native";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { View } from "react-native";
-import Emoji from "react-native-emoji";
 import { Button, IconButton, Text, useTheme } from "react-native-paper";
 import Animated, { Keyframe } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import FormCounts from "./FormCounts";
 import { createHeaderStyles } from "./index.styles";
 import { handleUpload } from "./upload";
 
@@ -30,72 +30,62 @@ function Header({ setSettings, onOpenSettings, onBack }) {
   const styles = createHeaderStyles(theme);
   const { header } = styles;
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [volunteerDate, setVolunteerDate] = useState("");
-  const [volunteerGreeting, setVolunteerGreeting] = useState("");
-  const [offlineForms, setOfflineForms] = useState(false);
   const [offlineFormCount, setOfflineFormCount] = useState(0);
   const [submission, setSubmission] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showCounts, setShowCounts] = useState(false);
   const [isOnline, setIsOnline] = useState(null);
   const [lastSyncTimestamp, setLastSyncTimestamp] = useState(null);
   const { populateResidentDataCache, isLoading: isOfflineLoading } =
     useContext(OfflineContext);
 
-  useEffect(() => {
-    let cancelled = false;
-    const loadStatusBar = async () => {
-      const [online, ts, idForms, supForms, assetIdForms, assetSupForms] =
-        await Promise.all([
-          checkOnlineStatus().catch(() => false),
-          getData("lastSyncTimestamp"),
-          getData("offlineIDForms"),
-          getData("offlineSupForms"),
-          getData("offlineAssetIDForms"),
-          getData("offlineAssetSupForms"),
-        ]);
-      if (cancelled) return;
-      setIsOnline(online);
-      setLastSyncTimestamp(ts);
-      const total =
-        (idForms?.length ?? 0) +
-        (supForms?.length ?? 0) +
-        (assetIdForms?.length ?? 0) +
-        (assetSupForms?.length ?? 0);
-      setOfflineFormCount(total);
-      setOfflineForms(total > 0);
-    };
-    loadStatusBar();
-    return () => { cancelled = true; };
+  const cancelledRef = useRef(false);
+
+  const loadStatusBar = useCallback(async () => {
+    const [ts, idForms, supForms, assetIdForms, assetSupForms] =
+      await Promise.all([
+        getData("lastSyncTimestamp"),
+        getData("offlineIDForms"),
+        getData("offlineSupForms"),
+        getData("offlineAssetIDForms"),
+        getData("offlineAssetSupForms"),
+      ]);
+    if (cancelledRef.current) return;
+    setLastSyncTimestamp(ts);
+    const total =
+      (idForms?.length ?? 0) +
+      (supForms?.length ?? 0) +
+      (assetIdForms?.length ?? 0) +
+      (assetSupForms?.length ?? 0);
+    setOfflineFormCount(total);
   }, []);
 
-  const volunteerLength = (object) => {
-    const date = new Date(object.createdAt);
-    const convertedDate = date.toDateString();
-    return convertedDate;
-  };
+  useEffect(() => {
+    cancelledRef.current = false;
+    loadStatusBar();
 
-  const calculateTime = (name) => {
-    const today = new Date();
-    const curHr = today.getHours();
+    NetInfo.fetch()
+      .then((state) => {
+        if (!cancelledRef.current) setIsOnline(state.isConnected && state.details !== null);
+      })
+      .catch(() => {
+        if (!cancelledRef.current) setIsOnline(false);
+      });
 
-    if (curHr < 12) {
-      setVolunteerGreeting(
-        `${I18n.t("header.goodMorning")} ${name}!` ||
-          I18n.t("header.goodMorning!")
-      );
-    } else if (curHr < 18) {
-      setVolunteerGreeting(
-        `${I18n.t("header.goodAfternoon")} ${name}!` ||
-          I18n.t("header.goodAfternoon!")
-      );
-    } else {
-      setVolunteerGreeting(
-        `${I18n.t("header.goodEvening")} ${name}!` ||
-          I18n.t("header.goodEvening!")
-      );
-    }
-  };
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      if (!cancelledRef.current) setIsOnline(state.isConnected && state.details !== null);
+    });
+
+    return () => {
+      cancelledRef.current = true;
+      unsubscribe();
+    };
+  }, [loadStatusBar]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadStatusBar();
+    }, [loadStatusBar])
+  );
 
   const upload = () =>
     handleUpload({
@@ -104,11 +94,16 @@ function Header({ setSettings, onOpenSettings, onBack }) {
       setIsSubmitting,
       setSubmission,
       getQueuedFormCount: async () => offlineFormCount,
+      resetFormCount: setOfflineFormCount,
       storeLastSyncTimestamp: async () => {
         const ts = Date.now();
         await storeData(ts, "lastSyncTimestamp");
         setLastSyncTimestamp(ts);
       },
+    }).catch((error) => {
+      console.error(error);
+      setIsSubmitting(false);
+      setSubmission(false);
     });
 
   const cacheOfflineData = async () =>
@@ -125,11 +120,6 @@ function Header({ setSettings, onOpenSettings, onBack }) {
     if (setSettings) {
       setSettings(true);
     }
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  const navToCounts = () => {
-    setShowCounts(true);
   };
 
   return (
@@ -188,81 +178,69 @@ function Header({ setSettings, onOpenSettings, onBack }) {
           style={styles.drawerContent}
           entering={DrawerEntrance.duration(MOTION_TOKENS.duration.base)}
         >
-          {!showCounts ? (
-            <>
-              <Text style={styles.greeting}>
-                {volunteerGreeting}
-                <Emoji name="coffee" />
-              </Text>
-              <Text style={styles.volunteerDate}>
-                {`${I18n.t("header.volunteerSince")}\n${volunteerDate}`}
-              </Text>
+          <>
+            <View style={styles.divider} />
 
-              <View style={styles.divider} />
-
-              <View style={styles.buttonContainer}>
-                {offlineForms ? (
-                  <Button
-                    mode="contained"
-                    onPress={upload}
-                    loading={isSubmitting}
-                  >
-                    {I18n.t("header.submitOffline")}
-                  </Button>
-                ) : (
-                  <Button mode="contained" disabled>
-                    {I18n.t("header.submitOffline")}
-                  </Button>
-                )}
-              </View>
-
-              <View style={styles.buttonContainer}>
+            <View style={styles.buttonContainer}>
+              {offlineFormCount > 0 ? (
                 <Button
-                  mode="outlined"
-                  onPress={cacheOfflineData}
-                  loading={isOfflineLoading}
+                  mode="contained"
+                  onPress={upload}
+                  loading={isSubmitting}
                 >
-                  {I18n.t("header.populateOffline")}
+                  {I18n.t("header.submitOffline")}
+                </Button>
+              ) : (
+                <Button mode="contained" disabled>
+                  {I18n.t("header.submitOffline")}
+                </Button>
+              )}
+            </View>
+
+            <View style={styles.buttonContainer}>
+              <Button
+                mode="outlined"
+                onPress={cacheOfflineData}
+                loading={isOfflineLoading}
+              >
+                {I18n.t("header.populateOffline")}
+              </Button>
+            </View>
+
+            {submission === false && (
+              <View>
+                <Text style={styles.errorText}>
+                  {I18n.t("header.failedAttempt")}
+                </Text>
+                <Text style={styles.successText}>
+                  {I18n.t("header.tryAgain")}
+                </Text>
+                <Button onPress={upload}>
+                  {I18n.t("header.retry")}
+                </Button>
+                <Button onPress={() => setSubmission(null)}>
+                  {I18n.t("header.ok")}
                 </Button>
               </View>
+            )}
 
-              {submission === false && (
-                <View>
-                  <Text style={styles.errorText}>
-                    {I18n.t("header.failedAttempt")}
-                  </Text>
-                  <Text style={styles.successText}>
-                    {I18n.t("header.tryAgain")}
-                  </Text>
-                  <Button onPress={upload}>
-                    {I18n.t("header.retry")}
-                  </Button>
-                  <Button onPress={() => setSubmission(null)}>
-                    {I18n.t("header.ok")}
-                  </Button>
-                </View>
-              )}
-
-              {submission === true && (
-                <View>
-                  <Text style={styles.successText}>
-                    {I18n.t("header.success")}
-                  </Text>
-                  <Text style={styles.successText}>
-                    {I18n.t("header.justSubmitted")} {offlineFormCount}{" "}
-                    {offlineFormCount > 1
-                      ? I18n.t("header.forms")
-                      : I18n.t("header.form")}
-                  </Text>
-                  <Button onPress={() => setSubmission(null)}>
-                    {I18n.t("header.ok")}
-                  </Button>
-                </View>
-              )}
-            </>
-          ) : (
-            <FormCounts />
-          )}
+            {typeof submission === 'number' && submission > 0 && (
+              <View>
+                <Text style={styles.successText}>
+                  {I18n.t("header.success")}
+                </Text>
+                <Text style={styles.successText}>
+                  {I18n.t("header.justSubmitted")} {submission}{" "}
+                  {submission > 1
+                    ? I18n.t("header.forms")
+                    : I18n.t("header.form")}
+                </Text>
+                <Button onPress={() => setSubmission(null)}>
+                  {I18n.t("header.ok")}
+                </Button>
+              </View>
+            )}
+          </>
         </Animated.View>
       )}
     </View>
