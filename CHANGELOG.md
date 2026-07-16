@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.5.6](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.1...v15.5.6) (2026-07-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* fix offline data collection and add UI automation testing
+
+### New Features
+
+* fix offline data collection ([5bb8087](https://github.com/hopetambala/puente-reactnative-collect/commit/5bb8087eeb362e5325f96ec847e260574e7ec2f7))
+* fix offline data collection and add UI automation testing ([553d53d](https://github.com/hopetambala/puente-reactnative-collect/commit/553d53d34367e41c62a1626767559b73c4738cd5))
+
+
+### Bug fixes
+
+* always show all available form collected ([d4a9188](https://github.com/hopetambala/puente-reactnative-collect/commit/d4a918866bcaf13faf33935edfee354f7d15c336))
+* don't wipe the offline queue when the server reports a save failure ([7cedacf](https://github.com/hopetambala/puente-reactnative-collect/commit/7cedacf464643609bd4cc4f759165743b8a45d3a))
+* find records going back and such ([b20da0e](https://github.com/hopetambala/puente-reactnative-collect/commit/b20da0ecb93b5818039b8390e92f19b4670cb250))
+* offline data collection ([ce8b99a](https://github.com/hopetambala/puente-reactnative-collect/commit/ce8b99a0dd98e5faabcefba84854a4722307aa8b))
+* scroll view in settings page ([6fd41ed](https://github.com/hopetambala/puente-reactnative-collect/commit/6fd41ed355be234e81f019b79bb04bb1c461ce26))
+
 ### [15.5.3](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.1...v15.5.3) (2026-06-06)
 
 
