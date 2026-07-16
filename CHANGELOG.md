@@ -621,7 +621,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 #### Fixed
 * **Hardcoded Secrets**: Removed hardcoded Google Maps API key from `app.json` and moved to EAS environment variable management ([3c2f6ea](https://github.com/hopetambala/puente-reactnative-collect/commit/3c2f6ea))
-  - **⚠️ ACTION REQUIRED**: The exposed key (`AIzaSyD_vRnyXGdu1zFcivOt2VMwhstAqZnxcNw`) **must be revoked immediately** in Google Cloud Console
+  - **⚠️ ACTION REQUIRED**: The exposed key (`AIzaSyD_…xcNw`, redacted — see git history) **must be revoked immediately** in Google Cloud Console
   - **Next step**: Generate new API key and set via `eas env:create --scope project --name GOOGLE_MAPS_API_KEY`
 
 ### UI/UX
