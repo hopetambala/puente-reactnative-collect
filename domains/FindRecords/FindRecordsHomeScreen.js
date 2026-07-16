@@ -26,7 +26,12 @@ function FindRecordsHomeScreen({ navigation }) {
     useCallback(() => {
       getData("currentUser").then((currentUser) => {
         if (!currentUser) return;
-        setSurveyingOrganization(currentUser.organization || "");
+        // Stored sessions from older app versions may lack `organization`;
+        // without it FindResidents never fetches and the screen looks dead.
+        // Fall back to the auth-context user.
+        setSurveyingOrganization(
+          currentUser.organization || user?.organization || ""
+        );
       });
 
       // Re-fetch the selected resident on focus so that edits to their

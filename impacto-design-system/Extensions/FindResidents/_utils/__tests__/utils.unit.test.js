@@ -5,16 +5,79 @@
 
 // Mock parse/react-native before importing the module under test
 const mockGet = jest.fn();
+const mockFind = jest.fn();
+const mockSubQueries = [];
+const mockCompositeQuery = {
+  descending: jest.fn(),
+  equalTo: jest.fn(),
+  find: mockFind,
+};
 
-jest.mock('parse/react-native', () => ({
-  Parse: {
-    Query: jest.fn(() => ({ get: mockGet })),
-  },
-}));
+jest.mock('parse/react-native', () => {
+  const QueryMock = jest.fn(() => {
+    const q = {
+      get: mockGet,
+      limit: jest.fn(),
+      startsWith: jest.fn(),
+      matches: jest.fn(),
+      find: mockFind,
+    };
+    mockSubQueries.push(q);
+    return q;
+  });
+  QueryMock.or = jest.fn(() => mockCompositeQuery);
+  return { Parse: { Query: QueryMock } };
+});
 
 // Import AFTER mocks are registered
 // eslint-disable-next-line import/first
-import { fetchResidentById } from '@impacto-design-system/Extensions/FindResidents/_utils/index';
+import parseSearch, { fetchResidentById } from '@impacto-design-system/Extensions/FindResidents/_utils/index';
+
+describe('parseSearch - case-insensitive resident search', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockSubQueries.length = 0;
+    mockFind.mockResolvedValue([]);
+  });
+
+  // Production data proved the old startsWith search is case-sensitive:
+  // prefix 't' matched 0 testORG records while 'T' matched 58. Field users
+  // type lowercase — the search must not care.
+  test('searches fname and lname case-insensitively with an anchored regex', async () => {
+    await parseSearch('testORG', 'maria');
+
+    const matchedFields = mockSubQueries.flatMap((q) =>
+      q.matches.mock.calls.map(([field, pattern, modifiers]) => ({ field, pattern, modifiers }))
+    );
+    const fields = matchedFields.map((c) => c.field);
+    expect(fields).toEqual(expect.arrayContaining(['fname', 'lname']));
+    matchedFields.forEach(({ pattern, modifiers }) => {
+      expect(pattern.startsWith('^')).toBe(true); // prefix-anchored, uses the index
+      expect(modifiers).toBe('i');
+    });
+  });
+
+  test('escapes regex metacharacters in the query so user input cannot break the search', async () => {
+    await parseSearch('testORG', 'Mar(ia');
+
+    const patterns = mockSubQueries.flatMap((q) =>
+      q.matches.mock.calls.map(([, pattern]) => pattern)
+    );
+    expect(patterns.length).toBeGreaterThan(0);
+    patterns.forEach((pattern) => {
+      expect(pattern).toBe('^Mar\\(ia');
+    });
+  });
+
+  test('scopes to the organization and resolves serialized results', async () => {
+    mockFind.mockResolvedValue([]);
+
+    const result = await parseSearch('testORG', 'ana');
+
+    expect(mockCompositeQuery.equalTo).toHaveBeenCalledWith('surveyingOrganization', 'testORG');
+    expect(result).toEqual([]);
+  });
+});
 
 describe('fetchResidentById - RED-GREEN TDD', () => {
   beforeEach(() => {
