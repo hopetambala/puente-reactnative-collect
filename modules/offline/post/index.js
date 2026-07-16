@@ -6,6 +6,23 @@ import { Platform } from "react-native";
 
 import checkOnlineStatus from "..";
 
+// Cloud Code's success payload always carries all five categories as arrays.
+// Its Offline.upload catches save failures and RETURNS the error (a serialized
+// Error crosses Parse as {}), so anything missing a category means records
+// were not saved — the local queue must survive for retry.
+const UPLOAD_CATEGORIES = [
+  "residentForms",
+  "residentSupplementaryForms",
+  "households",
+  "assetForms",
+  "assetSupplementaryForms",
+];
+
+const isCompleteUploadResult = (result) =>
+  !!result &&
+  typeof result === "object" &&
+  UPLOAD_CATEGORIES.every((key) => Array.isArray(result[key]));
+
 const cleanupPostedOfflineForms = async () => {
   const keys = [
     "offlineIDForms",
@@ -71,7 +88,7 @@ const postOfflineForms = async () => {
     const uploadResult = await uploadOfflineForms(offlineForms).catch(() => ({
       status: "Error",
     }));
-    if (uploadResult.status === "Error") {
+    if (uploadResult.status === "Error" || !isCompleteUploadResult(uploadResult)) {
       return {
         offlineForms,
         uploadedForms: uploadResult,
