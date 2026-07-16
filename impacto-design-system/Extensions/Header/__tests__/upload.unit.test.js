@@ -12,6 +12,20 @@ describe("handleUpload", () => {
     expect(cleanupPostedOfflineForms).not.toHaveBeenCalled();
   });
 
+  it("should not cleanup offline forms when postOfflineForms returns { status: 'Error' }", async () => {
+    // The queue is the only copy of un-synced field data; a failed upload
+    // must leave it on-device for retry.
+    const postOfflineForms = jest.fn().mockResolvedValue({ status: "Error" });
+    const cleanupPostedOfflineForms = jest.fn();
+    const setIsSubmitting = jest.fn();
+    const setSubmission = jest.fn();
+
+    await handleUpload({ postOfflineForms, cleanupPostedOfflineForms, setIsSubmitting, setSubmission });
+
+    expect(cleanupPostedOfflineForms).not.toHaveBeenCalled();
+    expect(setSubmission).toHaveBeenCalledWith(false);
+  });
+
   it("should call resetFormCount(0) after successful upload", async () => {
     const postOfflineForms = jest.fn().mockResolvedValue({ status: "Success", offlineForms: {}, uploadedForms: {} });
     const cleanupPostedOfflineForms = jest.fn().mockResolvedValue();
