@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.5.7](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.6...v15.5.7) (2026-07-16)
+
+
+### Bug fixes
+
+* Find Records — case-insensitive search, offline fallback on fetch failure, organization fallback ([cd8ec0a](https://github.com/hopetambala/puente-reactnative-collect/commit/cd8ec0a2ef24b0492521a35ad06751d30743fc29))
+
 ### [15.5.6](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.1...v15.5.6) (2026-07-16)
 
 
