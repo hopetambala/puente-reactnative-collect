@@ -71,6 +71,30 @@ describe("postOfflineForms failure contract", () => {
     expect(result.status).toBe("Error");
   });
 
+  it("should return status Error when the server resolves with an error-shaped payload", async () => {
+    // Cloud Code's Offline.upload catches save failures and RETURNS the error
+    // instead of throwing; a serialized Error crosses Parse as {}. Treating
+    // that as Success wipes the local queue — permanent field-data loss.
+    checkOnlineStatus.mockResolvedValue(true);
+    uploadOfflineForms.mockResolvedValue({});
+
+    const result = await postOfflineForms();
+
+    expect(result.status).toBe("Error");
+  });
+
+  it("should return status Error when the result is missing any upload category", async () => {
+    checkOnlineStatus.mockResolvedValue(true);
+    uploadOfflineForms.mockResolvedValue({
+      residentForms: [],
+      residentSupplementaryForms: [],
+      // households / assetForms / assetSupplementaryForms missing
+    });
+
+    const result = await postOfflineForms();
+
+    expect(result.status).toBe("Error");
+  });
 });
 
 describe("postOfflineForms null user safety", () => {
@@ -162,10 +186,14 @@ describe("postOfflineForms online success path", () => {
 
   it("should call uploadOfflineForms and return status Success when device is online from the start", async () => {
     checkOnlineStatus.mockResolvedValue(true);
+    // Mirror the real cloud function's success shape: all five categories,
+    // no status field of its own.
     uploadOfflineForms.mockResolvedValue({
-      status: "Success",
       residentForms: [],
       residentSupplementaryForms: [],
+      households: [],
+      assetForms: [],
+      assetSupplementaryForms: [],
     });
 
     const result = await postOfflineForms();
