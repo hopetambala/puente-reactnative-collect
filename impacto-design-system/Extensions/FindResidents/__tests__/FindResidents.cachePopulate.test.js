@@ -1,19 +1,20 @@
 /**
- * FindResidents - online fetch failure fallback RED-GREEN TDD
+ * FindResidents - offline cache auto-population RED-GREEN TDD
  *
- * Bug: fetchOnlineData awaits parseSearch with no try/catch. When the online
- * query fails (expired session, flaky network, server error) the rejection is
- * unhandled: the list stays empty and the surveyor sees nothing at all —
- * "Find Records isn't working."
- * Fix: a failed online fetch falls back to the offline resident cache and
- * clears the loading state.
+ * Bug: the offline resident cache ("residentData") is only ever written when
+ * the user manually runs Settings → Offline Data. Surveyors who never did
+ * that get an EMPTY list the moment they lose signal — the top complaint
+ * behind "Find Records doesn't work offline."
+ * Fix: a successful online full-list fetch (empty query) persists its results
+ * to the cache automatically. Filtered search results must NOT overwrite the
+ * cache — that would shrink it to the last query's subset.
  */
 /* eslint-disable no-shadow, react/button-has-type */
 
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
-// ─── Mocks (mirrors FindResidents.surgical.test.js harness) ─────────────────
+// ─── Mocks (mirrors FindResidents.failure.test.js harness) ──────────────────
 
 const mockParseSearch = jest.fn();
 
@@ -58,9 +59,7 @@ jest.mock('@modules/theme', () => ({
   createLayoutStyles: () => ({}),
 }));
 
-const mockResidentOfflineData = jest.fn(() =>
-  Promise.resolve([{ objectId: 'cached-001', fname: 'Cached', lname: 'Carla' }])
-);
+const mockResidentOfflineData = jest.fn(() => Promise.resolve([]));
 jest.mock('@context/offline.context', () => {
   const React = require('react'); // eslint-disable-line global-require
   return {
@@ -69,9 +68,11 @@ jest.mock('@context/offline.context', () => {
     }),
   };
 });
+
+const mockStoreData = jest.fn(() => Promise.resolve());
 jest.mock('@modules/async-storage', () => ({
   getData: jest.fn(() => Promise.resolve(null)),
-  storeData: jest.fn(() => Promise.resolve()),
+  storeData: (...args) => mockStoreData(...args),
 }));
 
 jest.mock('react-native-paper', () => {
@@ -115,46 +116,49 @@ const defaultProps = {
   setView: jest.fn(),
 };
 
-describe('FindResidents - online fetch failure falls back to offline cache', () => {
+const fullList = [
+  { objectId: 'r-1', fname: 'Ana', lname: 'Gomez' },
+  { objectId: 'r-2', fname: 'Ronaldo', lname: 'Vega' },
+];
+
+describe('FindResidents - successful online full fetch populates the offline cache', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockResidentOfflineData.mockResolvedValue([
-      { objectId: 'cached-001', fname: 'Cached', lname: 'Carla' },
-    ]);
   });
 
-  test('shows cached residents instead of an empty list when the online search fails', async () => {
-    mockParseSearch.mockRejectedValue(new Error('Invalid session token'));
+  test('the initial full-list fetch persists its records as residentData', async () => {
+    mockParseSearch.mockResolvedValue(fullList);
 
     render(<FindResidents {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('name-cached-001')).toBeDefined();
+      expect(screen.getByTestId('name-r-1')).toBeDefined();
     });
-    expect(mockResidentOfflineData).toHaveBeenCalled();
+
+    expect(mockStoreData).toHaveBeenCalledWith(fullList, 'residentData');
   });
 
-  test('clears the loading indicator when the online search fails', async () => {
-    mockParseSearch.mockRejectedValue(new Error('Network request failed'));
+  test('a filtered search result does NOT overwrite the cache', async () => {
+    mockParseSearch.mockResolvedValue(fullList);
 
     render(<FindResidents {...defaultProps} />);
-
     await waitFor(() => {
-      expect(mockResidentOfflineData).toHaveBeenCalled();
+      expect(screen.getByTestId('name-r-1')).toBeDefined();
     });
-    expect(screen.queryByTestId('loading-indicator')).toBeNull();
-  });
+    mockStoreData.mockClear();
 
-  test('online success path is unchanged: renders fetched residents', async () => {
-    mockParseSearch.mockResolvedValue([
-      { objectId: 'resident-001', fname: 'Ron', lname: 'Smith' },
-    ]);
+    const subset = [{ objectId: 'r-2', fname: 'Ronaldo', lname: 'Vega' }];
+    mockParseSearch.mockResolvedValue(subset);
 
-    render(<FindResidents {...defaultProps} />);
-
+    fireEvent.changeText(screen.getByTestId('searchbar'), 'ron');
+    await waitFor(
+      () => expect(mockParseSearch).toHaveBeenCalledWith('test-org', 'ron'),
+      { timeout: 3000 }
+    );
     await waitFor(() => {
-      expect(screen.getByTestId('name-resident-001')).toBeDefined();
+      expect(screen.queryByTestId('name-r-1')).toBeNull();
     });
-    expect(mockResidentOfflineData).not.toHaveBeenCalled();
+
+    expect(mockStoreData).not.toHaveBeenCalledWith(expect.anything(), 'residentData');
   });
 });

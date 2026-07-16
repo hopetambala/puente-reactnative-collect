@@ -13,13 +13,14 @@
     "notes": "Notas",
     "refresh": "Actualiza",
     "error": "Error",
-    "success":"¡Éxito!",
+    "success": "¡Éxito!",
     "ok": "OK",
     "emptyForm": "Forma vacía",
     "back": "Regresa",
     "pleaseTryAgain": "Inténtalo de nuevo",
     "loadMore": "Cargar más",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "tryAgain": "Intentar de nuevo"
   },
   "signUp": {
     "firstName": "Nombre de verdadero",
@@ -171,7 +172,7 @@
       "5_10": "5-10 años",
       "moreThan10": "10+ años"
     },
-    "biggestProblemComm":{
+    "biggestProblemComm": {
       "label": "¿Cuál es el mayor problema de la comunidad?",
       "Water": "El Agua",
       "Trash": "La Basura",
@@ -206,7 +207,7 @@
     },
     "latrineAccess": "Acceso a letrinas",
     "clinicAccess": {
-      "label":"Acceso a la clínica",
+      "label": "Acceso a la clínica",
       "Clinic": "Clinica/centro médico",
       "Polyclinic": "Policlínica",
       "Hospital": "Hospital",
@@ -222,7 +223,7 @@
       "OnceOrTwiceAMonth": "1-2 veces al mes"
     },
     "trashBetweenPickups": "¿Dónde deja su basura al momento de ser recogida?",
-    "houseOwnership":{
+    "houseOwnership": {
       "label": "¿Esta casa es propia?",
       "Own": "Propia",
       "Rent": "Alquilada",
@@ -280,7 +281,7 @@
     "numberIndividualsHouse": "Número de personas que viven en la casa",
     "numberChildrenUnder5": {
       "label": "Número de niños menores de 5 años que viven en esta casa",
-      "under_5":"Bajo 5",
+      "under_5": "Bajo 5",
       "6_12": "6-12",
       "13_18": "13-18",
       "under_5_textQuestion": "¿Cuántos niños menores de 5 años?",
@@ -441,7 +442,7 @@
   },
   "findResident": {
     "searchIndividual": "Buscar individuo",
-    "typeHere": "Escriba aquí...",
+    "typeHere": "Buscar por nombre o ID",
     "residentCard": {
       "city": "Ciudad",
       "community": "Comunidad",
@@ -470,7 +471,13 @@
         "goBack": "Vuelve para buscar registros"
       },
       "viewRecordHistory": "Ver historial de registros"
-    }
+    },
+    "emptyState": {
+      "title": "No se encontraron registros",
+      "body": "Prueba con otro nombre o verifica que el registro se haya guardado."
+    },
+    "offlineNotice": "Estás sin conexión. Mostrando registros guardados.",
+    "searching": "Buscando registros…"
   },
   "householdManager": {
     "createHousehold": "Crear un nuevo hogar",
@@ -518,7 +525,7 @@
   "termsModal": {
     "termsService": "Condiciones y servicio",
     "policy": "Esta política describe cómo recopilamos, usamos y manejamos su información cuando usa nuestro sitio web, software y servicios (\"Servicios\").\n\n Si está utilizando nuestros Servicios para una organización, acepta esta Política de privacidad en nombre de esa organización.\n\n Si está utilizando nuestros Servicios para proporcionar servicios, software y contenido para otra persona, acepta esta Política de privacidad en su nombre.\n\n SI USTED O LA ORGANIZACIÓN QUE REPRESENTA NO ACEPTA ESTAR OBLIGADO A ESTA POLÍTICA DE PRIVACIDAD, NO DEBE UTILIZAR NUESTROS SERVICIOS.\n\n Tus derechos\n La legislación de protección de datos le otorga una serie de derechos para protegerlo contra una organización que maneje indebidamente su información personal. Es importante que comprenda sus derechos y en esta Política hemos establecido cuáles son esos derechos y cómo puede ejercer sus derechos con respecto al procesamiento de su información personal por parte de Puente.\n\n Que información recopilamos\n Recopilamos y usamos la siguiente información para brindar nuestros Servicios.\n\n Cuenta\n Recopilamos y asociamos su cuenta con información como su nombre, dirección de correo electrónico y organización.\n\n Cookies y otras tecnologías\n Usamos   tecnología   como   cookies   para   proporcionar,   mejorar,   proteger   y promover nuestros Servicios. Por ejemplo, las cookies nos ayudan con cosas como recordar su nombre de usuario para su próxima visita. Puede configurar su navegador para que no acepte cookies, pero esto puede limitar su capacidad para utilizar los Servicios.\n\n  Uso de la información\n Podemos utilizar su información para: Permitirle tener acceso completo a los Servicios; proporcionar,   mantener   y   mejorar   los   Servicios; Proporcionar   y entregar los productos y servicios que solicite, procesar transacciones y enviarle información relacionada, incluidas confirmaciones y facturas; Enviarle avisos técnicos,   actualizaciones,   alertas   de   seguridad,   soporte   y   mensajes administrativos; Responder a sus comentarios, preguntas y solicitudes, y brindar soporte al cliente; Cree su cuenta Puente e identifíquelo al iniciar sesión en su cuenta   de   acuerdo   con   su   acuerdo   con   nosotros; Monitorear   y   analizar tendencias, uso y actividades en relación con los Servicios; Detectar, investigar y prevenir el fraude y otras actividades ilegales y proteger los derechos y la propiedad de Puente y otros; Notificarle sobre cambios importantes en los Servicios,   incluidos   cambios   o   actualizaciones   de   esta   Política   de privacidad; Facilitar   concursos   y   promociones; Vincular   o   combinar   con   la información   que   obtenemos   de   otros   para   ayudarlo   a   comprender   sus  necesidades y brindarle un mejor servicio; Considerarlo para un posible empleo  en Puente en relación con una solicitud que envíe; y Llevar a cabo cualquier otro propósito que se le describió en el momento en que se recopiló la información. \n\n Con quien compartimos\n Podemos compartir información como se explica a continuación, sin embargo, nunca la venderemos a anunciantes u otros terceros.\n\n Otros que trabajan para Puente: Puente utiliza ciertos terceros confiables (por ejemplo, proveedores de servicios de TI) para ayudarnos a brindar, mejorar, proteger   y   promover   nuestros   Servicios. Estos   terceros   accederán   a   su información solo para realizar tareas en nuestro nombre de conformidad con esta Política de privacidad. Usamos Stripe, DonorBox, Square y PayPal para procesar   tarjetas   de   crédito,   todos   los   cuales   son   nuestros   socios   de procesamiento de pagos que cumplen con PCI-DSS.  \n\n  Análisis: utilizamos socios analíticos, incluido MailChimp, para analizar parte de la información de marketing que recopilamos. Si no da su consentimiento para que nuestros socios de análisis tengan acceso a su información (dirección de correo electrónico), háganoslo saber en info@puente-dr.com \n\n Protección y cumplimiento legal: Podemos divulgar su información a terceros si determinamos que dicha divulgación es razonablemente necesaria para (i) cumplir con la ley; (ii) proteger a cualquier persona de la muerte o lesiones corporales graves; (iii) evitar el fraude o abuso de Puente o de nuestros usuarios, o (iv) proteger los derechos de propiedad de Puente.\n\n Cómo protegemos tu información\n Puente se dedica a mantener su información segura y a realizar pruebas de vulnerabilidades. Para evitar el acceso no autorizado, mantener la precisión y garantizar el uso adecuado de la información, hemos empleado procesos físicos, técnicos y administrativos para salvaguardar y asegurar la información que recopilamos.\n\n Nota:   Ningún   método   de   transmisión   a   través   de   Internet   o   método   de almacenamiento electrónico es 100% seguro, la seguridad de su información también depende de cómo utilice los Servicios y proteja sus credenciales de inicio de sesión.\n\n Su información personal será retenida por Puente durante la duración de su cuenta y puede ser retenida por un período después de este tiempo según sea necesario y relevante para nuestros intereses legítimos, nuestros términos de acuerdo con usted y de acuerdo con las obligaciones legales aplicables. Esto puede incluir la retención necesaria para cumplir con nuestros requisitos de declaración de impuestos, así como el tiempo necesario para hacer cumplir los términos   del   acuerdo   relevantes   o   para   identificar,   emitir   o   resolver procedimientos legales. Podemos conservar un registro de su objeción declarada al procesamiento de sus datos, incluso con respecto a una objeción a recibir comunicaciones de marketing, con el único propósito legítimo de garantizar que podamos seguir respetando sus deseos y no contratarlo más, durante el plazo de su objeción.\n\n Dónde almacenamos su información\n Para   brindarle   los   Servicios,   podemos   almacenar,   procesar   y   transmitir información a los Estados Unidos y otros lugares del mundo, incluidos los que se encuentran   fuera   de   su   país. La   información   también   puede   almacenarse localmente en los dispositivos que usa para acceder a los Servicios.\n\n  Cambios\n Si estamos involucrados en una reorganización o fusión, su información puede ser transferida como parte de ese trato. Le notificaremos sobre dicho acuerdo y describiremos sus opciones. Podemos revisar esta Política de privacidad de vez en cuando y publicaremos la versión más actual en nuestro sitio web. Si una revisión reduce significativamente sus derechos, se lo notificaremos.\n\n Contacto\n ¿Tiene   preguntas   o   inquietudes   sobre   Puente,   nuestros Servicios y la privacidad? Contáctenos en info@puente-dr.com",
-     "ok": "Ok"
+    "ok": "Ok"
   },
   "errorPicker": {
     "invalidFields": "Campos inválidos:"
@@ -533,7 +540,7 @@
     "offlineData": "Datos sin conexión",
     "language": "Idioma",
     "back": "Atrás",
-    "logout":"Cerrar sesión",
+    "logout": "Cerrar sesión",
     "deleteUser": "¿Eliminar usuario?",
     "populateIdForms": "Poblar todos los formularios de ID",
     "clearCachedIdForms": "Borrar formularios de ID en caché",
@@ -592,12 +599,12 @@
     "addAdditional": "Agregar adicional ",
     "removePrevious": "Quitar el anterior "
   },
-  "bottomTab":{
+  "bottomTab": {
     "dataCollection": "Recopilación de datos",
     "home": "Inicio",
     "offline": "Sin conexión"
   },
-  "camera":{
+  "camera": {
     "useImage": "Usar imagen del carrete de la cámara",
     "noAccess": "Sin acceso a la cámara",
     "requestingPermission": "Pidiendo permiso de cámara...",
@@ -605,7 +612,7 @@
     "flip": "Dar la vuelta",
     "takePicture": "Tomar la foto",
     "done": "Hecho",
-    "sorryAlert":"Necesitamos permisos de cámara para que esto funcione"
+    "sorryAlert": "Necesitamos permisos de cámara para que esto funcione"
   },
   "peopleModal": {
     "title": "Administrador de personas",
@@ -631,16 +638,15 @@
   "assetFormSelect": {
     "supAssetForms": "Formularios de activos suplementarios"
   },
-  "puenteForms":{
+  "puenteForms": {
     "ResidentID": "Identificación de residente",
     "EnvironmentalHealth": "Salud Ambiental",
     "MedicalEvaluation": "Evaluación Médica",
     "Vitals": "Partes vitales"
   },
-  "submissionError":{
+  "submissionError": {
     "error": "¡ERROR!\n\nSu formulario no ha sido enviado. Vuelva a intentarlo o comuníquese con su supervisor si el problema persiste.",
-    "geolocation":"SE ACABÓ EL TIEMPO!\n\nNo se pudo recuperar la geolocalización de tu teléfono. Inténtalo de nuevo"
-
+    "geolocation": "SE ACABÓ EL TIEMPO!\n\nNo se pudo recuperar la geolocalización de tu teléfono. Inténtalo de nuevo"
   },
   "dataAnalysis": {
     "welcome": "Bienvenido a la página de análisis de datos."
@@ -672,6 +678,7 @@
     "loading": "Cargando historial de registros...",
     "noRecordsFound": "No se encontraron registros",
     "noSubmissionsYet": "%{name} no tiene envíos de formularios todavía.",
+    "offlineNotice": "Estás sin conexión — el historial de registros se cargará cuando te reconectes.",
     "recordHistory": "Historial de registros:",
     "errorLoadingRecords": "Error al cargar los registros",
     "customForm": "Formulario personalizado",
@@ -679,7 +686,11 @@
     "vitals": "Signos vitales",
     "environmentalHealth": "Salud ambiental",
     "medicalEvaluation": "Evaluación médica",
-    "customForms": "Formularios personalizados"  },
+    "customForms": "Formularios personalizados",
+    "errorBody": "No se pudieron cargar los registros. Verifica tu conexión e intenta de nuevo.",
+    "resident": "Residente",
+    "unknownDate": "Fecha desconocida"
+  },
   "onboarding": {
     "welcome": "El Cambio Basado en Datos Comienza Aquí",
     "welcomeDescription": "Usa la recopilación estructurada de datos para entender las necesidades de tu comunidad e impulsar cambios significativos. Cada respuesta construye la base de evidencia para mejores decisiones.",

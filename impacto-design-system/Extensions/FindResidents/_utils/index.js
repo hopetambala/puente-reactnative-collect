@@ -17,8 +17,10 @@ const fetchResidentById = async (objectId) => {
   }
 };
 
-// Prefix-anchored (keeps using the field index) and case-insensitive —
-// field users type lowercase; the data is capitalized.
+// Prefix-anchored and case-insensitive — field users type lowercase; the
+// data is capitalized. Note: the "i" modifier prevents MongoDB from using
+// the field index, so this scans; acceptable at our collection size.
+// Follow-up: a lowercased shadow field (fname_lc) would restore index use.
 const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const parseSearch = (surveyingOrganization, qry) => {
@@ -36,15 +38,18 @@ const parseSearch = (surveyingOrganization, qry) => {
   const anchoredQuery = `^${escapeRegex(qry)}`;
 
   const fname = new Parse.Query("SurveyData");
-  fname.limit(1000);
   fname.matches("fname", anchoredQuery, "i");
 
   const lname = new Parse.Query("SurveyData");
-  lname.limit(1000);
   lname.matches("lname", anchoredQuery, "i");
 
   return new Promise((resolve, reject) => {
     const query = Parse.Query.or(fname, lname);
+
+    // The limit must live on the composite query — Parse ignores subquery
+    // limits under Query.or and defaults the composite to 100, which would
+    // silently cap the auto-populated offline cache.
+    query.limit(1000);
 
     query.descending("updatedAt");
 

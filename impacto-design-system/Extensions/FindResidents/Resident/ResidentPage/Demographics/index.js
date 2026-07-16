@@ -25,23 +25,23 @@ function Demographics({ dob, community, province, city, license }) {
   return <View style={styles.container}>
     <Text style={styles.topLabel}>
       {I18n.t("findResident.residentPage.demographics.dob")}
-      {` ${dob}`}
+      {` ${dob || "—"}`}
     </Text>
     <Text style={styles.labels}>
       {I18n.t("findResident.residentPage.demographics.city")}
-      {` ${city}`}
+      {` ${city || "—"}`}
     </Text>
     <Text style={styles.labels}>
       {I18n.t("findResident.residentPage.demographics.community")}
-      {` ${community}`}
+      {` ${community || "—"}`}
     </Text>
     <Text style={styles.labels}>
       {I18n.t("findResident.residentPage.demographics.province")}
-      {` ${province}`}
+      {` ${province || "—"}`}
     </Text>
     <Text style={styles.labels}>
       {I18n.t("findResident.residentPage.demographics.license")}
-      {` ${license}`}
+      {` ${license || "—"}`}
     </Text>
   </View>
 }

@@ -1,19 +1,21 @@
 /**
- * FindResidents - online fetch failure fallback RED-GREEN TDD
+ * FindResidents - connectivity re-check RED-GREEN TDD
  *
- * Bug: fetchOnlineData awaits parseSearch with no try/catch. When the online
- * query fails (expired session, flaky network, server error) the rejection is
- * unhandled: the list stays empty and the surveyor sees nothing at all —
- * "Find Records isn't working."
- * Fix: a failed online fetch falls back to the offline resident cache and
- * clears the loading state.
+ * Bug: connectivity is checked once when the screen receives an organization
+ * and the resulting `online` flag is trusted for every later search. A
+ * surveyor who opens Find Records offline and later regains signal stays in
+ * offline mode forever — typing never triggers an online search, and the
+ * Refresh button re-runs the offline path unconditionally.
+ * Fix: each triggered search re-checks the device's CURRENT connectivity.
  */
 /* eslint-disable no-shadow, react/button-has-type */
 
-import { render, screen, waitFor } from '@testing-library/react-native';
+import FindResidents from '@impacto-design-system/Extensions/FindResidents/index';
+import checkOnlineStatus from '@modules/offline';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
-// ─── Mocks (mirrors FindResidents.surgical.test.js harness) ─────────────────
+// ─── Mocks (mirrors FindResidents.failure.test.js harness) ──────────────────
 
 const mockParseSearch = jest.fn();
 
@@ -47,7 +49,7 @@ jest.mock('../Resident/ResidentPage', () => {
   };
 });
 
-jest.mock('@modules/offline', () => jest.fn(() => Promise.resolve(true)));
+jest.mock('@modules/offline', () => jest.fn());
 jest.mock('@modules/i18n', () => ({ t: (key) => key }));
 jest.mock('@modules/theme', () => ({
   spacing: { xs: 4, sm: 8, md: 16, lg: 24 },
@@ -100,9 +102,6 @@ jest.mock('react-native-paper', () => {
   };
 });
 
-// eslint-disable-next-line import/first
-import FindResidents from '@impacto-design-system/Extensions/FindResidents/index';
-
 const defaultProps = {
   selectPerson: null,
   setSelectPerson: jest.fn(),
@@ -115,7 +114,7 @@ const defaultProps = {
   setView: jest.fn(),
 };
 
-describe('FindResidents - online fetch failure falls back to offline cache', () => {
+describe('FindResidents - search uses current connectivity, not the mount-time snapshot', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockResidentOfflineData.mockResolvedValue([
@@ -123,38 +122,34 @@ describe('FindResidents - online fetch failure falls back to offline cache', () 
     ]);
   });
 
-  test('shows cached residents instead of an empty list when the online search fails', async () => {
-    mockParseSearch.mockRejectedValue(new Error('Invalid session token'));
+  test('a search typed after connectivity is restored performs the online search', async () => {
+    // Mount offline: initial fetch takes the offline path.
+    checkOnlineStatus.mockResolvedValue(false);
+    mockParseSearch.mockResolvedValue([
+      { objectId: 'resident-online-1', fname: 'Ronaldo', lname: 'Vega' },
+    ]);
 
     render(<FindResidents {...defaultProps} />);
 
     await waitFor(() => {
       expect(screen.getByTestId('name-cached-001')).toBeDefined();
     });
-    expect(mockResidentOfflineData).toHaveBeenCalled();
-  });
+    expect(mockParseSearch).not.toHaveBeenCalled();
 
-  test('clears the loading indicator when the online search fails', async () => {
-    mockParseSearch.mockRejectedValue(new Error('Network request failed'));
+    // Signal returns before the surveyor types.
+    checkOnlineStatus.mockResolvedValue(true);
 
-    render(<FindResidents {...defaultProps} />);
+    fireEvent.changeText(screen.getByTestId('searchbar'), 'Ron');
 
+    // The debounced search must re-check connectivity and go online.
+    await waitFor(
+      () => {
+        expect(mockParseSearch).toHaveBeenCalledWith('test-org', 'Ron');
+      },
+      { timeout: 3000 }
+    );
     await waitFor(() => {
-      expect(mockResidentOfflineData).toHaveBeenCalled();
+      expect(screen.getByTestId('name-resident-online-1')).toBeDefined();
     });
-    expect(screen.queryByTestId('loading-indicator')).toBeNull();
-  });
-
-  test('online success path is unchanged: renders fetched residents', async () => {
-    mockParseSearch.mockResolvedValue([
-      { objectId: 'resident-001', fname: 'Ron', lname: 'Smith' },
-    ]);
-
-    render(<FindResidents {...defaultProps} />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('name-resident-001')).toBeDefined();
-    });
-    expect(mockResidentOfflineData).not.toHaveBeenCalled();
   });
 });

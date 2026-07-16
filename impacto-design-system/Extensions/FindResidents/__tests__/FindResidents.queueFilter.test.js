@@ -1,19 +1,19 @@
 /**
- * FindResidents - online fetch failure fallback RED-GREEN TDD
+ * FindResidents - offline-queue results respect the query RED-GREEN TDD
  *
- * Bug: fetchOnlineData awaits parseSearch with no try/catch. When the online
- * query fails (expired session, flaky network, server error) the rejection is
- * unhandled: the list stays empty and the surveyor sees nothing at all —
- * "Find Records isn't working."
- * Fix: a failed online fetch falls back to the offline resident cache and
- * clears the loading state.
+ * Bug: during an online search, every resident sitting in the offline queue
+ * (offlineIDForms) is appended to the results regardless of the query — a
+ * search for "Ron" also lists "Zelda" if she was created offline. The list
+ * looks random ("search isn't working").
+ * Fix: queued residents are appended only when they match the query, with the
+ * same case-insensitive name-prefix semantics as the online search.
  */
 /* eslint-disable no-shadow, react/button-has-type */
 
-import { render, screen, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
-// ─── Mocks (mirrors FindResidents.surgical.test.js harness) ─────────────────
+// ─── Mocks (mirrors FindResidents.failure.test.js harness) ──────────────────
 
 const mockParseSearch = jest.fn();
 
@@ -58,9 +58,7 @@ jest.mock('@modules/theme', () => ({
   createLayoutStyles: () => ({}),
 }));
 
-const mockResidentOfflineData = jest.fn(() =>
-  Promise.resolve([{ objectId: 'cached-001', fname: 'Cached', lname: 'Carla' }])
-);
+const mockResidentOfflineData = jest.fn(() => Promise.resolve([]));
 jest.mock('@context/offline.context', () => {
   const React = require('react'); // eslint-disable-line global-require
   return {
@@ -69,8 +67,20 @@ jest.mock('@context/offline.context', () => {
     }),
   };
 });
+
+// Two residents created offline: one matches the query prefix, one does not.
+const offlineQueue = [
+  {
+    localObject: { objectId: 'PatientID-match', fname: 'Ronaldo', lname: 'Vega' },
+  },
+  {
+    localObject: { objectId: 'PatientID-nomatch', fname: 'Zelda', lname: 'Quinn' },
+  },
+];
 jest.mock('@modules/async-storage', () => ({
-  getData: jest.fn(() => Promise.resolve(null)),
+  getData: jest.fn((key) =>
+    Promise.resolve(key === 'offlineIDForms' ? offlineQueue : null)
+  ),
   storeData: jest.fn(() => Promise.resolve()),
 }));
 
@@ -115,46 +125,40 @@ const defaultProps = {
   setView: jest.fn(),
 };
 
-describe('FindResidents - online fetch failure falls back to offline cache', () => {
+describe('FindResidents - online search appends only queue records matching the query', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockResidentOfflineData.mockResolvedValue([
-      { objectId: 'cached-001', fname: 'Cached', lname: 'Carla' },
-    ]);
-  });
-
-  test('shows cached residents instead of an empty list when the online search fails', async () => {
-    mockParseSearch.mockRejectedValue(new Error('Invalid session token'));
-
-    render(<FindResidents {...defaultProps} />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('name-cached-001')).toBeDefined();
-    });
-    expect(mockResidentOfflineData).toHaveBeenCalled();
-  });
-
-  test('clears the loading indicator when the online search fails', async () => {
-    mockParseSearch.mockRejectedValue(new Error('Network request failed'));
-
-    render(<FindResidents {...defaultProps} />);
-
-    await waitFor(() => {
-      expect(mockResidentOfflineData).toHaveBeenCalled();
-    });
-    expect(screen.queryByTestId('loading-indicator')).toBeNull();
-  });
-
-  test('online success path is unchanged: renders fetched residents', async () => {
     mockParseSearch.mockResolvedValue([
-      { objectId: 'resident-001', fname: 'Ron', lname: 'Smith' },
+      { objectId: 'server-1', fname: 'Ronald', lname: 'Perez' },
     ]);
+  });
 
+  test('searching "ron" shows the matching queued resident but not the unrelated one', async () => {
+    render(<FindResidents {...defaultProps} />);
+    await waitFor(() => expect(mockParseSearch).toHaveBeenCalled(), { timeout: 3000 });
+
+    fireEvent.changeText(screen.getByTestId('searchbar'), 'ron');
+
+    await waitFor(
+      () => expect(mockParseSearch).toHaveBeenCalledWith('test-org', 'ron'),
+      { timeout: 3000 }
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('name-server-1')).toBeDefined();
+    });
+    // Queued "Ronaldo" matches the prefix — included.
+    expect(screen.getByTestId('name-PatientID-match')).toBeDefined();
+    // Queued "Zelda" does not match — must NOT be shown for this search.
+    expect(screen.queryByTestId('name-PatientID-nomatch')).toBeNull();
+  });
+
+  test('an empty query still shows every queued resident', async () => {
     render(<FindResidents {...defaultProps} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId('name-resident-001')).toBeDefined();
+      expect(screen.getByTestId('name-PatientID-match')).toBeDefined();
     });
-    expect(mockResidentOfflineData).not.toHaveBeenCalled();
+    expect(screen.getByTestId('name-PatientID-nomatch')).toBeDefined();
   });
 });

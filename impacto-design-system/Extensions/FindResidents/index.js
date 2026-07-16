@@ -1,8 +1,10 @@
 import { OfflineContext } from "@context/offline.context";
-import { getData } from "@modules/async-storage";
+import { getData, storeData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
+import { getStaggerDelay } from "@modules/utils/animationRules";
 import { MOTION_TOKENS } from "@modules/utils/animations";
+import * as Haptics from "expo-haptics";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, View } from "react-native";
 import { Button, Searchbar, Text, useTheme } from "react-native-paper";
@@ -26,8 +28,6 @@ function FindResidents({
   puenteForms,
   navigateToNewRecord,
   navigateToRecordHistory,
-  surveyee,
-  setSurveyee,
   setView,
 }) {
   const theme = useTheme();
@@ -36,12 +36,19 @@ function FindResidents({
   const [residentsData, setResidentsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [online, setOnline] = useState(true);
-  const [searchTimeout, setSearchTimeout] = useState(null);
   const { residentOfflineData } = useContext(OfflineContext);
 
   // Track the previous selectPerson to detect when the parent has refreshed it
   // after a SurveyData edit, so we can patch the list in-memory without a full re-fetch.
   const prevSelectPersonRef = useRef(null);
+
+  // Monotonic fetch sequence: a response only lands if no newer fetch has
+  // started since — a slow, superseded search must never overwrite the list.
+  const fetchSeqRef = useRef(0);
+
+  // Debounce timer lives in a ref, not state — clearing must see the latest
+  // timer even when keystrokes land inside a single render batch.
+  const searchTimeoutRef = useRef(null);
 
   useEffect(() => {
     if (
@@ -59,21 +66,23 @@ function FindResidents({
 
   useEffect(() => {
     if (!organization) return;
-    checkOnlineStatus().then(async (connected) => {
-      if (connected) fetchData(true, "");
-      if (!connected) fetchData(false, "");
-    });
+    fetchData("");
   }, [organization]);
 
-  const fetchOfflineData = () => {
+  const fetchOfflineData = (isCurrent = () => true) => {
+    // Guard the flag too, not just the data — a superseded fetch must not
+    // flip the offline banner.
+    if (!isCurrent()) return Promise.resolve();
     setOnline(false);
     return residentOfflineData().then((residents) => {
+      if (!isCurrent()) return;
       setResidentsData(residents);
       setLoading(false);
     });
   };
 
-  const fetchOnlineData = async (qry) => {
+  const fetchOnlineData = async (qry, isCurrent = () => true) => {
+    if (!isCurrent()) return undefined;
     setOnline(true);
 
     let records;
@@ -83,7 +92,15 @@ function FindResidents({
       // Online search failed (expired session, flaky network, server error).
       // An unhandled rejection here left the surveyor staring at an empty
       // list — fall back to the offline resident cache instead.
-      return fetchOfflineData();
+      return fetchOfflineData(isCurrent);
+    }
+
+    // A successful full-list fetch (empty query) doubles as the offline
+    // cache: surveyors get offline search without ever visiting
+    // Settings → Offline Data. Filtered results never overwrite the cache —
+    // that would shrink it to the last query's subset.
+    if (!qry) {
+      storeData(records, "residentData").catch(() => {});
     }
 
     let offlineData = [];
@@ -97,14 +114,36 @@ function FindResidents({
       }
     });
 
-    const allData = records.concat(offlineData);
+    if (!isCurrent()) return undefined;
+    // Queued residents are filtered by a case-insensitive name prefix. This
+    // is close to — not identical to — the online search: parseSearch only
+    // queries fname/lname (nickname is checked here but not server-side),
+    // and the offline list filter uses substring matching. Follow-up: add a
+    // nickname subquery to parseSearch and align the offline filter.
+    const q = (qry || "").toLowerCase();
+    const matchesQuery = (resident) =>
+      !q ||
+      ["fname", "lname", "nickname"].some((field) =>
+        String(resident?.[field] || "")
+          .toLowerCase()
+          .startsWith(q)
+      );
+    const allData = records.concat(offlineData.filter(matchesQuery));
     setResidentsData(allData.slice());
-    return setLoading(false);
+    setLoading(false);
+    return undefined;
   };
 
-  const fetchData = (onLine, qry) => {
-    if (!onLine) fetchOfflineData();
-    if (onLine) fetchOnlineData(qry);
+  // Connectivity is resolved at fetch time — never trusted from a previous
+  // render — so a surveyor who regains (or loses) signal mid-session gets the
+  // right search path on their very next keystroke.
+  const fetchData = (qry) => {
+    fetchSeqRef.current += 1;
+    const fetchId = fetchSeqRef.current;
+    const isCurrent = () => fetchId === fetchSeqRef.current;
+    return checkOnlineStatus().then((connected) =>
+      connected ? fetchOnlineData(qry, isCurrent) : fetchOfflineData(isCurrent)
+    );
   };
 
   const filterOfflineList = () =>
@@ -125,18 +164,17 @@ function FindResidents({
 
     if (input === "") setLoading(false);
 
-    clearTimeout(searchTimeout);
+    clearTimeout(searchTimeoutRef.current);
 
     setQuery(input);
 
-    setSearchTimeout(
-      setTimeout(() => {
-        fetchData(online, input);
-      }, MOTION_TOKENS.duration.pulse)
-    );
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchData(input);
+    }, MOTION_TOKENS.duration.pulse);
   };
 
   const onSelectPerson = (listItem) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     setSelectPerson(listItem);
     setQuery("");
   };
@@ -145,7 +183,7 @@ function FindResidents({
     <Animated.View
       key={item.objectId}
       entering={ResidentRowEntrance
-        .delay(Math.min(index * 40, 240))
+        .delay(index * getStaggerDelay(residentsData.length))
         .duration(MOTION_TOKENS.duration.base)}
     >
       <ResidentCard resident={item} onSelectPerson={onSelectPerson} />
@@ -153,10 +191,10 @@ function FindResidents({
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+    <View style={styles.screen}>
       {!selectPerson && (
         <View style={styles.container}>
-          <View style={{ paddingHorizontal: 16, paddingVertical: 12 }}>
+          <View style={styles.headerContainer}>
             <Text style={styles.header}>
               {I18n.t("findResident.searchIndividual")}
             </Text>
@@ -168,16 +206,40 @@ function FindResidents({
           />
 
           {!online && (
-            <Button onPress={() => fetchData(false, "")}>
-              {I18n.t("global.refresh")}
-            </Button>
+            <>
+              <Text style={styles.offlineNotice}>
+                {I18n.t("findResident.offlineNotice")}
+              </Text>
+              <Button onPress={() => fetchData(query)}>
+                {I18n.t("global.tryAgain")}
+              </Button>
+            </>
           )}
-          {loading && <ActivityIndicator color={theme.colors.primary} />}
+          {loading && (
+            <View style={styles.loadingRow}>
+              <ActivityIndicator color={theme.colors.primary} />
+              <Text style={styles.searchingText}>
+                {I18n.t("findResident.searching")}
+              </Text>
+            </View>
+          )}
 
           <FlatList
             data={online ? residentsData : filterOfflineList(residentsData)}
             renderItem={renderItem}
             keyExtractor={(item) => item.objectId}
+            ListEmptyComponent={
+              !loading ? (
+                <View style={styles.emptyState}>
+                  <Text style={styles.emptyTitle}>
+                    {I18n.t("findResident.emptyState.title")}
+                  </Text>
+                  <Text style={styles.emptyBody}>
+                    {I18n.t("findResident.emptyState.body")}
+                  </Text>
+                </View>
+              ) : null
+            }
           />
         </View>
       )}
@@ -195,8 +257,6 @@ function FindResidents({
           puenteForms={puenteForms}
           navigateToNewRecord={navigateToNewRecord}
           navigateToRecordHistory={navigateToRecordHistory}
-          surveyee={surveyee}
-          setSurveyee={setSurveyee}
           setView={setView || (() => {})}
         />
       )}
