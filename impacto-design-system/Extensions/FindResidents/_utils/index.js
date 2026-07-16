@@ -17,6 +17,10 @@ const fetchResidentById = async (objectId) => {
   }
 };
 
+// Prefix-anchored (keeps using the field index) and case-insensitive —
+// field users type lowercase; the data is capitalized.
+const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const parseSearch = (surveyingOrganization, qry) => {
   function checkIfAlreadyExist(accumulator, currentVal) {
     return accumulator.some(
@@ -29,13 +33,15 @@ const parseSearch = (surveyingOrganization, qry) => {
     );
   }
 
+  const anchoredQuery = `^${escapeRegex(qry)}`;
+
   const fname = new Parse.Query("SurveyData");
   fname.limit(1000);
-  fname.startsWith("fname", qry);
+  fname.matches("fname", anchoredQuery, "i");
 
   const lname = new Parse.Query("SurveyData");
   lname.limit(1000);
-  lname.startsWith("lname", qry);
+  lname.matches("lname", anchoredQuery, "i");
 
   return new Promise((resolve, reject) => {
     const query = Parse.Query.or(fname, lname);

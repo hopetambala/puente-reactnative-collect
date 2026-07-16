@@ -76,7 +76,15 @@ function FindResidents({
   const fetchOnlineData = async (qry) => {
     setOnline(true);
 
-    const records = await parseSearch(organization, qry);
+    let records;
+    try {
+      records = await parseSearch(organization, qry);
+    } catch (e) {
+      // Online search failed (expired session, flaky network, server error).
+      // An unhandled rejection here left the surveyor staring at an empty
+      // list — fall back to the offline resident cache instead.
+      return fetchOfflineData();
+    }
 
     let offlineData = [];
 
@@ -91,7 +99,7 @@ function FindResidents({
 
     const allData = records.concat(offlineData);
     setResidentsData(allData.slice());
-    setLoading(false);
+    return setLoading(false);
   };
 
   const fetchData = (onLine, qry) => {
