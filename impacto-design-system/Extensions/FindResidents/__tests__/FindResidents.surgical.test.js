@@ -73,6 +73,7 @@ jest.mock('@context/offline.context', () => {
 });
 jest.mock('@modules/async-storage', () => ({
   getData: jest.fn(() => Promise.resolve(null)),
+  storeData: jest.fn(() => Promise.resolve()),
 }));
 
 // react-native-paper global mock doesn't include Searchbar — add it here

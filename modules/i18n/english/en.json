@@ -19,7 +19,8 @@
     "back": "Back",
     "pleaseTryAgain": "Please, try again",
     "loadMore": "Load More",
-    "settings": "Settings"
+    "settings": "Settings",
+    "tryAgain": "Try Again"
   },
   "signUp": {
     "firstName": "First Name",
@@ -441,7 +442,7 @@
   },
   "findResident": {
     "searchIndividual": "Search Individual",
-    "typeHere": "Type Here...",
+    "typeHere": "Search by name or ID",
     "residentCard": {
       "city": "City",
       "community": "Community",
@@ -470,7 +471,13 @@
         "goBack": "Go back to find records"
       },
       "viewRecordHistory": "View Record History"
-    }
+    },
+    "emptyState": {
+      "title": "No records found",
+      "body": "Try a different name, or check that the record was saved."
+    },
+    "offlineNotice": "You're offline. Showing saved records.",
+    "searching": "Searching records…"
   },
   "householdManager": {
     "createHousehold": "Create a new household",
@@ -671,6 +678,7 @@
     "loading": "Loading record history...",
     "noRecordsFound": "No records found",
     "noSubmissionsYet": "%{name} has no form submissions yet.",
+    "offlineNotice": "You're offline — record history will load when you reconnect.",
     "recordHistory": "Record History:",
     "errorLoadingRecords": "Error loading records",
     "customForm": "Custom Form",
@@ -678,7 +686,10 @@
     "vitals": "Vitals",
     "environmentalHealth": "Environmental Health",
     "medicalEvaluation": "Medical Evaluation",
-    "customForms": "Custom Forms"
+    "customForms": "Custom Forms",
+    "errorBody": "Couldn't load records — check your connection and try again.",
+    "resident": "Resident",
+    "unknownDate": "Unknown date"
   },
   "onboarding": {
     "welcome": "Data-Driven Change Starts Here",

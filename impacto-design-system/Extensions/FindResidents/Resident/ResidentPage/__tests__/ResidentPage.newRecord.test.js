@@ -1,3 +1,13 @@
+/**
+ * ResidentPage - start-a-new-form flow RED-GREEN TDD
+ *
+ * Bug: the modernization refactor dropped the Forms tab from ResidentPage but
+ * kept passing `puenteForms` / `navigateToNewRecord` — leaving NO way to start
+ * a new form for a found resident. The whole FindRecordsForms screen became
+ * unreachable ("I found the person, now what?").
+ * Fix: ResidentPage renders the forms carousel wired to navigateToNewRecord
+ * with the selected resident as the surveyee.
+ */
 import { render, screen } from '@testing-library/react-native';
 import React from 'react';
 
@@ -57,15 +67,6 @@ jest.mock('react-native-paper', () => {
   };
 });
 
-jest.mock('@impacto-design-system/Cards/SmallCardsCarousel', () => {
-  const ReactLib = require('react'); // eslint-disable-line global-require
-  const { Text } = require('react-native'); // eslint-disable-line global-require
-
-  return function MockSmallCardsCarousel() {
-    return ReactLib.createElement(Text, { testID: 'forms-carousel' }, 'forms-carousel');
-  };
-});
-
 jest.mock('../Demographics', () => {
   const ReactLib = require('react'); // eslint-disable-line global-require
   const { Text } = require('react-native'); // eslint-disable-line global-require
@@ -75,29 +76,41 @@ jest.mock('../Demographics', () => {
   };
 });
 
-jest.mock('../Forms', () => {
+const mockCarouselProps = jest.fn();
+jest.mock('@impacto-design-system/Cards/SmallCardsCarousel', () => {
   const ReactLib = require('react'); // eslint-disable-line global-require
   const { Text } = require('react-native'); // eslint-disable-line global-require
 
-  return function MockForms() {
-    return ReactLib.createElement(Text, null, 'forms-content');
-  };
-});
-
-jest.mock('../Housheold', () => {
-  const ReactLib = require('react'); // eslint-disable-line global-require
-  const { Text } = require('react-native'); // eslint-disable-line global-require
-
-  return function MockHousehold() {
-    return ReactLib.createElement(Text, null, 'household-content');
+  return function MockSmallCardsCarousel(props) {
+    mockCarouselProps(props);
+    return ReactLib.createElement(Text, { testID: 'forms-carousel' }, 'forms-carousel');
   };
 });
 
 // eslint-disable-next-line import/first
 import ResidentPage from '..';
 
-describe('ResidentPage tabs', () => {
-  test('shows only Demographics tab label in the tab area', () => {
+const puenteForms = [
+  { tag: 'vitals', name: 'puenteForms.Vitals' },
+  { tag: 'env', name: 'puenteForms.EnvironmentalHealth' },
+];
+
+const selectPerson = {
+  objectId: 'resident-42',
+  dob: '1990-01-01',
+  communityname: 'Centro',
+  province: 'Pichincha',
+  license: 'A1',
+};
+
+describe('ResidentPage - starting a new form for the selected resident', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('renders the forms carousel wired to navigateToNewRecord with the resident as surveyee', () => {
+    const navigateToNewRecord = jest.fn();
+
     render(
       <ResidentPage
         fname="Jane"
@@ -105,18 +118,26 @@ describe('ResidentPage tabs', () => {
         nickname="JD"
         city="Quito"
         picture={null}
-        selectPerson={{ dob: '1990-01-01', communityname: 'Centro', province: 'Pichincha', license: 'A1' }}
+        selectPerson={selectPerson}
         setSelectPerson={jest.fn()}
-        puenteForms={[]}
-        navigateToNewRecord={jest.fn()}
+        puenteForms={puenteForms}
+        navigateToNewRecord={navigateToNewRecord}
         navigateToRecordHistory={jest.fn()}
         setSurveyee={jest.fn()}
         setView={jest.fn()}
       />
     );
 
-    expect(screen.getByText('findResident.residentPage.household.demographics')).toBeDefined();
-    expect(screen.queryByText('findResident.residentPage.household.forms')).toBeNull();
-    expect(screen.queryByText('findResident.residentPage.household.household')).toBeNull();
+    expect(screen.getByTestId('forms-carousel')).toBeDefined();
+    expect(screen.getByText('findResident.residentPage.forms.suggestedForms')).toBeDefined();
+
+    expect(mockCarouselProps).toHaveBeenCalledWith(
+      expect.objectContaining({
+        puenteForms,
+        navigateToNewRecord,
+        surveyee: selectPerson,
+        setUser: true,
+      })
+    );
   });
 });

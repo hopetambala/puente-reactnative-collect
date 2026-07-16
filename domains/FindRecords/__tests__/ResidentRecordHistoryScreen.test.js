@@ -43,6 +43,9 @@ jest.mock('@modules/i18n', () => ({
   t: (key) => key,
 }));
 
+// Connectivity check made by fetchRecords — these tests exercise the online path
+jest.mock('@modules/offline', () => jest.fn(() => Promise.resolve(true)));
+
 // Mock useFocusEffect from react-navigation
 jest.mock('@react-navigation/native', () => ({
   ...jest.requireActual('@react-navigation/native'),

@@ -11,15 +11,16 @@
     "city": "Vil",
     "commName": "Katye",
     "notes": "Nòt",
-    "refresh": "Rafrechi",	
-    "error": "Erè",	
-    "success": "Siksè!",	
-    "ok": "Ok",	
+    "refresh": "Rafrechi",
+    "error": "Erè",
+    "success": "Siksè!",
+    "ok": "Ok",
     "emptyForm": "Vide Fòm",
-    "back":"Tounen",
+    "back": "Tounen",
     "pleaseTryAgain": "Tanpri eseye ankò",
     "loadMore": "Chaje plis",
-    "settings": "Paramèt"
+    "settings": "Paramèt",
+    "tryAgain": "Eseye ankò"
   },
   "signUp": {
     "firstName": "Non",
@@ -50,7 +51,7 @@
     }
   },
   "signIn": {
-    "user":"Non itilizatè",
+    "user": "Non itilizatè",
     "username": "Andres elektronik oswa nimewo telefòn",
     "password": "Modpas",
     "showPassword": "Montre modpas",
@@ -61,7 +62,7 @@
     "puente2020": "Puente 2020 |",
     "termsConditions": "Tèm ak Kondisyon",
     "forgotPassword": {
-      "label" : "ou bliye modpas?",
+      "label": "ou bliye modpas?",
       "enterEmail": "Tanpri antre imèl ou a Reyajiste modpas ou",
       "sendLink": "Voye Reyajiste Link",
       "noAccount": "Ou pa gen yon kont?",
@@ -69,7 +70,7 @@
       "rememberPass": "Sonje modpas ou?",
       "signIn": "Ouvè sesion",
       "resetSuccess": "Lyen Reyajiste modpas ou te voye nan imèl ou. Tanpri Tcheke imèl ou a chanje modpas ou.",
-	    "resetError": "Te gen yon erè nan voye lyen an Reyajiste modpas. Tanpri asire ke ou te antre nan imèl ou kòrèkteman. Ou ka eseye ankò pa klike sou bouton ki anba a. Si ou kwè imèl la kòrèk, tanpri kontakte manadjè ou.",
+      "resetError": "Te gen yon erè nan voye lyen an Reyajiste modpas. Tanpri asire ke ou te antre nan imèl ou kòrèkteman. Ou ka eseye ankò pa klike sou bouton ki anba a. Si ou kwè imèl la kòrèk, tanpri kontakte manadjè ou.",
       "tryAgain": "Eseye ankò",
       "backToSignIn": "Retounen konekte"
     },
@@ -198,7 +199,7 @@
       "tap": "Tiyo",
       "filtered": "Filtre"
     },
-    "bathroomAccess": { 
+    "bathroomAccess": {
       "label": "Aksè nan yon twalèt?",
       "Bathroom": "Twalèt",
       "Latrine": "Latrin",
@@ -224,8 +225,8 @@
     "trashBetweenPickups": "Ki kote roun yo jete fatra?",
     "houseOwnership": {
       "label": "Pwopriyetè kay",
-      "Own":"Pwòp",
-      "Rent":"Lwe",
+      "Own": "Pwòp",
+      "Rent": "Lwe",
       "Provided": "Bay"
     },
     "floorCondition": {
@@ -280,7 +281,7 @@
     "numberIndividualsHouse": "Kantite moun k ap viv nan kay la",
     "numberChildrenUnder5": {
       "label": "Kantite timoun k ap viv nan kay sa a ki poko gen laj 5 an",
-      "under_5":"Mwens pase 5",
+      "under_5": "Mwens pase 5",
       "6_12": "6-12",
       "13_18": "13-18",
       "under_5_textQuestion": "Konbyen timoun ki poko gen 5 an?",
@@ -370,9 +371,9 @@
   "supplementaryForms": {
     "attachResident": "Tache yon rezidan nan kominote a"
   },
-  "assetForms": {	
-    "attachForm": "Tache yon Fòm Byen an",	
-    "createAsset": "Kreye yon Byen"	
+  "assetForms": {
+    "attachForm": "Tache yon Fòm Byen an",
+    "createAsset": "Kreye yon Byen"
   },
   "forms": {
     "successfullySubmitted": "Fòm soumèt avèk siksè",
@@ -441,7 +442,7 @@
   },
   "findResident": {
     "searchIndividual": "Rechèch endividyèl",
-    "typeHere": "Tape isit la...",
+    "typeHere": "Chèche pa non oswa ID",
     "residentCard": {
       "city": "Vil",
       "community": "Katye",
@@ -470,7 +471,13 @@
         "goBack": "Retounen"
       },
       "viewRecordHistory": "Wè istwa dosye"
-    }
+    },
+    "emptyState": {
+      "title": "Nou pa jwenn okenn dosye",
+      "body": "Eseye yon lòt non, oswa verifye si dosye a te anrejistre."
+    },
+    "offlineNotice": "Ou pa gen koneksyon. N ap montre dosye ki anrejistre yo.",
+    "searching": "N ap chèche dosye yo…"
   },
   "householdManager": {
     "createHousehold": "Kreye yon nouvo kay",
@@ -511,9 +518,9 @@
   "residentIdSearchbar": {
     "searchIndividual": "Rechèch endividyèl"
   },
-  "assetSearchbar": {	
-    "searchIndividual": "Rechèch Byen",	
-    "placeholder": "Tape isit la ..."	
+  "assetSearchbar": {
+    "searchIndividual": "Rechèch Byen",
+    "placeholder": "Tape isit la ..."
   },
   "termsModal": {
     "termsService": "Regleman ak Sèvis",
@@ -592,12 +599,12 @@
     "addAdditional": "Add Lòt ",
     "removePrevious": "Retire Previous "
   },
-  "bottomTab":{
+  "bottomTab": {
     "dataCollection": "Done Koleksyon",
     "home": "Akèy",
     "offline": "San entènèt"
   },
-  "camera":{
+  "camera": {
     "useImage": "Sèvi ak imaj ki soti nan woulo kamera",
     "noAccess": "Pa gen aksè a kamera",
     "requestingPermission": "Ap mande pèmisyon kamera...",
@@ -605,7 +612,7 @@
     "flip": "Vire",
     "takePicture": "Pran foto",
     "done": "Fè",
-    "sorryAlert":"Nou bezwen otorizasyon woulo liv kamera pou fè travay sa a!"
+    "sorryAlert": "Nou bezwen otorizasyon woulo liv kamera pou fè travay sa a!"
   },
   "peopleModal": {
     "title": "Manadjè Moun",
@@ -630,14 +637,16 @@
   },
   "assetFormSelect": {
     "supAssetForms": "Fòm Byen Siplemantè"
-  },  "puenteForms": {
+  },
+  "puenteForms": {
     "ResidentID": "Idantifikasyon rezidan",
     "EnvironmentalHealth": "Santè anviwonman",
     "MedicalEvaluation": "Evalyasyon medikal",
     "Vitals": "Siy vital"
-  },  "submissionError":{
+  },
+  "submissionError": {
     "error": "ERÈ!\n\nFòm ou pa te soumèt. Tanpri eseye ankò oswa kontakte sipèvizè ou a si pwoblèm nan kontinye.",
-    "geolocation":"DELÉ!\n\nGeolokalizasyon telefòn ou an pa t 'kapab jwenn nan aparèy ou an. Tanpri eseye ankò"
+    "geolocation": "DELÉ!\n\nGeolokalizasyon telefòn ou an pa t 'kapab jwenn nan aparèy ou an. Tanpri eseye ankò"
   },
   "dataAnalysis": {
     "welcome": "Byenveni nan paj analiz done yo."
@@ -669,6 +678,7 @@
     "loading": "Ap chaje istwa dosye...",
     "noRecordsFound": "Pa gen dosye jwenn",
     "noSubmissionsYet": "%{name} pa gen soumisyon fòm yo toujou.",
+    "offlineNotice": "Ou pa gen koneksyon — istwa dosye yo ap chaje lè ou konekte ankò.",
     "recordHistory": "Istwa dosye:",
     "errorLoadingRecords": "Erè nan chajman dosye",
     "customForm": "Fòm pèsonalize",
@@ -676,7 +686,10 @@
     "vitals": "Siy vital",
     "environmentalHealth": "Santè anviwonman",
     "medicalEvaluation": "Evalyasyon medikal",
-    "customForms": "Fòm pèsonalize yo"
+    "customForms": "Fòm pèsonalize yo",
+    "errorBody": "Nou pa t kapab chaje dosye yo — verifye koneksyon ou epi eseye ankò.",
+    "resident": "Rezidan",
+    "unknownDate": "Dat enkoni"
   },
   "onboarding": {
     "welcome": "Chanj ki Baze sou Dònnees Kòmanse Isit",

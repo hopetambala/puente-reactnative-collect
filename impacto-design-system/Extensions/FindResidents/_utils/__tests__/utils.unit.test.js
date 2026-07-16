@@ -10,6 +10,7 @@ const mockSubQueries = [];
 const mockCompositeQuery = {
   descending: jest.fn(),
   equalTo: jest.fn(),
+  limit: jest.fn(),
   find: mockFind,
 };
 
@@ -52,7 +53,7 @@ describe('parseSearch - case-insensitive resident search', () => {
     const fields = matchedFields.map((c) => c.field);
     expect(fields).toEqual(expect.arrayContaining(['fname', 'lname']));
     matchedFields.forEach(({ pattern, modifiers }) => {
-      expect(pattern.startsWith('^')).toBe(true); // prefix-anchored, uses the index
+      expect(pattern.startsWith('^')).toBe(true); // prefix-anchored
       expect(modifiers).toBe('i');
     });
   });
@@ -67,6 +68,16 @@ describe('parseSearch - case-insensitive resident search', () => {
     patterns.forEach((pattern) => {
       expect(pattern).toBe('^Mar\\(ia');
     });
+  });
+
+  // Parse ignores subquery limits under Query.or — the composite query takes
+  // its own constraints and defaults to 100. Since the empty-query fetch now
+  // feeds the offline cache, a missing composite limit silently caps the
+  // cache at ~100 residents for larger orgs.
+  test('sets the limit on the composite OR query, not just the subqueries', async () => {
+    await parseSearch('testORG', '');
+
+    expect(mockCompositeQuery.limit).toHaveBeenCalledWith(1000);
   });
 
   test('scopes to the organization and resolves serialized results', async () => {

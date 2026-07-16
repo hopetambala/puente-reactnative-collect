@@ -7,11 +7,14 @@
 import client from '@app/services/parse/client';
 import { fetchResidentById } from '@impacto-design-system/Extensions/FindResidents/_utils';
 import I18n from '@modules/i18n';
+import checkOnlineStatus from '@modules/offline';
+import { spacing, typography } from '@modules/theme';
+import { getStaggerDelay } from '@modules/utils/animationRules';
 import { MOTION_TOKENS } from '@modules/utils/animations';
 import { CommonActions, useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
-  ActivityIndicator, ScrollView, Text, TouchableOpacity, View,
+  ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View,
 } from 'react-native';
 import { Button, useTheme } from 'react-native-paper';
 import Animated, { Keyframe } from 'react-native-reanimated';
@@ -57,6 +60,7 @@ const RECORD_TYPES = [
 
 const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   const theme = useTheme();
+  const styles = createStyles(theme);
   const { resident, fromTab } = route.params;
 
   const handleBack = () => {
@@ -76,18 +80,25 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   const [recordsByType, setRecordsByType] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [offline, setOffline] = useState(false);
 
   const residentId = resident.objectId;
   // residentName is kept in state so it updates if the user edits the SurveyData record
   // and returns to this screen (navigation params are a stale snapshot).
   const [residentName, setResidentName] = useState(
-    `${resident.fname || ''} ${resident.lname || ''}`.trim() || 'Resident'
+    `${resident.fname || ''} ${resident.lname || ''}`.trim() || I18n.t('residentHistory.resident')
   );
 
   const fetchRecords = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+
+      // Offline, every per-type query below would just burn its own network
+      // timeout before failing — skip them and show the offline notice with
+      // the identification record we already have from route params.
+      const connected = await checkOnlineStatus();
+      setOffline(!connected);
 
       const results = {
         // The resident object itself is the identification (SurveyData) record
@@ -96,6 +107,11 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
           records: [resident],
         },
       };
+
+      if (!connected) {
+        setRecordsByType(results);
+        return;
+      }
 
       // Build a Parse pointer to the resident's SurveyData record
       const residentPointer = new Parse.Object('SurveyData');
@@ -140,7 +156,9 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
       setRecordsByType(results);
     } catch (err) {
       console.error('Error fetching records:', err); // eslint-disable-line
-      setError(err.message || 'Failed to load records');
+      // Boolean on purpose: raw error text is never shown to field workers —
+      // the error view renders the translated residentHistory.errorBody copy.
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -173,7 +191,7 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   };
 
   const formatDate = (date) => {
-    if (!date) return 'Unknown date';
+    if (!date) return I18n.t('residentHistory.unknownDate');
     const d = new Date(date);
     return d.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -184,11 +202,11 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
 
   if (loading) {
     return (
-      <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: theme.colors.background }} testID="loadingContainer">
-        <Button icon="arrow-left" onPress={handleBack} style={{ margin: 8 }}>{I18n.t('global.back')}</Button>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <SafeAreaView edges={['top']} style={styles.screen} testID="loadingContainer">
+        <Button icon="arrow-left" onPress={handleBack} style={styles.backButton}>{I18n.t('global.back')}</Button>
+        <View style={styles.centered}>
           <ActivityIndicator size="large" color={theme.colors.primary} testID="loadingIndicator" />
-          <Text style={{ color: theme.colors.onBackground }}>{I18n.t('residentHistory.loading')}</Text>
+          <Text style={styles.loadingText}>{I18n.t('residentHistory.loading')}</Text>
         </View>
       </SafeAreaView>
     );
@@ -196,13 +214,16 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
 
   if (error) {
     return (
-      <SafeAreaView edges={['top']} style={{ flex: 1, padding: 20, backgroundColor: theme.colors.background }} testID="error-view">
-        <Button icon="arrow-left" onPress={handleBack} style={{ marginBottom: 8 }}>{I18n.t('global.back')}</Button>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 10, color: theme.colors.onBackground }}>
+      <SafeAreaView edges={['top']} style={styles.errorScreen} testID="error-view">
+        <Button icon="arrow-left" onPress={handleBack} style={styles.backButtonSpaced}>{I18n.t('global.back')}</Button>
+        <View style={styles.centered}>
+          <Text style={styles.errorTitle}>
             {I18n.t('residentHistory.errorLoadingRecords')}
           </Text>
-          <Text style={{ textAlign: 'center', color: theme.colors.onSurfaceVariant }}>{error}</Text>
+          <Text style={styles.errorMessage}>{I18n.t('residentHistory.errorBody')}</Text>
+          <Button mode="contained" onPress={fetchRecords} style={styles.retryButton}>
+            {I18n.t('global.tryAgain')}
+          </Button>
         </View>
       </SafeAreaView>
     );
@@ -226,11 +247,11 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
   const hasSupplementaryRecords = Object.keys(recordsByType).length > 1;
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: theme.colors.background }}>
-      <ScrollView style={{ flex: 1, padding: 16, backgroundColor: theme.colors.background }}>
+    <SafeAreaView edges={['top']} style={styles.screen}>
+      <ScrollView style={styles.scroll}>
         <View>
-          <Button icon="arrow-left" onPress={handleBack} style={{ marginBottom: 8, alignSelf: 'flex-start' }}>{I18n.t('global.back')}</Button>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 16, color: theme.colors.onBackground }}>
+          <Button icon="arrow-left" onPress={handleBack} style={styles.backButtonInline}>{I18n.t('global.back')}</Button>
+          <Text style={styles.title}>
             {I18n.t('residentHistory.recordHistory')}
             {' '}
             {residentName}
@@ -239,12 +260,12 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
           {orderedEntries.map(([formType, { label, records }], sectionIdx) => (
             <Animated.View
               key={formType}
-              style={{ marginBottom: 24 }}
+              style={styles.section}
               entering={SectionEntrance
-                .delay(sectionIdx * 80)
+                .delay(sectionIdx * getStaggerDelay(orderedEntries.length))
                 .duration(MOTION_TOKENS.duration.base)}
             >
-              <Text style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 8, textTransform: 'capitalize', color: theme.colors.onBackground }}>
+              <Text style={styles.sectionHeader}>
                 {I18n.t(label)}
               </Text>
 
@@ -254,20 +275,15 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
                     // eslint-disable-next-line react/no-array-index-key
                     key={`${formType}-${item.objectId || index}-${index}`}
                     entering={RowEntrance
-                      .delay(Math.min(index * 40, 200))
+                      .delay(index * getStaggerDelay(records.length))
                       .duration(MOTION_TOKENS.duration.base)}
                   >
                     <TouchableOpacity
                       testID={`${item.objectId}`}
                       onPress={() => handleRecordPress(formType, item)}
-                      style={{
-                        padding: 12,
-                        marginBottom: 8,
-                        backgroundColor: theme.colors.surface,
-                        borderRadius: 8,
-                      }}
+                      style={styles.recordRow}
                     >
-                      <Text style={{ fontSize: 14, fontWeight: '500', color: theme.colors.onSurface }}>
+                      <Text style={styles.recordText}>
                         {getRecordDisplayName(formType, item) || I18n.t(label)}
                         {' - '}
                         {formatDate(item.createdAt)}
@@ -280,8 +296,10 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
           ))}
 
           {!hasSupplementaryRecords && (
-            <Text style={{ textAlign: 'center', color: theme.colors.onSurfaceVariant, marginTop: 16 }}>
-              {I18n.t('residentHistory.noSubmissionsYet', { name: residentName })}
+            <Text style={styles.emptyText}>
+              {offline
+                ? I18n.t('residentHistory.offlineNotice')
+                : I18n.t('residentHistory.noSubmissionsYet', { name: residentName })}
             </Text>
           )}
         </View>
@@ -289,5 +307,84 @@ const ResidentRecordHistoryScreen = ({ navigation, route }) => {
     </SafeAreaView>
   );
 };
+
+const createStyles = (theme) => StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  errorScreen: {
+    flex: 1,
+    padding: spacing.lg,
+    backgroundColor: theme.colors.background,
+  },
+  scroll: {
+    flex: 1,
+    padding: spacing.lg,
+    backgroundColor: theme.colors.background,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButton: {
+    margin: spacing.sm,
+  },
+  backButtonSpaced: {
+    marginBottom: spacing.sm,
+  },
+  backButtonInline: {
+    marginBottom: spacing.sm,
+    alignSelf: 'flex-start',
+  },
+  loadingText: {
+    color: theme.colors.onBackground,
+  },
+  errorTitle: {
+    ...typography.title2,
+    fontWeight: 'bold',
+    marginBottom: spacing.sm,
+    color: theme.colors.onBackground,
+  },
+  errorMessage: {
+    textAlign: 'center',
+    color: theme.colors.onSurfaceVariant,
+  },
+  retryButton: {
+    marginTop: spacing.lg,
+  },
+  title: {
+    ...typography.title1,
+    fontWeight: 'bold',
+    marginBottom: spacing.lg,
+    color: theme.colors.onBackground,
+  },
+  section: {
+    marginBottom: spacing.xl,
+  },
+  sectionHeader: {
+    ...typography.title2,
+    fontWeight: 'bold',
+    marginBottom: spacing.sm,
+    textTransform: 'capitalize',
+    color: theme.colors.onBackground,
+  },
+  recordRow: {
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+    backgroundColor: theme.colors.surface,
+    borderRadius: spacing.radiusMedium,
+  },
+  recordText: {
+    ...typography.label1,
+    color: theme.colors.onSurface,
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: theme.colors.onSurfaceVariant,
+    marginTop: spacing.lg,
+  },
+});
 
 export default ResidentRecordHistoryScreen;
