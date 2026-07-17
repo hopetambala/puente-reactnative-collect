@@ -7,7 +7,7 @@
       "android",
       "web"
     ],
-    "version": "15.5.7",
+    "version": "15.5.8",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -37,7 +37,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "android": {
-      "versionCode": 490150507,
+      "versionCode": 490150508,
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
