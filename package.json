@@ -78,6 +78,7 @@
       "/android/",
       "/ios/",
       "/coverage/",
+      "/\\.claude/",
       "integrat(e|ion)\\.test\\.js"
     ]
   },
