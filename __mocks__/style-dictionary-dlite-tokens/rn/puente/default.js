@@ -47,6 +47,12 @@ const baseTokens = {
   tkDliteSemanticSpacing600: 24,
   tkDliteSemanticSpacing700: 28,
   tkDliteSemanticSpacing800: 32,
+
+  // Typography sizes are numeric only -- there are no named aliases.
+  tkDliteSemanticTypographySize100: 10,
+  tkDliteSemanticTypographySize200: 12,
+  tkDliteSemanticTypographySize300: 14,
+  tkDliteSemanticTypographySize400: 16,
 };
 
 module.exports = {

@@ -2,11 +2,16 @@ import DevOfflineToggle from "@app/domains/Settings/DevOfflineToggle";
 import { ThemeContext } from "@context/theme.context";
 import I18n from "@modules/i18n";
 import { clearOnboardingData } from "@modules/settings";
-import { confirmLogout } from "@modules/settings/confirmLogout";
+import {
+  confirmLogout,
+  countUnsyncedRecords,
+} from "@modules/settings/confirmLogout";
 import { spacing, typography } from "@modules/theme";
+import { getTokens } from "@modules/theme/tokens";
 import { useAccessibilityContext } from "@modules/theme/useAccessibilityContext";
 import { MOTION_TOKENS, useMotion } from "@modules/utils/animations";
-import React, { useContext, useMemo, useState } from "react";
+import * as Application from "expo-application";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
@@ -34,6 +39,13 @@ const safeSpacing = {
   xl: spacing?.xl ?? 24,
 };
 
+// Module scope is safe here: only spacing and type sizes are read, and those are
+// identical in both themes. Colours below still come from the live Paper theme.
+// TODO(dlite): the rest of this file still uses the legacy spacing/typography
+// scales, which shadow dlite with different values (spacing.md=12 vs
+// SpacingMd=16). Tracked as AS-26.
+const t = getTokens("light");
+
 const createStyles = (theme) => {
   if (!theme) return {};
 
@@ -52,6 +64,23 @@ const createStyles = (theme) => {
       fontWeight: "600",
       marginBottom: safeSpacing.md,
       color: theme.colors.onSurface,
+    },
+    unsyncedRow: {
+      paddingHorizontal: t.tkDliteSemanticSpacing400,
+      paddingVertical: t.tkDliteSemanticSpacing300,
+    },
+    unsyncedText: {
+      fontSize: t.tkDliteSemanticTypographySize300,
+      color: theme.colors.onSurfaceVariant,
+    },
+    versionRow: {
+      alignItems: "center",
+      paddingTop: t.tkDliteSemanticSpacing400,
+      paddingBottom: t.tkDliteSemanticSpacing600,
+    },
+    versionText: {
+      fontSize: t.tkDliteSemanticTypographySize200,
+      color: theme.colors.onSurfaceVariant,
     },
   });
 };
@@ -72,6 +101,20 @@ function SettingsHome({
   const settingsStyles = useMemo(() => createStyles(paperTheme), [paperTheme]);
   const styles = useMemo(() => createSettingsStyles(paperTheme), [paperTheme]);
   const [accountSettingsView, setAccountSettingsView] = useState("");
+  const [unsyncedCount, setUnsyncedCount] = useState(0);
+
+  // Settings is where people go before logging out or handing off a phone, so
+  // it should say whether any work is still only on this device. Reads
+  // AsyncStorage only -- no network call, so it works during an offline shift.
+  useEffect(() => {
+    let active = true;
+    countUnsyncedRecords().then((count) => {
+      if (active) setUnsyncedCount(count);
+    });
+    return () => {
+      active = false;
+    };
+  }, [settingsView, accountSettingsView]);
 
   // useMotion is the single control point for reduce-motion and Calm Mode
   // (modules/utils/animations.js:589). This screen hosts the Calm Mode toggle,
@@ -171,6 +214,20 @@ function SettingsHome({
             </View>
           </View>
             <DevOfflineToggle />
+            {/* Offline-first copy rule: name where the records are. These are on
+                the device and have NOT reached the server. */}
+            {unsyncedCount > 0 && (
+              <View
+                testID="settings-unsynced-count"
+                style={settingsStyles.unsyncedRow}
+              >
+                <Text style={settingsStyles.unsyncedText}>
+                  {I18n.t("accountSettings.unsyncedOnDevice", {
+                    count: unsyncedCount,
+                  })}
+                </Text>
+              </View>
+            )}
             <View style={styles.horizontalLineGray} />
             {inputs.length &&
               inputs.map((input, i) => (
@@ -296,6 +353,16 @@ function SettingsHome({
           >
             {I18n.t("accountSettings.logout")}
           </Button>
+          {/* Support diagnostics: the first question on a WhatsApp bug report is
+              "which version?", and there was no way for a promotor to answer. */}
+          <View testID="settings-app-version" style={settingsStyles.versionRow}>
+            <Text style={settingsStyles.versionText}>
+              {I18n.t("accountSettings.versionLabel", {
+                version: Application.nativeApplicationVersion ?? "—",
+                build: Application.nativeBuildVersion ?? "—",
+              })}
+            </Text>
+          </View>
         </ScrollView>
       )}
       {accountSettingsView !== "" && (
