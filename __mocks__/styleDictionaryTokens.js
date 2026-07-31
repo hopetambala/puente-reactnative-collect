@@ -22,6 +22,14 @@ const mockTokens = {
   tkDliteSemanticColorSuccess: '#34C759',
   tkDliteSemanticColorWarning: '#FF9500',
 
+  // Real values from style-dictionary-dlite-tokens/dist/rn/puente/default.
+  // Keep these in sync with the package -- a mock that invents values makes
+  // contrast and mapping assertions meaningless.
+  tkDliteSemanticColorActionPrimary: '#3d80fc',
+  tkDliteSemanticColorActionPrimaryActive: '#0a46b6',
+  tkDlitePrimitiveColorBlue100: '#ebf2ff',
+  tkDliteSemanticColorSurfaceRaised: '#ffffff',
+
   tkDliteSemanticSpacing100: 4,
   tkDliteSemanticSpacing200: 8,
   tkDliteSemanticSpacing300: 12,

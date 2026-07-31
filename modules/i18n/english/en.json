@@ -557,7 +557,10 @@
     "logoutMessage": "You will need your username and password to log back in.",
     "logoutOfflineWarning": "You are offline. You will NOT be able to log back in until this device has an internet connection.",
     "logoutUnsyncedWarning": "%{count} records are saved on this device and have not reached the server yet. They will stay on the device, but you cannot sync them until you log back in.",
-    "logoutConfirm": "Log out"
+    "logoutConfirm": "Log out",
+    "deleteUserTitle": "Delete your account?",
+    "deleteUserWarning": "This opens the account management page in your browser, where you can request deletion. Records you have already submitted belong to your organization and are not removed by this.",
+    "deleteUserConfirm": "Continue"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Current records stored",
