@@ -21,7 +21,8 @@
     "loadMore": "Load More",
     "settings": "Settings",
     "tryAgain": "Try Again",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "recordsStoredOnDevice": "%{count} records stored on this device"
   },
   "signUp": {
     "firstName": "First Name",
@@ -575,7 +576,7 @@
     "chooseLanguage": "Choose Language"
   },
   "namePhoneEmailSettings": {
-    "errorMessage": "There was an error processing your request. Common issues include incorrect email format or no internet connection. Please try again and contact your supervisor if the issue persits.",
+    "errorMessage": "We could not save your changes. Please try again, and contact your supervisor if the problem continues.",
     "successMessage": "You have updated your account.",
     "userInformation": {
       "fname": "First Name",
@@ -583,15 +584,17 @@
       "phoneNumber": "Phone Number",
       "email": "Email"
     },
-    "namePhoneEmail": "Name, Phone, Email"
+    "namePhoneEmail": "Name, Phone, Email",
+    "offlineMessage": "You are offline. This change needs an internet connection, and has not been saved."
   },
   "passwordSettings": {
     "wrongCreds": "Your current password is incorrect. Please try again.",
-    "errorMessage": "There was an error processing your request. Common issues include no internet connection or incorrect password. Please try again and contact your supervisor if the issue persits.",
+    "errorMessage": "We could not change your password. Please try again, and contact your supervisor if the problem continues.",
     "successMessage": "You have updated your password.",
     "changePassword": "Change Password",
     "currentPassword": "Current Password",
-    "newPassword": "New Password"
+    "newPassword": "New Password",
+    "offlineMessage": "You are offline. This change needs an internet connection, and has not been saved."
   },
   "supportHome": {
     "feedback": "Contact us / Feedback",
@@ -661,7 +664,7 @@
     "Vitals": "Vitals"
   },
   "submissionError": {
-    "error": "ERROR!\n\nYour form has not been submitted. Please try again or contact your supervisor if the issue persits.",
+    "error": "ERROR!\n\nYour form has not been submitted. Please try again or contact your supervisor if the issue persists.",
     "geolocation": "TIMEOUT!\n\nYour phone's geolocation wasn't able to be retrieved from your device. Please try again"
   },
   "dataAnalysis": {

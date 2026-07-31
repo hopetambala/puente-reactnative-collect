@@ -21,7 +21,8 @@
     "loadMore": "Cargar más",
     "settings": "Configuración",
     "tryAgain": "Intentar de nuevo",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "recordsStoredOnDevice": "%{count} registros guardados en este dispositivo"
   },
   "signUp": {
     "firstName": "Nombre de verdadero",
@@ -575,7 +576,7 @@
     "chooseLanguage": "Elige lengua"
   },
   "namePhoneEmailSettings": {
-    "errorMessage": "Hubo un error al procesar su solicitud. Los problemas comunes incluyen el formato de correo electrónico incorrecto o la falta de conexión a Internet. Vuelva a intentarlo y comuníquese con su supervisor si el problema persiste.",
+    "errorMessage": "No pudimos guardar sus cambios. Vuelva a intentarlo y contacte a su supervisor si el problema continúa.",
     "successMessage": "Ha actualizado su cuenta.",
     "userInformation": {
       "fname": "Nombre de pila",
@@ -583,15 +584,17 @@
       "phoneNumber": "Número de teléfono",
       "email": "Correo electrónico"
     },
-    "namePhoneEmail": "Nombre, teléfono, correo electrónico"
+    "namePhoneEmail": "Nombre, teléfono, correo electrónico",
+    "offlineMessage": "Está sin conexión. Este cambio necesita conexión a Internet y no se ha guardado."
   },
   "passwordSettings": {
     "wrongCreds": "Tu contraseña actual es incorrecta. Inténtalo de nuevo.",
-    "errorMessage": "Hubo un error al procesar su solicitud. Los problemas comunes incluyen la falta de conexión a Internet o la contraseña incorrecta. Vuelva a intentarlo y comuníquese con su supervisor si el problema persiste.",
+    "errorMessage": "No pudimos cambiar su contraseña. Vuelva a intentarlo y contacte a su supervisor si el problema continúa.",
     "successMessage": "Ha actualizado su contraseña.",
     "changePassword": "Cambiar la contraseña",
     "currentPassword": "Contraseña actual",
-    "newPassword": "Nueva contraseña"
+    "newPassword": "Nueva contraseña",
+    "offlineMessage": "Está sin conexión. Este cambio necesita conexión a Internet y no se ha guardado."
   },
   "supportHome": {
     "feedback": "Contáctenos / Comentarios",
