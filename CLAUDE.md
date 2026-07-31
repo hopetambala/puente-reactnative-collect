@@ -148,17 +148,22 @@ Design tokens live in `modules/theme/tokens.js`, wrapping
 import { getTokens } from '@modules/theme/tokens';
 const t = getTokens('light');
 
-// Use semantic tokens always:
-t.semantic.color.text.primary
-t.semantic.color.surface.base
-t.semantic.spacing.md
-t.semantic.borderRadius.md
+// The token object is FLAT camelCase — there is no nested `t.semantic.*` path.
+t.tkDliteSemanticColorTextPrimary   // '#161616'
+t.tkDliteSemanticColorSurfaceBase   // '#ffffff'
+t.tkDliteSemanticSpacing400         // 16  (numeric scale preferred)
+t.tkDliteSemanticBorderRadiusMd     // 8   (Sm/Md/Lg/Full — not Medium)
 ```
 
-Never hard-code hex colors, numeric spacing, or borderRadius values in StyleSheets.
-The `dlite-design-system` skill enforces this.
+Inside components, prefer `useTheme()` from react-native-paper for colors — its
+`colors.*` palette is mapped from these tokens in `modules/theme/index.js` and is
+theme-reactive. Use `getTokens()` directly for spacing, radius, and font size.
 
-The mock for tests lives in `__mocks__/styleDictionaryTokens.js`.
+Never hard-code hex colors, numeric spacing, or borderRadius values in StyleSheets.
+The `dlite-design-system-engineer` skill enforces this.
+
+The mock for tests lives in `__mocks__/styleDictionaryTokens.js`. It ships some
+token names the real package does not — a green test is not proof a token exists.
 
 ## Animation system
 
@@ -187,7 +192,8 @@ This project uses Claude Code skills and agents in `.claude/`:
 | Skill | When to use |
 |---|---|
 | `red-green-tdd` | Any new function, component, hook, or bug fix — test first |
-| `dlite-design-system` | Any StyleSheet or inline style change |
+| `dlite-design-system-engineer` | Any StyleSheet or inline style change |
+| `product-manager` | Scoping, PRDs, prioritization — what to build and why |
 | `ux-review` | When a screen or component is complete — runs dlite-auditor, motion-auditor, mobile-delight-auditor |
 | `visual-qa` | Screenshot the iOS simulator to verify visual correctness |
 

@@ -64,7 +64,7 @@ not a browser. UI navigation and screenshots are driven by
 5. For each screenshot, list every visual defect (spacing, typography, colour,
    alignment, overflow, broken layout).
 6. Fix defects in order of severity — layout breaks first, then spacing, then
-   colour/type. Any styling change must honor `dlite-design-system`; any
+   colour/type. Any styling change must honor `dlite-design-system-engineer`; any
    behavior change must go through `red-green-tdd`.
 7. Re-run step 3 and compare before/after screenshots. Repeat until clean.
 
