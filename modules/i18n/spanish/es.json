@@ -557,7 +557,10 @@
     "logoutMessage": "Necesitará su usuario y contraseña para volver a entrar.",
     "logoutOfflineWarning": "Está sin conexión. NO podrá volver a iniciar sesión hasta que este dispositivo tenga conexión a Internet.",
     "logoutUnsyncedWarning": "%{count} registros están guardados en este dispositivo y aún no han llegado al servidor. Permanecerán en el dispositivo, pero no podrá sincronizarlos hasta que vuelva a iniciar sesión.",
-    "logoutConfirm": "Cerrar sesión"
+    "logoutConfirm": "Cerrar sesión",
+    "deleteUserTitle": "¿Eliminar su cuenta?",
+    "deleteUserWarning": "Esto abre la página de gestión de cuenta en su navegador, donde puede solicitar la eliminación. Los registros que ya ha enviado pertenecen a su organización y no se eliminan con esto.",
+    "deleteUserConfirm": "Continuar"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Registros actuales almacenados",

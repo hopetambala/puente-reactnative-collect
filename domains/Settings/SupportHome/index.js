@@ -1,11 +1,12 @@
 import ENV from "@app/environment";
 import { UserContext } from "@context/auth.context";
 import I18n from "@modules/i18n";
+import { confirmLogout } from "@modules/settings/confirmLogout";
 import { spacing, typography } from "@modules/theme";
 import * as Linking from "expo-linking";
 import * as StoreReview from "expo-store-review";
 import React, { useContext, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { Alert, TouchableOpacity, View } from "react-native";
 import { Button, IconButton, Text, useTheme } from "react-native-paper";
 
 import { createSettingsStyles } from "../index.styles";
@@ -29,10 +30,29 @@ function SupportHome({
     }
   };
 
-  const deleteUser = async () => {
+  const openAccountManagement = async () => {
     const { id } = user;
     return Linking.openURL(
       `${PUENTE_MANAGE_URL}/account/management?objectId=${id}`
+    );
+  };
+
+  // Account deletion for a dataset about vulnerable people is not a one-tap
+  // action. The external page is the real gate, but say what is about to happen
+  // before leaving the app.
+  const deleteUser = () => {
+    Alert.alert(
+      I18n.t("accountSettings.deleteUserTitle"),
+      I18n.t("accountSettings.deleteUserWarning"),
+      [
+        { text: I18n.t("global.cancel"), style: "cancel" },
+        {
+          text: I18n.t("accountSettings.deleteUserConfirm"),
+          style: "destructive",
+          onPress: openAccountManagement,
+        },
+      ],
+      { cancelable: true }
     );
   };
   const inputs = [
@@ -92,7 +112,7 @@ function SupportHome({
                         <IconButton
                           icon="chevron-right"
                           size={30}
-                          color={theme.colors.primary}
+                          iconColor={theme.colors.primary}
                           style={{
                             marginLeft: "auto",
                             marginTop: -5,
@@ -111,7 +131,7 @@ function SupportHome({
                         <IconButton
                           icon="chevron-right"
                           size={30}
-                          color={theme.colors.primary}
+                          iconColor={theme.colors.primary}
                           style={{
                             marginLeft: "auto",
                             marginTop: -5,
@@ -135,15 +155,19 @@ function SupportHome({
           >
             {I18n.t("accountSettings.back")}
           </Button>
+          {/* Same stranding risk as SettingsHome -- route through the shared
+              confirmation, and keep the destructive control de-emphasised. */}
           <Button
-            mode="contained"
-            onPress={logOut}
+            testID="support-logout-button"
+            mode="outlined"
+            onPress={() => confirmLogout(logOut)}
             style={{ marginTop: 20, marginLeft: "5%", marginRight: "5%" }}
           >
             {I18n.t("accountSettings.logout")}
           </Button>
           <Button
-            color={theme.colors.error}
+            testID="settings-delete-user-button"
+            textColor={theme.colors.error}
             onPress={deleteUser}
             style={{ marginTop: 20, marginLeft: "5%", marginRight: "5%" }}
           >

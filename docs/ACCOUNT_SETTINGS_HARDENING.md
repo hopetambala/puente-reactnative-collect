@@ -73,7 +73,7 @@ production today and can cost a promotor a day of work. M2–M4 are quality, not
 | AS-03 | Surface unsynced count | E1 | P1 | M | 2 | ☐ | new; reuse `Offline/index.js:36-38` |
 | AS-04 | Confirm Clear Cached ID Forms | E2 | P0 | S | 1 | ☑ | `OfflineData/index.js:91-96` |
 | AS-05 | Confirm Reset Onboarding | E2 | P1 | S | 1 | ☑ | `SettingsHome/index.js:240-248` |
-| AS-06 | Confirm Delete user + destructive style | E2 | P1 | S | 2 | ☐ | `SupportHome/index.js:145-151` |
+| AS-06 | Confirm Delete user + destructive style | E2 | P1 | S | 2 | ☑ | `SupportHome/index.js:145-151` |
 | AS-07 | Warn on Populate all ID Forms | E2 | P2 | S | 4 | ☐ | `OfflineData/index.js:57-62` |
 | AS-08 | Fix `null.length` crash | E3 | P0 | S | 1 | ☑ | `FindRecords/index.js:24` |
 | AS-09 | Offline detection on Password/Profile | E3 | P1 | M | 2 | ☐ | `Password/index.js:52`, `NamePhoneEmail/index.js:104` |
@@ -88,14 +88,14 @@ production today and can cost a promotor a day of work. M2–M4 are quality, not
 | AS-18 | Numeric keyboard + coercion | E5 | P2 | S | 4 | ☐ | `FindRecords/index.js:135` |
 | AS-19 | Whole rows tappable | E6 | P1 | M | 3 | ☐ | `SettingsHome/index.js:179-194`, `SupportHome/index.js:108-125` |
 | AS-20 | Accessibility props across domain | E6 | P1 | M | 3 | ☐ | all of `domains/Settings/**` |
-| AS-21 | Primary-action contrast ≥4.5:1 | E6 | P1 | M | 2 | ☐ | `modules/theme/index.js` (upstream) |
+| AS-21 | Primary-action contrast ≥4.5:1 | E6 | P1 | M | 2 | ☑ | `modules/theme/index.js` (upstream) |
 | AS-22 | Language selection second channel | E6 | P2 | S | 4 | ☐ | `Language/index.js:35-77`, `SettingsHome/index.js:226` |
-| AS-23 | `color` → `iconColor` (Paper v5) | E7 | P1 | S | 2 | ☐ | 6 call sites, see E7 |
-| AS-24 | `color` → `textColor` on Delete user | E7 | P1 | S | 2 | ☐ | `SupportHome/index.js:146` |
-| AS-25 | Map `secondaryContainer` in theme | E7 | P1 | S | 2 | ☐ | `modules/theme/index.js:29-99` |
+| AS-23 | `color` → `iconColor` (Paper v5) | E7 | P1 | S | 2 | ☑ | 6 call sites, see E7 |
+| AS-24 | `color` → `textColor` on Delete user | E7 | P1 | S | 2 | ☑ | `SupportHome/index.js:146` |
+| AS-25 | Map `secondaryContainer` in theme | E7 | P1 | S | 2 | ☑ | `modules/theme/index.js:29-99` |
 | AS-26 | Migrate `index.styles.js` off legacy scale | E7 | P2 | M | 3 | ☐ | `Settings/index.styles.js:2` |
 | AS-27 | Token violations (10 rows) | E7 | P2 | S ea | 4 | ☐ | see E7 table |
-| AS-28 | Honor Calm Mode on this screen | E8 | P1 | S | 2 | ☐ | `SettingsHome/index.js:149-153,201-204,234-237` |
+| AS-28 | Honor Calm Mode on this screen | E8 | P1 | S | 2 | ☑ | `SettingsHome/index.js:149-153,201-204,234-237` |
 | AS-29 | Stagger token not `i*40` | E8 | P2 | S | 4 | ☐ | `SettingsHome/index.js:152` |
 | AS-30 | Haptics on toggles + destructive | E8 | P2 | S | 4 | ☐ | `domains/Settings/**` |
 | AS-31 | `PopupSuccess` hardcoded English | E9 | P1 | S | 2 | ☐ | `Base/PopupSuccess/index.js:54` |
@@ -106,8 +106,9 @@ production today and can cost a promotor a day of work. M2–M4 are quality, not
 | AS-36 | Relocate dev toggle | E10 | P3 | S | def | ⊘ | `SettingsHome/index.js:145` |
 | AS-37 | Show app version / build | E11 | P1 | S | 2 | ☐ | new; `expo-application` already a dep |
 | AS-38 | Show session identity + org | E11 | P2 | S | 4 | ☐ | new; `UserContext` |
+| **AS-01b** | **Confirm logout in the Support tab too** | **E1** | **P0** | **S** | **2** | ☑ | `SupportHome/index.js:157` |
 
-**Totals**: 38 items · 6 in M1 · 12 in M2 · 6 in M3 · 11 in M4 · 1 separate · 2 deferred.
+**Totals**: 39 items · 6 in M1 · 13 in M2 · 6 in M3 · 11 in M4 · 1 separate · 2 deferred.
 **Status legend**: ☐ Not started · ◐ In progress · ☑ Done · ⊘ Deferred · ⊗ Blocked
 
 ---
@@ -571,3 +572,11 @@ a disabled state is a small delta on top of what shipped.
 **Open Decision #2 remains open** and still matters: if `offlineLogin`
 (`context/auth.context.js:75-82`) is intended to come back, AS-01's severity drops and the
 offline warning copy should soften.
+
+### Found during M2: a second logout entry point (AS-01b)
+
+`SupportHome/index.js` has its own Log out button, which AS-01 did not touch — it still
+called the `logOut` prop directly, so the offline-stranding path was reachable one tap
+away from a "fixed" screen. The confirmation is now extracted to
+`modules/settings/confirmLogout.js` and **both** screens route through it. Any future
+logout entry point must do the same.

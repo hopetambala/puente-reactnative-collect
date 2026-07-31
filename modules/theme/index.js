@@ -28,12 +28,31 @@ const createTheme = (mode = "light") => {
     colors: {
       ...baseTheme.colors,
       // Primary color
-      primary: colorTokens.tkDliteSemanticColorPrimary,
+      // TODO(dlite): tkDliteSemanticColorPrimary (#3d80fc) fails WCAG AA in light
+      // mode in BOTH directions -- 3.44:1 as a label on the app background, and
+      // 3.69:1 as a surface under white onPrimary text (contrast is symmetric, so
+      // text buttons and contained buttons fail equally). Composed from
+      // ActionPrimaryActive (#0a46b6, the Blue700 step) which gives 7.64:1 and
+      // 8.19:1 respectively. Dark mode already clears AA at 7.06:1, so it keeps
+      // the base token. Fix belongs upstream in style-dictionary-dlite-tokens.
+      primary: isDark
+        ? colorTokens.tkDliteSemanticColorPrimary
+        : colorTokens.tkDliteSemanticColorActionPrimaryActive,
       onPrimary: colorTokens.tkDliteSemanticColorTextOnPrimary,
 
       // Secondary color
       secondary: colorTokens.tkDliteSemanticColorSecondary,
       onSecondary: colorTokens.tkDliteSemanticColorTextSecondary,
+
+      // Paper's SegmentedButtons reads secondaryContainer for the selected
+      // segment. Left unmapped it falls back to the MD3 baseline lavender
+      // (#E8DEF8), which is off-brand against every other action in the app.
+      secondaryContainer: isDark
+        ? colorTokens.tkDliteSemanticColorSurfaceRaised
+        : colorTokens.tkDlitePrimitiveColorBlue100,
+      onSecondaryContainer: isDark
+        ? colorTokens.tkDliteSemanticColorPrimary
+        : colorTokens.tkDliteSemanticColorActionPrimaryActive,
 
       // Brand color (explicit semantic brand identity)
       brand: colorTokens.tkDliteSemanticColorBrand,

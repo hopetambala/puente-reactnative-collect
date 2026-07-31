@@ -174,7 +174,7 @@ function NamePhoneEmail() {
                     <IconButton
                       icon="check"
                       size={25}
-                      color={theme.colors.primary}
+                      iconColor={theme.colors.primary}
                       style={styles.svg}
                       onPress={() => {
                         setEdit("");
@@ -183,7 +183,7 @@ function NamePhoneEmail() {
                     <IconButton
                       icon="window-close"
                       size={25}
-                      color={theme.colors.primary}
+                      iconColor={theme.colors.primary}
                       style={styles.svg}
                       onPress={() => {
                         setEdit("");
