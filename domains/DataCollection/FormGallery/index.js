@@ -143,42 +143,44 @@ function FormGallery({
       </View>
       <View key="pinnedForms" style={layout.screenRow}>
         <Text style={styles.header}>{I18n.t("formsGallery.pinnedForms")}</Text>
-        <ScrollView horizontal>
-          {pinnedForms?.map((form, i) => (
-            <Animated.View
-              key={form.objectId ?? form.tag}
-              entering={PinnedCardEntrance
-                .delay(i * 50)
-                .duration(MOTION_TOKENS.duration.base)}
-            >
-              <ModernCard
-                style={layout.cardSmallStyle}
-                onPress={() => {
-                  if (!form.tag) return navigateToCustomForm(form);
-                  return navigateToNewRecord(form.tag);
-                }}
-                onLongPress={() => removePinnedForm(form)}
+        {pinnedForms?.length > 0 ? (
+          <ScrollView horizontal>
+            {pinnedForms.map((form, i) => (
+              <Animated.View
+                key={form.objectId ?? form.tag}
+                entering={PinnedCardEntrance
+                  .delay(i * 50)
+                  .duration(MOTION_TOKENS.duration.base)}
               >
-                <View style={styles.cardContainer}>
-                  <View style={styles.textContainer}>
-                    <Text style={styles.text}>
-                      {form.customForm === false ? I18n.t(form.name) : form.name}
-                    </Text>
+                <ModernCard
+                  style={layout.cardSmallStyle}
+                  onPress={() => {
+                    if (!form.tag) return navigateToCustomForm(form);
+                    return navigateToNewRecord(form.tag);
+                  }}
+                  onLongPress={() => removePinnedForm(form)}
+                >
+                  <View style={styles.cardContainer}>
+                    <View style={styles.textContainer}>
+                      <Text style={styles.text}>
+                        {form.customForm === false ? I18n.t(form.name) : form.name}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-              </ModernCard>
-            </Animated.View>
-          ))}
-          {pinnedForms?.length < 1 && (
-            <View style={layout.screenRow}>
-              <ModernCard>
-                <View style={galleryInlineStyles.noPinnedFormsCard}>
-                  <Text>{"📌  "}{I18n.t("formsGallery.noPinnedForms")}</Text>
-                </View>
-              </ModernCard>
+                </ModernCard>
+              </Animated.View>
+            ))}
+          </ScrollView>
+        ) : (
+          // Deliberately outside the horizontal ScrollView: that scroller lays
+          // children out in unbounded horizontal space, so this Text would never
+          // wrap and would run off the right edge of the screen.
+          <ModernCard>
+            <View style={galleryInlineStyles.noPinnedFormsCard}>
+              <Text>{"📌  "}{I18n.t("formsGallery.noPinnedForms")}</Text>
             </View>
-          )}
-        </ScrollView>
+          </ModernCard>
+        )}
       </View>
       {/* ALL custom forms */}
       <View key="customForms" style={galleryInlineStyles.customFormsSection}>
