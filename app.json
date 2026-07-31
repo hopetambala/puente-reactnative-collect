@@ -67,7 +67,7 @@
         "expo-build-properties",
         {
           "android": {
-            "targetSdkVersion": 35,
+            "targetSdkVersion": 36,
             "compileSdkVersion": 36,
             "enableProguardInReleaseBuilds": true,
             "extraProguardRules": "-keep class puente.collect.** { *; }",
