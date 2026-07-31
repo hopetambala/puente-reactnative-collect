@@ -561,7 +561,9 @@
     "logoutConfirm": "Dekonekte",
     "deleteUserTitle": "Efase kont ou an?",
     "deleteUserWarning": "Sa a louvri paj jesyon kont lan nan navigatè ou, kote ou ka mande pou yo efase l. Dosye ou deja voye yo se pwopriyete òganizasyon ou an e yo pa efase ak sa.",
-    "deleteUserConfirm": "Kontinye"
+    "deleteUserConfirm": "Kontinye",
+    "unsyncedOnDevice": "%{count} dosye sere sou aparèy sa a e yo poko rive sou sèvè a",
+    "versionLabel": "Vèsyon %{version} (%{build})"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Dosye aktyèl ki estoke",
@@ -594,7 +596,10 @@
     "changePassword": "Chanje Modpas",
     "currentPassword": "Modpas Kouran",
     "newPassword": "Nouvo modpas",
-    "offlineMessage": "Ou pa gen entènèt. Chanjman sa a bezwen yon koneksyon entènèt, e li pa anrejistre."
+    "offlineMessage": "Ou pa gen entènèt. Chanjman sa a bezwen yon koneksyon entènèt, e li pa anrejistre.",
+    "confirmPassword": "Konfime nouvo modpas la",
+    "tooShort": "Nouvo modpas ou an dwe gen omwen 8 karaktè.",
+    "mismatch": "De nouvo modpas yo pa menm."
   },
   "supportHome": {
     "feedback": "Kontakte nou / Feedback",

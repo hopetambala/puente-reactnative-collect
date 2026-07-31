@@ -56,6 +56,11 @@ jest.mock('@modules/utils/animations', () => ({
 jest.mock('@app/domains/Settings/SettingsHome/AccountSettings', () => () => null);
 jest.mock('@app/domains/Settings/DevOfflineToggle', () => () => null);
 
+jest.mock('expo-application', () => ({
+  nativeApplicationVersion: '15.5.8',
+  nativeBuildVersion: '490150508',
+}));
+
 jest.mock('@modules/offline', () => jest.fn().mockResolvedValue(true));
 
 jest.mock('@modules/async-storage', () => ({
@@ -183,6 +188,44 @@ describe('SettingsHome', () => {
       confirm.onPress();
 
       expect(baseProps.logOut).toHaveBeenCalled();
+    });
+  });
+
+  describe('AS-37 app version', () => {
+    // When a promotor reports a problem over WhatsApp the first question is
+    // "which version?" -- and there was no way for them to answer.
+    it('shows the app version and build number', async () => {
+      const { getByTestId } = render(<SettingsHome {...baseProps} />);
+
+      await waitFor(() => {
+        expect(getByTestId('settings-app-version')).toBeTruthy();
+      });
+    });
+  });
+
+  describe('AS-03 unsynced record count', () => {
+    it('surfaces how many records are still only on this device', async () => {
+      getData.mockImplementation((key) =>
+        key === 'offlineIDForms' ? Promise.resolve([{ a: 1 }, { a: 2 }]) : Promise.resolve(null)
+      );
+
+      const { getByTestId } = render(<SettingsHome {...baseProps} />);
+
+      await waitFor(() => {
+        expect(getByTestId('settings-unsynced-count')).toBeTruthy();
+      });
+    });
+
+    it('says nothing when the queue is empty', async () => {
+      getData.mockResolvedValue(null);
+
+      const { queryByTestId, getByText } = render(<SettingsHome {...baseProps} />);
+
+      // Wait for the screen to settle before asserting an absence.
+      await waitFor(() => {
+        expect(getByText('accountSettings.logout')).toBeTruthy();
+      });
+      expect(queryByTestId('settings-unsynced-count')).toBeNull();
     });
   });
 

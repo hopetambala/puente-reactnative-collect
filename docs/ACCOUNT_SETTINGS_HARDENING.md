@@ -70,17 +70,17 @@ production today and can cost a promotor a day of work. M2–M4 are quality, not
 |---|---|---|---|---|---|---|---|
 | AS-01 | Confirm before logout (offline-aware) | E1 | P0 | M | 1 | ☑ | `SettingsHome/index.js:260` |
 | AS-02 | Demote Log out, promote Back | E1 | P0 | S | 1 | ☑ | `SettingsHome/index.js:260` |
-| AS-03 | Surface unsynced count | E1 | P1 | M | 2 | ☐ | new; reuse `Offline/index.js:36-38` |
+| AS-03 | Surface unsynced count | E1 | P1 | M | 2 | ☑ | new; reuse `Offline/index.js:36-38` |
 | AS-04 | Confirm Clear Cached ID Forms | E2 | P0 | S | 1 | ☑ | `OfflineData/index.js:91-96` |
 | AS-05 | Confirm Reset Onboarding | E2 | P1 | S | 1 | ☑ | `SettingsHome/index.js:240-248` |
 | AS-06 | Confirm Delete user + destructive style | E2 | P1 | S | 2 | ☑ | `SupportHome/index.js:145-151` |
 | AS-07 | Warn on Populate all ID Forms | E2 | P2 | S | 4 | ☐ | `OfflineData/index.js:57-62` |
 | AS-08 | Fix `null.length` crash | E3 | P0 | S | 1 | ☑ | `FindRecords/index.js:24` |
-| AS-09 | Offline detection on Password/Profile | E3 | P1 | M | 2 | ☐ | `Password/index.js:52`, `NamePhoneEmail/index.js:104` |
+| AS-09 | Offline detection on Password/Profile | E3 | P1 | M | 2 | ☑ | `Password/index.js:52`, `NamePhoneEmail/index.js:104` |
 | AS-10 | Rewrite shared error copy | E3 | P1 | S | 2 | ☑ | `en.json` `passwordSettings`, `namePhoneEmailSettings` |
 | AS-11 | Fix `currentReccordsStored` key | E3 | P2 | S | 4 | ☐ | `en.json` `findRecordSettings` |
 | AS-12 | `secureTextEntry` on Change Password | E4 | P0 | S | 1 | ☑ | `Password/index.js:96,105` |
-| AS-13 | Confirm-password + length validation | E4 | P1 | S | 2 | ☐ | `Password/index.js` |
+| AS-13 | Confirm-password + length validation | E4 | P1 | S | 2 | ☑ | `Password/index.js` |
 | AS-14 | Plaintext password at rest | E4 | P1 | L | 5 | ⊘ | `Password/index.js:48`, `auth.context.js` |
 | AS-15 | Cancel actually reverts | E5 | P1 | M | 3 | ☐ | `NamePhoneEmail/index.js:174-191`, `FindRecords/index.js:138-155` |
 | AS-16 | Edit fields show current value | E5 | P1 | M | 3 | ☐ | `NamePhoneEmail/index.js:35-57,169` |
@@ -96,7 +96,7 @@ production today and can cost a promotor a day of work. M2–M4 are quality, not
 | AS-26 | Migrate `index.styles.js` off legacy scale | E7 | P2 | M | 3 | ☐ | `Settings/index.styles.js:2` |
 | AS-27 | Token violations (10 rows) | E7 | P2 | S ea | 4 | ☐ | see E7 table |
 | AS-28 | Honor Calm Mode on this screen | E8 | P1 | S | 2 | ☑ | `SettingsHome/index.js:149-153,201-204,234-237` |
-| AS-29 | Stagger token not `i*40` | E8 | P2 | S | 4 | ☐ | `SettingsHome/index.js:152` |
+| AS-29 | Stagger token not `i*40` | E8 | P2 | S | 4 | ☑ | `SettingsHome/index.js:152` |
 | AS-30 | Haptics on toggles + destructive | E8 | P2 | S | 4 | ☐ | `domains/Settings/**` |
 | AS-31 | `PopupSuccess` hardcoded English | E9 | P1 | S | 2 | ☑ | `Base/PopupSuccess/index.js:54` |
 | AS-32 | Dev toggle label i18n | E9 | P3 | S | def | ⊘ | `DevOfflineToggle/index.js:50` |
@@ -104,7 +104,7 @@ production today and can cost a promotor a day of work. M2–M4 are quality, not
 | AS-34 | Group into sections | E10 | P2 | M | 4 | ☐ | `SettingsHome/index.js` |
 | AS-35 | Rename Settings "Find Records" | E10 | P2 | S | 4 | ☐ | `en.json` `accountSettings.findRecords` |
 | AS-36 | Relocate dev toggle | E10 | P3 | S | def | ⊘ | `SettingsHome/index.js:145` |
-| AS-37 | Show app version / build | E11 | P1 | S | 2 | ☐ | new; `expo-application` already a dep |
+| AS-37 | Show app version / build | E11 | P1 | S | 2 | ☑ | new; `expo-application` already a dep |
 | AS-38 | Show session identity + org | E11 | P2 | S | 4 | ☐ | new; `UserContext` |
 | **AS-01b** | **Confirm logout in the Support tab too** | **E1** | **P0** | **S** | **2** | ☑ | `SupportHome/index.js:157` |
 
@@ -572,6 +572,8 @@ a disabled state is a small delta on top of what shipped.
 **Open Decision #2 remains open** and still matters: if `offlineLogin`
 (`context/auth.context.js:75-82`) is intended to come back, AS-01's severity drops and the
 offline warning copy should soften.
+
+| 2026-07-31 | **M2 complete** | AS-03, AS-06, AS-09, AS-10, AS-13, AS-21, AS-23, AS-24, AS-25, AS-28, AS-31, AS-37, AS-01b | 13 items across three commits. Suite 392→401 tests, 60 suites, green. ESLint clean, locales in sync. Verified on simulator: Theme selector blue-tinted not lavender, chevrons blue, actions high-contrast, version row present. AS-29 (stagger token) closed opportunistically with AS-28 since it was the same expression. |
 
 ### Found during M2: a second logout entry point (AS-01b)
 

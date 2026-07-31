@@ -561,7 +561,9 @@
     "logoutConfirm": "Cerrar sesión",
     "deleteUserTitle": "¿Eliminar su cuenta?",
     "deleteUserWarning": "Esto abre la página de gestión de cuenta en su navegador, donde puede solicitar la eliminación. Los registros que ya ha enviado pertenecen a su organización y no se eliminan con esto.",
-    "deleteUserConfirm": "Continuar"
+    "deleteUserConfirm": "Continuar",
+    "unsyncedOnDevice": "%{count} registros están guardados en este dispositivo y aún no han llegado al servidor",
+    "versionLabel": "Versión %{version} (%{build})"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Registros actuales almacenados",
@@ -594,7 +596,10 @@
     "changePassword": "Cambiar la contraseña",
     "currentPassword": "Contraseña actual",
     "newPassword": "Nueva contraseña",
-    "offlineMessage": "Está sin conexión. Este cambio necesita conexión a Internet y no se ha guardado."
+    "offlineMessage": "Está sin conexión. Este cambio necesita conexión a Internet y no se ha guardado.",
+    "confirmPassword": "Confirmar nueva contraseña",
+    "tooShort": "Su nueva contraseña debe tener al menos 8 caracteres.",
+    "mismatch": "Las dos contraseñas nuevas no coinciden."
   },
   "supportHome": {
     "feedback": "Contáctenos / Comentarios",
