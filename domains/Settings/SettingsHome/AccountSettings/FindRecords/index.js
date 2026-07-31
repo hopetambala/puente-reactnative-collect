@@ -20,8 +20,11 @@ function FindRecords() {
       const storedLimit = await getData("findRecordsLimit");
       const currentLimit =
         storedLimit === null || storedLimit === undefined ? 2000 : storedLimit;
+      // getData returns null for a key that was never written -- on a fresh
+      // install, or after "Clear Cached ID Forms". Without the guard this throws
+      // and the whole screen renders empty.
       const residentData = await getData("residentData");
-      const residentDataCount = residentData.length;
+      const residentDataCount = residentData?.length ?? 0;
 
       setCurrentData({
         currentLimit,

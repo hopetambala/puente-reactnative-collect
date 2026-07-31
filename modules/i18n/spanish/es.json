@@ -20,7 +20,8 @@
     "pleaseTryAgain": "Inténtalo de nuevo",
     "loadMore": "Cargar más",
     "settings": "Configuración",
-    "tryAgain": "Intentar de nuevo"
+    "tryAgain": "Intentar de nuevo",
+    "cancel": "Cancelar"
   },
   "signUp": {
     "firstName": "Nombre de verdadero",
@@ -544,7 +545,19 @@
     "deleteUser": "¿Eliminar usuario?",
     "populateIdForms": "Poblar todos los formularios de ID",
     "clearCachedIdForms": "Borrar formularios de ID en caché",
-    "resetOnboarding": "Reiniciar incorporación"
+    "resetOnboarding": "Reiniciar incorporación",
+    "clearCacheTitle": "¿Borrar los registros en caché?",
+    "clearCacheWarning": "Esto elimina %{count} registros de residentes guardados en este dispositivo. La búsqueda sin conexión quedará vacía hasta que reconstruya el caché, lo cual requiere conexión a Internet.",
+    "clearCacheConfirm": "Borrar caché",
+    "clearCacheDone": "Registros en caché borrados.",
+    "resetOnboardingTitle": "¿Reiniciar la incorporación?",
+    "resetOnboardingWarning": "El tutorial se mostrará de nuevo la próxima vez que abra la aplicación. Sus registros guardados no se ven afectados.",
+    "resetOnboardingConfirm": "Reiniciar",
+    "logoutTitle": "¿Cerrar sesión?",
+    "logoutMessage": "Necesitará su usuario y contraseña para volver a entrar.",
+    "logoutOfflineWarning": "Está sin conexión. NO podrá volver a iniciar sesión hasta que este dispositivo tenga conexión a Internet.",
+    "logoutUnsyncedWarning": "%{count} registros están guardados en este dispositivo y aún no han llegado al servidor. Permanecerán en el dispositivo, pero no podrá sincronizarlos hasta que vuelva a iniciar sesión.",
+    "logoutConfirm": "Cerrar sesión"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Registros actuales almacenados",

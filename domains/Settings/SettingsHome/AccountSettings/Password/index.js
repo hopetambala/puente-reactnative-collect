@@ -95,6 +95,7 @@ function Password() {
         </Text>
         <TextInput
           mode="outlined"
+          secureTextEntry
           onChangeText={(text) => setCurrentState(text)}
         />
       </View>
@@ -102,7 +103,11 @@ function Password() {
         <Text style={styles.text}>
           {I18n.t("passwordSettings.newPassword")}
         </Text>
-        <TextInput mode="outlined" onChangeText={(text) => setNewState(text)} />
+        <TextInput
+          mode="outlined"
+          secureTextEntry
+          onChangeText={(text) => setNewState(text)}
+        />
       </View>
       {submitting ? (
         <ActivityIndicator size="large" color={theme.colors.primary} />

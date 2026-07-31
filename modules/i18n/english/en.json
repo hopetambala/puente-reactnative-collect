@@ -20,7 +20,8 @@
     "pleaseTryAgain": "Please, try again",
     "loadMore": "Load More",
     "settings": "Settings",
-    "tryAgain": "Try Again"
+    "tryAgain": "Try Again",
+    "cancel": "Cancel"
   },
   "signUp": {
     "firstName": "First Name",
@@ -544,7 +545,19 @@
     "deleteUser": "Delete user?",
     "populateIdForms": "Populate all ID Forms",
     "clearCachedIdForms": "Clear Cached ID Forms",
-    "resetOnboarding": "Reset Onboarding"
+    "resetOnboarding": "Reset Onboarding",
+    "clearCacheTitle": "Clear cached records?",
+    "clearCacheWarning": "This deletes %{count} resident records saved on this device. Offline search will be empty until you rebuild the cache, which needs an internet connection.",
+    "clearCacheConfirm": "Clear cache",
+    "clearCacheDone": "Cached records cleared.",
+    "resetOnboardingTitle": "Reset onboarding?",
+    "resetOnboardingWarning": "The tutorial will show again next time you open the app. Your saved records are not affected.",
+    "resetOnboardingConfirm": "Reset",
+    "logoutTitle": "Log out?",
+    "logoutMessage": "You will need your username and password to log back in.",
+    "logoutOfflineWarning": "You are offline. You will NOT be able to log back in until this device has an internet connection.",
+    "logoutUnsyncedWarning": "%{count} records are saved on this device and have not reached the server yet. They will stay on the device, but you cannot sync them until you log back in.",
+    "logoutConfirm": "Log out"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Current records stored",
