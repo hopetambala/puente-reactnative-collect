@@ -561,7 +561,9 @@
     "logoutConfirm": "Log out",
     "deleteUserTitle": "Delete your account?",
     "deleteUserWarning": "This opens the account management page in your browser, where you can request deletion. Records you have already submitted belong to your organization and are not removed by this.",
-    "deleteUserConfirm": "Continue"
+    "deleteUserConfirm": "Continue",
+    "unsyncedOnDevice": "%{count} records are saved on this device and have not reached the server yet",
+    "versionLabel": "Version %{version} (%{build})"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Current records stored",
@@ -594,7 +596,10 @@
     "changePassword": "Change Password",
     "currentPassword": "Current Password",
     "newPassword": "New Password",
-    "offlineMessage": "You are offline. This change needs an internet connection, and has not been saved."
+    "offlineMessage": "You are offline. This change needs an internet connection, and has not been saved.",
+    "confirmPassword": "Confirm New Password",
+    "tooShort": "Your new password must be at least 8 characters.",
+    "mismatch": "The two new passwords do not match."
   },
   "supportHome": {
     "feedback": "Contact us / Feedback",

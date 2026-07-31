@@ -9,9 +9,11 @@
  */
 
 import Password from '@app/domains/Settings/SettingsHome/AccountSettings/Password';
-import { render } from '@testing-library/react-native';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import React from 'react';
-import { TextInput } from 'react-native';
+import { Alert, TextInput } from 'react-native';
+
+jest.mock('@modules/offline', () => jest.fn().mockResolvedValue(true));
 
 jest.mock('@modules/i18n', () => ({ t: (key) => key }));
 
@@ -29,13 +31,19 @@ jest.mock('@modules/async-storage', () => ({
 }));
 
 jest.mock('parse/react-native', () => ({
-  User: { logIn: jest.fn().mockResolvedValue({ save: jest.fn() }), current: jest.fn() },
-  Query: jest.fn().mockImplementation(() => ({
-    equalTo: jest.fn().mockReturnThis(),
-    limit: jest.fn().mockReturnThis(),
-    find: jest.fn().mockResolvedValue([]),
-  })),
+  Parse: {
+    User: {
+      logIn: jest.fn().mockResolvedValue({
+        set: jest.fn(),
+        save: jest.fn().mockResolvedValue(undefined),
+      }),
+      current: jest.fn(),
+    },
+  },
 }));
+
+const checkOnlineStatus = require('@modules/offline');
+const { Parse } = require('parse/react-native');
 
 jest.mock('react-native-paper', () => {
   // eslint-disable-next-line global-require
@@ -53,6 +61,78 @@ jest.mock('react-native-paper', () => {
 });
 
 describe('Change Password settings', () => {
+  let alertSpy;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    checkOnlineStatus.mockResolvedValue(true);
+    alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    alertSpy.mockRestore();
+  });
+
+  describe('AS-09 offline honesty', () => {
+    // Parse.User.logIn is a full network round trip. Offline it rejected into a
+    // generic modal that guessed at the cause. Detect first, and say so.
+    it('does not attempt a network round trip while offline', async () => {
+      checkOnlineStatus.mockResolvedValue(false);
+      const { getByTestId } = render(<Password />);
+
+      fireEvent.press(getByTestId('password-submit'));
+
+      await waitFor(() => {
+        expect(alertSpy).toHaveBeenCalled();
+      });
+      expect(Parse.User.logIn).not.toHaveBeenCalled();
+    });
+
+    it('tells the user they are offline rather than guessing at the cause', async () => {
+      checkOnlineStatus.mockResolvedValue(false);
+      const { getByTestId } = render(<Password />);
+
+      fireEvent.press(getByTestId('password-submit'));
+
+      await waitFor(() => {
+        expect(alertSpy).toHaveBeenCalled();
+      });
+      expect(alertSpy.mock.calls[0][1]).toBe('passwordSettings.offlineMessage');
+    });
+  });
+
+  describe('AS-13 validation', () => {
+    it('rejects a new password shorter than the minimum', async () => {
+      const { getByTestId } = render(<Password />);
+
+      fireEvent.changeText(getByTestId('password-current'), 'test');
+      fireEvent.changeText(getByTestId('password-new'), 'ab');
+      fireEvent.changeText(getByTestId('password-confirm'), 'ab');
+      fireEvent.press(getByTestId('password-submit'));
+
+      await waitFor(() => {
+        expect(alertSpy).toHaveBeenCalled();
+      });
+      expect(alertSpy.mock.calls[0][1]).toBe('passwordSettings.tooShort');
+      expect(Parse.User.logIn).not.toHaveBeenCalled();
+    });
+
+    it('rejects when the confirmation does not match', async () => {
+      const { getByTestId } = render(<Password />);
+
+      fireEvent.changeText(getByTestId('password-current'), 'test');
+      fireEvent.changeText(getByTestId('password-new'), 'longenough1');
+      fireEvent.changeText(getByTestId('password-confirm'), 'longenough2');
+      fireEvent.press(getByTestId('password-submit'));
+
+      await waitFor(() => {
+        expect(alertSpy).toHaveBeenCalled();
+      });
+      expect(alertSpy.mock.calls[0][1]).toBe('passwordSettings.mismatch');
+      expect(Parse.User.logIn).not.toHaveBeenCalled();
+    });
+  });
+
   it('masks every password field', () => {
     // eslint-disable-next-line camelcase
     const { UNSAFE_getAllByType } = render(<Password />);

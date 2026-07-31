@@ -1,5 +1,6 @@
 import { getData, storeData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
+import checkOnlineStatus from "@modules/offline";
 import { Parse } from "parse/react-native";
 import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
@@ -92,6 +93,22 @@ function NamePhoneEmail() {
 
   const updateUser = async () => {
     setSubmitting(true);
+
+    // Saving here is a full network round trip (Parse.User.logIn below). Detect
+    // the offline case first and name it, rather than letting the request reject
+    // into a generic modal. The typed values stay in userObject either way.
+    const online = await checkOnlineStatus();
+    if (!online) {
+      setSubmitting(false);
+      Alert.alert(
+        I18n.t("global.error"),
+        I18n.t("namePhoneEmailSettings.offlineMessage"),
+        [{ text: I18n.t("global.ok") }],
+        { cancelable: true }
+      );
+      return;
+    }
+
     const postParams = {
       objectId,
       firstname: userObject.firstName,
@@ -199,7 +216,9 @@ function NamePhoneEmail() {
       {submitting ? (
         <ActivityIndicator size="large" color={theme.colors.primary} />
       ) : (
-        <Button onPress={() => updateUser()}>{I18n.t("global.submit")}</Button>
+        <Button testID="profile-submit" onPress={() => updateUser()}>
+          {I18n.t("global.submit")}
+        </Button>
       )}
     </View>
   );
