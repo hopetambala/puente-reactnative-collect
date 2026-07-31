@@ -21,27 +21,49 @@ import { getTokens } from '@modules/theme/tokens'
 const t = getTokens('light')
 ```
 
-| Category | Token path |
-|---|---|
-| Text color | `t.semantic.color.text.{primary,secondary,tertiary,onPrimary,onBrand}` |
-| Surface/background | `t.semantic.color.surface.{base,raised,sunken,overlay}` |
-| Action color | `t.semantic.color.action.{primary,secondary}` |
-| Feedback | `t.semantic.color.feedback.{success,danger,warning,info}` |
-| Border / muted | `t.semantic.color.{border,muted}` |
-| Spacing | `t.semantic.spacing.{xxxs,xxs,xs,sm,md,lg,xl,xxl,xxxl}` |
-| Border radius | `t.semantic.borderRadius.{sm,md,lg,full}` |
-| Elevation | `t.semantic.elevation.{low,medium,high}` |
-| Typography | `t.semantic.typography.size.*` |
+The token object is **flat camelCase**. There is no nested `t.semantic.*` path —
+that resolves to `undefined`, which React Native drops silently.
 
-Use **semantic** tokens always. Drop to primitive only when no semantic token fits — and flag it if you do.
+| Category | Token name |
+|---|---|
+| Text color | `t.tkDliteSemanticColorText{Primary,Secondary,Tertiary,OnPrimary,OnBrand}` |
+| Surface | `t.tkDliteSemanticColorSurface{Base,Raised,Sunken,Overlay}` |
+| Background / foreground | `t.tkDliteSemanticColor{Background,Foreground}` |
+| Action color | `t.tkDliteSemanticColorAction{Primary,PrimaryActive,Secondary,SecondaryActive}` |
+| Feedback | `t.tkDliteSemanticColorFeedback{Success,Warning,Danger,Info}` |
+| Border / muted / brand | `t.tkDliteSemanticColor{Border,Muted,Brand}` |
+| Spacing (prefer numeric) | `t.tkDliteSemanticSpacing{100..1000}` — 100=4, 400=16, 600=24 |
+| Spacing (aliases) | `t.tkDliteSemanticSpacing{Xxxs,Xxs,Xs,Sm,Md,Lg,Xl,Xxl,Xxxl}` |
+| Border radius | `t.tkDliteSemanticBorderRadius{None,Sm,Md,Lg,Full}` — **not** `Medium` |
+| Typography size | `t.tkDliteSemanticTypographySize{100..1100}` — no named aliases |
+| Elevation | CSS shadow **strings** — do not use in RN styles; use `modules/theme/shadows.js` |
+
+Inside a component, prefer `useTheme()` from react-native-paper for colors — its
+`colors.*` palette maps to these tokens and is theme-reactive. A module-scope
+`getTokens('light')` never switches to dark, so it is safe for spacing and radius
+only, never for color.
+
+Use **semantic** tokens always. Drop to `tkDlitePrimitive*` only when no semantic
+token fits — and flag it if you do.
+
+**Verify names against the real package, not the mock.**
+`__mocks__/styleDictionaryTokens.js` ships names that do not exist upstream, so a
+green test does not prove a token resolves:
+
+```bash
+node -e "const t=require('./node_modules/style-dictionary-dlite-tokens/dist/rn/puente/default/index.js');console.log(Object.keys(t.light).join('\n'))" | grep -i radius
+```
 
 ## Violations you must catch and fix
 
-1. **Raw hex colors** — `#RGB` or `#RRGGBB` in StyleSheet → replace with `t.semantic.color.*`
-2. **rgba/rgb values** — `rgba(...)` or `rgb(...)` → replace with `t.semantic.color.*`
-3. **Magic numeric spacing** — bare numbers on `padding`, `margin`, `gap` properties → `t.semantic.spacing.*`
-4. **Hardcoded borderRadius** — bare numbers on `borderRadius` → `t.semantic.borderRadius.*`
+1. **Raw hex colors** — `#RGB` or `#RRGGBB` in StyleSheet → `t.tkDliteSemanticColor*` or `colors.*` from `useTheme()`
+2. **rgba/rgb values** — `rgba(...)` or `rgb(...)` → `t.tkDliteSemanticColor*`
+3. **Magic numeric spacing** — bare numbers on `padding`, `margin`, `gap` properties → `t.tkDliteSemanticSpacing{100..1000}`
+4. **Hardcoded borderRadius** — bare numbers on `borderRadius` → `t.tkDliteSemanticBorderRadius{Sm,Md,Lg,Full}`
 5. **Static inline style objects** with fixed values → move to StyleSheet using tokens (exception: genuinely dynamic values like `{ width: pct }`)
+6. **Non-existent token names** — e.g. `tkDliteSemanticBorderRadiusMedium`, `tkDliteSemanticColorSurface` → resolve against the real package and correct
+7. **Colors set from a module-scope `getTokens('light')`** — a dark-mode bug; move into a StyleSheet factory or take the color from `useTheme()`
+8. **New imports of the legacy scales** — `modules/theme/spacing.js`, `typography.js`, `colors/` shadow dlite with different values
 
 ## Files to skip
 
