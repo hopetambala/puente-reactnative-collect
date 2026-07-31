@@ -557,7 +557,10 @@
     "logoutMessage": "W ap bezwen non itilizatè ou ak modpas ou pou konekte ankò.",
     "logoutOfflineWarning": "Ou pa gen entènèt. Ou p ap KAPAB konekte ankò jiskaske aparèy sa a gen yon koneksyon entènèt.",
     "logoutUnsyncedWarning": "%{count} dosye sere sou aparèy sa a e yo poko rive sou sèvè a. Y ap rete sou aparèy la, men ou p ap kapab senkronize yo jiskaske ou konekte ankò.",
-    "logoutConfirm": "Dekonekte"
+    "logoutConfirm": "Dekonekte",
+    "deleteUserTitle": "Efase kont ou an?",
+    "deleteUserWarning": "Sa a louvri paj jesyon kont lan nan navigatè ou, kote ou ka mande pou yo efase l. Dosye ou deja voye yo se pwopriyete òganizasyon ou an e yo pa efase ak sa.",
+    "deleteUserConfirm": "Kontinye"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Dosye aktyèl ki estoke",

@@ -28,6 +28,16 @@ const baseTokens = {
   tkDliteSemanticColorSurface: '#FFFFFF',
   tkDliteSemanticColorSurfaceInverse: '#1C1C1E',
 
+  // Real values from style-dictionary-dlite-tokens/dist/rn/puente/default.
+  // Keep these in sync with the package -- a mock that invents colour values
+  // makes any contrast assertion meaningless.
+  tkDliteSemanticColorBackground: '#f7f7f7',
+  tkDliteSemanticColorSurfaceBase: '#ffffff',
+  tkDliteSemanticColorSurfaceRaised: '#ffffff',
+  tkDliteSemanticColorActionPrimary: '#3d80fc',
+  tkDliteSemanticColorActionPrimaryActive: '#0a46b6',
+  tkDlitePrimitiveColorBlue100: '#ebf2ff',
+
   // Semantic spacing (matches real token values)
   tkDliteSemanticSpacing100: 4,
   tkDliteSemanticSpacing200: 8,

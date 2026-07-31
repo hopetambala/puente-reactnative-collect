@@ -1,12 +1,11 @@
 import DevOfflineToggle from "@app/domains/Settings/DevOfflineToggle";
 import { ThemeContext } from "@context/theme.context";
-import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
-import checkOnlineStatus from "@modules/offline";
 import { clearOnboardingData } from "@modules/settings";
+import { confirmLogout } from "@modules/settings/confirmLogout";
 import { spacing, typography } from "@modules/theme";
 import { useAccessibilityContext } from "@modules/theme/useAccessibilityContext";
-import { MOTION_TOKENS } from "@modules/utils/animations";
+import { MOTION_TOKENS, useMotion } from "@modules/utils/animations";
 import React, { useContext, useMemo, useState } from "react";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import {
@@ -74,6 +73,17 @@ function SettingsHome({
   const styles = useMemo(() => createSettingsStyles(paperTheme), [paperTheme]);
   const [accountSettingsView, setAccountSettingsView] = useState("");
 
+  // useMotion is the single control point for reduce-motion and Calm Mode
+  // (modules/utils/animations.js:589). This screen hosts the Calm Mode toggle,
+  // so it is the last place that should ignore it.
+  const motion = useMotion({ componentType: "navigation" });
+  const rowEntering = (index) =>
+    (motion.shouldAnimate
+      ? RowEntrance.delay(index * MOTION_TOKENS.STAGGER_DELAY).duration(
+          motion.duration
+        )
+      : undefined);
+
   const handleThemeChange = (newMode) => {
     if (themeContext) {
       themeContext.setMode(newMode);
@@ -105,57 +115,7 @@ function SettingsHome({
     );
   };
 
-  // Mirrors the queue tally in domains/Offline/index.js:26-40 -- same four keys,
-  // same null-safety. Logging out does not delete these, but it does make them
-  // unreachable until the user can log back in.
-  const countUnsyncedRecords = async () => {
-    const [idForms, supForms, assetIdForms, assetSupForms] = await Promise.all([
-      getData("offlineIDForms"),
-      getData("offlineSupForms"),
-      getData("offlineAssetIDForms"),
-      getData("offlineAssetSupForms"),
-    ]);
-    return (
-      (idForms?.length ?? 0) +
-      (supForms?.length ?? 0) +
-      (assetIdForms?.length ?? 0) +
-      (assetSupForms?.length ?? 0)
-    );
-  };
-
-  // Offline login is disabled (context/auth.context.js:75-82), so logging out
-  // without a connection strands the user until they find one. Say so plainly,
-  // and name any work that is still only on this device.
-  const handleLogout = async () => {
-    const [online, unsyncedCount] = await Promise.all([
-      checkOnlineStatus(),
-      countUnsyncedRecords(),
-    ]);
-
-    const message = [I18n.t("accountSettings.logoutMessage")];
-    if (!online) {
-      message.push(I18n.t("accountSettings.logoutOfflineWarning"));
-    }
-    if (unsyncedCount > 0) {
-      message.push(
-        I18n.t("accountSettings.logoutUnsyncedWarning", { count: unsyncedCount })
-      );
-    }
-
-    Alert.alert(
-      I18n.t("accountSettings.logoutTitle"),
-      message.join("\n\n"),
-      [
-        { text: I18n.t("global.cancel"), style: "cancel" },
-        {
-          text: I18n.t("accountSettings.logoutConfirm"),
-          style: "destructive",
-          onPress: logOut,
-        },
-      ],
-      { cancelable: true }
-    );
-  };
+  const handleLogout = () => confirmLogout(logOut);
 
   const inputs = [
     {
@@ -216,9 +176,7 @@ function SettingsHome({
               inputs.map((input, i) => (
                 <Animated.View
                   key={input.key}
-                  entering={RowEntrance
-                    .delay(i * 40)
-                    .duration(MOTION_TOKENS.duration.base)}
+                  entering={rowEntering(i)}
                 >
                   {input.key === "Theme" ? (
                     <View style={settingsStyles.themeContainer}>
@@ -249,7 +207,7 @@ function SettingsHome({
                         <IconButton
                           icon="chevron-right"
                           size={30}
-                          color={paperTheme.colors.primary}
+                          iconColor={paperTheme.colors.primary}
                           style={{
                             marginLeft: "auto",
                             marginTop: -5,
@@ -267,9 +225,7 @@ function SettingsHome({
               ))}
             {/* Calm Mode Toggle */}
             <Animated.View
-              entering={RowEntrance
-                .delay(inputs.length * 40)
-                .duration(MOTION_TOKENS.duration.base)}
+              entering={rowEntering(inputs.length)}
             >
               <View style={settingsStyles.themeContainer}>
                 <Text style={settingsStyles.themeLabel}>
@@ -300,9 +256,7 @@ function SettingsHome({
             </Animated.View>
             {/* Reset Onboarding */}
             <Animated.View
-              entering={RowEntrance
-                .delay((inputs.length + 1) * 40)
-                .duration(MOTION_TOKENS.duration.base)}
+              entering={rowEntering(inputs.length + 1)}
             >
               <View style={settingsStyles.themeContainer}>
                 <Button

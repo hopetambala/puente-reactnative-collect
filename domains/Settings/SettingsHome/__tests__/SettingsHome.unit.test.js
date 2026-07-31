@@ -44,7 +44,13 @@ jest.mock('@modules/theme/useAccessibilityContext', () => ({
 }));
 
 jest.mock('@modules/utils/animations', () => ({
-  MOTION_TOKENS: { duration: { base: 200 }, STAGGER_DELAY: 50 },
+  MOTION_TOKENS: { duration: { base: 200, instant: 0 }, STAGGER_DELAY: 50 },
+  useMotion: jest.fn(() => ({
+    shouldAnimate: true,
+    duration: 200,
+    spring: null,
+    resolveSpring: () => null,
+  })),
 }));
 
 jest.mock('@app/domains/Settings/SettingsHome/AccountSettings', () => () => null);
@@ -82,6 +88,7 @@ jest.mock('react-native-paper', () => {
 const checkOnlineStatus = require('@modules/offline');
 const { clearOnboardingData } = require('@modules/settings');
 const { getData } = require('@modules/async-storage');
+const { useMotion } = require('@modules/utils/animations');
 
 const baseProps = {
   logOut: jest.fn(),
@@ -176,6 +183,31 @@ describe('SettingsHome', () => {
       confirm.onPress();
 
       expect(baseProps.logOut).toHaveBeenCalled();
+    });
+  });
+
+  describe('AS-28 Calm Mode', () => {
+    // useMotion is the single control point for reduce-motion and Calm Mode
+    // (modules/utils/animations.js:589). RowEntrance ran unconditionally, so the
+    // one screen that hosts the Calm Mode toggle was the one screen ignoring it.
+    it('consults useMotion so Calm Mode is honoured on this screen', () => {
+      render(<SettingsHome {...baseProps} />);
+
+      expect(useMotion).toHaveBeenCalled();
+    });
+
+    it('still renders every row when motion is suppressed', () => {
+      useMotion.mockReturnValueOnce({
+        shouldAnimate: false,
+        duration: 0,
+        spring: null,
+        resolveSpring: () => null,
+      });
+
+      const { getByText } = render(<SettingsHome {...baseProps} />);
+
+      expect(getByText('accountSettings.changePassword')).toBeTruthy();
+      expect(getByText('accountSettings.logout')).toBeTruthy();
     });
   });
 
