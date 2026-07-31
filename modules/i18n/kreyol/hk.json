@@ -21,7 +21,8 @@
     "loadMore": "Chaje plis",
     "settings": "Paramèt",
     "tryAgain": "Eseye ankò",
-    "cancel": "Anile"
+    "cancel": "Anile",
+    "recordsStoredOnDevice": "%{count} dosye sere sou aparèy sa a"
   },
   "signUp": {
     "firstName": "Non",
@@ -575,7 +576,7 @@
     "chooseLanguage": "Chwazi Lang"
   },
   "namePhoneEmailSettings": {
-    "errorMessage": "Te gen yon erè nan pwosesis demann ou an. Pwoblèm ki komen yo enkli fòma imèl kòrèk oswa pa gen okenn koneksyon entènèt. Tanpri eseye ankò epi kontakte sipèvizè ou a si pwoblèm nan pèsiste.",
+    "errorMessage": "Nou pa t kapab anrejistre chanjman ou yo. Tanpri eseye ankò, epi kontakte sipèvizè ou si pwoblèm nan kontinye.",
     "successMessage": "Ou te mete ajou kont ou.",
     "userInformation": {
       "fname": "Premye Non",
@@ -583,15 +584,17 @@
       "phoneNumber": "Nimewo telefòn",
       "email": "Imèl"
     },
-    "namePhoneEmail": "Non, Telefòn, Imèl"
+    "namePhoneEmail": "Non, Telefòn, Imèl",
+    "offlineMessage": "Ou pa gen entènèt. Chanjman sa a bezwen yon koneksyon entènèt, e li pa anrejistre."
   },
   "passwordSettings": {
     "wrongCreds": "Modpas ou ye kounye a pa kòrèk. Tanpri eseye ankò.",
-    "errorMessage": "Te gen yon erè nan pwosesis demann ou an. Pwoblèm ki komen yo enkli pa gen okenn koneksyon entènèt oswa modpas ki pa kòrèk. Tanpri eseye ankò epi kontakte sipèvizè ou a si pwoblèm nan pèsiste.",
+    "errorMessage": "Nou pa t kapab chanje modpas ou. Tanpri eseye ankò, epi kontakte sipèvizè ou si pwoblèm nan kontinye.",
     "successMessage": "Ou mete modpas ou ajou.",
     "changePassword": "Chanje Modpas",
     "currentPassword": "Modpas Kouran",
-    "newPassword": "Nouvo modpas"
+    "newPassword": "Nouvo modpas",
+    "offlineMessage": "Ou pa gen entènèt. Chanjman sa a bezwen yon koneksyon entènèt, e li pa anrejistre."
   },
   "supportHome": {
     "feedback": "Kontakte nou / Feedback",

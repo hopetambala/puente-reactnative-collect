@@ -77,7 +77,7 @@ production today and can cost a promotor a day of work. M2–M4 are quality, not
 | AS-07 | Warn on Populate all ID Forms | E2 | P2 | S | 4 | ☐ | `OfflineData/index.js:57-62` |
 | AS-08 | Fix `null.length` crash | E3 | P0 | S | 1 | ☑ | `FindRecords/index.js:24` |
 | AS-09 | Offline detection on Password/Profile | E3 | P1 | M | 2 | ☐ | `Password/index.js:52`, `NamePhoneEmail/index.js:104` |
-| AS-10 | Rewrite shared error copy | E3 | P1 | S | 2 | ☐ | `en.json` `passwordSettings`, `namePhoneEmailSettings` |
+| AS-10 | Rewrite shared error copy | E3 | P1 | S | 2 | ☑ | `en.json` `passwordSettings`, `namePhoneEmailSettings` |
 | AS-11 | Fix `currentReccordsStored` key | E3 | P2 | S | 4 | ☐ | `en.json` `findRecordSettings` |
 | AS-12 | `secureTextEntry` on Change Password | E4 | P0 | S | 1 | ☑ | `Password/index.js:96,105` |
 | AS-13 | Confirm-password + length validation | E4 | P1 | S | 2 | ☐ | `Password/index.js` |
@@ -98,7 +98,7 @@ production today and can cost a promotor a day of work. M2–M4 are quality, not
 | AS-28 | Honor Calm Mode on this screen | E8 | P1 | S | 2 | ☑ | `SettingsHome/index.js:149-153,201-204,234-237` |
 | AS-29 | Stagger token not `i*40` | E8 | P2 | S | 4 | ☐ | `SettingsHome/index.js:152` |
 | AS-30 | Haptics on toggles + destructive | E8 | P2 | S | 4 | ☐ | `domains/Settings/**` |
-| AS-31 | `PopupSuccess` hardcoded English | E9 | P1 | S | 2 | ☐ | `Base/PopupSuccess/index.js:54` |
+| AS-31 | `PopupSuccess` hardcoded English | E9 | P1 | S | 2 | ☑ | `Base/PopupSuccess/index.js:54` |
 | AS-32 | Dev toggle label i18n | E9 | P3 | S | def | ⊘ | `DevOfflineToggle/index.js:50` |
 | AS-33 | `"Delete user?"` → verb label | E9 | P2 | S | 4 | ☐ | `en.json` `accountSettings.deleteUser` |
 | AS-34 | Group into sections | E10 | P2 | M | 4 | ☐ | `SettingsHome/index.js` |
