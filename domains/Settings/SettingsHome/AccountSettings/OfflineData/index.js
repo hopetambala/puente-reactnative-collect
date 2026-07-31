@@ -11,7 +11,7 @@ import { createLayoutStyles } from "@modules/theme";
 import { Formik } from "formik";
 import _ from "lodash";
 import React, { useContext, useEffect, useState } from "react";
-import { Keyboard, TouchableWithoutFeedback, View } from "react-native";
+import { Alert, Keyboard, TouchableWithoutFeedback, View } from "react-native";
 import { useTheme } from "react-native-paper";
 
 import configArray from "./config/config";
@@ -37,6 +37,35 @@ function OfflineData({
       setSubmittedForms(records.length);
       setCacheSuccess(true);
     });
+
+  // Clearing the cache is destructive and only recoverable with a connection --
+  // rebuilding runs populateResidentDataCache(). Name the cost before doing it.
+  const confirmClearCachedForms = async () => {
+    const cached = await getData("residentData");
+    const count = cached?.length ?? 0;
+
+    Alert.alert(
+      I18n.t("accountSettings.clearCacheTitle"),
+      I18n.t("accountSettings.clearCacheWarning", { count }),
+      [
+        { text: I18n.t("global.cancel"), style: "cancel" },
+        {
+          text: I18n.t("accountSettings.clearCacheConfirm"),
+          style: "destructive",
+          onPress: async () => {
+            await deleteData("residentData");
+            Alert.alert(
+              I18n.t("global.success"),
+              I18n.t("accountSettings.clearCacheDone"),
+              [{ text: I18n.t("global.ok") }],
+              { cancelable: true }
+            );
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   return (
     <View>
@@ -89,7 +118,7 @@ function OfflineData({
                 }}
               />
               <PaperButton
-                onPress={() => deleteData("residentData")}
+                onPress={confirmClearCachedForms}
                 buttonText={I18n.t("accountSettings.clearCachedIdForms")}
                 icon="delete"
                 style={{ backgroundColor: theme.colors.error }}

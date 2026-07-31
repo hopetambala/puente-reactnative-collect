@@ -68,18 +68,18 @@ production today and can cost a promotor a day of work. M2–M4 are quality, not
 
 | ID | Item | Epic | P | Effort | M | Status | Primary file:line |
 |---|---|---|---|---|---|---|---|
-| AS-01 | Confirm before logout (offline-aware) | E1 | P0 | M | 1 | ☐ | `SettingsHome/index.js:260` |
-| AS-02 | Demote Log out, promote Back | E1 | P0 | S | 1 | ☐ | `SettingsHome/index.js:260` |
+| AS-01 | Confirm before logout (offline-aware) | E1 | P0 | M | 1 | ☑ | `SettingsHome/index.js:260` |
+| AS-02 | Demote Log out, promote Back | E1 | P0 | S | 1 | ☑ | `SettingsHome/index.js:260` |
 | AS-03 | Surface unsynced count | E1 | P1 | M | 2 | ☐ | new; reuse `Offline/index.js:36-38` |
-| AS-04 | Confirm Clear Cached ID Forms | E2 | P0 | S | 1 | ☐ | `OfflineData/index.js:91-96` |
-| AS-05 | Confirm Reset Onboarding | E2 | P1 | S | 1 | ☐ | `SettingsHome/index.js:240-248` |
+| AS-04 | Confirm Clear Cached ID Forms | E2 | P0 | S | 1 | ☑ | `OfflineData/index.js:91-96` |
+| AS-05 | Confirm Reset Onboarding | E2 | P1 | S | 1 | ☑ | `SettingsHome/index.js:240-248` |
 | AS-06 | Confirm Delete user + destructive style | E2 | P1 | S | 2 | ☐ | `SupportHome/index.js:145-151` |
 | AS-07 | Warn on Populate all ID Forms | E2 | P2 | S | 4 | ☐ | `OfflineData/index.js:57-62` |
-| AS-08 | Fix `null.length` crash | E3 | P0 | S | 1 | ☐ | `FindRecords/index.js:24` |
+| AS-08 | Fix `null.length` crash | E3 | P0 | S | 1 | ☑ | `FindRecords/index.js:24` |
 | AS-09 | Offline detection on Password/Profile | E3 | P1 | M | 2 | ☐ | `Password/index.js:52`, `NamePhoneEmail/index.js:104` |
 | AS-10 | Rewrite shared error copy | E3 | P1 | S | 2 | ☐ | `en.json` `passwordSettings`, `namePhoneEmailSettings` |
 | AS-11 | Fix `currentReccordsStored` key | E3 | P2 | S | 4 | ☐ | `en.json` `findRecordSettings` |
-| AS-12 | `secureTextEntry` on Change Password | E4 | P0 | S | 1 | ☐ | `Password/index.js:96,105` |
+| AS-12 | `secureTextEntry` on Change Password | E4 | P0 | S | 1 | ☑ | `Password/index.js:96,105` |
 | AS-13 | Confirm-password + length validation | E4 | P1 | S | 2 | ☐ | `Password/index.js` |
 | AS-14 | Plaintext password at rest | E4 | P1 | L | 5 | ⊘ | `Password/index.js:48`, `auth.context.js` |
 | AS-15 | Cancel actually reverts | E5 | P1 | M | 3 | ☐ | `NamePhoneEmail/index.js:174-191`, `FindRecords/index.js:138-155` |
@@ -558,3 +558,16 @@ repo and a doorstep in the DR is the largest source of confident wrongness avail
 | Date | Milestone | Items closed | Notes |
 |---|---|---|---|
 | 2026-07-31 | — | — | Backlog + roadmap created from read-only audit |
+| 2026-07-31 | **M1 complete** | AS-01, AS-02, AS-04, AS-05, AS-08, AS-12 | All six via red-green-tdd, each test seen failing first. Suite 52→56 suites, 369→381 tests, green. ESLint clean. All new copy in `en`/`es`/`hk`, `lint:locale-sync` reports 0 missing. Logout dialog verified on iPhone 16 simulator (`.claude/screenshots/m1-logout-confirm.png`). No Maestro flow taps these controls, so none needed updating. **Open Decision #1 resolved as hard-warn, not block** — see note below. |
+
+### Decision taken during M1
+
+**Open Decision #1 — hard-warn, not block.** AS-01 warns and requires confirmation when
+offline; it does not prevent logout. Rationale: warning adds information without removing
+capability, and if a device is genuinely shared or handed off mid-shift, blocking would be
+the wrong behavior. If field practice says otherwise, converting the destructive button to
+a disabled state is a small delta on top of what shipped.
+
+**Open Decision #2 remains open** and still matters: if `offlineLogin`
+(`context/auth.context.js:75-82`) is intended to come back, AS-01's severity drops and the
+offline warning copy should soften.
