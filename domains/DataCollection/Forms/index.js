@@ -144,9 +144,9 @@ function Forms(props) {
             <Text style={inlineStyles.suggestedFormsText}>
               {I18n.t("forms.suggestedForms")}
             </Text>
-            <ScrollView horizontal>
-              {pinnedForms &&
-                pinnedForms.map((form) => {
+            {pinnedForms?.length > 0 ? (
+              <ScrollView horizontal>
+                {pinnedForms.map((form) => {
                   const {
                     objectId,
                     tag,
@@ -171,16 +171,17 @@ function Forms(props) {
                     </ModernCard>
                   );
                 })}
-              {pinnedForms.length < 1 && (
-                <View style={layout.screenRow}>
-                  <ModernCard>
-                    <View style={inlineStyles.noPinnedFormsCard}>
-                      <Text>{"📌  "}{I18n.t("formsGallery.noPinnedForms")}</Text>
-                    </View>
-                  </ModernCard>
+              </ScrollView>
+            ) : (
+              // Deliberately outside the horizontal ScrollView: that scroller lays
+              // children out in unbounded horizontal space, so this Text would never
+              // wrap and would run off the right edge of the screen.
+              <ModernCard>
+                <View style={inlineStyles.noPinnedFormsCard}>
+                  <Text>{"📌  "}{I18n.t("formsGallery.noPinnedForms")}</Text>
                 </View>
-              )}
-            </ScrollView>
+              </ModernCard>
+            )}
             <Button mode="contained" onPress={navigateToGallery}>
               <Text style={{ color: theme.colors.onSurface }}>
                 {I18n.t("forms.viewGallery")}
