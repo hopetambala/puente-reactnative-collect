@@ -1,4 +1,5 @@
 import GlassView from "@impacto-design-system/Base/GlassView";
+import I18n from "@modules/i18n";
 import { spacing, typography } from "@modules/theme";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useEffect, useState } from "react";
@@ -50,8 +51,10 @@ function PopupSuccess({ success, setSuccess, submittedForms }) {
         duration={MOTION_TOKENS.duration.dismiss}
         style={styles.snackbar}
       >
+        {/* Offline-first copy rule: say where the records actually are. These
+            are cached on the device, not confirmed on the server. */}
         <Text style={styles.text}>
-          {submittedForms} Records Successfully Stored!
+          {I18n.t("global.recordsStoredOnDevice", { count: submittedForms })}
         </Text>
       </Snackbar>
     </GlassView>
