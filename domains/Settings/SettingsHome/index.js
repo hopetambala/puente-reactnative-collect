@@ -1,12 +1,14 @@
 import DevOfflineToggle from "@app/domains/Settings/DevOfflineToggle";
 import { ThemeContext } from "@context/theme.context";
+import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
+import checkOnlineStatus from "@modules/offline";
 import { clearOnboardingData } from "@modules/settings";
 import { spacing, typography } from "@modules/theme";
 import { useAccessibilityContext } from "@modules/theme/useAccessibilityContext";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import React, { useContext, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import {
   Button,
   IconButton,
@@ -82,11 +84,77 @@ function SettingsHome({
     accessibilityContext.setCalmMode(newValue);
   };
 
-  const handleResetOnboarding = async () => {
-    await clearOnboardingData();
-    if (navigation) {
-      navigation.navigate("Onboarding");
+  const handleResetOnboarding = () => {
+    Alert.alert(
+      I18n.t("accountSettings.resetOnboardingTitle"),
+      I18n.t("accountSettings.resetOnboardingWarning"),
+      [
+        { text: I18n.t("global.cancel"), style: "cancel" },
+        {
+          text: I18n.t("accountSettings.resetOnboardingConfirm"),
+          style: "destructive",
+          onPress: async () => {
+            await clearOnboardingData();
+            if (navigation) {
+              navigation.navigate("Onboarding");
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  // Mirrors the queue tally in domains/Offline/index.js:26-40 -- same four keys,
+  // same null-safety. Logging out does not delete these, but it does make them
+  // unreachable until the user can log back in.
+  const countUnsyncedRecords = async () => {
+    const [idForms, supForms, assetIdForms, assetSupForms] = await Promise.all([
+      getData("offlineIDForms"),
+      getData("offlineSupForms"),
+      getData("offlineAssetIDForms"),
+      getData("offlineAssetSupForms"),
+    ]);
+    return (
+      (idForms?.length ?? 0) +
+      (supForms?.length ?? 0) +
+      (assetIdForms?.length ?? 0) +
+      (assetSupForms?.length ?? 0)
+    );
+  };
+
+  // Offline login is disabled (context/auth.context.js:75-82), so logging out
+  // without a connection strands the user until they find one. Say so plainly,
+  // and name any work that is still only on this device.
+  const handleLogout = async () => {
+    const [online, unsyncedCount] = await Promise.all([
+      checkOnlineStatus(),
+      countUnsyncedRecords(),
+    ]);
+
+    const message = [I18n.t("accountSettings.logoutMessage")];
+    if (!online) {
+      message.push(I18n.t("accountSettings.logoutOfflineWarning"));
     }
+    if (unsyncedCount > 0) {
+      message.push(
+        I18n.t("accountSettings.logoutUnsyncedWarning", { count: unsyncedCount })
+      );
+    }
+
+    Alert.alert(
+      I18n.t("accountSettings.logoutTitle"),
+      message.join("\n\n"),
+      [
+        { text: I18n.t("global.cancel"), style: "cancel" },
+        {
+          text: I18n.t("accountSettings.logoutConfirm"),
+          style: "destructive",
+          onPress: logOut,
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const inputs = [
@@ -251,19 +319,25 @@ function SettingsHome({
           </View>
           <Button
             testID="settings-close-button"
+            mode="contained"
             onPress={() => {
               onClose();
             }}
           >
             {I18n.t("accountSettings.back")}
           </Button>
+          {/* Log out is the most destructive control here and sits directly above
+              the floating tab bar. Keep it de-emphasised and spaced away from the
+              tab bar so it is not hit by a mis-reach. */}
           <Button
-            mode="contained"
-            onPress={logOut}
+            testID="settings-logout-button"
+            mode="outlined"
+            onPress={handleLogout}
             style={{
               marginTop: spacing.lg,
               marginLeft: spacing.md,
               marginRight: spacing.md,
+              marginBottom: spacing.xl,
             }}
           >
             {I18n.t("accountSettings.logout")}

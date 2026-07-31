@@ -20,7 +20,8 @@
     "pleaseTryAgain": "Tanpri eseye ankò",
     "loadMore": "Chaje plis",
     "settings": "Paramèt",
-    "tryAgain": "Eseye ankò"
+    "tryAgain": "Eseye ankò",
+    "cancel": "Anile"
   },
   "signUp": {
     "firstName": "Non",
@@ -544,7 +545,19 @@
     "deleteUser": "Efase itilizatè?",
     "populateIdForms": "Ranpli tout Fòm ID",
     "clearCachedIdForms": "Efase Fòm ID ki nan kache",
-    "resetOnboarding": "Reinisyalize Onboarding"
+    "resetOnboarding": "Reinisyalize Onboarding",
+    "clearCacheTitle": "Efase dosye ki nan kache yo?",
+    "clearCacheWarning": "Sa a efase %{count} dosye rezidan ki sere sou aparèy sa a. Rechèch san entènèt ap vid jiskaske ou rekonstwi kache a, e sa mande yon koneksyon entènèt.",
+    "clearCacheConfirm": "Efase kache a",
+    "clearCacheDone": "Dosye ki nan kache yo efase.",
+    "resetOnboardingTitle": "Reinisyalize onboarding la?",
+    "resetOnboardingWarning": "Tutoryèl la ap parèt ankò pwochen fwa ou louvri aplikasyon an. Dosye ou sere yo pa afekte.",
+    "resetOnboardingConfirm": "Reinisyalize",
+    "logoutTitle": "Dekonekte?",
+    "logoutMessage": "W ap bezwen non itilizatè ou ak modpas ou pou konekte ankò.",
+    "logoutOfflineWarning": "Ou pa gen entènèt. Ou p ap KAPAB konekte ankò jiskaske aparèy sa a gen yon koneksyon entènèt.",
+    "logoutUnsyncedWarning": "%{count} dosye sere sou aparèy sa a e yo poko rive sou sèvè a. Y ap rete sou aparèy la, men ou p ap kapab senkronize yo jiskaske ou konekte ankò.",
+    "logoutConfirm": "Dekonekte"
   },
   "findRecordSettings": {
     "currentReccordsStored": "Dosye aktyèl ki estoke",
