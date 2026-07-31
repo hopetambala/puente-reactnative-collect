@@ -22,7 +22,7 @@ refactoring is not mandatory, over-engineering is a defect.
 - naming that obscures intent,
 - styling that uses hard-coded color/spacing/radius values instead of tokens from
   `modules/theme/tokens.js` (see the
-  [dlite-design-system skill](../skills/dlite-design-system/SKILL.md)).
+  [dlite-design-system-engineer skill](../skills/dlite-design-system-engineer/SKILL.md)).
 
 **Skip when** the code is clean, minimal, and clear, or when a change would
 over-engineer it. Returning "No refactoring needed" is a valid, good outcome.

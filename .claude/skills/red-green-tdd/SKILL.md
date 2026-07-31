@@ -49,7 +49,7 @@ source files and the passing output.
 
 ### Phase 3 — REFACTOR  →  invoke `tdd-refactorer`
 Spawn the `tdd-refactorer` agent with the list of changed files. It applies
-behavior-preserving cleanups (dedup, naming, [dlite tokens](../dlite-design-system/SKILL.md))
+behavior-preserving cleanups (dedup, naming, [dlite tokens](../dlite-design-system-engineer/SKILL.md))
 or returns "No refactoring needed", and re-runs the full suite green.
 
 Then move to the next behavior and repeat.
@@ -119,7 +119,7 @@ yarn test:unit                                                 # unit tests only
 1. Every new/changed behavior has a test that was **seen failing first**.
 2. `yarn test-run` — full suite green (or `yarn test:unit` for unit-only work).
 3. Styling touched? Tokens from `modules/theme/tokens.js` used instead of
-   hard-coded hex/spacing values (see [dlite-design-system skill](../dlite-design-system/SKILL.md)).
+   hard-coded hex/spacing values (see [dlite-design-system-engineer skill](../dlite-design-system-engineer/SKILL.md)).
 
 If you can't honestly say each test was red before it was green, the work isn't
 following this skill — go back and prove the test fails.
