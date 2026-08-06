@@ -563,7 +563,8 @@
     "deleteUserWarning": "Esto abre la página de gestión de cuenta en su navegador, donde puede solicitar la eliminación. Los registros que ya ha enviado pertenecen a su organización y no se eliminan con esto.",
     "deleteUserConfirm": "Continuar",
     "unsyncedOnDevice": "%{count} registros están guardados en este dispositivo y aún no han llegado al servidor",
-    "versionLabel": "Versión %{version} (%{build})"
+    "versionLabel": "Versión %{version} (%{build})",
+    "offlineDataExplainer": "Descargue los registros de residentes a este dispositivo para poder buscarlos sin conexión. Normalmente se descargan automáticamente cuando busca."
   },
   "findRecordSettings": {
     "currentReccordsStored": "Registros actuales almacenados",
