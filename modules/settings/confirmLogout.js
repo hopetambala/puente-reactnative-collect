@@ -24,14 +24,15 @@ export const countUnsyncedRecords = async () => {
 };
 
 /**
- * Confirms before logging out, and escalates the warning when it would strand
- * the user.
+ * Confirms before logging out; blocks it outright while offline.
  *
- * Offline login is disabled (context/auth.context.js:75-82), so logging out
- * without a connection means the promotor cannot get back in until they find
- * one -- their queued records survive on disk but are unreachable and cannot
- * sync. There is a logout entry point in both SettingsHome and SupportHome;
- * both must route through here, or the stranding path stays reachable.
+ * Offline login is permanently disabled (context/auth.context.js:75-82), so
+ * logging out without a connection would strand the promotor -- they could
+ * not get back in until reconnecting, even though queued records stay safe
+ * on disk. A warning-then-allow dialog still let them do it anyway, so this
+ * is a hard block with an explanatory alert instead. There is a logout entry
+ * point in both SettingsHome and SupportHome; both must route through here,
+ * or the stranding path stays reachable.
  */
 export const confirmLogout = async (logOut) => {
   const [online, unsyncedCount] = await Promise.all([
@@ -39,10 +40,23 @@ export const confirmLogout = async (logOut) => {
     countUnsyncedRecords(),
   ]);
 
-  const message = [I18n.t("accountSettings.logoutMessage")];
   if (!online) {
-    message.push(I18n.t("accountSettings.logoutOfflineWarning"));
+    const message = [I18n.t("accountSettings.logoutBlockedOfflineMessage")];
+    if (unsyncedCount > 0) {
+      message.push(
+        I18n.t("accountSettings.logoutUnsyncedWarning", { count: unsyncedCount })
+      );
+    }
+    Alert.alert(
+      I18n.t("accountSettings.logoutBlockedOfflineTitle"),
+      message.join("\n\n"),
+      [{ text: I18n.t("global.ok") }],
+      { cancelable: true }
+    );
+    return;
   }
+
+  const message = [I18n.t("accountSettings.logoutMessage")];
   if (unsyncedCount > 0) {
     message.push(
       I18n.t("accountSettings.logoutUnsyncedWarning", { count: unsyncedCount })
