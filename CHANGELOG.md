@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.5.9](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.8...v15.5.9) (2026-08-06)
+
+
+### Documentation Changes
+
+* Account Settings hardening backlog and delivery roadmap ([928547a](https://github.com/hopetambala/puente-reactnative-collect/commit/928547a4fcaa1eca77aead68ef78185e09857bf8))
+
+
+### Bug fixes
+
+* **data-collection:** stop pinned-forms empty state clipping off-screen ([677130c](https://github.com/hopetambala/puente-reactnative-collect/commit/677130cc3e7077c9a7ed72518eae68b0b880bb60))
+* **settings:** M1 hardening -- close AS-01, AS-02, AS-04, AS-05, AS-08, AS-12 ([2656a59](https://github.com/hopetambala/puente-reactnative-collect/commit/2656a5950e92c212fce236cd2c177b377451c697))
+* **settings:** M2 complete -- AS-03, AS-09, AS-13, AS-37 ([9d8e5c2](https://github.com/hopetambala/puente-reactnative-collect/commit/9d8e5c23cb42a11b97fb22010302be6b1f93f8c6))
+* **settings:** M2 part 1 -- AS-06, AS-21, AS-23, AS-24, AS-25, AS-28, AS-01b ([9ac27de](https://github.com/hopetambala/puente-reactnative-collect/commit/9ac27de29125b6f9273689b619e3d5f3dbd27bd7)), closes [#0a46b6](https://github.com/hopetambala/puente-reactnative-collect/issues/0a46b6) [#E8DEF8](https://github.com/hopetambala/puente-reactnative-collect/issues/E8DEF8)
+* **settings:** M2 part 2 -- AS-10 error copy, AS-31 PopupSuccess i18n ([6df5308](https://github.com/hopetambala/puente-reactnative-collect/commit/6df53082d72f7338ccbfa8fdd561a3c3fd298e1c))
+* **settings:** M3 -- edit screens, touch targets, accessibility, dlite migration ([500ff0d](https://github.com/hopetambala/puente-reactnative-collect/commit/500ff0d58c8508a81e84fcff340a99f9a08d7b02))
+* **settings:** repair two regressions I shipped in the Offline Records rework ([831297f](https://github.com/hopetambala/puente-reactnative-collect/commit/831297fb06de396faa5a4727596d19d024ed7eab))
+* **settings:** retire the Offline Data community query (AS-39), rename to Offline Records (AS-40) ([5a741a1](https://github.com/hopetambala/puente-reactnative-collect/commit/5a741a1757b5ade38e80ffb9b565c03f168a6f2e))
+
 ### [15.5.8](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.6...v15.5.8) (2026-07-17)
 
 
