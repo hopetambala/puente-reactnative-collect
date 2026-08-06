@@ -283,7 +283,8 @@ function PaperInputPicker({
                 {/* selected value */}
                 {result.value === values[formikKey] && (
                   <TouchableWithoutFeedback
-                    OnPress={() => setFieldValue(formikKey, result.value)}
+                    testID={`select-option-${formikKey}-${result.value}`}
+                    onPress={() => setFieldValue(formikKey, result.value)}
                   >
                     <View style={styleButton.selected}>
                       <View style={styles.button}>
@@ -297,6 +298,7 @@ function PaperInputPicker({
                 {/* non-selected value */}
                 {result.value !== values[formikKey] && (
                   <TouchableWithoutFeedback
+                    testID={`select-option-${formikKey}-${result.value}`}
                     onPress={() => setFieldValue(formikKey, result.value)}
                   >
                     <View style={styleButton.unselected}>
