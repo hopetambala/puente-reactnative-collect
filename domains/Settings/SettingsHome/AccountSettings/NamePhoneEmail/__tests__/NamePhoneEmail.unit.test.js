@@ -28,7 +28,15 @@ jest.mock('@app/domains/Settings/index.styles', () => ({
 }));
 
 jest.mock('@modules/async-storage', () => ({
-  getData: jest.fn().mockResolvedValue({ username: 'Test', password: 'test' }),
+  getData: jest.fn().mockResolvedValue({
+    username: 'Test',
+    password: 'test',
+    objectId: 'u1',
+    firstname: 'Ada',
+    lastname: 'Lovelace',
+    phonenumber: '555-0100',
+    email: 'ada@example.test',
+  }),
   storeData: jest.fn().mockResolvedValue(undefined),
 }));
 
@@ -75,6 +83,57 @@ describe('Name/Phone/Email settings', () => {
 
   afterEach(() => {
     alertSpy.mockRestore();
+  });
+
+  describe('AS-16 edit fields show the stored value', () => {
+    // `inputs` was built inside .then() reading userObject from the PREVIOUS
+    // render's closure, so on first mount every value was undefined and the
+    // edit field rendered blank -- the user could not see what they were
+    // changing.
+    it('renders the stored value in the field being edited', async () => {
+      const { getByText, getByTestId } = render(<NamePhoneEmail />);
+
+      await waitFor(() => {
+        expect(getByText('Ada')).toBeTruthy();
+      });
+
+      fireEvent.press(getByTestId('edit-firstName'));
+
+      expect(getByTestId('input-firstName').props.value).toBe('Ada');
+    });
+  });
+
+  describe('AS-15 Cancel actually cancels', () => {
+    // Both the check and the X ran exactly `setEdit("")`, so there was no revert
+    // path at all -- the X was a lie.
+    it('discards the edit when cancelled', async () => {
+      const { getByText, getByTestId, queryByText } = render(<NamePhoneEmail />);
+
+      await waitFor(() => {
+        expect(getByText('Ada')).toBeTruthy();
+      });
+
+      fireEvent.press(getByTestId('edit-firstName'));
+      fireEvent.changeText(getByTestId('input-firstName'), 'Grace');
+      fireEvent.press(getByTestId('cancel-firstName'));
+
+      expect(getByText('Ada')).toBeTruthy();
+      expect(queryByText('Grace')).toBeNull();
+    });
+
+    it('keeps the edit when confirmed', async () => {
+      const { getByText, getByTestId } = render(<NamePhoneEmail />);
+
+      await waitFor(() => {
+        expect(getByText('Ada')).toBeTruthy();
+      });
+
+      fireEvent.press(getByTestId('edit-firstName'));
+      fireEvent.changeText(getByTestId('input-firstName'), 'Grace');
+      fireEvent.press(getByTestId('confirm-firstName'));
+
+      expect(getByText('Grace')).toBeTruthy();
+    });
   });
 
   describe('AS-09 offline honesty', () => {

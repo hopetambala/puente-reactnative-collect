@@ -12,7 +12,13 @@ import { useAccessibilityContext } from "@modules/theme/useAccessibilityContext"
 import { MOTION_TOKENS, useMotion } from "@modules/utils/animations";
 import * as Application from "expo-application";
 import React, { useContext, useEffect, useMemo, useState } from "react";
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import {
   Button,
   IconButton,
@@ -80,6 +86,25 @@ const createStyles = (theme) => {
     },
     versionText: {
       fontSize: t.tkDliteSemanticTypographySize200,
+      color: theme.colors.onSurfaceVariant,
+    },
+    navRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      // 44pt is the minimum touch target, and the row must clear it on its own
+      // now that the whole row -- not the chevron -- is the control. There is no
+      // 44 step, so compose it: Spacing1000 (40) + Spacing100 (4).
+      minHeight:
+        t.tkDliteSemanticSpacing1000 + t.tkDliteSemanticSpacing100,
+      paddingVertical: t.tkDliteSemanticSpacing200,
+    },
+    navChevron: {
+      marginLeft: "auto",
+    },
+    switchStateLabel: {
+      marginLeft: "auto",
+      marginRight: t.tkDliteSemanticSpacing200,
+      fontSize: t.tkDliteSemanticTypographySize300,
       color: theme.colors.onSurfaceVariant,
     },
   });
@@ -259,22 +284,29 @@ function SettingsHome({
                     </View>
                   ) : (
                     <>
-                      <View style={{ flexDirection: "row" }}>
+                      {/* The whole row is the target. Previously only the
+                          chevron had onPress, so a one-handed user had to reach
+                          the far right edge of the screen. */}
+                      <TouchableOpacity
+                        testID={`settings-row-${input.key}`}
+                        accessibilityRole="button"
+                        accessibilityLabel={input.label}
+                        style={settingsStyles.navRow}
+                        onPress={() => setAccountSettingsView(input.key)}
+                      >
                         <Text style={styles.text}>{input.label}</Text>
                         <IconButton
                           icon="chevron-right"
                           size={30}
                           iconColor={paperTheme.colors.primary}
-                          style={{
-                            marginLeft: "auto",
-                            marginTop: -5,
-                            marginBottom: -10,
-                          }}
-                          onPress={() => {
-                            setAccountSettingsView(input.key);
-                          }}
+                          style={settingsStyles.navChevron}
+                          // Decorative -- the row above carries the action and
+                          // the label, so the screen reader should skip this.
+                          importantForAccessibility="no"
+                          accessibilityElementsHidden
+                          pointerEvents="none"
                         />
-                      </View>
+                      </TouchableOpacity>
                       <View style={styles.horizontalLineGray} />
                     </>
                   )}
@@ -304,7 +336,19 @@ function SettingsHome({
                   >
                     {I18n.t("accessibility.calmModeDescription")}
                   </Text>
+                  {/* Second channel for state, matching DevOfflineToggle: the
+                      switch position is colour/shape only, so pair it with text
+                      a screen reader and a sunlit screen can both resolve. */}
+                  <Text style={settingsStyles.switchStateLabel}>
+                    {accessibilityContext.calmMode
+                      ? I18n.t("accessibility.on")
+                      : I18n.t("accessibility.off")}
+                  </Text>
                   <Switch
+                    testID="calm-mode-switch"
+                    accessibilityRole="switch"
+                    accessibilityLabel={I18n.t("accessibility.calmMode")}
+                    accessibilityState={{ checked: !!accessibilityContext.calmMode }}
                     value={accessibilityContext.calmMode}
                     onValueChange={handleCalmModeToggle}
                   />

@@ -82,18 +82,18 @@ production today and can cost a promotor a day of work. M2–M4 are quality, not
 | AS-12 | `secureTextEntry` on Change Password | E4 | P0 | S | 1 | ☑ | `Password/index.js:96,105` |
 | AS-13 | Confirm-password + length validation | E4 | P1 | S | 2 | ☑ | `Password/index.js` |
 | AS-14 | Plaintext password at rest | E4 | P1 | L | 5 | ⊘ | `Password/index.js:48`, `auth.context.js` |
-| AS-15 | Cancel actually reverts | E5 | P1 | M | 3 | ☐ | `NamePhoneEmail/index.js:174-191`, `FindRecords/index.js:138-155` |
-| AS-16 | Edit fields show current value | E5 | P1 | M | 3 | ☐ | `NamePhoneEmail/index.js:35-57,169` |
-| AS-17 | Stop mutating state objects | E5 | P2 | S | 4 | ☐ | `NamePhoneEmail/index.js:69-73`, `FindRecords/index.js:93-97` |
-| AS-18 | Numeric keyboard + coercion | E5 | P2 | S | 4 | ☐ | `FindRecords/index.js:135` |
-| AS-19 | Whole rows tappable | E6 | P1 | M | 3 | ☐ | `SettingsHome/index.js:179-194`, `SupportHome/index.js:108-125` |
-| AS-20 | Accessibility props across domain | E6 | P1 | M | 3 | ☐ | all of `domains/Settings/**` |
+| AS-15 | Cancel actually reverts | E5 | P1 | M | 3 | ☑ | `NamePhoneEmail/index.js:174-191`, `FindRecords/index.js:138-155` |
+| AS-16 | Edit fields show current value | E5 | P1 | M | 3 | ☑ | `NamePhoneEmail/index.js:35-57,169` |
+| AS-17 | Stop mutating state objects | E5 | P2 | S | 4 | ☑ | `NamePhoneEmail/index.js:69-73`, `FindRecords/index.js:93-97` |
+| AS-18 | Numeric keyboard + coercion | E5 | P2 | S | 4 | ☑ | `FindRecords/index.js:135` |
+| AS-19 | Whole rows tappable | E6 | P1 | M | 3 | ☑ | `SettingsHome/index.js:179-194`, `SupportHome/index.js:108-125` |
+| AS-20 | Accessibility props across domain | E6 | P1 | M | 3 | ☑ | all of `domains/Settings/**` |
 | AS-21 | Primary-action contrast ≥4.5:1 | E6 | P1 | M | 2 | ☑ | `modules/theme/index.js` (upstream) |
-| AS-22 | Language selection second channel | E6 | P2 | S | 4 | ☐ | `Language/index.js:35-77`, `SettingsHome/index.js:226` |
+| AS-22 | Language selection second channel | E6 | P2 | S | 4 | ☑ | `Language/index.js:35-77`, `SettingsHome/index.js:226` |
 | AS-23 | `color` → `iconColor` (Paper v5) | E7 | P1 | S | 2 | ☑ | 6 call sites, see E7 |
 | AS-24 | `color` → `textColor` on Delete user | E7 | P1 | S | 2 | ☑ | `SupportHome/index.js:146` |
 | AS-25 | Map `secondaryContainer` in theme | E7 | P1 | S | 2 | ☑ | `modules/theme/index.js:29-99` |
-| AS-26 | Migrate `index.styles.js` off legacy scale | E7 | P2 | M | 3 | ☐ | `Settings/index.styles.js:2` |
+| AS-26 | Migrate `index.styles.js` off legacy scale | E7 | P2 | M | 3 | ☑ | `Settings/index.styles.js:2` |
 | AS-27 | Token violations (10 rows) | E7 | P2 | S ea | 4 | ☐ | see E7 table |
 | AS-28 | Honor Calm Mode on this screen | E8 | P1 | S | 2 | ☑ | `SettingsHome/index.js:149-153,201-204,234-237` |
 | AS-29 | Stagger token not `i*40` | E8 | P2 | S | 4 | ☑ | `SettingsHome/index.js:152` |
@@ -574,6 +574,25 @@ a disabled state is a small delta on top of what shipped.
 offline warning copy should soften.
 
 | 2026-07-31 | **M2 complete** | AS-03, AS-06, AS-09, AS-10, AS-13, AS-21, AS-23, AS-24, AS-25, AS-28, AS-31, AS-37, AS-01b | 13 items across three commits. Suite 392→401 tests, 60 suites, green. ESLint clean, locales in sync. Verified on simulator: Theme selector blue-tinted not lavender, chevrons blue, actions high-contrast, version row present. AS-29 (stagger token) closed opportunistically with AS-28 since it was the same expression. |
+
+| 2026-08-05 | **M3 code complete — device verification OUTSTANDING** | AS-15, AS-16, AS-17, AS-18, AS-19, AS-20, AS-22, AS-26 | Suite 401→420 tests, 62 suites, green. ESLint clean, locales in sync. **Clause 4 of the definition of done (verify on simulator) was NOT met** — the dev client hit a stale-packager `MessageQueue` runtime error and the relaunch was not completed. AS-19 (row layout), AS-22 (check icon) and AS-26 (style migration) are all visible changes and remain unverified on device. |
+
+### AS-26 was not the risk it looked like
+
+The risk register warned that migrating `index.styles.js` would shift spacing 4px domain-wide,
+because legacy `spacing.md` (12) shadows `tkDliteSemanticSpacingMd` (16). That turned out not
+to apply: this file only ever used `spacing.sm` (8), `spacing.lg` (16) and `spacing.xxl` (32),
+and **all three map exactly** onto `Spacing200` / `Spacing400` / `Spacing800`. The migration is
+pixel-identical, locked by `domains/Settings/__tests__/settingsStyles.unit.test.js` — a
+characterization test written to pass *before* the change and still pass after. This is the
+refactor phase, not red-green: behaviour does not change, so there is nothing to see fail.
+
+Two deliberate exceptions to pixel-identity, both prescribed by the audit:
+- the `svg` style's `marginTop:-3 / marginBottom:-5` magic numbers were removed (AS-27),
+  which slightly *increases* the icon's effective touch height;
+- `letterSpacing: 0.5` is preserved as a literal with a `TODO(dlite)`, because the body ramp
+  specifies `"0em"` — a CSS string that does not drop into a React Native style. Changing it
+  to 0 would be a real visual change; reconciling the token is the upstream fix.
 
 ### Found during M2: a second logout entry point (AS-01b)
 
