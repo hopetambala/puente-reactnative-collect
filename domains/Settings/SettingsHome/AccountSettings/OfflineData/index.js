@@ -5,10 +5,31 @@ import {
 } from "@impacto-design-system/Base";
 import { deleteData, getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
-import { createLayoutStyles } from "@modules/theme";
-import React, { useContext, useState } from "react";
-import { Alert, View } from "react-native";
-import { useTheme } from "react-native-paper";
+import { getTokens } from "@modules/theme/tokens";
+import React, { useContext, useMemo, useState } from "react";
+import { Alert, StyleSheet, View } from "react-native";
+import { Text, useTheme } from "react-native-paper";
+
+import { createSettingsStyles } from "../../../index.styles";
+
+const t = getTokens("light");
+
+const styles = StyleSheet.create({
+  // NOT layout.formContainer: that is `flex: 1` with centred content, meant for
+  // a Formik form. Its parent (AccountSettings mainContainer) has no height, so
+  // a flex:1 child collapses to zero -- which is exactly how this screen ended
+  // up blank once the form was removed.
+  container: {
+    paddingVertical: t.tkDliteSemanticSpacing400,
+  },
+  explainer: {
+    marginBottom: t.tkDliteSemanticSpacing500,
+    fontSize: t.tkDliteSemanticTypographySize300,
+  },
+  action: {
+    marginBottom: t.tkDliteSemanticSpacing300,
+  },
+});
 
 /**
  * Offline records: prepare the device for a shift without a connection.
@@ -24,7 +45,7 @@ import { useTheme } from "react-native-paper";
  */
 function OfflineData() {
   const theme = useTheme();
-  const layout = createLayoutStyles(theme);
+  const settingsStyles = useMemo(() => createSettingsStyles(theme), [theme]);
   const [cacheSuccess, setCacheSuccess] = useState(false);
   const [submittedForms, setSubmittedForms] = useState(0);
   const { populateResidentDataCache, isLoading } = useContext(OfflineContext);
@@ -65,21 +86,40 @@ function OfflineData() {
   };
 
   return (
-    <View style={layout.formContainer}>
-      <PaperButton
-        onPress={repopulateAllData}
-        buttonText={I18n.t("accountSettings.populateIdForms")}
-        loading={!!isLoading}
-        accessibilityLabel={I18n.t("accountSettings.populateIdForms")}
-        style={{ backgroundColor: theme.colors.info }}
-      />
-      <PaperButton
-        onPress={confirmClearCachedForms}
-        buttonText={I18n.t("accountSettings.clearCachedIdForms")}
-        icon="delete"
-        accessibilityLabel={I18n.t("accountSettings.clearCachedIdForms")}
-        style={{ backgroundColor: theme.colors.error }}
-      />
+    <View style={styles.container}>
+      <Text variant="headlineMedium">
+        {I18n.t("accountSettings.offlineData")}
+      </Text>
+      <View style={settingsStyles.horizontalLinePrimary} />
+      {/* Say what the screen is for. Without the removed form's header field
+          this was two unlabelled buttons on an otherwise empty page. */}
+      <Text style={[styles.explainer, { color: theme.colors.onSurfaceVariant }]}>
+        {I18n.t("accountSettings.offlineDataExplainer")}
+      </Text>
+      {/* Download is the primary action on this screen. Clear is destructive
+          and belongs behind it visually -- a solid red slab made deleting the
+          cache the loudest thing here. */}
+      <View style={styles.action}>
+        <PaperButton
+          testID="offline-download-button"
+          mode="contained"
+          onPress={repopulateAllData}
+          buttonText={I18n.t("accountSettings.populateIdForms")}
+          loading={!!isLoading}
+          accessibilityLabel={I18n.t("accountSettings.populateIdForms")}
+        />
+      </View>
+      <View style={styles.action}>
+        <PaperButton
+          testID="offline-clear-button"
+          mode="outlined"
+          color="error"
+          onPress={confirmClearCachedForms}
+          buttonText={I18n.t("accountSettings.clearCachedIdForms")}
+          icon="delete"
+          accessibilityLabel={I18n.t("accountSettings.clearCachedIdForms")}
+        />
+      </View>
       <PopupSuccess
         success={cacheSuccess}
         setSuccess={setCacheSuccess}

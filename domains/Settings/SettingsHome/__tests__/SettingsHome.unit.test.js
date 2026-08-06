@@ -300,10 +300,14 @@ describe('SettingsHome', () => {
       expect(getByTestId('settings-logout-button').props.mode).toBe('outlined');
     });
 
-    it('gives Back the contained treatment instead', () => {
+    // Revised: AS-02 originally promoted Back to `contained`, which turned a
+    // modest control into a full-width blue slab at the bottom of the screen.
+    // The goal was to stop Log out being the visual hero, not to crown a new
+    // one. Log out being outlined already achieves that; Back stays quiet.
+    it('does not make Back a full-width hero either', () => {
       const { getByTestId } = render(<SettingsHome {...baseProps} />);
 
-      expect(getByTestId('settings-close-button').props.mode).toBe('contained');
+      expect(getByTestId('settings-close-button').props.mode).not.toBe('contained');
     });
   });
 });

@@ -563,7 +563,8 @@
     "deleteUserWarning": "Sa a louvri paj jesyon kont lan nan navigatè ou, kote ou ka mande pou yo efase l. Dosye ou deja voye yo se pwopriyete òganizasyon ou an e yo pa efase ak sa.",
     "deleteUserConfirm": "Kontinye",
     "unsyncedOnDevice": "%{count} dosye sere sou aparèy sa a e yo poko rive sou sèvè a",
-    "versionLabel": "Vèsyon %{version} (%{build})"
+    "versionLabel": "Vèsyon %{version} (%{build})",
+    "offlineDataExplainer": "Telechaje dosye rezidan yo sou aparèy sa a pou ou ka chèche yo san entènèt. Anjeneral yo telechaje otomatikman lè ou fè yon rechèch."
   },
   "findRecordSettings": {
     "currentReccordsStored": "Dosye aktyèl ki estoke",

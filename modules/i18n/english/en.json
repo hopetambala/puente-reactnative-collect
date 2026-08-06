@@ -563,7 +563,8 @@
     "deleteUserWarning": "This opens the account management page in your browser, where you can request deletion. Records you have already submitted belong to your organization and are not removed by this.",
     "deleteUserConfirm": "Continue",
     "unsyncedOnDevice": "%{count} records are saved on this device and have not reached the server yet",
-    "versionLabel": "Version %{version} (%{build})"
+    "versionLabel": "Version %{version} (%{build})",
+    "offlineDataExplainer": "Download resident records to this device so you can search them without a connection. Records are usually downloaded automatically when you search."
   },
   "findRecordSettings": {
     "currentReccordsStored": "Current records stored",
