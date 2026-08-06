@@ -3,14 +3,30 @@ import { UserContext } from "@context/auth.context";
 import I18n from "@modules/i18n";
 import { confirmLogout } from "@modules/settings/confirmLogout";
 import { spacing, typography } from "@modules/theme";
+import { getTokens } from "@modules/theme/tokens";
 import * as Linking from "expo-linking";
 import * as StoreReview from "expo-store-review";
 import React, { useContext, useState } from "react";
-import { Alert, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Button, IconButton, Text, useTheme } from "react-native-paper";
 
 import { createSettingsStyles } from "../index.styles";
 import SupportSettings from "./SupportSettings";
+
+const t = getTokens("light");
+
+const supportStyles = StyleSheet.create({
+  navRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    // No 44 step exists; compose it: Spacing1000 (40) + Spacing100 (4).
+    minHeight: t.tkDliteSemanticSpacing1000 + t.tkDliteSemanticSpacing100,
+    paddingVertical: t.tkDliteSemanticSpacing200,
+  },
+  navChevron: {
+    marginLeft: "auto",
+  },
+});
 
 function SupportHome({
   logOut,
@@ -102,48 +118,32 @@ function SupportHome({
             {inputs.length > 0 &&
               inputs.map((input) => (
                 <View key={input.key}>
-                  {input.touchable ? (
-                    <TouchableOpacity
-                      style={{ flexDirection: "row" }}
-                      onPress={() => input.action()}
-                    >
-                      <Text style={styles.text}>{input.label}</Text>
-                      {input.button && (
-                        <IconButton
-                          icon="chevron-right"
-                          size={30}
-                          iconColor={theme.colors.primary}
-                          style={{
-                            marginLeft: "auto",
-                            marginTop: -5,
-                            marginBottom: -10,
-                          }}
-                          onPress={() => {
-                            setSupportView(input.key);
-                          }}
-                        />
-                      )}
-                    </TouchableOpacity>
-                  ) : (
-                    <View style={{ flexDirection: "row" }}>
-                      <Text style={styles.text}>{input.label}</Text>
-                      {input.button && (
-                        <IconButton
-                          icon="chevron-right"
-                          size={30}
-                          iconColor={theme.colors.primary}
-                          style={{
-                            marginLeft: "auto",
-                            marginTop: -5,
-                            marginBottom: -10,
-                          }}
-                          onPress={() => {
-                            setSupportView(input.key);
-                          }}
-                        />
-                      )}
-                    </View>
-                  )}
+                  {/* One shape for every row: the whole row is the target and
+                      carries the label. Previously the non-touchable variant put
+                      onPress on the chevron alone, so the row looked tappable
+                      and was not. */}
+                  <TouchableOpacity
+                    testID={`support-row-${input.key}`}
+                    accessibilityRole="button"
+                    accessibilityLabel={input.label}
+                    style={supportStyles.navRow}
+                    onPress={() =>
+                      (input.action ? input.action() : setSupportView(input.key))}
+                  >
+                    <Text style={styles.text}>{input.label}</Text>
+                    {input.button && (
+                      <IconButton
+                        icon="chevron-right"
+                        size={30}
+                        iconColor={theme.colors.primary}
+                        style={supportStyles.navChevron}
+                        // Decorative: the row carries the action and the label.
+                        importantForAccessibility="no"
+                        accessibilityElementsHidden
+                        pointerEvents="none"
+                      />
+                    )}
+                  </TouchableOpacity>
                   <View style={styles.horizontalLineGray} />
                 </View>
               ))}

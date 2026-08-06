@@ -15,6 +15,12 @@ import { createSettingsStyles } from "../../../index.styles";
 function FindRecords() {
   const theme = useTheme();
   const styles = useMemo(() => createSettingsStyles(theme), [theme]);
+  const [currentData, setCurrentData] = useState({});
+  const [edit, setEdit] = useState("");
+  const [draft, setDraft] = useState("");
+  const [updated, setUpdated] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
     async function setUserInformation() {
       const storedLimit = await getData("findRecordsLimit");
@@ -30,25 +36,28 @@ function FindRecords() {
         currentLimit,
         residentDataCount,
       });
-    }
-    setUserInformation().then(() => {
-      setInputs([
-        {
-          label: I18n.t("findRecordSettings.currentReccordsStored"),
-          value: currentData.residentDataCount,
-          key: "residentDataCount",
-          edit: false,
-        },
-        {
-          label: I18n.t("findRecordSettings.recordStorageLimit"),
-          value: currentData.currentLimit,
-          key: "currentLimit",
-          edit: true,
-        },
-      ]);
       setUpdated(false);
-    });
+    }
+    setUserInformation();
   }, [updated]);
+
+  // Derived, not stored. Building this inside .then() read currentData from the
+  // previous render's closure, so the values were stale on first mount.
+  const inputs = useMemo(
+    () => [
+      {
+        label: I18n.t("findRecordSettings.currentReccordsStored"),
+        key: "residentDataCount",
+        edit: false,
+      },
+      {
+        label: I18n.t("findRecordSettings.recordStorageLimit"),
+        key: "currentLimit",
+        edit: true,
+      },
+    ],
+    []
+  );
 
   const handleFailedAttempt = () => {
     Alert.alert(
@@ -93,17 +102,25 @@ function FindRecords() {
     );
   };
 
-  const updateCurrentData = (key, text) => {
-    const copyUserObject = currentData;
-    copyUserObject[key] = text;
-    setCurrentData(copyUserObject);
+  const startEdit = (key) => {
+    setDraft(String(currentData[key] ?? ""));
+    setEdit(key);
   };
 
-  const [currentData, setCurrentData] = useState({});
-  const [edit, setEdit] = useState("");
-  const [inputs, setInputs] = useState([]);
-  const [updated, setUpdated] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  // Copy before setting, and coerce -- this is a numeric setting that was being
+  // stored as whatever string the keyboard produced.
+  const commitEdit = (key) => {
+    const parsed = Number(draft);
+    const value = Number.isFinite(parsed) && draft !== "" ? parsed : currentData[key];
+    setCurrentData((previous) => ({ ...previous, [key]: value }));
+    setEdit("");
+    setDraft("");
+  };
+
+  const cancelEdit = () => {
+    setEdit("");
+    setDraft("");
+  };
 
   return (
     <View>
@@ -119,10 +136,10 @@ function FindRecords() {
                   <Text style={styles.text}>{currentData[result.key]}</Text>
                   {result.edit === true && (
                     <Button
+                      testID={`edit-${result.key}`}
+                      accessibilityLabel={`${I18n.t("findRecordSettings.edit")} ${result.label}`}
                       style={{ marginLeft: "auto" }}
-                      onPress={() => {
-                        setEdit(result.key);
-                      }}
+                      onPress={() => startEdit(result.key)}
                     >
                       {I18n.t("findRecordSettings.edit")}
                     </Button>
@@ -132,29 +149,32 @@ function FindRecords() {
               {edit === result.key && (
                 <View style={styles.textContainer}>
                   <TextInput
+                    testID={`input-${result.key}`}
+                    accessibilityLabel={result.label}
                     style={{ flex: 3 }}
-                    placeholder={result.value}
+                    value={draft}
+                    keyboardType="number-pad"
                     mode="outlined"
-                    onChangeText={(text) => updateCurrentData(result.key, text)}
+                    onChangeText={setDraft}
                   />
                   <View style={styles.buttonContainer}>
                     <IconButton
+                      testID={`confirm-${result.key}`}
+                      accessibilityLabel={I18n.t("global.ok")}
                       icon="check"
                       size={25}
                       iconColor={theme.colors.primary}
                       style={styles.svg}
-                      onPress={() => {
-                        setEdit("");
-                      }}
+                      onPress={() => commitEdit(result.key)}
                     />
                     <IconButton
+                      testID={`cancel-${result.key}`}
+                      accessibilityLabel={I18n.t("global.cancel")}
                       icon="window-close"
                       size={25}
                       iconColor={theme.colors.primary}
                       style={styles.svg}
-                      onPress={() => {
-                        setEdit("");
-                      }}
+                      onPress={cancelEdit}
                     />
                   </View>
                 </View>

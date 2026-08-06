@@ -696,7 +696,9 @@
   },
   "accessibility": {
     "calmMode": "Calm Mode",
-    "calmModeDescription": "Reduce animations for clinical focus"
+    "calmModeDescription": "Reduce animations for clinical focus",
+    "on": "ON",
+    "off": "OFF"
   },
   "residentHistory": {
     "loading": "Loading record history...",

@@ -47,6 +47,19 @@ const baseTokens = {
   tkDliteSemanticSpacing600: 24,
   tkDliteSemanticSpacing700: 28,
   tkDliteSemanticSpacing800: 32,
+  tkDliteSemanticSpacing900: 36,
+  tkDliteSemanticSpacing1000: 40,
+
+  // Hairline steps, for divider rules.
+  tkDliteSemanticSpacingXxxs: 1,
+  tkDliteSemanticSpacingXxs: 2,
+
+  // Type ramp. Note lineHeight is a RATIO, not pixels, and letterSpacing is a
+  // CSS string ("0em") -- neither drops straight into a React Native style.
+  tkDliteSemanticTypographyTypeBodyDefaultSize: 16,
+  tkDliteSemanticTypographyTypeBodyDefaultWeight: 400,
+  tkDliteSemanticTypographyTypeBodyDefaultLineHeight: 1.5,
+  tkDliteSemanticTypographyTypeBodyDefaultLetterSpacing: '0em',
 
   // Typography sizes are numeric only -- there are no named aliases.
   tkDliteSemanticTypographySize100: 10,

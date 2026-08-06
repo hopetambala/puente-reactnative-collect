@@ -102,6 +102,25 @@ describe('SupportHome', () => {
     alertSpy.mockRestore();
   });
 
+  describe('AS-19 / AS-20 support rows', () => {
+    it('exposes each row as a labelled button covering the whole row', () => {
+      const { getByTestId } = renderScreen();
+
+      const row = getByTestId('support-row-feedback');
+
+      expect(row.props.accessibilityRole).toBe('button');
+      expect(row.props.accessibilityLabel).toBe('supportHome.feedback');
+    });
+
+    it('opens the sub-view when the row itself is pressed', () => {
+      const { getByTestId, queryByText } = renderScreen();
+
+      fireEvent.press(getByTestId('support-row-feedback'));
+
+      expect(queryByText('supportHome.feedback')).toBeNull();
+    });
+  });
+
   describe('AS-24 account deletion styling', () => {
     it('gives the delete-user button destructive colouring via the v5 textColor prop', () => {
       const { getByTestId } = renderScreen();

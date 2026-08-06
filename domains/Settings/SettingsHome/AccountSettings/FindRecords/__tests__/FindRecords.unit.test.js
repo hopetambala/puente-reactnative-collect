@@ -9,7 +9,7 @@
  */
 
 import FindRecords from '@app/domains/Settings/SettingsHome/AccountSettings/FindRecords';
-import { render, waitFor } from '@testing-library/react-native';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
 jest.mock('@modules/i18n', () => ({ t: (key) => key }));
@@ -76,6 +76,65 @@ describe('FindRecords settings', () => {
       await waitFor(() => {
         expect(getByText('0')).toBeTruthy();
       });
+    });
+  });
+
+  describe('AS-15 / AS-16 / AS-18 record-limit editing', () => {
+    beforeEach(() => {
+      getData.mockResolvedValue(null);
+    });
+
+    it('shows the stored limit in the field being edited', async () => {
+      const { getByText, getByTestId } = render(<FindRecords />);
+
+      await waitFor(() => {
+        expect(getByText('2000')).toBeTruthy();
+      });
+
+      fireEvent.press(getByTestId('edit-currentLimit'));
+
+      expect(getByTestId('input-currentLimit').props.value).toBe('2000');
+    });
+
+    it('uses a numeric keyboard for a numeric setting', async () => {
+      const { getByText, getByTestId } = render(<FindRecords />);
+
+      await waitFor(() => {
+        expect(getByText('2000')).toBeTruthy();
+      });
+
+      fireEvent.press(getByTestId('edit-currentLimit'));
+
+      expect(getByTestId('input-currentLimit').props.keyboardType).toBe('number-pad');
+    });
+
+    it('discards the edit when cancelled', async () => {
+      const { getByText, getByTestId, queryByText } = render(<FindRecords />);
+
+      await waitFor(() => {
+        expect(getByText('2000')).toBeTruthy();
+      });
+
+      fireEvent.press(getByTestId('edit-currentLimit'));
+      fireEvent.changeText(getByTestId('input-currentLimit'), '500');
+      fireEvent.press(getByTestId('cancel-currentLimit'));
+
+      expect(getByText('2000')).toBeTruthy();
+      expect(queryByText('500')).toBeNull();
+    });
+
+    it('keeps the edit as a number when confirmed', async () => {
+      const { getByText, getByTestId } = render(<FindRecords />);
+
+      await waitFor(() => {
+        expect(getByText('2000')).toBeTruthy();
+      });
+
+      fireEvent.press(getByTestId('edit-currentLimit'));
+      fireEvent.changeText(getByTestId('input-currentLimit'), '500');
+      fireEvent.press(getByTestId('confirm-currentLimit'));
+
+      expect(getByText('500')).toBeTruthy();
     });
   });
 });

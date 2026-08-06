@@ -696,7 +696,9 @@
   },
   "accessibility": {
     "calmMode": "Mòd kalm",
-    "calmModeDescription": "Diminye animasyon pou konsantrasyon klinik"
+    "calmModeDescription": "Diminye animasyon pou konsantrasyon klinik",
+    "on": "WI",
+    "off": "NON"
   },
   "residentHistory": {
     "loading": "Ap chaje istwa dosye...",

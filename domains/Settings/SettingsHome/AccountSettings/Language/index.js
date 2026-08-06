@@ -28,54 +28,36 @@ function Language() {
     I18n.locale = lang;
   };
 
+  const languages = [
+    { code: "en", label: I18n.t("languagePicker.english") },
+    { code: "es", label: I18n.t("languagePicker.spanish") },
+    { code: "hk", label: I18n.t("languagePicker.creole") },
+  ];
+
   return (
     <View>
       <Text variant="headlineMedium">{I18n.t("languageSettings.chooseLanguage")}</Text>
-      <View style={styles.languageContainer}>
-        {language === "en" && (
-          <Button mode="contained">{I18n.t("languagePicker.english")}</Button>
-        )}
-        {language !== "en" && (
-          <Button
-            mode="outlined"
-            onPress={() => {
-              handleLanguage("en");
-            }}
-          >
-            {I18n.t("languagePicker.english")}
-          </Button>
-        )}
-      </View>
-      <View style={styles.languageContainer}>
-        {language === "es" && (
-          <Button mode="contained">{I18n.t("languagePicker.spanish")}</Button>
-        )}
-        {language !== "es" && (
-          <Button
-            mode="outlined"
-            onPress={() => {
-              handleLanguage("es");
-            }}
-          >
-            {I18n.t("languagePicker.spanish")}
-          </Button>
-        )}
-      </View>
-      <View style={styles.languageContainer}>
-        {language === "hk" && (
-          <Button mode="contained">{I18n.t("languagePicker.creole")}</Button>
-        )}
-        {language !== "hk" && (
-          <Button
-            mode="outlined"
-            onPress={() => {
-              handleLanguage("hk");
-            }}
-          >
-            {I18n.t("languagePicker.creole")}
-          </Button>
-        )}
-      </View>
+      {languages.map(({ code, label }) => {
+        const selected = language === code;
+        return (
+          <View key={code} style={styles.languageContainer}>
+            {/* Selection carries a second, non-colour channel: a check icon plus
+                accessibilityState. Paper's `mode` alone is colour-only, which
+                fails both screen readers and a sunlit screen. */}
+            <Button
+              testID={`language-${code}`}
+              accessibilityRole="button"
+              accessibilityLabel={label}
+              accessibilityState={{ selected }}
+              icon={selected ? "check" : undefined}
+              mode={selected ? "contained" : "outlined"}
+              onPress={selected ? undefined : () => handleLanguage(code)}
+            >
+              {label}
+            </Button>
+          </View>
+        );
+      })}
     </View>
   );
 }
