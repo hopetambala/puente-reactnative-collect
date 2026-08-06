@@ -16,6 +16,21 @@ import { Alert } from 'react-native';
 
 jest.mock('@modules/i18n', () => ({ t: (key) => key }));
 
+// The global Base mock drops `mode`; forward it so emphasis is assertable.
+jest.mock('@impacto-design-system/Base', () => {
+  // eslint-disable-next-line global-require
+  const ReactLocal = require('react');
+  // eslint-disable-next-line global-require
+  const RN = require('react-native');
+  return {
+    // RN.Text (a host component) preserves the custom `mode` prop in the test
+    // tree; TouchableOpacity drops props it does not recognise.
+    Button: ({ onPress, buttonText, testID, mode }) =>
+      ReactLocal.createElement(RN.Text, { onPress, testID, mode }, buttonText),
+    PopupSuccess: () => null,
+  };
+});
+
 jest.mock('@modules/theme', () => ({
   createLayoutStyles: () => ({ formContainer: {} }),
 }));
@@ -25,11 +40,27 @@ jest.mock('@modules/async-storage', () => ({
   deleteData: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock('react-native-paper', () => ({
-  useTheme: () => ({
-    colors: { primary: '#000', error: '#f00', info: '#00f', success: '#0f0', errorContainer: '#fee' },
-  }),
-}));
+jest.mock('react-native-paper', () => {
+  // eslint-disable-next-line global-require
+  const ReactLocal = require('react');
+  // eslint-disable-next-line global-require
+  const RN = require('react-native');
+  return {
+    Text: ({ children }) => ReactLocal.createElement(RN.Text, null, children),
+    useTheme: () => ({
+      colors: {
+        primary: '#0a46b6',
+        error: '#f00',
+        info: '#00f',
+        success: '#0f0',
+        errorContainer: '#fee',
+        onSurface: '#161616',
+        onSurfaceVariant: '#6e6e6e',
+        outline: '#d4d4d4',
+      },
+    }),
+  };
+});
 
 const { deleteData } = require('@modules/async-storage');
 
@@ -100,6 +131,40 @@ describe('Offline Data settings', () => {
 
       expect(getByText('accountSettings.populateIdForms')).toBeTruthy();
       expect(getByText('accountSettings.clearCachedIdForms')).toBeTruthy();
+    });
+  });
+
+  describe('AS-41 the screen is not bare', () => {
+    /**
+     * Removing the query form took the only heading with it -- the Formik
+     * config carried a `fieldType: "header"` entry. Every sibling screen under
+     * AccountSettings renders its own title, so this one looked broken.
+     *
+     * The layout collapse that made it render EMPTY is not visible to Jest:
+     * `layout.formContainer` is `flex: 1` inside a parent with no height, which
+     * yields zero height on device but a perfectly normal tree in the test
+     * renderer. That one is caught by looking at the screen, not by this test.
+     */
+    it('renders a heading so the screen identifies itself', () => {
+      const { getByText } = renderScreen();
+
+      expect(getByText('accountSettings.offlineData')).toBeTruthy();
+    });
+
+    it('explains what the actions are for', () => {
+      const { getByText } = renderScreen();
+
+      expect(getByText('accountSettings.offlineDataExplainer')).toBeTruthy();
+    });
+
+    // Third time this pattern has bitten: a destructive action rendered as the
+    // loudest thing on screen (see AS-02 for Log out, and Back promoted to a
+    // full-width slab). Download is the primary action here; Clear is not.
+    it('does not render the destructive action as the loudest control', () => {
+      const { getByTestId } = renderScreen();
+
+      expect(getByTestId('offline-clear-button').props.mode).toBe('outlined');
+      expect(getByTestId('offline-download-button').props.mode).toBe('contained');
     });
   });
 

@@ -380,9 +380,11 @@ function SettingsHome({
               </View>
             </Animated.View>
           </View>
+          {/* Neither of these should be a full-width slab. AS-02's job was to
+              stop Log out reading as the primary action; making Back contained
+              just moved the problem. Both stay quiet. */}
           <Button
             testID="settings-close-button"
-            mode="contained"
             onPress={() => {
               onClose();
             }}
