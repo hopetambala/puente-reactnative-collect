@@ -81,8 +81,12 @@ jest.mock('react-native-paper', () => {
     IconButton: ({ onPress, testID }) =>
       ReactLocal.createElement(RN.Text, { onPress, testID }, ''),
     SegmentedButtons: () => null,
-    Switch: ({ onValueChange, testID }) =>
-      ReactLocal.createElement(RN.Text, { onValueChange, testID }, ''),
+    Switch: ({ onValueChange, testID, accessibilityLabel, accessibilityState }) =>
+      ReactLocal.createElement(
+        RN.Text,
+        { onValueChange, testID, accessibilityLabel, accessibilityState },
+        ''
+      ),
     useTheme: () => ({
       dark: false,
       colors: { primary: '#000', onSurface: '#000', error: '#f00', background: '#fff' },
@@ -188,6 +192,41 @@ describe('SettingsHome', () => {
       confirm.onPress();
 
       expect(baseProps.logOut).toHaveBeenCalled();
+    });
+  });
+
+  describe('AS-19 whole rows are tappable', () => {
+    // The label sat beside an IconButton pushed to marginLeft:"auto" and only
+    // the IconButton had onPress. The row looked tappable and was not, forcing a
+    // one-handed user to hit a ~48pt target at the far right edge.
+    it('opens the sub-screen when the row itself is pressed', () => {
+      const { getByTestId, queryByText } = render(<SettingsHome {...baseProps} />);
+
+      fireEvent.press(getByTestId('settings-row-ChangePassword'));
+
+      expect(queryByText('accountSettings.changePassword')).toBeNull();
+    });
+  });
+
+  describe('AS-20 accessibility', () => {
+    it('exposes each row as a labelled button', () => {
+      const { getByTestId } = render(<SettingsHome {...baseProps} />);
+
+      const row = getByTestId('settings-row-ChangePassword');
+
+      expect(row.props.accessibilityRole).toBe('button');
+      expect(row.props.accessibilityLabel).toBe('accountSettings.changePassword');
+    });
+
+    it('labels the Calm Mode switch and reports its state', () => {
+      const { getByTestId } = render(<SettingsHome {...baseProps} />);
+
+      const toggle = getByTestId('calm-mode-switch');
+
+      expect(toggle.props.accessibilityLabel).toBeTruthy();
+      expect(toggle.props.accessibilityState).toEqual(
+        expect.objectContaining({ checked: false })
+      );
     });
   });
 
