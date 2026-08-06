@@ -1,7 +1,6 @@
 import retrievePuenteAutofillData from "@app/services/aws";
 import {
   customMultiParamQueryService,
-  customMultiValueArrayService,
   customQueryService,
   residentIDQuery,
 } from "@app/services/parse/crud";
@@ -13,19 +12,6 @@ import _ from "lodash";
 async function residentQuery(queryParams) {
   const records = await residentIDQuery(queryParams);
   return records;
-}
-
-async function cacheResidentDataMulti(queryParamsArray) {
-  let records = await customMultiValueArrayService(
-    "SurveyData",
-    "communityname",
-    queryParamsArray,
-    5000
-  );
-  records = JSON.parse(JSON.stringify(records));
-  if (records !== null && records !== undefined && records !== "") {
-    storeData(records, "residentData");
-  }
 }
 
 async function cacheAutofillData(surveyingOrganization) {
@@ -269,7 +255,6 @@ export {
   assetDataQuery,
   assetFormsQuery,
   cacheAutofillData,
-  cacheResidentDataMulti,
   customFormsQuery,
   getTasksAsync,
   residentQuery,

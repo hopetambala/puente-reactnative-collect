@@ -3,34 +3,31 @@ import {
   Button as PaperButton,
   PopupSuccess,
 } from "@impacto-design-system/Base";
-import { PaperInputPicker } from "@impacto-design-system/Extensions";
 import { deleteData, getData } from "@modules/async-storage";
-import { cacheResidentDataMulti } from "@modules/cached-resources";
 import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
-import { Formik } from "formik";
-import _ from "lodash";
-import React, { useContext, useEffect, useState } from "react";
-import { Alert, Keyboard, TouchableWithoutFeedback, View } from "react-native";
+import React, { useContext, useState } from "react";
+import { Alert, View } from "react-native";
 import { useTheme } from "react-native-paper";
 
-import configArray from "./config/config";
-
-function OfflineData({
-  surveyingOrganization,
-  scrollViewScroll,
-  setScrollViewScroll,
-}) {
+/**
+ * Offline records: prepare the device for a shift without a connection.
+ *
+ * AS-39: this screen used to also offer a community-filtered query, which
+ * overwrote the entire resident cache with only the matching subset -- the exact
+ * failure the auto-populate path guards against
+ * (impacto-design-system/Extensions/FindResidents/index.js:100). Because
+ * cacheResidentDataMulti's write guard let an empty array through, a filter that
+ * matched nothing wiped the cache and still reported success. Since the Find
+ * Records overhaul the cache populates itself from any unfiltered search, so the
+ * control had no remaining job worth that risk and was removed.
+ */
+function OfflineData() {
   const theme = useTheme();
   const layout = createLayoutStyles(theme);
-  const [inputs, setInputs] = useState({});
   const [cacheSuccess, setCacheSuccess] = useState(false);
   const [submittedForms, setSubmittedForms] = useState(0);
   const { populateResidentDataCache, isLoading } = useContext(OfflineContext);
-
-  useEffect(() => {
-    setInputs(configArray);
-  }, [configArray]);
 
   const repopulateAllData = async () =>
     populateResidentDataCache().then((records) => {
@@ -68,70 +65,26 @@ function OfflineData({
   };
 
   return (
-    <View>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <Formik
-          initialValues={{}}
-          onSubmit={async (values) => {
-            await cacheResidentDataMulti(values.communityname);
-            const forms = await getData("residentData").catch(() => null);
-            if (forms) {
-              setSubmittedForms(Object.keys(forms).length);
-              setCacheSuccess(true);
-            }
-          }}
-        >
-          {(formikProps) => (
-            <View style={layout.formContainer}>
-              <PaperButton
-                onPress={repopulateAllData}
-                buttonText={I18n.t("accountSettings.populateIdForms")}
-                loading={!!isLoading}
-                style={{ backgroundColor: theme.colors.info }}
-              />
-              {inputs.length &&
-                inputs.map((result) => (
-                  <View key={result.formikKey}>
-                    <PaperInputPicker
-                      data={result}
-                      formikProps={formikProps}
-                      surveyingOrganization={surveyingOrganization}
-                      scrollViewScroll={scrollViewScroll}
-                      setScrollViewScroll={setScrollViewScroll}
-                      customForm={false}
-                    />
-                  </View>
-                ))}
-              <PaperButton
-                onPress={formikProps.handleSubmit}
-                buttonText={
-                  _.isEmpty(formikProps.values)
-                    ? I18n.t("global.emptyForm")
-                    : I18n.t("global.submit")
-                }
-                disabled={!!_.isEmpty(formikProps.values)}
-                icon={_.isEmpty(formikProps.values) ? "alert-octagon" : "plus"}
-                style={{
-                  backgroundColor: _.isEmpty(formikProps.values)
-                    ? theme.colors.errorContainer
-                    : theme.colors.success,
-                }}
-              />
-              <PaperButton
-                onPress={confirmClearCachedForms}
-                buttonText={I18n.t("accountSettings.clearCachedIdForms")}
-                icon="delete"
-                style={{ backgroundColor: theme.colors.error }}
-              />
-              <PopupSuccess
-                success={cacheSuccess}
-                setSuccess={setCacheSuccess}
-                submittedForms={submittedForms}
-              />
-            </View>
-          )}
-        </Formik>
-      </TouchableWithoutFeedback>
+    <View style={layout.formContainer}>
+      <PaperButton
+        onPress={repopulateAllData}
+        buttonText={I18n.t("accountSettings.populateIdForms")}
+        loading={!!isLoading}
+        accessibilityLabel={I18n.t("accountSettings.populateIdForms")}
+        style={{ backgroundColor: theme.colors.info }}
+      />
+      <PaperButton
+        onPress={confirmClearCachedForms}
+        buttonText={I18n.t("accountSettings.clearCachedIdForms")}
+        icon="delete"
+        accessibilityLabel={I18n.t("accountSettings.clearCachedIdForms")}
+        style={{ backgroundColor: theme.colors.error }}
+      />
+      <PopupSuccess
+        success={cacheSuccess}
+        setSuccess={setCacheSuccess}
+        submittedForms={submittedForms}
+      />
     </View>
   );
 }

@@ -101,8 +101,23 @@ const createStyles = (theme) => {
     navChevron: {
       marginLeft: "auto",
     },
+    switchRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      paddingHorizontal: t.tkDliteSemanticSpacing300,
+    },
+    switchDescription: {
+      flexShrink: 1,
+      marginRight: t.tkDliteSemanticSpacing300,
+      fontSize: t.tkDliteSemanticTypographySize300,
+      color: theme.colors.onSurface,
+    },
+    switchTrailing: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
     switchStateLabel: {
-      marginLeft: "auto",
       marginRight: t.tkDliteSemanticSpacing200,
       fontSize: t.tkDliteSemanticTypographySize300,
       color: theme.colors.onSurfaceVariant,
@@ -320,38 +335,31 @@ function SettingsHome({
                 <Text style={settingsStyles.themeLabel}>
                   {I18n.t("accessibility.calmMode")}
                 </Text>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    paddingHorizontal: safeSpacing.md,
-                  }}
-                >
-                  <Text
-                    style={{
-                      color: paperTheme.colors.onSurface,
-                      fontSize: 14,
-                    }}
-                  >
+                <View style={settingsStyles.switchRow}>
+                  {/* flexShrink lets the description wrap instead of consuming
+                      the whole row -- with space-between and no free space left,
+                      the state label packed straight up against this text. */}
+                  <Text style={settingsStyles.switchDescription}>
                     {I18n.t("accessibility.calmModeDescription")}
                   </Text>
                   {/* Second channel for state, matching DevOfflineToggle: the
                       switch position is colour/shape only, so pair it with text
                       a screen reader and a sunlit screen can both resolve. */}
-                  <Text style={settingsStyles.switchStateLabel}>
-                    {accessibilityContext.calmMode
-                      ? I18n.t("accessibility.on")
-                      : I18n.t("accessibility.off")}
-                  </Text>
-                  <Switch
-                    testID="calm-mode-switch"
-                    accessibilityRole="switch"
-                    accessibilityLabel={I18n.t("accessibility.calmMode")}
-                    accessibilityState={{ checked: !!accessibilityContext.calmMode }}
-                    value={accessibilityContext.calmMode}
-                    onValueChange={handleCalmModeToggle}
-                  />
+                  <View style={settingsStyles.switchTrailing}>
+                    <Text style={settingsStyles.switchStateLabel}>
+                      {accessibilityContext.calmMode
+                        ? I18n.t("accessibility.on")
+                        : I18n.t("accessibility.off")}
+                    </Text>
+                    <Switch
+                      testID="calm-mode-switch"
+                      accessibilityRole="switch"
+                      accessibilityLabel={I18n.t("accessibility.calmMode")}
+                      accessibilityState={{ checked: !!accessibilityContext.calmMode }}
+                      value={accessibilityContext.calmMode}
+                      onValueChange={handleCalmModeToggle}
+                    />
+                  </View>
                 </View>
               </View>
             </Animated.View>
