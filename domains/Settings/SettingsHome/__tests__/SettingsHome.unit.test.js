@@ -149,7 +149,7 @@ describe('SettingsHome', () => {
       expect(baseProps.logOut).not.toHaveBeenCalled();
     });
 
-    it('warns that logging back in is impossible when offline', async () => {
+    it('blocks logout outright when offline, explaining why', async () => {
       checkOnlineStatus.mockResolvedValue(false);
       const { getByText } = render(<SettingsHome {...baseProps} />);
 
@@ -158,8 +158,13 @@ describe('SettingsHome', () => {
       await waitFor(() => {
         expect(alertSpy).toHaveBeenCalled();
       });
-      const message = alertSpy.mock.calls[0][1];
-      expect(message).toContain('accountSettings.logoutOfflineWarning');
+      const [title, message, buttons] = alertSpy.mock.calls[0];
+      expect(title).toBe('accountSettings.logoutBlockedOfflineTitle');
+      expect(message).toContain('accountSettings.logoutBlockedOfflineMessage');
+      expect(buttons).toHaveLength(1);
+
+      buttons[0].onPress?.();
+      expect(baseProps.logOut).not.toHaveBeenCalled();
     });
 
     it('names the unsynced record count when the queue is not empty', async () => {
