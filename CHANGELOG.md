@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [15.6.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.9...v15.6.0) (2026-08-06)
+
+
+### Bug fixes
+
+* **settings:** resolve PR [#609](https://github.com/hopetambala/puente-reactnative-collect/issues/609)'s two open decisions -- block offline logout, keep offline login disabled with honest copy ([daf4c24](https://github.com/hopetambala/puente-reactnative-collect/commit/daf4c2451c7cc80c687e23e0446b3269e55eafe8))
+
 ### [15.5.9](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.8...v15.5.9) (2026-08-06)
 
 
