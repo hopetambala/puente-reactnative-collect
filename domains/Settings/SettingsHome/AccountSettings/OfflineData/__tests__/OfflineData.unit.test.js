@@ -25,15 +25,6 @@ jest.mock('@modules/async-storage', () => ({
   deleteData: jest.fn().mockResolvedValue(undefined),
 }));
 
-jest.mock('@modules/cached-resources', () => ({
-  cacheResidentDataMulti: jest.fn().mockResolvedValue(undefined),
-}));
-
-jest.mock(
-  '@app/domains/Settings/SettingsHome/AccountSettings/OfflineData/config/config',
-  () => []
-);
-
 jest.mock('react-native-paper', () => ({
   useTheme: () => ({
     colors: { primary: '#000', error: '#f00', info: '#00f', success: '#0f0', errorContainer: '#fee' },
@@ -68,6 +59,48 @@ describe('Offline Data settings', () => {
 
   afterEach(() => {
     alertSpy.mockRestore();
+  });
+
+  /**
+   * AS-39: the community-filtered query overwrote the whole offline resident
+   * cache with only the matching subset -- the exact failure the auto-populate
+   * path guards against (impacto-design-system/Extensions/FindResidents/index.js:100,
+   * "Filtered results never overwrite the cache").
+   *
+   * Worse, cacheResidentDataMulti's write guard is
+   * `records !== null && records !== undefined && records !== ""`, and an empty
+   * array passes all three -- so a filter matching nothing wrote [] over the
+   * cache. OfflineData then did `if (forms)`, truthy for [], and showed the
+   * success popup. A promotor could empty their own offline search from Settings
+   * and be told it worked.
+   *
+   * The cache has populated itself since the Find Records overhaul, so this
+   * control had no remaining job worth that risk. Removed, not repaired.
+   */
+  describe('AS-39 community-filtered query is gone', () => {
+    it('no longer renders the query form', () => {
+      const { queryByText } = renderScreen();
+
+      expect(queryByText('global.emptyForm')).toBeNull();
+      expect(queryByText('global.submit')).toBeNull();
+    });
+
+    it('no longer ships the cache-overwriting helper at all', () => {
+      // Stronger than "we stopped calling it": the function is gone, so it
+      // cannot be wired back up by accident. jest.requireActual bypasses this
+      // file's mock to inspect the real module.
+      // eslint-disable-next-line global-require
+      const actual = jest.requireActual('@modules/cached-resources');
+
+      expect(actual.cacheResidentDataMulti).toBeUndefined();
+    });
+
+    it('still offers the two actions that remain', () => {
+      const { getByText } = renderScreen();
+
+      expect(getByText('accountSettings.populateIdForms')).toBeTruthy();
+      expect(getByText('accountSettings.clearCachedIdForms')).toBeTruthy();
+    });
   });
 
   describe('Clear Cached ID Forms', () => {
