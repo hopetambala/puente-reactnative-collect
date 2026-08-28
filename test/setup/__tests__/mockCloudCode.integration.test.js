@@ -12,10 +12,9 @@
  *   puente-node-cloudcode/cloud/src/services/post/hooks/afterSave.js
  *   puente-node-cloudcode/cloud/src/definer/auth.definer.js
  */
+import testUsers from "@app/test/fixtures/users";
 import hooks from "@app/test/hooks";
 import { Parse } from "parse/react-native";
-
-import testUsers from "../../fixtures/users";
 
 hooks();
 
@@ -364,6 +363,32 @@ describe("mockCloudCode uploadOfflineForms — offline parent reconciliation", (
     expect(resident.get("householdId")).toBe(household.id);
     expect(resident.get("householdClient")).toBeDefined();
     expect(resident.get("householdClient").id).toBe(household.id);
+  });
+});
+
+describe("mockCloudCode postObjectsToClassWithRelation", () => {
+  test("stores the parent in the 'client' pointer column and parseUser as a pointer", async () => {
+    const title = `RelationClient-${uid()}`;
+    const parent = new Parse.Object("SurveyData");
+    parent.set("fname", `RelationParent-${uid()}`);
+    await parent.save(null, { useMasterKey: true });
+
+    await Parse.Cloud.run("postObjectsToClassWithRelation", {
+      parseClass: "FormResults",
+      parseParentClass: "SurveyData",
+      parseParentClassID: parent.id,
+      parseUser: global.testParseConfig
+        ? global.testParseConfig.user.objectId
+        : JSON.parse(process.env.PARSE_TEST_CONFIG).user.objectId,
+      localObject: { title, fields: [] },
+    });
+
+    const saved = await findOne("FormResults", "title", title);
+    expect(saved).toBeDefined();
+    expect(saved.get("client")).toBeDefined();
+    expect(saved.get("client").id).toBe(parent.id);
+    expect(saved.get("parseUser")).toBeDefined();
+    expect(saved.get("parseUser").className).toBe("_User");
   });
 });
 

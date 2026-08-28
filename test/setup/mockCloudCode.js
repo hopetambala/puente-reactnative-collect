@@ -1,6 +1,25 @@
 /**
- * Minimal Mock Cloud Code for Integration Tests
- * Provides essential Cloud Code functions matching puente-node-cloudcode
+ * Mock Cloud Code for Integration Tests
+ *
+ * This stands in for puente-node-cloudcode when the Jest integration suite runs
+ * against an in-memory Parse Server. Anything this file gets wrong is a
+ * behaviour the suite cannot catch, so the offline-sync path below is kept a
+ * close transcription of the real service rather than a convenient shortcut.
+ *
+ * Source of truth (puente-node-cloudcode/cloud/src):
+ *   services/offline/offline.js        — metadata fallback, offline-id idempotency
+ *   services/post/post.js              — field copy, geopoints, pointers
+ *   services/post/hooks/afterSave.js   — offline parent/household reconciliation
+ *   definer/crud.definer.js            — postObjectsToClass(WithRelation), updateObject
+ *   definer/auth.definer.js            — signup, signin
+ *
+ * Deliberate simplifications, each of which makes the mock LESS capable than
+ * production rather than differently behaved:
+ *   - Parse.File conversion: base64/URI values are stored as plain strings.
+ *   - Organization pointer stamping (services/organization) is not reproduced;
+ *     the collected surveyingOrganization STRING is stored, the pointer is not.
+ *   - Looped forms (utils.Loop) are not reproduced.
+ *
  * Reference: https://github.com/hopetambala/puente-node-cloudcode
  */
 
@@ -10,6 +29,69 @@ module.exports = function mockCloudCode(Parse) {
   }
 
   console.log('📝 Registering Mock Cloud Code functions...');
+
+  /* ==========================================================================
+   * Shared helpers — mirrors of services/offline/offline.js + services/post
+   * ======================================================================== */
+
+  /**
+   * Collection-time values (who surveyed, on which app/OS) must win over
+   * sync-time metadata — whoever presses "sync" is often not the surveyor.
+   * Metadata only fills fields the stored record left missing or empty.
+   * Mirror of mergeMetadataAsFallback in services/offline/offline.js.
+   */
+  const mergeMetadataAsFallback = (localObject, metadata) => {
+    const merged = { ...(localObject || {}) };
+    Object.entries(metadata || {}).forEach(([key, value]) => {
+      if (merged[key] === undefined || merged[key] === null || merged[key] === '') {
+        merged[key] = value;
+      }
+    });
+    return merged;
+  };
+
+  /**
+   * A partially-failed batch stays queued on the device in full, so a retry
+   * re-sends records that already saved. The offline id (objectIdOffline) is
+   * the idempotency key: if a record with it already exists, return that
+   * record instead of creating a duplicate.
+   */
+  const findExistingOfflineRecord = (parseClass, objectIdOffline) => {
+    const query = new Parse.Query(parseClass);
+    query.equalTo('objectIdOffline', objectIdOffline);
+    return query.first({ useMasterKey: true });
+  };
+
+  /**
+   * Copies EVERY key of localObject onto the record. The real implementation
+   * has no field whitelist; a mock that keeps one silently drops whatever the
+   * app added since the whitelist was written.
+   */
+  const applyLocalObject = (record, localObject) => {
+    Object.keys(localObject).forEach((key) => record.set(String(key), localObject[key]));
+    if (Array.isArray(localObject.location)) {
+      const [latitude, longitude] = localObject.location;
+      record.set('location', new Parse.GeoPoint(parseFloat(latitude), parseFloat(longitude)));
+    }
+  };
+
+  const setParseUserPointer = (record, parseUser) => {
+    if (!parseUser) return;
+    const userObject = new Parse.Object('_User');
+    userObject.id = String(parseUser);
+    record.set('parseUser', userObject);
+  };
+
+  // Cloud Code returns saved Parse.Objects; the client sees them serialized.
+  const serializeRecord = (record) => (
+    record && typeof record.toJSON === 'function'
+      ? { objectId: record.id, ...record.toJSON() }
+      : record
+  );
+
+  /* ==========================================================================
+   * Cloud functions
+   * ======================================================================== */
 
   /**
    * Cloud function: postObjectsToClass
@@ -87,6 +169,11 @@ module.exports = function mockCloudCode(Parse) {
    * Cloud function: postObjectsToClassWithRelation
    * Creates a Parse object with a relationship to a parent object
    * Used for: Creating forms related to residents
+   *
+   * The parent goes in the `client` column and the user in a `parseUser`
+   * POINTER — those are the column name and type every downstream consumer
+   * (Manage, the Flask exporter, afterSupplementaryFormHook) reads. See
+   * crud.definer.js postObjectsToClassWithRelation.
    */
   Parse.Cloud.define('postObjectsToClassWithRelation', async (request) => {
     const {
@@ -94,6 +181,7 @@ module.exports = function mockCloudCode(Parse) {
       parseParentClass,
       parseParentClassID,
       parseUser,
+      loopParentID,
       localObject,
     } = request.params;
 
@@ -114,16 +202,18 @@ module.exports = function mockCloudCode(Parse) {
 
       // Set parent relationship if provided
       if (parseParentClass && parseParentClassID) {
-        const ParentClass = Parse.Object.extend(parseParentClass);
-        const parent = new ParentClass();
-        parent.id = parseParentClassID;
-        obj.set(parseParentClass, parent);
+        const parent = new Parse.Object(parseParentClass);
+        parent.id = String(parseParentClassID);
+        obj.set('client', parent);
       }
 
-      // Set user if provided
-      if (parseUser) {
-        obj.set('parseUser', parseUser);
+      if (loopParentID) {
+        const loopParent = new Parse.Object(parseClass);
+        loopParent.id = String(loopParentID);
+        obj.set('loopClient', loopParent);
       }
+
+      setParseUserPointer(obj, parseUser);
 
       // Set ACL
       const acl = new Parse.ACL();
@@ -227,11 +317,16 @@ module.exports = function mockCloudCode(Parse) {
   });
 
   /**
-   * Cloud function: login
-   * Custom login function for user authentication
-   * Used for: Testing authentication flow
+   * Cloud function: signin
+   * Named `signin` because that is what auth.definer.js defines — a mock that
+   * answers to `login` would let a rename of the real function go unnoticed.
+   * Falls back to an email lookup when the username does not resolve, as the
+   * real implementation does.
+   *
+   * NOTE: Collect itself signs in through Parse.User.logIn, not through this
+   * cloud function. It is mocked for parity with the deployed backend only.
    */
-  Parse.Cloud.define('login', async (request) => {
+  Parse.Cloud.define('signin', async (request) => {
     const { username, password } = request.params;
 
     if (!username || !password) {
@@ -239,23 +334,207 @@ module.exports = function mockCloudCode(Parse) {
     }
 
     try {
-      const user = await Parse.User.logIn(username, password);
-      return {
-        objectId: user.id,
-        sessionToken: user.getSessionToken(),
-        username: user.getUsername(),
-      };
+      return await Parse.User.logIn(String(username), String(password));
     } catch (error) {
-      throw new Error(`Login failed: ${error.message}`);
+      // The user may have typed their email instead of their username.
+      const userQuery = new Parse.Query(Parse.User);
+      userQuery.equalTo('email', username);
+      const match = await userQuery.first({ useMasterKey: true });
+      if (!match) {
+        throw new Error(`Login failed: ${error.message}`);
+      }
+      return Parse.User.logIn(match.get('username'), String(password));
     }
   });
 
+  /* ==========================================================================
+   * uploadOfflineForms — transcription of services/offline/offline.js
+   * ======================================================================== */
+
+  // The class a category falls back to when a queued record carries no
+  // parseClass. Records normally DO carry one, and the record's own value
+  // always wins — the real service never hardcodes a class name.
+  const DEFAULT_OFFLINE_CLASS = {
+    residentForms: 'SurveyData',
+    residentSupplementaryForms: 'FormResults',
+    households: 'Household',
+    assetForms: 'Assets',
+    assetSupplementaryForms: 'FormAssetResults',
+  };
+
+  const postOfflineObject = (record, parseClass, localObject) => {
+    const surveyPoint = new Parse.Object(parseClass);
+    const { photoFile, signature, parseUser } = record;
+
+    // Simplified: the real implementation saves these as Parse.File.
+    if (photoFile) surveyPoint.set('picture', photoFile);
+    if (signature) surveyPoint.set('signature', signature);
+
+    applyLocalObject(surveyPoint, localObject);
+    setParseUserPointer(surveyPoint, parseUser);
+
+    return surveyPoint.save(null, { useMasterKey: true });
+  };
+
+  // postObjectsArray: residents and assets.
+  const postObjectsArray = async (data, metadata, category) => {
+    if (!data || !Array.isArray(data)) return [];
+
+    return Promise.all(data.map(async (obj) => {
+      const record = obj;
+      const parseClass = record.parseClass || DEFAULT_OFFLINE_CLASS[category];
+      const localObject = mergeMetadataAsFallback(record.localObject, metadata);
+
+      // Local ids minted on the device are not Parse ids. They move to
+      // objectIdOffline, which is both the idempotency key and what the
+      // afterSave hooks use to reconnect children to their parents.
+      if (localObject.objectId && localObject.objectId.includes('PatientID-')) {
+        localObject.objectIdOffline = localObject.objectId;
+        delete localObject.objectId;
+      }
+
+      if (localObject.householdId && localObject.householdId.includes('Household-')) {
+        localObject.householdObjectIdOffline = localObject.householdId;
+        delete localObject.householdId;
+      }
+
+      if (localObject.objectId && localObject.objectId.includes('AssetID-')) {
+        localObject.objectIdOffline = localObject.objectId;
+        delete localObject.objectId;
+      }
+
+      if (localObject.objectIdOffline) {
+        const existing = await findExistingOfflineRecord(parseClass, localObject.objectIdOffline);
+        if (existing) return existing;
+      }
+
+      return postOfflineObject(record, parseClass, localObject);
+    }));
+  };
+
+  const postHouseholdArray = async (data, metadata, category) => {
+    if (!data || !Array.isArray(data)) return [];
+
+    return Promise.all(data.map(async (obj) => {
+      const record = obj;
+      const parseClass = record.parseClass || DEFAULT_OFFLINE_CLASS[category];
+      const localObject = mergeMetadataAsFallback(record.localObject, metadata);
+
+      if (localObject.objectId && localObject.objectId.includes('Household-')) {
+        localObject.objectIdOffline = localObject.objectId;
+        delete localObject.objectId;
+      }
+
+      if (localObject.objectIdOffline) {
+        const existing = await findExistingOfflineRecord(parseClass, localObject.objectIdOffline);
+        if (existing) return existing;
+      }
+
+      return postOfflineObject(record, parseClass, localObject);
+    }));
+  };
+
+  const postObjectsWithRelationshipsArray = async (data, metadata, category) => {
+    if (!data || !Array.isArray(data)) return [];
+
+    return Promise.all(data.map(async (obj) => {
+      const record = obj;
+      const parseClass = record.parseClass || DEFAULT_OFFLINE_CLASS[category];
+      const localObject = mergeMetadataAsFallback(record.localObject, metadata);
+
+      const parentId = record.parseParentClassID ? String(record.parseParentClassID) : '';
+      const parentIsOfflineLocal = parentId.includes('PatientID-') || parentId.includes('AssetID-');
+
+      // The parent does not exist in Parse yet. Record the local id so
+      // afterSupplementaryFormHook can find the parent once it is saved —
+      // without this the record is an orphan with no way back.
+      if (parentIsOfflineLocal) {
+        localObject.parseParentClassObjectIdOffline = parentId;
+      }
+
+      if (localObject.objectId && localObject.objectId.includes('SupID-')) {
+        localObject.objectIdOffline = localObject.objectId;
+        delete localObject.objectId;
+      }
+
+      if (localObject.objectIdOffline) {
+        const existing = await findExistingOfflineRecord(parseClass, localObject.objectIdOffline);
+        if (existing) return existing;
+      }
+
+      const supplementaryForm = new Parse.Object(parseClass);
+      applyLocalObject(supplementaryForm, localObject);
+
+      // A real (already-synced) parent id can be pointed at directly.
+      if (parentId && !parentIsOfflineLocal && record.parseParentClass) {
+        const parentForm = new Parse.Object(record.parseParentClass);
+        parentForm.id = parentId;
+        supplementaryForm.set('client', parentForm);
+      }
+
+      if (record.loopParentID) {
+        const loopParentForm = new Parse.Object(parseClass);
+        loopParentForm.id = String(record.loopParentID);
+        supplementaryForm.set('loopClient', loopParentForm);
+      }
+
+      setParseUserPointer(supplementaryForm, record.parseUser);
+
+      return supplementaryForm.save(null, { useMasterKey: true });
+    }));
+  };
+
+  const isSavedRecord = (record) => !!record && typeof record.get === 'function';
+
+  // Mirror of services/post/hooks/afterSave.js afterSurveyHouseholdHook.
+  const afterSurveyHouseholdHook = (records) => Promise.all(records.map(async (record) => {
+    const survey = record;
+    if (!isSavedRecord(survey)) return survey;
+
+    const householdPointer = survey.get('householdObjectIdOffline');
+    if (!householdPointer) return survey;
+
+    const householdQuery = new Parse.Query('Household');
+    householdQuery.equalTo('objectIdOffline', householdPointer);
+    const household = await householdQuery.first({ useMasterKey: true });
+    if (!household) return survey;
+
+    survey.set('householdClient', household);
+    survey.set('householdId', String(household.id));
+    return survey.save(null, { useMasterKey: true });
+  }));
+
+  // Mirror of services/post/hooks/afterSave.js afterSupplementaryFormHook.
+  const afterSupplementaryFormHook = (records, parentClass) => Promise.all(
+    records.map(async (record) => {
+      const supplementaryForm = record;
+      if (!isSavedRecord(supplementaryForm)) return supplementaryForm;
+
+      const parentPointer = supplementaryForm.get('parseParentClassObjectIdOffline');
+      if (!parentPointer) return supplementaryForm;
+
+      const parentQuery = new Parse.Query(parentClass);
+      parentQuery.equalTo('objectIdOffline', parentPointer);
+      const parent = await parentQuery.first({ useMasterKey: true });
+
+      if (!parent) {
+        console.error(`afterSupplementaryFormHook: ORPHANED ${supplementaryForm.className} ${supplementaryForm.id} — no ${parentClass} found with objectIdOffline=${parentPointer}; client pointer NOT set`);
+        return supplementaryForm;
+      }
+
+      supplementaryForm.set('client', parent);
+      return supplementaryForm.save(null, { useMasterKey: true });
+    })
+  );
+
   /**
    * Cloud function: uploadOfflineForms
-   * Uploads offline collected forms to the Parse database
-   * Real implementation: Processes forms through various factories with metadata enrichment
-   * Simplified mock: Saves forms directly with whitelisted fields
-   * Used for: Syncing offline form data when online connection restored
+   * Uploads offline collected forms to the Parse database.
+   *
+   * Categories are processed in the same order as Offline.upload: households
+   * first so residents can be attached to them, then residents so
+   * supplementary forms can be attached to those. Reordering silently breaks
+   * offline parent reconciliation.
    */
   Parse.Cloud.define('uploadOfflineForms', async (request) => {
     const offlineForms = request.params;
@@ -264,128 +543,45 @@ module.exports = function mockCloudCode(Parse) {
       throw new Error('offlineForms parameter is required');
     }
 
+    const { metadata } = offlineForms;
+
     console.log('🔄 uploadOfflineForms called with:', {
       residentFormsCount: offlineForms.residentForms?.length || 0,
       supplementaryFormsCount: offlineForms.residentSupplementaryForms?.length || 0,
       householdsCount: offlineForms.households?.length || 0,
       assetFormsCount: offlineForms.assetForms?.length || 0,
       assetSupplementaryFormsCount: offlineForms.assetSupplementaryForms?.length || 0,
+      hasMetadata: !!metadata,
     });
 
     try {
+      const households = await postHouseholdArray(
+        offlineForms.households, metadata, 'households',
+      );
+
+      const residentForms = await postObjectsArray(
+        offlineForms.residentForms, metadata, 'residentForms',
+      ).then(afterSurveyHouseholdHook);
+
+      const assetForms = await postObjectsArray(
+        offlineForms.assetForms, metadata, 'assetForms',
+      );
+
+      const residentSupplementaryForms = await postObjectsWithRelationshipsArray(
+        offlineForms.residentSupplementaryForms, metadata, 'residentSupplementaryForms',
+      ).then((results) => afterSupplementaryFormHook(results, 'SurveyData'));
+
+      const assetSupplementaryForms = await postObjectsWithRelationshipsArray(
+        offlineForms.assetSupplementaryForms, metadata, 'assetSupplementaryForms',
+      ).then((results) => afterSupplementaryFormHook(results, 'Assets'));
+
       const uploadedForms = {
-        residentForms: [],
-        residentSupplementaryForms: [],
-        households: [],
-        assetForms: [],
-        assetSupplementaryForms: [],
+        residentForms: residentForms.map(serializeRecord),
+        residentSupplementaryForms: residentSupplementaryForms.map(serializeRecord),
+        households: households.map(serializeRecord),
+        assetForms: assetForms.map(serializeRecord),
+        assetSupplementaryForms: assetSupplementaryForms.map(serializeRecord),
       };
-
-      // Upload resident forms
-      if (offlineForms.residentForms && Array.isArray(offlineForms.residentForms)) {
-        uploadedForms.residentForms = await Promise.all(offlineForms.residentForms.map(async (form) => {
-          const SurveyData = Parse.Object.extend('SurveyData');
-          const surveyData = new SurveyData();
-
-          if (form.localObject) {
-            const { fname, lname, nickname, dob, sex, objectId } = form.localObject;
-            if (fname) surveyData.set('fname', fname);
-            if (lname) surveyData.set('lname', lname);
-            if (nickname) surveyData.set('nickname', nickname);
-            if (dob) surveyData.set('dob', dob);
-            if (sex) surveyData.set('sex', sex);
-            if (objectId) surveyData.set('patientObjectId', objectId);
-          }
-
-          const result = await surveyData.save(null, { useMasterKey: true });
-          return { objectId: result.id, ...result.toJSON() };
-        }));
-      }
-
-      // Upload supplementary forms
-      if (offlineForms.residentSupplementaryForms && Array.isArray(offlineForms.residentSupplementaryForms)) {
-        uploadedForms.residentSupplementaryForms = await Promise.all(
-          offlineForms.residentSupplementaryForms.map(async (form) => {
-            const SupplementaryForm = Parse.Object.extend('SupplementaryForm');
-            const suppForm = new SupplementaryForm();
-
-            if (form.localObject) {
-              const { title, description, formSpecificationsId, fields, surveyingUser, surveyingOrganization } = form.localObject;
-              if (title) suppForm.set('title', title);
-              if (description) suppForm.set('description', description);
-              if (formSpecificationsId) suppForm.set('formSpecificationsId', formSpecificationsId);
-              if (fields) suppForm.set('fields', fields);
-              if (surveyingUser) suppForm.set('surveyingUser', surveyingUser);
-              if (surveyingOrganization) suppForm.set('surveyingOrganization', surveyingOrganization);
-            }
-
-            const result = await suppForm.save(null, { useMasterKey: true });
-            return { objectId: result.id, ...result.toJSON() };
-          })
-        );
-      }
-
-      // Upload households
-      if (offlineForms.households && Array.isArray(offlineForms.households)) {
-        uploadedForms.households = await Promise.all(offlineForms.households.map(async (form) => {
-          const Household = Parse.Object.extend('Household');
-          const household = new Household();
-
-          if (form.localObject) {
-            const { latitude, longitude, objectId } = form.localObject;
-            if (latitude !== undefined && latitude !== null) household.set('latitude', latitude);
-            if (longitude !== undefined && longitude !== null) household.set('longitude', longitude);
-            if (objectId) household.set('householdObjectId', objectId);
-          }
-
-          const result = await household.save(null, { useMasterKey: true });
-          return { objectId: result.id, ...result.toJSON() };
-        }));
-      }
-
-      // Upload asset forms
-      if (offlineForms.assetForms && Array.isArray(offlineForms.assetForms)) {
-        uploadedForms.assetForms = await Promise.all(offlineForms.assetForms.map(async (form) => {
-          const AssetForm = Parse.Object.extend('AssetForm');
-          const assetForm = new AssetForm();
-
-          if (form.localObject) {
-            const { name, location, communityname, province, country, objectId } = form.localObject;
-            if (name) assetForm.set('name', name);
-            if (location) assetForm.set('location', location);
-            if (communityname) assetForm.set('communityname', communityname);
-            if (province) assetForm.set('province', province);
-            if (country) assetForm.set('country', country);
-            if (objectId) assetForm.set('assetObjectId', objectId);
-          }
-
-          const result = await assetForm.save(null, { useMasterKey: true });
-          return { objectId: result.id, ...result.toJSON() };
-        }));
-      }
-
-      // Upload asset supplementary forms
-      if (offlineForms.assetSupplementaryForms && Array.isArray(offlineForms.assetSupplementaryForms)) {
-        uploadedForms.assetSupplementaryForms = await Promise.all(
-          offlineForms.assetSupplementaryForms.map(async (form) => {
-            const AssetSuppForm = Parse.Object.extend('AssetSupplementaryForm');
-            const assetSuppForm = new AssetSuppForm();
-
-            if (form.localObject) {
-              const { title, description, formSpecificationsId, fields, surveyingUser, surveyingOrganization } = form.localObject;
-              if (title) assetSuppForm.set('title', title);
-              if (description) assetSuppForm.set('description', description);
-              if (formSpecificationsId) assetSuppForm.set('formSpecificationsId', formSpecificationsId);
-              if (fields) assetSuppForm.set('fields', fields);
-              if (surveyingUser) assetSuppForm.set('surveyingUser', surveyingUser);
-              if (surveyingOrganization) assetSuppForm.set('surveyingOrganization', surveyingOrganization);
-            }
-
-            const result = await assetSuppForm.save(null, { useMasterKey: true });
-            return { objectId: result.id, ...result.toJSON() };
-          })
-        );
-      }
 
       console.log('📤 uploadOfflineForms returning:', {
         residentFormsCount: uploadedForms.residentForms.length,
@@ -404,7 +600,7 @@ module.exports = function mockCloudCode(Parse) {
 
   /**
    * Cloud function: updateObject
-   * Matches puente-node-cloudcode/cloud/src/definer/crud.definer.js (line 426)
+   * Matches puente-node-cloudcode/cloud/src/definer/crud.definer.js (line 462)
    * Input: { parseClass, parseClassID, localObject }
    * Gets object by ID, sets all localObject fields, saves with master key
    */
@@ -433,5 +629,5 @@ module.exports = function mockCloudCode(Parse) {
     return saved;
   });
 
-  console.log('✓ Mock Cloud Code functions registered: postObjectsToClass, postObjectsToClassWithRelation, signup, login, uploadOfflineForms, updateObject');
+  console.log('✓ Mock Cloud Code functions registered: postObjectsToClass, postObjectsToClassWithRelation, signup, signin, uploadOfflineForms, updateObject');
 };
