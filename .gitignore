@@ -35,7 +35,9 @@ app.json
 android/
 # ios/
 
-# AI
-.claude/handoff
-.claude/screenshots*
+# ─── Local Claude Code setup — deliberately NOT versioned ───────────────────
+# This repo is public; the Claude configuration is personal tooling, not part
+# of the app. NOTE: .claude/ was tracked before 2026-08-28 (first added in
+# 3a8b0dd), so it still exists in git history; this only stops future churn.
+.claude/
 
