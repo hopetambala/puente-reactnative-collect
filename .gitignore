@@ -1,4 +1,8 @@
-node_modules/
+# No trailing slash: `node_modules/` matches a DIRECTORY but not a SYMLINK,
+# so a symlinked node_modules slips past `git add -A` and gets committed.
+# Checking that branch out then REPLACES a real node_modules with a
+# self-referential link and destroys the install. Happened 2026-08-29.
+node_modules
 coverage/
 expo-resources/
 .expo
