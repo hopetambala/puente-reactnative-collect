@@ -1,5 +1,8 @@
+import selectedENV from "@app/environment";
+import client from "@app/services/parse/client";
 import { getData, storeData } from "@modules/async-storage";
 import { populateCache, residentQuery } from "@modules/cached-resources";
+import { loadOrganizationScope } from "@modules/organization";
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 import { UserContext } from "./auth.context";
@@ -14,12 +17,22 @@ export function OfflineContextProvider({ children }) {
   const residentOnlineData = useCallback(async () => {
     setIsLoading(true);
     try {
+      // EVERY string this organization's records may carry, not just the one on
+      // the account. Records hold what was COLLECTED, and one organization's
+      // are spread across several: in production Rayjon has 185 rows under
+      // "Rayjon" and 1196 under "Rayjon Eye Clinic". Cached, so it still
+      // resolves offline; falls back to the account's own string.
+      const parseParam = await loadOrganizationScope(
+        user.organization,
+        client(selectedENV.TEST_MODE)
+      );
+
       const queryParams = {
         skip: 0,
         offset: 0,
         limit: 2000,
         parseColumn: "surveyingOrganization",
-        parseParam: user.organization,
+        parseParam,
       };
       const records = await residentQuery(queryParams);
       await storeData(records, "residentData");

@@ -2,6 +2,18 @@
  * Organization Matching Integration Tests - RED/GREEN TDD
  * Verifies that stats queries correctly match or exclude records
  * based on organization field consistency
+ *
+ * NOTE (2026-08-29): these assert against the local `doesRecordMatch` helper
+ * below, not against any application code — they exercise nothing in
+ * stats.service.js and would pass whatever it does.
+ *
+ * They also model organization matching as EXACT STRING EQUALITY, which is not
+ * how it works. Records carry the string that was COLLECTED, and one
+ * organization's records are spread across several: in production Rayjon has
+ * 185 rows under "Rayjon" and 1196 under "Rayjon Eye Clinic". Real scoping goes
+ * through `organizationMatchValues` in modules/organization and uses
+ * `containedIn`. See services/parse/stats/__test__/organizationScope.test.js,
+ * which drives the actual query builder.
  */
 
 describe('Organization Matching Integration Tests - RED/GREEN TDD', () => {

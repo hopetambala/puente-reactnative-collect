@@ -66,7 +66,17 @@ async function countWithRange(parseClass, equalToParams, dateRange) {
     // Apply equality filters
     if (equalToParams) {
       Object.keys(equalToParams).forEach((key) => {
-        query.equalTo(key, equalToParams[key]);
+        const value = equalToParams[key];
+        // An array means "any of these". Used for surveyingOrganization,
+        // because records carry the string that was COLLECTED and one
+        // organization's are spread across several — Rayjon has 185 rows under
+        // "Rayjon" and 1196 under "Rayjon Eye Clinic". Every other filter
+        // (surveyingUser and friends) stays an exact match.
+        if (Array.isArray(value)) {
+          query.containedIn(key, value);
+        } else {
+          query.equalTo(key, value);
+        }
       });
     }
 
@@ -112,7 +122,17 @@ async function fetchItemsPage(
     // Apply equality filters
     if (equalToParams) {
       Object.keys(equalToParams).forEach((key) => {
-        query.equalTo(key, equalToParams[key]);
+        const value = equalToParams[key];
+        // An array means "any of these". Used for surveyingOrganization,
+        // because records carry the string that was COLLECTED and one
+        // organization's are spread across several — Rayjon has 185 rows under
+        // "Rayjon" and 1196 under "Rayjon Eye Clinic". Every other filter
+        // (surveyingUser and friends) stays an exact match.
+        if (Array.isArray(value)) {
+          query.containedIn(key, value);
+        } else {
+          query.equalTo(key, value);
+        }
       });
     }
 
