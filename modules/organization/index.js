@@ -40,7 +40,12 @@ export function normalizeOrganizationName(value) {
  */
 export function organizationMatchValues(name, organizations = []) {
   const wanted = normalizeOrganizationName(name);
-  if (wanted === null) return [name];
+  // A blank organization resolves to NOTHING, deliberately. The internal-test
+  // bucket carries an empty string among its aliases in production, so a blank
+  // account would otherwise fold to "" and match it — handing 11 accounts the
+  // records of a bucket that is not theirs. Blank is a data-quality problem to
+  // surface, never a tenancy to infer.
+  if (!wanted) return [name];
 
   const matches = organizations.filter((org) => {
     // The canonical name is always an implicit alias.

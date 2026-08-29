@@ -97,3 +97,20 @@ housing: null,
     expect(values).toEqual(["DRMT"]);
   });
 });
+
+describe("a blank organization must not inherit the junk bucket", () => {
+  // The internal-test organization carries an empty string among its aliases in
+  // production, so a blank account organization folds to "" and MATCHES it —
+  // handing 11 accounts the 343 records of a bucket that is not theirs.
+  const INTERNAL = {
+    objectId: "o9",
+    name: "Internal / test",
+    shortCode: "internal-test",
+    aliases: ["", "testORG", "Company A"],
+  };
+
+  it.each(["", "   ", null, undefined])("does not resolve %p", (blank) => {
+    expect(organizationMatchValues(blank, [INTERNAL])).toEqual([blank]);
+  });
+});
+
