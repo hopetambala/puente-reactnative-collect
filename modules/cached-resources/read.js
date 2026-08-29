@@ -7,6 +7,7 @@ import {
 import getTasks from "@app/services/tasky";
 import { getData, storeData } from "@modules/async-storage";
 import checkOnlineStatus from "@modules/offline";
+import { loadOrganizationScope } from "@modules/organization";
 import _ from "lodash";
 
 async function residentQuery(queryParams) {
@@ -98,11 +99,17 @@ async function cacheAutofillData(surveyingOrganization) {
 }
 
 function customFormsQuery(surveyingOrganization) {
-  return checkOnlineStatus().then((online) => {
+  return checkOnlineStatus().then(async (online) => {
     if (online) {
+      // EVERY string this organization is known by. Form definitions are tagged
+      // with whatever string was current when they were made, so matching one
+      // hides the rest: in production 17 Puente accounts saw 3 of 33 custom
+      // forms and every Rayjon account saw half of 12. A surveyor cannot fill
+      // in a form they cannot see.
+      const organizationValues = await loadOrganizationScope(surveyingOrganization);
       const parseParams = {
         typeOfForm: "Custom",
-        organizations: surveyingOrganization,
+        organizations: organizationValues,
       };
 
       return customMultiParamQueryService(
@@ -170,11 +177,17 @@ function getTasksAsync() {
 function assetFormsQuery(surveyingOrganization) {
   return new Promise((resolve, reject) => {
     checkOnlineStatus().then(
-      (online) => {
+      async (online) => {
         if (online) {
+      // EVERY string this organization is known by. Form definitions are tagged
+      // with whatever string was current when they were made, so matching one
+      // hides the rest: in production 17 Puente accounts saw 3 of 33 custom
+      // forms and every Rayjon account saw half of 12. A surveyor cannot fill
+      // in a form they cannot see.
+          const organizationValues = await loadOrganizationScope(surveyingOrganization);
           const parseParams = {
             typeOfForm: "Assets",
-            organizations: surveyingOrganization,
+            organizations: organizationValues,
           };
           customMultiParamQueryService(
             "FormSpecificationsV2",
@@ -216,14 +229,15 @@ function assetFormsQuery(surveyingOrganization) {
 function assetDataQuery(surveyingOrganization) {
   return new Promise((resolve, reject) => {
     checkOnlineStatus().then(
-      (online) => {
+      async (online) => {
         if (online) {
+          const organizationValues = await loadOrganizationScope(surveyingOrganization);
           customQueryService(
             0,
             10000,
             "Assets",
             "surveyingOrganization",
-            surveyingOrganization
+            organizationValues
           ).then(
             async (forms) => {
               await storeData(forms, "assetData");

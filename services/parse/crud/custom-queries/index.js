@@ -32,7 +32,17 @@ function customQueryService(
 
       query.descending("createdAt");
 
-      query.equalTo(parseColumn, parseParam);
+      // An array means "any of these". Used for organization scoping: records
+      // and form definitions carry the string that was COLLECTED or tagged, and
+      // one organization's are spread across several. Measured in production
+      // 2026-08-29, 17 Puente accounts saw 3 of 33 custom forms and every
+      // Rayjon account saw half of 12 — a surveyor cannot fill in a form they
+      // cannot see. Every scalar filter stays an exact match.
+      if (Array.isArray(parseParam)) {
+        query.containedIn(parseColumn, parseParam);
+      } else {
+        query.equalTo(parseColumn, parseParam);
+      }
 
       query.find().then(
         (records) => {
@@ -73,7 +83,19 @@ function customMultiParamQueryService(parseModel, parseParams, limit = 5000) {
       //   query.equalTo(property, parseParams[property]);
       // }
 
-      Object.entries(parseParams).forEach((e) => query.equalTo(e[0], e[1]));
+      // An array means "any of these". Used for organization scoping: records
+      // and form definitions carry the string that was COLLECTED or tagged, and
+      // one organization's are spread across several. Measured in production
+      // 2026-08-29, 17 Puente accounts saw 3 of 33 custom forms and every
+      // Rayjon account saw half of 12 — a surveyor cannot fill in a form they
+      // cannot see. Every scalar filter stays an exact match.
+      Object.entries(parseParams).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          query.containedIn(key, value);
+        } else {
+          query.equalTo(key, value);
+        }
+      });
 
       query.find().then(
         (records) => {

@@ -1,3 +1,5 @@
+import selectedENV from "@app/environment";
+import client from "@app/services/parse/client";
 import { getData, storeData } from "@modules/async-storage";
 
 /** AsyncStorage key for the last known organization set. */
@@ -74,7 +76,10 @@ const toPlain = (records) =>
  * they lose signal, which in the field is most of the time. The set is written
  * to AsyncStorage on every successful read and served from there otherwise.
  */
-export async function loadOrganizationScope(organization, Parse) {
+export async function loadOrganizationScope(organization, parseInstance) {
+  // Lazily built so importing this module does not initialise Parse, and so
+  // tests can inject a stub.
+  const Parse = parseInstance || client(selectedENV.TEST_MODE);
   let organizations = null;
 
   try {
