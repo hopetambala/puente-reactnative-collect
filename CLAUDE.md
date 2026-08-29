@@ -20,6 +20,7 @@ yarn test:integration             # integration tests only
 yarn lint-fix                     # ESLint auto-fix
 yarn lint:animations              # animation system lint (checks for token violations)
 yarn lint:theme-imports           # design token import lint
+yarn build-submit-ios             # create expo build, then submit that latest build to testflight
 ```
 
 ## Directory structure
