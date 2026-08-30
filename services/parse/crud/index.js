@@ -46,7 +46,16 @@ function residentIDQuery(params) {
 
     query.descending("createdAt");
 
-    query.equalTo("surveyingOrganization", parseParam);
+    // containedIn, never equalTo. Records carry the string that was COLLECTED
+    // and one organization's are spread across several: in production Rayjon
+    // has 185 rows under "Rayjon" and 1196 under "Rayjon Eye Clinic", so
+    // matching a single string showed 15 surveyors 11% of their own data and
+    // two DR Missions accounts none at all. A bare string is wrapped so an
+    // unrecognised organization still sees its own records.
+    query.containedIn(
+      "surveyingOrganization",
+      Array.isArray(parseParam) ? parseParam : [parseParam]
+    );
     query.limit(limit);
 
     query.find().then(

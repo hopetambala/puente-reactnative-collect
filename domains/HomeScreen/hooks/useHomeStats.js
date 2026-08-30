@@ -1,5 +1,8 @@
 import { UserContext } from '@app/context/auth.context';
+import selectedENV from '@app/environment';
+import client from '@app/services/parse/client';
 import statsService from '@app/services/parse/stats/stats.service';
+import { loadOrganizationScope } from '@modules/organization';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useContext,useEffect, useState } from 'react';
 
@@ -43,7 +46,15 @@ export default function useHomeStats() {
       // Fetch fresh data from cloud (we're assuming we're online)
       // surveyingUser in Parse is stored as "Firstname Lastname" by surveyingUserFailsafe
       const surveyingUser = `${user?.firstname || ''} ${user?.lastname || ''}`.trim() || user?.username || '';
-      const organization = user?.organization || '';
+      // EVERY string this organization's records may carry. Records hold what
+      // was COLLECTED and one organization's are spread across several: in
+      // production Rayjon has 185 rows under "Rayjon" and 1196 under "Rayjon
+      // Eye Clinic", so a single string undercounts by up to 89%. Cached, so it
+      // still resolves offline; falls back to the account's own string.
+      const organization = await loadOrganizationScope(
+        user?.organization || '',
+        client(selectedENV.TEST_MODE),
+      );
 
       const response = await statsService.aggregateStats(surveyingUser, organization, filter);
       

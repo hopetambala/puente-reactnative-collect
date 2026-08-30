@@ -20,6 +20,7 @@ yarn test:integration             # integration tests only
 yarn lint-fix                     # ESLint auto-fix
 yarn lint:animations              # animation system lint (checks for token violations)
 yarn lint:theme-imports           # design token import lint
+yarn build-submit-ios             # create expo build, then submit that latest build to testflight
 ```
 
 ## Directory structure
@@ -69,6 +70,37 @@ a local dev setup may override `dev` to point at a local Parse server.
 The mobile Parse SDK cannot use the Master Key — never use `masterKey` in app code.
 Use `equalTo`, `limit`, `find` on queries; never `distinct`.
 
+### Scoping a query by organization: `containedIn`, never `equalTo`
+
+Records carry the `surveyingOrganization` string that was **collected**, and one
+organization's records are spread across every string it has ever been called.
+Measured in production 2026-08-29:
+
+| Organization | Rows under one string | Rows that exist |
+|---|---:|---:|
+| `dr-missions` | 11 under `DR Missions` | 633 (611 are `DRMT`) |
+| `rayjon` | 185 under `Rayjon` | 1569 (1196 are `Rayjon Eye Clinic`) |
+
+`equalTo` on a single string showed those surveyors 1% and 11% of their own
+organization's data, with no error. It also hid custom forms — and **a surveyor
+cannot fill in a form they cannot see**, so this blocks collection, not just
+viewing.
+
+Resolve the set first, then use `containedIn`:
+
+```js
+import { loadOrganizationScope } from "@modules/organization";
+
+const organizationValues = await loadOrganizationScope(user.organization);
+query.containedIn("surveyingOrganization", organizationValues);
+```
+
+`loadOrganizationScope` caches to AsyncStorage so it still resolves offline, and
+falls back to `[organization]` on any failure — it narrows, never blanks. The
+matcher is deliberately identical to the resolvers in `puente-node-cloudcode`
+and `puente-react-nextjs-platform`; if the three diverge, the three systems
+disagree about who owns a record.
+
 ---
 
 ## Testing
@@ -87,6 +119,33 @@ domains/DataCollection/__tests__/DataCollection.unit.test.js
 ```
 
 Integration tests use `.integration.test.js` and are excluded from `yarn test:unit`.
+
+### Running the app end to end — use Maestro, do not hand-drive the simulator
+
+**There is already an E2E harness. Look for it before building anything.**
+
+```bash
+# 1. Metro, in the environment you want to exercise:
+APP_ENV=prod EXPO_PUBLIC_APP_ENV=prod ./node_modules/.bin/expo start --clear
+
+# 2. Then a flow (credentials are already in the yarn script):
+yarn maestro .maestro/authenticated.yaml
+```
+
+Flows live in `.maestro/`. `authenticated.yaml` signs in and walks Home → Data
+Collection → Find Records → Assets → Settings, screenshotting each into
+`.claude/screenshots/`. `organization-scope.yaml` is the regression flow for
+organization scoping. There are also five `offline-*` flows,
+`find-records-history.yaml`, `resident-id-form.yaml` and `visual-qa.yaml`.
+
+Prerequisites: a booted simulator with the app installed. The bundle id is
+`io.ionic.starter1270348` — **not** a puente-prefixed one.
+
+**Never symlink `node_modules` into a git worktree.** `.gitignore` used
+`node_modules/`, and a trailing slash matches a directory but **not a symlink** —
+so `git add -A` committed one, and checking that branch out replaced a real
+`node_modules` with a self-referential link and destroyed the install. The
+pattern is fixed, but do not recreate the shape.
 
 ### Global mocks (already in `jest.setup.js` — do not re-mock these)
 

@@ -1,0 +1,97 @@
+# Puente Collect — organization scoping regression flow.
+#
+# WHY THIS EXISTS
+# Records carry the `surveyingOrganization` string that was COLLECTED, and one
+# organization's records are spread across every string it has ever been called.
+# Measured in production 2026-08-29:
+#
+#   internal-test  343 SurveyData rows across 21 strings; 'testORG' alone has 134
+#   rayjon        1569 rows; 'Rayjon' has 185, 'Rayjon Eye Clinic' has 1196
+#   dr-missions    633 rows; 'DRMT' has 611, 'DR Missions' has 11
+#
+# Matching a SINGLE string showed surveyors a fraction of their own data, and
+# hid custom forms entirely — a surveyor cannot fill in a form they cannot see.
+# Scoping now goes through `organizationMatchValues` in modules/organization and
+# uses `containedIn`.
+#
+# WHAT TO LOOK FOR in the screenshots this writes:
+#   organization-scope-02-home-all-time  — "Activity across the Organization"
+#       must reflect the WHOLE alias set. For the Test account (testORG) that is
+#       343, not 134. A number matching one string's count is the regression.
+#   organization-scope-03-data-collection — the custom form list. The
+#       internal-test bucket tags 6 forms 'testORG' and 2 'Fiktiv, Inc.';
+#       a single-string match sees at most 6 of 8.
+#
+# Run against whichever backend Metro is serving:
+#   APP_ENV=prod EXPO_PUBLIC_APP_ENV=prod ./node_modules/.bin/expo start --clear
+#   yarn maestro .maestro/organization-scope.yaml
+appId: io.ionic.starter1270348
+---
+- launchApp
+
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+
+# Already signed in from a previous flow? Skip straight to Home.
+- runFlow:
+    when:
+      visible: "Log-In"
+    commands:
+      - tapOn:
+          point: "50%, 38%"
+      - inputText: ${PARSE_USERNAME}
+      - tapOn:
+          point: "50%, 48%"
+      - inputText: ${PARSE_PASSWORD}
+      - scroll
+      - tapOn: "Log-In"
+
+- runFlow:
+    when:
+      visible: "Your Impact Dashboard"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "Home"
+    timeout: 30000
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/organization-scope-01-home-7d
+
+# --- The load-bearing assertion: counts across the WHOLE alias set ---
+# "Last 7 Days" is usually 0 platform-wide, so All Time is what distinguishes
+# alias-set scoping from single-string scoping.
+- tapOn: "All Time"
+- waitForAnimationToEnd
+# Deliberately NOT asserting on "Activity across the Organization": the text
+# renders (it is in the failure screenshot from 2026-08-29) but Maestro cannot
+# match it as a selector, so asserting on it fails the flow for a reason that
+# has nothing to do with the app. Wait on the stable tab title instead and read
+# the number off the screenshot.
+- extendedWaitUntil:
+    visible: "Home"
+    timeout: 30000
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/organization-scope-02-home-all-time
+
+# --- Custom forms: the severe case, because it blocks collection ---
+- tapOn:
+    point: "30%, 94%"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Capture Field Data"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/organization-scope-03-data-collection
+
+# --- Find Records ---
+- tapOn:
+    point: "10%, 94%"
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/organization-scope-04-find-records
