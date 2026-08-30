@@ -198,6 +198,58 @@ render(<UserContext.Provider value={mockUser}><ComponentUnderTest /></UserContex
 
 ---
 
+## Releases and EAS
+
+### Releases are cut LOCALLY, not from CI
+
+```bash
+# from a clean master, with the version already bumped
+eas build --platform ios --profile production
+eas submit -p ios --latest          # -> TestFlight
+```
+
+The GitHub `EAS Build` workflow has **never** succeeded. Do not reach for it as
+"the" release path and do not conclude the pipeline is broken when a local build
+works fine — those are different paths.
+
+### `.easignore` is why gitignored files still reach the build
+
+`environment.js` and `app.json` are **deliberately** gitignored — credentials do
+not belong in git. They still reach EAS because **`.easignore` exists, and when
+it does EAS uses it INSTEAD of `.gitignore`** to decide what to upload. It does
+not exclude them, so a local `eas build` ships them.
+
+This is the single most misread thing about this repo's release setup:
+
+- **Local build** — `environment.js` is on disk, `.easignore` lets it through. Works.
+- **CI build** — the runner checks out from git, so the file never exists on
+  disk at all. `.easignore` cannot include what is not there, and the build dies
+  in the `Bundle JavaScript` phase with
+  `Unable to resolve module ../../../environment`.
+
+If you ever do fix CI, the fix is to generate `environment.js` on the runner —
+and it must use PRODUCTION Parse credentials. The existing `PARSE_APP_ID` /
+`PARSE_JAVASCRIPT_KEY` secrets are the TEST app: `preview.yaml` builds its
+config from them with `TEST_MODE: true` and `puente-test-logs`. Shipping a
+TestFlight build pointed at staging means surveyors collecting into the wrong
+database.
+
+### Node version
+
+`eas-cli@latest` requires Node >= 22; `.nvmrc` pins 20.19.6. Run `nvm use 22` (or
+newer) before any `eas` command, or yarn aborts with
+`@oclif/plugin-autocomplete ... Expected version ">=22.0.0"`.
+
+### Version bumping
+
+`yarn release-patch` runs `standard-version`, whose postbump script writes
+`app.json` (version, iOS `buildNumber`, Android `versionCode`) but **never
+`ios/Collect/Info.plist`**. This is a bare workflow with
+`appVersionSource: "local"`, so the plist is what EAS reads — bump it by hand or
+Apple rejects the build as a duplicate.
+
+---
+
 ## Design system
 
 Design tokens live in `modules/theme/tokens.js`, wrapping
