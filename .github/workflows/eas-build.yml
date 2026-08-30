@@ -26,4 +26,19 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Build on EAS
+        # Apple credentials are passed here for the same reason eas-submit.yml
+        # passes them: without an Apple session EAS cannot regenerate expired
+        # signing assets, and `--non-interactive` then fails rather than
+        # prompting. Every EAS Build run since 2026-03 has died on exactly that:
+        #
+        #   Provisioning Profile has expired.
+        #   Failed to update provisioning profile (L9KF7F3JF2) with distribution
+        #   certificate (NULJX2P65L)
+        #   No certificate exists with serial number "76B0ABCD…"
+        #
+        # The certificate EAS referenced no longer exists in the Apple account,
+        # so it has to be able to mint a new one.
+        env:
+          EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_EMAIL_ADDRESS }}
+          EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
         run: eas build --platform all --non-interactive
