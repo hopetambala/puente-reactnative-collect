@@ -13,7 +13,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          # eas-cli@latest pulls @oclif/plugin-autocomplete, which requires
+          # Node >= 22. On 20.x yarn aborts with "Found incompatible module"
+          # before the CLI installs, so the build never reaches the signing step.
+          node-version: '22.x'
           cache: 'yarn'
 
       - name: Setup Expo and EAS
