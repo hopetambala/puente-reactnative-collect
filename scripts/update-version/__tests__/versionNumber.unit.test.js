@@ -1,4 +1,4 @@
-const { computeVersionUpdates, updateInfoPlist } = require("../versionNumber");
+const { computeVersionUpdates, updateInfoPlist } = require("@app/scripts/update-version/versionNumber");
 
 describe("computeVersionUpdates", () => {
   it("uses the version string as both the train and the build number", () => {
