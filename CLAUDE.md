@@ -126,7 +126,7 @@ Integration tests use `.integration.test.js` and are excluded from `yarn test:un
 
 ```bash
 # 1. Metro, in the environment you want to exercise:
-APP_ENV=prod EXPO_PUBLIC_APP_ENV=prod ./node_modules/.bin/expo start --clear
+yarn start:prod-clear      # or start:staging-clear
 
 # 2. Then a flow (credentials are already in the yarn script):
 yarn maestro .maestro/authenticated.yaml
@@ -200,6 +200,40 @@ render(<UserContext.Provider value={mockUser}><ComponentUnderTest /></UserContex
 
 ## Releases and EAS
 
+## Use the package.json scripts. Always.
+
+Every routine operation here has a script: `start:prod-clear`,
+`start:staging-clear`, `maestro`, `test:unit`, `test:integration`,
+`release-patch|minor|major`, `build-submit-ios`. **Run the script, never the raw
+command it wraps.** The scripts carry env vars, credentials and flags that are
+easy to get subtly wrong and hard to notice when you do — a hand-rolled
+`expo start` without `APP_ENV` silently points the app at the wrong backend, and
+a hand-edited version file silently ships stale store metadata.
+
+**If a script is missing something, fix the script and add a test**, so the next
+person inherits the fix instead of repeating the workaround. That is how
+`ios/Collect/Info.plist` got into the version bump.
+
+### Test organizations — use them, do not invent names
+
+There are real test organizations in production for exercising functionality.
+`internal-test` is the junk bucket, and it carries deliberately broad aliases —
+`testORG`, `Test`, `Xyz`, `Abc`, `Orgs`. Two consequences worth knowing before
+you test anything organization-related:
+
+- **`testOrg1`, `testOrg2` and friends will be REFUSED at signup.** Normalised,
+  they contain `testorg`, so the near-duplicate guard routes them to staff. That
+  is the guard working, not a bug.
+- Because `Test` is only four characters, **any organization name containing
+  "test" is refused** the same way. Pick a clearly distinct name when you need a
+  create to succeed.
+
+The Maestro credentials (`PARSE_USERNAME=Test`, `PARSE_PASSWORD=test`) are
+already in the `maestro` script — that account belongs to the `internal-test`
+bucket, which is why the org-scope flow asserts against its alias set.
+
+---
+
 ### The release gate — run the Maestro harness BEFORE every release, always
 
 **No release is cut without an E2E pass on the harness. Ever.** Unit tests
@@ -213,7 +247,7 @@ regression:
 
 ```bash
 # 1. Metro FIRST, in the environment you want to exercise
-APP_ENV=prod EXPO_PUBLIC_APP_ENV=prod ./node_modules/.bin/expo start --clear
+yarn start:prod-clear      # or start:staging-clear
 
 # 2. Then the flows (credentials are already in the yarn script)
 yarn maestro .maestro/authenticated.yaml
