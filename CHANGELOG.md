@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [15.7.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.6.1...v15.7.0) (2026-08-30)
+
+
+### Documentation Changes
+
+* **agents:** point the release section at yarn build-submit-ios ([bdc3a35](https://github.com/hopetambala/puente-reactnative-collect/commit/bdc3a35f8d7773eaa56833974daa47d437af3718))
+
+
+### New Features
+
+* **signup:** a real organization picker, sourced from the Organization class ([#619](https://github.com/hopetambala/puente-reactnative-collect/issues/619)) ([eb9355a](https://github.com/hopetambala/puente-reactnative-collect/commit/eb9355abb700f2c1bdd804fbf78aef97c45fdad3)), closes [#623](https://github.com/hopetambala/puente-reactnative-collect/issues/623)
+
+
+### Bug fixes
+
+* **release:** make the version bump update Info.plist too ([0a8220e](https://github.com/hopetambala/puente-reactnative-collect/commit/0a8220eea13552c4a3bdc94236013874f51b48cf))
+
 ### [15.6.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.8...v15.6.1) (2026-08-30)
 
 

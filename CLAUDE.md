@@ -126,7 +126,7 @@ Integration tests use `.integration.test.js` and are excluded from `yarn test:un
 
 ```bash
 # 1. Metro, in the environment you want to exercise:
-APP_ENV=prod EXPO_PUBLIC_APP_ENV=prod ./node_modules/.bin/expo start --clear
+yarn start:prod-clear      # or start:staging-clear
 
 # 2. Then a flow (credentials are already in the yarn script):
 yarn maestro .maestro/authenticated.yaml
@@ -200,6 +200,76 @@ render(<UserContext.Provider value={mockUser}><ComponentUnderTest /></UserContex
 
 ## Releases and EAS
 
+## Use the package.json scripts. Always.
+
+Every routine operation here has a script: `start:prod-clear`,
+`start:staging-clear`, `maestro`, `test:unit`, `test:integration`,
+`release-patch|minor|major`, `build-submit-ios`. **Run the script, never the raw
+command it wraps.** The scripts carry env vars, credentials and flags that are
+easy to get subtly wrong and hard to notice when you do — a hand-rolled
+`expo start` without `APP_ENV` silently points the app at the wrong backend, and
+a hand-edited version file silently ships stale store metadata.
+
+**If a script is missing something, fix the script and add a test**, so the next
+person inherits the fix instead of repeating the workaround. That is how
+`ios/Collect/Info.plist` got into the version bump.
+
+### Test organizations — use them, do not invent names
+
+There are real test organizations in production for exercising functionality.
+`internal-test` is the junk bucket, and it carries deliberately broad aliases —
+`testORG`, `Test`, `Xyz`, `Abc`, `Orgs`. Two consequences worth knowing before
+you test anything organization-related:
+
+- **`testOrg1`, `testOrg2` and friends will be REFUSED at signup.** Normalised,
+  they contain `testorg`, so the near-duplicate guard routes them to staff. That
+  is the guard working, not a bug.
+- Because `Test` is only four characters, **any organization name containing
+  "test" is refused** the same way. Pick a clearly distinct name when you need a
+  create to succeed.
+
+The Maestro credentials (`PARSE_USERNAME=Test`, `PARSE_PASSWORD=test`) are
+already in the `maestro` script — that account belongs to the `internal-test`
+bucket, which is why the org-scope flow asserts against its alias set.
+
+---
+
+### The release gate — run the Maestro harness BEFORE every release, always
+
+**No release is cut without an E2E pass on the harness. Ever.** Unit tests
+green, lint clean and CI green are not a release gate on a mobile app: none of
+them execute the screen a surveyor actually touches, and the cost of being wrong
+is a store round-trip measured in days, not a revert measured in minutes.
+
+It is two steps, and skipping the first is the usual mistake — without Metro the
+app has no JS bundle, every assertion fails, and the run looks like a
+regression:
+
+```bash
+# 1. Metro FIRST, in the environment you want to exercise
+yarn start:prod-clear      # or start:staging-clear
+
+# 2. Then the flows (credentials are already in the yarn script)
+yarn maestro .maestro/authenticated.yaml
+yarn maestro .maestro/organization-scope.yaml
+```
+
+Before running, confirm the simulator actually has the build under test:
+
+```bash
+xcrun simctl listapps <device-udid> | grep io.ionic.starter1270348
+```
+
+**The bundle id is `io.ionic.starter1270348`** — grepping for `puente` or
+`collect` finds nothing and will convince you the app is missing when it is not.
+If the build predates your change, `npx expo run:ios` first; a green flow
+against a stale binary proves nothing.
+
+Run the flows that cover what you touched, plus `authenticated.yaml` as the
+smoke test. If a flow for your change does not exist, **write one** — the signup
+organization picker was broken for four and a half years partly because
+`.maestro/` had no registration flow and no test referenced `AutoFill`.
+
 ### Releases are cut LOCALLY, not from CI
 
 **Use `yarn build-submit-ios`** — it is in the Commands block at the top of this
@@ -242,14 +312,32 @@ database.
 newer) before any `eas` command, or yarn aborts with
 `@oclif/plugin-autocomplete ... Expected version ">=22.0.0"`.
 
-### Version bumping
+### Version bumping — use the scripts, never edit versions by hand
 
-`yarn release-patch` runs `standard-version`, whose postbump script writes
-`app.json` (version, iOS `buildNumber`, Android `versionCode`) but **never
-`ios/Collect/Info.plist`**. This is a bare workflow with
-`appVersionSource: "local"`, so the plist is what EAS reads — bump it by hand or
-Apple rejects the build as a duplicate.
+```bash
+yarn release-patch   # or release-minor / release-major
+```
 
+That is the whole bump. `standard-version` bumps `package.json`, and its
+`postbump` hook (`scripts/update-version/versionNumber.js`, wired in
+`.versionrc.js`) propagates the version to **every** file that has to agree:
+
+| File | What it gets |
+|---|---|
+| `app.json` → `version` | the version string — **the TRAIN Apple gates on** |
+| `app.json` → `ios.buildNumber` | the same string |
+| `app.json` → `android.versionCode` | `490` + zero-padded major/minor/patch, monotonic |
+| `ios/Collect/Info.plist` | both `CFBundleShortVersionString` and `CFBundleVersion` |
+
+**Do not hand-edit any of these.** Five files that must agree is exactly the
+shape that drifts. If the script is missing something, fix the script and add a
+test — `scripts/update-version/__tests__/` — so the next release inherits the
+fix. That is what happened for `Info.plist`, which was hand-edited every release
+until 15.7.0 and was therefore occasionally stale.
+
+**Pick the right bump.** The version string is the train Apple gates
+submissions on: a higher *build number* does not help if the train is closed.
+That is what got build `90186` rejected. A new capability is a **minor**.
 ---
 
 ## Design system
