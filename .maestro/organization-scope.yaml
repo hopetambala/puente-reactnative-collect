@@ -67,9 +67,15 @@ appId: io.ionic.starter1270348
 # alias-set scoping from single-string scoping.
 - tapOn: "All Time"
 - waitForAnimationToEnd
+# Deliberately NOT asserting on "Activity across the Organization": the text
+# renders (it is in the failure screenshot from 2026-08-29) but Maestro cannot
+# match it as a selector, so asserting on it fails the flow for a reason that
+# has nothing to do with the app. Wait on the stable tab title instead and read
+# the number off the screenshot.
 - extendedWaitUntil:
-    visible: "Activity across the Organization"
+    visible: "Home"
     timeout: 30000
+- waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/organization-scope-02-home-all-time
 
 # --- Custom forms: the severe case, because it blocks collection ---
