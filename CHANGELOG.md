@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.6.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.8...v15.6.1) (2026-08-30)
+
+
+### Bug fixes
+
+* **ci:** EAS workflows need Node 22 ([#615](https://github.com/hopetambala/puente-reactnative-collect/issues/615)) ([53085c9](https://github.com/hopetambala/puente-reactnative-collect/commit/53085c928894ab41363f7840dceb4005244138c6))
+* **ci:** give EAS Build the Apple credentials it needs to sign ([#614](https://github.com/hopetambala/puente-reactnative-collect/issues/614)) ([1730d21](https://github.com/hopetambala/puente-reactnative-collect/commit/1730d21163f902208557aa78e8e3fc8421a2c1db))
+* **data-collection:** stop pinned-forms empty state clipping off-screen ([df4b63d](https://github.com/hopetambala/puente-reactnative-collect/commit/df4b63d3f42a506b4d65e8027cf858ca95c3e926))
+* **organization:** scope records to every string an organization uses ([#613](https://github.com/hopetambala/puente-reactnative-collect/issues/613)) ([fb7f8dd](https://github.com/hopetambala/puente-reactnative-collect/commit/fb7f8dddd0ed1e4c7a4e77a31c8ae598bc81fddf))
+* **settings:** M1 hardening -- close AS-01, AS-02, AS-04, AS-05, AS-08, AS-12 ([cea5353](https://github.com/hopetambala/puente-reactnative-collect/commit/cea5353337675783e1d7c0b4918b0b9f529061f4))
+* **settings:** M2 complete -- AS-03, AS-09, AS-13, AS-37 ([3844a0d](https://github.com/hopetambala/puente-reactnative-collect/commit/3844a0d891b60a797fe005156407bd6c6aa4a84c))
+* **settings:** M2 part 1 -- AS-06, AS-21, AS-23, AS-24, AS-25, AS-28, AS-01b ([2ead60a](https://github.com/hopetambala/puente-reactnative-collect/commit/2ead60a50fda709d7fbea4331bf9601e0100ef14)), closes [#0a46b6](https://github.com/hopetambala/puente-reactnative-collect/issues/0a46b6) [#E8DEF8](https://github.com/hopetambala/puente-reactnative-collect/issues/E8DEF8)
+* **settings:** M2 part 2 -- AS-10 error copy, AS-31 PopupSuccess i18n ([25e2469](https://github.com/hopetambala/puente-reactnative-collect/commit/25e2469eb19e03eadc01517fe685e1366fe52f49))
+* **settings:** M3 -- edit screens, touch targets, accessibility, dlite migration ([548e74d](https://github.com/hopetambala/puente-reactnative-collect/commit/548e74d4fdefaf26d748e1ca147713da5a7db130))
+* **settings:** repair two regressions I shipped in the Offline Records rework ([c3e07d5](https://github.com/hopetambala/puente-reactnative-collect/commit/c3e07d5261156fd5003c6d93f91be94418d1d644))
+* **settings:** resolve PR [#609](https://github.com/hopetambala/puente-reactnative-collect/issues/609)'s two open decisions -- block offline logout, keep offline login disabled with honest copy ([9edb7a4](https://github.com/hopetambala/puente-reactnative-collect/commit/9edb7a467d867d2649b02cf001e96bfb12c6392e))
+* **settings:** retire the Offline Data community query (AS-39), rename to Offline Records (AS-40) ([11a7011](https://github.com/hopetambala/puente-reactnative-collect/commit/11a7011c0779635eacae2987beafb1ac403fe625))
+* wire onPress correctly on the selected option in select-type fields ([d343bbf](https://github.com/hopetambala/puente-reactnative-collect/commit/d343bbfc14b3b52f1089952dbe3460e4c31fb926))
+
+
+### Documentation Changes
+
+* Account Settings hardening backlog and delivery roadmap ([ce23c3e](https://github.com/hopetambala/puente-reactnative-collect/commit/ce23c3ef1cc51639677a339333655c2707e2dad0))
+* **agents:** record how releases actually work — locally, via .easignore ([#617](https://github.com/hopetambala/puente-reactnative-collect/issues/617)) ([c2892f1](https://github.com/hopetambala/puente-reactnative-collect/commit/c2892f17ae430577dc0fc719373a2a9119352f21))
+
 ## [15.6.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.5.9...v15.6.0) (2026-08-06)
 
 
