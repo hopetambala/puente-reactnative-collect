@@ -202,11 +202,13 @@ render(<UserContext.Provider value={mockUser}><ComponentUnderTest /></UserContex
 
 ### Releases are cut LOCALLY, not from CI
 
-```bash
-# from a clean master, with the version already bumped
-eas build --platform ios --profile production
-eas submit -p ios --latest          # -> TestFlight
-```
+**Use `yarn build-submit-ios`** — it is in the Commands block at the top of this
+file, and it is the whole release. It expands to
+`eas build --platform ios --non-interactive && eas submit -p ios --latest
+--non-interactive`. Siblings: `build-submit-android`, `build-submit-all`, and
+`submit-apps` (submits an already-built artifact without rebuilding).
+
+Do not reconstruct these from raw `eas` flags. They exist so nobody has to.
 
 The GitHub `EAS Build` workflow has **never** succeeded. Do not reach for it as
 "the" release path and do not conclude the pipeline is broken when a local build
