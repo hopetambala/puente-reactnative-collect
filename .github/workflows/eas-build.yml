@@ -25,6 +25,46 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
+      # environment.js is gitignored, so EAS checks out a tree without it and the
+      # JS bundle phase dies with:
+      #   Unable to resolve module ../../../environment from services/parse/auth/index.js
+      # That is why every EAS Build has failed. preview.yaml already does this;
+      # this workflow never did.
+      #
+      # DELIBERATELY uses PROD_-prefixed secrets rather than the PARSE_APP_ID /
+      # PARSE_JAVASCRIPT_KEY that preview.yaml uses: those sit alongside
+      # TEST_MODE: true and puente-test-logs, so they are the test app. Pointing
+      # a TestFlight build at staging would have surveyors collecting into the
+      # wrong database, which is worse than not shipping.
+      - name: Require production Parse credentials
+        run: |
+          if [ -z "${{ secrets.PROD_PARSE_APP_ID }}" ] || [ -z "${{ secrets.PROD_PARSE_JAVASCRIPT_KEY }}" ]; then
+            echo "::error::PROD_PARSE_APP_ID and PROD_PARSE_JAVASCRIPT_KEY must be set."
+            echo "::error::The production app id starts with vBdTHqQU31. Do NOT reuse"
+            echo "::error::PARSE_APP_ID — that is the test app used by preview.yaml."
+            exit 1
+          fi
+
+      - name: Create environment.js for the release build
+        run: |
+          cat > environment.js <<'ENVEOF'
+          const selectedEnv = {
+            TEST_MODE: false,
+            parseAppId: '${{ secrets.PROD_PARSE_APP_ID }}',
+            parseJavascriptKey: '${{ secrets.PROD_PARSE_JAVASCRIPT_KEY }}',
+            parseServerUrl: 'https://parseapi.back4app.com/',
+            AWS_LAMBDA_URL: '${{ secrets.AWS_LAMBDA_URL }}',
+            cloudWatchLogging: {
+              logGroupName: 'puente-prod-logs',
+              logStreamName: 'prod-log-stream',
+              accessKeyId: '${{ secrets.AWS_CLOUDWATCH_ACCESSKEY_ID }}',
+              secretAccessKey: '${{ secrets.AWS_CLOUDWATCH_SECRET_ACCESS_KEY }}',
+              region: 'us-east-1'
+            }
+          };
+          export default selectedEnv;
+          ENVEOF
+
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
