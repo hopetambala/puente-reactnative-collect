@@ -105,3 +105,58 @@ export async function loadOrganizationScope(organization, parseInstance) {
   if (!organizations || !organizations.length) return [organization];
   return organizationMatchValues(organization, organizations);
 }
+
+/** Never offered to a new account: a junk bucket, not a partner. */
+const NON_SELECTABLE_SHORT_CODES = new Set(["internal-test"]);
+
+/** Cache key for the selectable names, separate from the alias-set cache. */
+export const ORGANIZATION_NAMES_CACHE_KEY = "organization_names";
+
+/**
+ * The organization names a NEW account may choose from.
+ *
+ * Reads the `Organization` class directly rather than going through
+ * `cacheAutofillData`, for two reasons. That cache derives its list from
+ * `_User.organization` free-text strings — the junk this class exists to
+ * replace — and it is populated only after login, so a fresh install has
+ * nothing on the signup screen, which is the exact moment the list is for.
+ * (It has also been broken since January 2022: the function returns itself
+ * instead of the array.)
+ *
+ * `Organization` carries public read, so this works before anyone signs in.
+ *
+ * Offline-first, like loadOrganizationScope: the set is cached on every
+ * successful read and served from the cache otherwise. Returns an empty list
+ * rather than throwing when there is nothing — the field then degrades to free
+ * text, which is exactly today's behaviour, and the server still resolves or
+ * refuses whatever is typed.
+ */
+export async function loadSelectableOrganizations(parseInstance) {
+  const Parse = parseInstance || client(selectedENV.TEST_MODE);
+
+  try {
+    const query = new Parse.Query("Organization");
+    query.select("name", "shortCode", "active");
+    query.limit(ORGANIZATION_FETCH_LIMIT);
+    const records = await query.find();
+
+    const names = records
+      .filter((r) => r.get("active") !== false)
+      .filter((r) => !NON_SELECTABLE_SHORT_CODES.has(r.get("shortCode")))
+      .map((r) => r.get("name"))
+      .filter(Boolean)
+      // Sorted for scanning, not insertion-ordered. Accent-aware because the
+      // names are Spanish.
+      .sort((a, b) => a.localeCompare(b, "es"));
+
+    await storeData(names, ORGANIZATION_NAMES_CACHE_KEY);
+    return names;
+  } catch (error) {
+    try {
+      const cached = await getData(ORGANIZATION_NAMES_CACHE_KEY);
+      return cached || [];
+    } catch (cacheError) {
+      return [];
+    }
+  }
+}

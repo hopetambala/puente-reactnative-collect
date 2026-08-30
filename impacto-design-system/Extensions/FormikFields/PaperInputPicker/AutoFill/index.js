@@ -19,6 +19,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import createPaperInputPickerStyles from "../index.style";
+import { resolveAutofillFields } from "./fields";
 
 LogBox.ignoreAllLogs(true);
 
@@ -32,6 +33,8 @@ function AutoFill(props) {
     scrollViewScroll,
     setScrollViewScroll,
     theme,
+    // Optional explicit list. When present the autofill cache is bypassed.
+    options,
   } = props;
 
   const [fields, setFields] = useState([]);
@@ -55,17 +58,21 @@ function AutoFill(props) {
   useEffect(() => {
     async function loadAutofillData() {
       try {
-        const data = await getData("autofill_information");
-        if (!data) return;
-        const result = data[parameter];
-        setFields(result.sort());
+        //  wins and skips the cache entirely: the signup screen reads
+        // the Organization class directly, because the cache is populated only
+        // after login and derives from _User free-text strings.
+        const cached = Array.isArray(options) ? null : await getData("autofill_information");
+        const result = resolveAutofillFields({ options, cached, parameter });
+        setFields(result);
         setValues(result.length > 0);
       } catch (error) {
-        console.error("Autofill Error", error); //eslint-disable-line
+        // Degrade to free text rather than leaving the field in a half state.
+        setFields([]);
+        setValues(false);
       }
     }
     loadAutofillData();
-  }, [parameter]);
+  }, [parameter, options]);
 
   const findField = useCallback(
     (searchQuery) => {
