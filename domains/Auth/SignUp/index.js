@@ -3,11 +3,12 @@ import FormInput from "@impacto-design-system/Extensions/FormikFields/FormInput"
 import Autofill from "@impacto-design-system/Extensions/FormikFields/PaperInputPicker/AutoFill";
 import TermsModal from "@impacto-design-system/Extensions/TermsModal";
 import I18n from "@modules/i18n";
+import { loadSelectableOrganizations } from "@modules/organization";
 import { spacing, typography } from "@modules/theme";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import { CommonActions } from "@react-navigation/native";
 import { Formik } from "formik";
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -53,6 +54,22 @@ const validationSchema = yup.object().shape({
 
 export default function SignUp({ navigation }) {
   const theme = useTheme();
+
+  // The organization list comes from the Organization class, not the autofill
+  // cache: that cache is populated only AFTER login, so a fresh install - the
+  // only state a signup screen is ever in - has nothing in it. Failure returns
+  // an empty list and the field degrades to free text, which the server still
+  // resolves or refuses.
+  const [organizationOptions, setOrganizationOptions] = useState([]);
+  useEffect(() => {
+    let cancelled = false;
+    loadSelectableOrganizations().then((names) => {
+      if (!cancelled) setOrganizationOptions(names);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [checked, setChecked] = useState(false);
   const [visible, setVisible] = useState(false);
   const [scrollViewScroll, setScrollViewScroll] = useState();
@@ -231,6 +248,7 @@ export default function SignUp({ navigation }) {
                     scrollViewScroll={scrollViewScroll}
                     setScrollViewScroll={setScrollViewScroll}
                     theme={theme}
+                    options={organizationOptions}
                   />
                   <Button
                     onPress={() => setVisible(true)}
