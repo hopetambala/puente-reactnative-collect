@@ -140,7 +140,13 @@ export default function SignUp({ navigation }) {
         </Animated.View>
         <ScrollView
           style={{ backgroundColor: theme.colors.background }}
-          keyboardShouldPersistTaps="never"
+          // "handled", not "never". With "never" every tap while the keyboard is
+          // up is consumed to dismiss it and NEVER reaches the child - so the
+          // organization autocomplete needed two taps to select anything, which
+          // read as an unclickable dropdown. "handled" lets a child that
+          // handles the tap receive it, and still dismisses on taps that hit
+          // nothing.
+          keyboardShouldPersistTaps="handled"
           scrollEnabled={scrollViewScroll}
         >
           <SafeAreaView style={{ marginTop: 50, marginBottom: 150 }}>
