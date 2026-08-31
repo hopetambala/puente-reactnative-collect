@@ -339,21 +339,29 @@ until 15.7.0 and was therefore occasionally stale.
 submissions on: a higher *build number* does not help if the train is closed.
 That is what got build `90186` rejected. A new capability is a **minor**.
 
-**After a build, reconcile the build number — EAS does not do it for you.**
-`eas.json` sets `appVersionSource: "local"` with `autoIncrement: true` on iOS,
-so EAS reads `ios.buildNumber` out of the local `app.json`, increments it for
-the build, and **leaves the working tree untouched**. Observed on the 15.7.0
-submission: EAS shipped build `15.7.1` while `app.json` and `Info.plist` both
-still said `15.7.0`, and `git status` was clean.
+**After a build, CHECK the build number — sometimes EAS commits the bump to
+your tree and sometimes it does not.** `eas.json` sets `appVersionSource:
+"local"` with `autoIncrement: true` on iOS, so EAS reads `ios.buildNumber` out
+of the local `app.json` and increments it for the build. Whether that lands in
+your working tree is not dependable: on the `15.7.1` build the tree was left at
+`15.7.0` with `git status` clean, and on the `15.7.2` build the bump was written
+to `app.json` and `Info.plist` and had to be committed.
+
+So do not assume either way — read the number EAS reports and compare it to the
+files.
 
 Left alone that is a guaranteed rejection: the next build reads `15.7.0` again,
 increments to `15.7.1` a second time, and Apple refuses a duplicate
 `CFBundleVersion` inside the same train.
 
-So after every `yarn build-submit-*`, read the build number off the EAS output
-("Bumping expo.ios.buildNumber from X to Y") and commit Y into `app.json` and
-`Info.plist`'s `CFBundleVersion`. Leave `CFBundleShortVersionString` alone —
-that is the train, and it only moves on a real version bump.
+So after every `yarn build-submit-*`: read the build number off the EAS output
+("Build number: Y"), confirm `app.json` and `Info.plist`'s `CFBundleVersion`
+both say Y, and commit them if they do not. Leave `CFBundleShortVersionString`
+alone — that is the train, and it only moves on a real version bump.
+
+Commit that reconcile **on its own**. On the `15.7.2` build the bump was swept
+into an unrelated docs commit by a `git add -A`, which is how a version change
+ends up somewhere nobody thinks to look for it.
 
 **Never claim a build contains a fix without reading the COMMIT off the build
 record.** `eas build:view <build-id>` prints a `Commit` field. That is the only
