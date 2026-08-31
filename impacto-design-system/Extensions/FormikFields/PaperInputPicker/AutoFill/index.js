@@ -1,7 +1,8 @@
 import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import { MOTION_TOKENS } from "@modules/utils/animations";
-import React, { useCallback,useEffect, useState } from "react";
+import PropTypes from "prop-types";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   LogBox,
   Platform,
@@ -20,8 +21,56 @@ import Animated, {
 
 import createPaperInputPickerStyles from "../index.style";
 import { resolveAutofillFields } from "./fields";
+import {
+  keyForSuggestion,
+  listHeightFor,
+  SUGGESTION_ROW_HEIGHT,
+  visibleSuggestions,
+} from "./interaction";
 
 LogBox.ignoreAllLogs(true);
+
+/**
+ * The suggestion list, drawn as plain views at MODULE scope.
+ *
+ * Two things this shape fixes, both of which made a visible row untappable:
+ *
+ * It is NOT a FlatList. The library renders one by default, and nesting a
+ * VirtualizedList inside the signup form's ScrollView at the same orientation
+ * is what React Native warns "can break windowing and other functionality" —
+ * touch delivery included.
+ *
+ * And it lives OUTSIDE the parent component. Defined during render it would be
+ * a new component type on every keystroke, so React would destroy and recreate
+ * the subtree — and a TouchableOpacity remounted between touch-down and
+ * touch-up can never complete a press.
+ */
+function SuggestionList({ data, styles, onSelect }) {
+  const items = visibleSuggestions(data);
+  return (
+    <View style={[styles.listContainer, { height: listHeightFor(items.length) }]}>
+      {items.map((item) => (
+        <TouchableOpacity
+          key={keyForSuggestion(item)}
+          style={styles.suggestionRow}
+          accessibilityRole="button"
+          accessibilityLabel={item}
+          onPress={() => onSelect(item)}
+        >
+          <Text style={styles.itemText}>{item}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
+
+SuggestionList.propTypes = {
+  data: PropTypes.arrayOf(PropTypes.string),
+  styles: PropTypes.shape({}).isRequired,
+  onSelect: PropTypes.func.isRequired,
+};
+
+SuggestionList.defaultProps = { data: [] };
 
 function AutoFill(props) {
   const {
@@ -35,6 +84,11 @@ function AutoFill(props) {
     theme,
     // Optional explicit list. When present the autofill cache is bypassed.
     options,
+    // Optional. Fires when the field takes focus, so the form containing it can
+    // scroll the field - and the list about to open beneath it - clear of the
+    // keyboard. The component cannot do this itself: it does not own the
+    // ScrollView and does not know where on the form it sits.
+    onFocus,
   } = props;
 
   const [fields, setFields] = useState([]);
@@ -49,7 +103,8 @@ function AutoFill(props) {
 
   const handleInputFocus = useCallback(() => {
     focusScale.value = withSpring(1.01, MOTION_TOKENS.spring.smooth);
-  }, [focusScale]);
+    if (typeof onFocus === "function") onFocus();
+  }, [focusScale, onFocus]);
 
   const handleInputBlur = useCallback(() => {
     focusScale.value = withSpring(1, MOTION_TOKENS.spring.smooth);
@@ -88,18 +143,30 @@ function AutoFill(props) {
   );
 
   const foundFields = findField(query);
+
   const comp = (a, b) => a.toLowerCase().trim() === b.toLowerCase().trim();
 
   const { stylesDefault, stylesPaper } = createPaperInputPickerStyles(theme);
   const placeholder = I18n.t(label);
 
-  const styles = StyleSheet.create({
+  const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
       paddingLeft: 15,
       paddingRight: 15,
       paddingTop: 10,
       marginBottom: 75,
+    },
+    // The library positions its suggestion list against THIS container. It was
+    // referenced twice and never defined, so the list rendered outside any
+    // parent that bounded it - and on iOS a touch outside a view's bounds is
+    // never delivered to its children. That is what made a plainly visible row
+    // refuse to be tapped.
+    autocompleteContainer: {
+      position: "relative",
+      // Above the fields below it, so the open list is not merely visible but
+      // actually on top of them for hit-testing.
+      zIndex: 10,
     },
     textInputContainer: {
       borderColor: theme.colors.primary,
@@ -110,19 +177,58 @@ function AutoFill(props) {
       paddingLeft: 10,
       backgroundColor: theme.colors.surfaceSunken,
     },
+    // The ROW owns the hit area. Previously this one style was applied to both
+    // the touchable and the Text inside it, so the tappable region was just the
+    // text - about 29px against a 44 floor.
+    suggestionRow: {
+      height: SUGGESTION_ROW_HEIGHT,
+      justifyContent: "center",
+      paddingHorizontal: 12,
+    },
     itemText: {
       fontSize: 15,
-      margin: 2,
-      flex: 1,
-      padding: 5,
       color: theme.colors.textPrimary,
     },
     listContainer: {
-      height: 80,
+      // Opaque: the list overlays the form beneath it, and a transparent
+      // dropdown over other fields is unreadable.
+      backgroundColor: theme.colors.surface,
+      zIndex: 10,
       borderBottomRightRadius: 4,
       borderBottomLeftRadius: 4,
     },
-  });
+  }), [theme]);
+
+  // Formik builds a NEW formikProps object on every render, so a callback that
+  // lists it as a dependency is unstable BY CONSTRUCTION - it changes identity
+  // on every render of the form, not just when something meaningful changed.
+  //
+  // That is what made the dropdown "nearly unclickable". Touching the field
+  // re-renders the parent, Formik hands down a fresh object, handleSelect
+  // changes, the memoised ResultList below changes, and the library receives a
+  // new component TYPE - so React unmounts the list and builds another. A
+  // TouchableOpacity remounted between touch-down and touch-up can never
+  // complete its press. Nearly, because it only fails when something
+  // re-rendered mid-touch, which is most of the time but not all of it.
+  //
+  // The ref keeps the latest props reachable without making the callback
+  // depend on their identity.
+  const formikRef = useRef(formikProps);
+  formikRef.current = formikProps;
+
+  const handleSelect = useCallback((item) => {
+    setQuery(item);
+    formikRef.current.setFieldValue(formikKey, item);
+  }, [formikKey]);
+
+  // Stable identity: a component built fresh each render is a new TYPE, and
+  // React would remount the list between touch-down and touch-up.
+  const ResultList = useMemo(
+    () => function Results(listProps) {
+      return <SuggestionList {...listProps} styles={styles} onSelect={handleSelect} />;
+    },
+    [styles, handleSelect]
+  );
 
   return (
     <View style={styles.container}>
@@ -167,30 +273,15 @@ function AutoFill(props) {
             placeholder={placeholder}
             placeholderTextColor={theme.colors.textPrimary}
             listStyle={styles.listContainer}
-            keyExtractor={(item) => item.key}
-            onStartShouldSetResponderCapture={() => {
-              // this allows for us to scroll within the result list when the user is touching it
-              // and on the screen when they are not
-              setScrollViewScroll(false);
-              if (foundFields.length === 0 && scrollViewScroll === false) {
-                setScrollViewScroll(true);
-              }
-            }}
-            renderItem={({ item }) => (
-              // you can change the view you want to show in suggestion from here
-              <TouchableOpacity
-                style={styles.itemText}
-                key={`${item}`}
-                onPress={() => {
-                  setQuery(item);
-                  formikProps.setFieldValue(formikKey, item);
-                }}
-              >
-                <Text style={styles.itemText} key={item}>
-                  {item}
-                </Text>
-              </TouchableOpacity>
-            )}
+            renderResultList={ResultList}
+            // Deliberately no onStartShouldSetResponderCapture here.
+            //
+            // It used to toggle the parent form's scrollEnabled on touch-down,
+            // to let a finger scroll WITHIN the result list. The list cannot
+            // scroll any more - it is capped at five plain rows of fixed
+            // height - so the only thing that handler still did was re-render
+            // the whole form at the exact moment a suggestion was being
+            // pressed, which is what destroyed the row mid-press.
           />
         </Animated.View>
       )}
@@ -218,21 +309,7 @@ function AutoFill(props) {
             placeholder={placeholder}
             placeholderTextColor={theme.colors.textPrimary}
             listStyle={styles.listContainer}
-            keyExtractor={(item) => item.key}
-            renderItem={({ item }) => (
-              // you can change the view you want to show in suggestion from here
-              <TouchableOpacity
-                key={`${item}`}
-                onPress={() => {
-                  setQuery(item);
-                  formikProps.setFieldValue(formikKey, item);
-                }}
-              >
-                <Text style={styles.itemText} key={item}>
-                  {item}
-                </Text>
-              </TouchableOpacity>
-            )}
+            renderResultList={ResultList}
           />
         </Animated.View>
       )}

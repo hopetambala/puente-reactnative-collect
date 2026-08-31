@@ -1,0 +1,33 @@
+# Puente Collect — signup organization picker.
+#
+# WHY THIS EXISTS
+# The Organization field on Sign Up rendered as a bare text box from January
+# 2022 until 2026: it is an Autofill autocomplete that falls back to a plain
+# TextInput when its list is empty, and the list was always empty
+# (cacheAutofillData returned the enclosing function instead of the array, and
+# JSON.stringify then dropped the function-valued property).
+#
+# It survived four and a half years partly because NOTHING TESTED IT — no test
+# referenced AutoFill, and .maestro had no registration flow. This is that flow.
+#
+# WHAT TO LOOK FOR
+#   signup-org-01-empty       the field before typing
+#   signup-org-02-suggestions the open list. Rows must be a real touch target,
+#                             not a ~29px strip, and must not be clipped.
+#   signup-org-03-selected    the field AFTER tapping a suggestion. This is the
+#                             assertion that matters: tapping a visible row must
+#                             actually fill the field.
+appId: io.ionic.starter1270348
+---
+- launchApp:
+    clearState: false
+- tapOn: "Sign Up!"
+- assertVisible: "Organization"
+- takeScreenshot: .claude/screenshots/signup-org-01-empty
+- tapOn: "Organization"
+- inputText: "Pu"
+- assertVisible: "Puente"
+- takeScreenshot: .claude/screenshots/signup-org-02-suggestions
+# The whole point: a suggestion that is visible must be selectable.
+- tapOn: "Puente"
+- takeScreenshot: .claude/screenshots/signup-org-03-selected

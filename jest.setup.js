@@ -164,6 +164,16 @@ jest.mock('react-native-reanimated', () => ({
   useSharedValue: () => ({ value: 0 }),
   runOnJS: (fn) => fn,
   withTiming: jest.fn(),
+  // withSpring was missing while withTiming was present, so any component using
+  // a spring - the focus lift on every autofill and text field - threw
+  // "withSpring is not a function" the moment it was focused in a test. That
+  // made the components look untestable and is why none of them had tests.
+  withSpring: jest.fn((toValue) => toValue),
+  withDelay: jest.fn((delay, animation) => animation),
+  withSequence: jest.fn((...animations) => animations[animations.length - 1]),
+  withRepeat: jest.fn((animation) => animation),
+  interpolate: jest.fn(() => 0),
+  Extrapolate: { CLAMP: 'clamp' },
 }));
 
 jest.mock('react-native-worklets', () => ({
