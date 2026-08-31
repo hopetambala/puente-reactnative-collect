@@ -354,6 +354,24 @@ So after every `yarn build-submit-*`, read the build number off the EAS output
 ("Bumping expo.ios.buildNumber from X to Y") and commit Y into `app.json` and
 `Info.plist`'s `CFBundleVersion`. Leave `CFBundleShortVersionString` alone —
 that is the train, and it only moves on a real version bump.
+
+**Never claim a build contains a fix without reading the COMMIT off the build
+record.** `eas build:view <build-id>` prints a `Commit` field. That is the only
+statement about what is in the binary. Inspecting local `git log` afterwards
+proves nothing: the build was made from whatever the tree held when it started,
+which may be hours and several merges behind where the branch sits now.
+
+This has already produced a wrong claim. Build `524a405a` was reported as
+carrying the autofill fix on the strength of `git log -1` showing that fix at
+HEAD. The build record said `Commit cbef9492` — the commit *before* it, so the
+binary submitted to Apple had the unclickable dropdown it was supposed to fix.
+
+The check is one command and it is unambiguous:
+
+```
+npx eas build:view <build-id>            # read Commit
+git merge-base --is-ancestor <fix-sha> <build-commit>   # exit 0 = fix is in
+```
 ---
 
 ## Design system
