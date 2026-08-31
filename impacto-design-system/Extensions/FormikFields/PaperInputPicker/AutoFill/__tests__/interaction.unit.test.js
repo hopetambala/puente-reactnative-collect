@@ -1,7 +1,10 @@
 import {
+  FIELD_HEADROOM,
   keyForSuggestion,
   listHeightFor,
+  MAX_VISIBLE_SUGGESTIONS,
   MIN_TOUCH_TARGET,
+  scrollTargetFor,
   SUGGESTION_ROW_HEIGHT,
   visibleSuggestions,
 } from "@app/impacto-design-system/Extensions/FormikFields/PaperInputPicker/AutoFill/interaction";
@@ -66,5 +69,56 @@ describe("visibleSuggestions", () => {
   it("tolerates a missing list", () => {
     // Rendered every keystroke; a throw here would take the signup screen down.
     expect(visibleSuggestions(undefined)).toEqual([]);
+  });
+});
+
+describe("scrollTargetFor — clearing the keyboard", () => {
+  // The list was correct and unreachable: Organization is the LAST field on a
+  // long form, so focusing it opens the keyboard over the exact strip of screen
+  // the suggestions render into. Nothing scrolled, so the rows sat under the
+  // keyboard. This is the rule that moves the field up first.
+
+  it("lifts the field toward the top, leaving the space below it for the list", () => {
+    // A field 900px down a form must not stay 900px down once its list opens.
+    expect(scrollTargetFor(900)).toBeLessThan(900);
+  });
+
+  it("leaves headroom rather than jamming the field against the top edge", () => {
+    // Scrolling it to exactly 0 hides the fields above it, so the person loses
+    // their place in a form they are midway through. A zero headroom would pass
+    // the arithmetic below while doing exactly that, so it is pinned first.
+    expect(FIELD_HEADROOM).toBeGreaterThan(0);
+    expect(scrollTargetFor(900)).toBe(900 - FIELD_HEADROOM);
+  });
+
+  it("never scrolls to a negative offset", () => {
+    // A field already near the top would otherwise ask the ScrollView to scroll
+    // above its own content, which on Android jumps the form.
+    expect(scrollTargetFor(10)).toBe(0);
+    expect(scrollTargetFor(0)).toBe(0);
+  });
+
+  it("treats a field it has never measured as no scroll at all", () => {
+    // onLayout has not fired yet. Guessing a number here would scroll the form
+    // somewhere arbitrary the moment the field is touched.
+    expect(scrollTargetFor(undefined)).toBe(0);
+    expect(scrollTargetFor(null)).toBe(0);
+    expect(scrollTargetFor(NaN)).toBe(0);
+  });
+
+  it("keeps a full open list visible above a standard keyboard", () => {
+    // The whole point. With the field lifted, the five rows plus the input have
+    // to fit in what is left above the keyboard on the smallest supported
+    // screen, or this fix does not actually fix anything.
+    const SMALLEST_SCREEN = 667;   // iPhone SE
+    const KEYBOARD = 260;          // iOS keyboard, worst case with the accessory bar
+    const INPUT_HEIGHT = 56;
+
+    expect(FIELD_HEADROOM).toBeGreaterThan(0);
+    const fieldTopAfterScroll = FIELD_HEADROOM;
+    const listBottom =
+      fieldTopAfterScroll + INPUT_HEIGHT + listHeightFor(MAX_VISIBLE_SUGGESTIONS);
+
+    expect(listBottom).toBeLessThan(SMALLEST_SCREEN - KEYBOARD);
   });
 });

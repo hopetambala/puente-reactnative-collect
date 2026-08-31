@@ -58,3 +58,32 @@ export const listHeightFor = (count) => {
  */
 export const visibleSuggestions = (items) =>
   (Array.isArray(items) ? items : []).slice(0, MAX_VISIBLE_SUGGESTIONS);
+
+/**
+ * How much form is left visible above a field once it has been scrolled up.
+ *
+ * Not zero. Scrolling the field flush to the top hides everything above it, so
+ * someone halfway through a nine-field signup loses their place. 24 keeps the
+ * previous field's edge on screen, which is enough to stay oriented without
+ * spending the room the list needs.
+ */
+export const FIELD_HEADROOM = 24;
+
+/**
+ * Where the form must scroll so a focused field's suggestion list is reachable.
+ *
+ * Organization is the LAST field on a long form, so focusing it raises the
+ * keyboard over the exact strip of screen the suggestions draw into. The list
+ * was correct, opaque, and 44px per row - and completely unreachable, because
+ * nothing moved it out from under the keyboard. Every earlier fix in this file
+ * made rows tappable; none of them made rows VISIBLE.
+ *
+ * An unmeasured field scrolls nowhere. `onLayout` may not have fired yet, and
+ * guessing would fling the form somewhere arbitrary the instant it is touched.
+ */
+export const scrollTargetFor = (fieldY) => {
+  if (typeof fieldY !== "number" || !Number.isFinite(fieldY)) return 0;
+  // Never negative: asking a ScrollView to scroll above its own content jumps
+  // the form on Android.
+  return Math.max(0, fieldY - FIELD_HEADROOM);
+};

@@ -1,6 +1,7 @@
 import { Button } from "@impacto-design-system/Base";
 import FormInput from "@impacto-design-system/Extensions/FormikFields/FormInput";
 import Autofill from "@impacto-design-system/Extensions/FormikFields/PaperInputPicker/AutoFill";
+import { scrollTargetFor } from "@impacto-design-system/Extensions/FormikFields/PaperInputPicker/AutoFill/interaction";
 import TermsModal from "@impacto-design-system/Extensions/TermsModal";
 import I18n from "@modules/i18n";
 import { loadSelectableOrganizations } from "@modules/organization";
@@ -8,7 +9,14 @@ import { spacing, typography } from "@modules/theme";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import { CommonActions } from "@react-navigation/native";
 import { Formik } from "formik";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -74,6 +82,23 @@ export default function SignUp({ navigation }) {
   const [visible, setVisible] = useState(false);
   const [scrollViewScroll, setScrollViewScroll] = useState();
 
+  const scrollRef = useRef(null);
+  // Where the Organization field sits in the form. Read from onLayout rather
+  // than assumed: the fields above it are translated, so the form's height
+  // differs between English, Spanish and Creole.
+  const organizationFieldY = useRef(null);
+
+  const measureOrganizationField = useCallback((event) => {
+    organizationFieldY.current = event.nativeEvent.layout.y;
+  }, []);
+
+  const revealOrganizationField = useCallback(() => {
+    scrollRef.current?.scrollTo({
+      y: scrollTargetFor(organizationFieldY.current),
+      animated: true,
+    });
+  }, []);
+
   const { register } = useContext(UserContext);
 
   const styles = useMemo(
@@ -127,7 +152,13 @@ export default function SignUp({ navigation }) {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ backgroundColor: theme.colors.background, flex: 1 }}
     >
-      <View>
+      {/* flex: 1 is load-bearing. Without it this View sizes to its content, so
+          the ScrollView inside it never receives a bounded viewport and
+          KeyboardAvoidingView has no height to give back when the keyboard
+          opens - the form simply extends underneath it. Every field above
+          Organization is reachable by scrolling anyway, which is why this went
+          unnoticed until the last field on the form grew a dropdown. */}
+      <View style={{ flex: 1 }}>
         <Animated.View
           entering={HeaderEntrance.duration(MOTION_TOKENS.duration.base)}
         >
@@ -139,6 +170,7 @@ export default function SignUp({ navigation }) {
           />
         </Animated.View>
         <ScrollView
+          ref={scrollRef}
           style={{ backgroundColor: theme.colors.background }}
           // "handled", not "never". With "never" every tap while the keyboard is
           // up is consumed to dismiss it and NEVER reaches the child - so the
@@ -245,6 +277,10 @@ export default function SignUp({ navigation }) {
                     placeholder={I18n.t("signUp.placeholders.password")}
                     secureTextEntry
                   />
+                  {/* Measured so focusing it can scroll it clear of the
+                      keyboard. Organization is the last field on the form, so
+                      its suggestion list opens exactly where the keyboard is. */}
+                  <View onLayout={measureOrganizationField}>
                   <Autofill
                     parameter="organization"
                     formikProps={formikProps}
@@ -255,7 +291,9 @@ export default function SignUp({ navigation }) {
                     setScrollViewScroll={setScrollViewScroll}
                     theme={theme}
                     options={organizationOptions}
+                    onFocus={revealOrganizationField}
                   />
+                  </View>
                   <Button
                     onPress={() => setVisible(true)}
                     buttonText={I18n.t("signUp.termsOfService.view")}

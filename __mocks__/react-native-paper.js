@@ -38,6 +38,23 @@ module.exports = {
     },
   },
   Button: ({ children, onPress, testID, disabled }) => React.createElement('button', { onPress, testID, disabled, type: 'button' }, children),
+  // Rendered by AutoFill and every FormInput. Its absence made those
+  // components render `undefined` and crash the test renderer with "Element
+  // type is invalid", which reads like a broken import rather than a gap here.
+  // Forwards the handlers tests need to fire - focus especially, since that is
+  // what tells a form to scroll a field clear of the keyboard.
+  TextInput: ({
+    label, value, onChangeText, onBlur, onFocus, placeholder, testID, secureTextEntry,
+  }) => React.createElement('textinput', {
+    accessibilityLabel: label,
+    value,
+    onChangeText,
+    onBlur,
+    onFocus,
+    placeholder,
+    testID,
+    secureTextEntry,
+  }),
   Text: ({ children }) => React.createElement('text', null, children),
   Title: ({ children }) => React.createElement('text', null, children),
   IconButton: ({ onPress, testID }) => React.createElement('button', { onPress, testID, type: 'button' }),

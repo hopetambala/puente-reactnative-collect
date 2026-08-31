@@ -84,6 +84,11 @@ function AutoFill(props) {
     theme,
     // Optional explicit list. When present the autofill cache is bypassed.
     options,
+    // Optional. Fires when the field takes focus, so the form containing it can
+    // scroll the field - and the list about to open beneath it - clear of the
+    // keyboard. The component cannot do this itself: it does not own the
+    // ScrollView and does not know where on the form it sits.
+    onFocus,
   } = props;
 
   const [fields, setFields] = useState([]);
@@ -98,7 +103,8 @@ function AutoFill(props) {
 
   const handleInputFocus = useCallback(() => {
     focusScale.value = withSpring(1.01, MOTION_TOKENS.spring.smooth);
-  }, [focusScale]);
+    if (typeof onFocus === "function") onFocus();
+  }, [focusScale, onFocus]);
 
   const handleInputBlur = useCallback(() => {
     focusScale.value = withSpring(1, MOTION_TOKENS.spring.smooth);
