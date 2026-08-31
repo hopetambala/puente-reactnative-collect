@@ -2,7 +2,7 @@ import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import PropTypes from "prop-types";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   LogBox,
   Platform,
@@ -199,10 +199,27 @@ function AutoFill(props) {
     },
   }), [theme]);
 
+  // Formik builds a NEW formikProps object on every render, so a callback that
+  // lists it as a dependency is unstable BY CONSTRUCTION - it changes identity
+  // on every render of the form, not just when something meaningful changed.
+  //
+  // That is what made the dropdown "nearly unclickable". Touching the field
+  // re-renders the parent, Formik hands down a fresh object, handleSelect
+  // changes, the memoised ResultList below changes, and the library receives a
+  // new component TYPE - so React unmounts the list and builds another. A
+  // TouchableOpacity remounted between touch-down and touch-up can never
+  // complete its press. Nearly, because it only fails when something
+  // re-rendered mid-touch, which is most of the time but not all of it.
+  //
+  // The ref keeps the latest props reachable without making the callback
+  // depend on their identity.
+  const formikRef = useRef(formikProps);
+  formikRef.current = formikProps;
+
   const handleSelect = useCallback((item) => {
     setQuery(item);
-    formikProps.setFieldValue(formikKey, item);
-  }, [formikKey, formikProps]);
+    formikRef.current.setFieldValue(formikKey, item);
+  }, [formikKey]);
 
   // Stable identity: a component built fresh each render is a new TYPE, and
   // React would remount the list between touch-down and touch-up.
@@ -257,14 +274,14 @@ function AutoFill(props) {
             placeholderTextColor={theme.colors.textPrimary}
             listStyle={styles.listContainer}
             renderResultList={ResultList}
-            onStartShouldSetResponderCapture={() => {
-              // this allows for us to scroll within the result list when the user is touching it
-              // and on the screen when they are not
-              setScrollViewScroll(false);
-              if (foundFields.length === 0 && scrollViewScroll === false) {
-                setScrollViewScroll(true);
-              }
-            }}
+            // Deliberately no onStartShouldSetResponderCapture here.
+            //
+            // It used to toggle the parent form's scrollEnabled on touch-down,
+            // to let a finger scroll WITHIN the result list. The list cannot
+            // scroll any more - it is capped at five plain rows of fixed
+            // height - so the only thing that handler still did was re-render
+            // the whole form at the exact moment a suggestion was being
+            // pressed, which is what destroyed the row mid-press.
           />
         </Animated.View>
       )}
