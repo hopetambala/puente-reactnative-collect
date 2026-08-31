@@ -338,6 +338,22 @@ until 15.7.0 and was therefore occasionally stale.
 **Pick the right bump.** The version string is the train Apple gates
 submissions on: a higher *build number* does not help if the train is closed.
 That is what got build `90186` rejected. A new capability is a **minor**.
+
+**After a build, reconcile the build number — EAS does not do it for you.**
+`eas.json` sets `appVersionSource: "local"` with `autoIncrement: true` on iOS,
+so EAS reads `ios.buildNumber` out of the local `app.json`, increments it for
+the build, and **leaves the working tree untouched**. Observed on the 15.7.0
+submission: EAS shipped build `15.7.1` while `app.json` and `Info.plist` both
+still said `15.7.0`, and `git status` was clean.
+
+Left alone that is a guaranteed rejection: the next build reads `15.7.0` again,
+increments to `15.7.1` a second time, and Apple refuses a duplicate
+`CFBundleVersion` inside the same train.
+
+So after every `yarn build-submit-*`, read the build number off the EAS output
+("Bumping expo.ios.buildNumber from X to Y") and commit Y into `app.json` and
+`Info.plist`'s `CFBundleVersion`. Leave `CFBundleShortVersionString` alone —
+that is the train, and it only moves on a real version bump.
 ---
 
 ## Design system
