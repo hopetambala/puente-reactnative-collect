@@ -53,7 +53,12 @@ appId: io.ionic.starter1270348
 # POST-CONDITION: authentication actually succeeded and the Home tab rendered.
 # Without this a wrong password lands back on the sign-in screen and every
 # later step taps into a form it cannot see.
+#
+# "Last 7 Days" rather than "Home": the word Home is the Home tab's own
+# accessibilityLabel AND the screen heading, so it proves less than it looks
+# like it does. The segmented control is unique to this screen and renders as
+# soon as `user` is set, before the async stats land.
 - extendedWaitUntil:
-    visible: "Home"
+    visible: "Last 7 Days"
     timeout: 30000
 - waitForAnimationToEnd

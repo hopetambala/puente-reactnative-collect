@@ -61,4 +61,4 @@ appId: io.ionic.starter1270348
     file: subflows/open-tab.yaml
     env:
       TAB_ID: "tab-home"
-      EXPECT: "Home"
+      EXPECT: "Last 7 Days"

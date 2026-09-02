@@ -16,7 +16,10 @@
 # Params:
 #   TAB_ID — tab-find-records | tab-data-collection | tab-home
 #            | tab-offline | tab-settings
-#   EXPECT — text that is only on the destination screen
+#   EXPECT — text that is only on the destination screen. Pick it carefully:
+#            each tab's own accessibilityLabel ("Home", "Settings", "Offline")
+#            is in the tab bar on EVERY screen, so asserting one of those would
+#            pass from anywhere. Home uses "Last 7 Days" for exactly this reason.
 #
 # Usage:
 #   - runFlow:

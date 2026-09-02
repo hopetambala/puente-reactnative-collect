@@ -68,7 +68,7 @@ Declared in `impacto-design-system/MainNavigation/BottomTabNavigator/index.js`.
 |---|---|---|
 | Find Records | `tab-find-records` | `Search Individual` |
 | Data Collection | `tab-data-collection` | `Puente Forms` |
-| Home | `tab-home` | `Home` |
+| Home | `tab-home` | `Last 7 Days` |
 | Offline Sync | `tab-offline` | `Offline Sync` |
 | Settings | `tab-settings` | `Name, Phone, Email` |
 
