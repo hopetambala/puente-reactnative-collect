@@ -84,7 +84,7 @@ separate so translating the app cannot break the suite.
 | File | What it does | Auth |
 |---|---|---|
 | `visual-qa.yaml` | Screenshots onboarding and sign-in | No |
-| `signup-organization-picker.yaml` | Signup organization autocomplete is selectable | No |
+| `signup-organization-picker.yaml` | Signup organization autocomplete is selectable | No — but needs **prod** (staging's `Organization` class is empty, measured 2026-09-02) |
 | `authenticated.yaml` | Signs in, visits all five tabs, asserts each | Yes |
 | `organization-scope.yaml` | Regression flow for organization alias-set scoping | Yes |
 | `find-records-history.yaml` | Resident → record history → Identification record | Yes |
