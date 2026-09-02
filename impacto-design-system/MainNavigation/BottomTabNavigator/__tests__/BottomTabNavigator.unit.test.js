@@ -100,3 +100,27 @@ describe('BottomTabNavigator', () => {
     expect(mockCapturedIconName).toBe('cloud-upload-outline');
   });
 });
+
+describe('BottomTabNavigator automation hooks', () => {
+  beforeEach(() => {
+    Object.keys(mockCapturedScreens).forEach((k) => delete mockCapturedScreens[k]);
+  });
+
+  // The E2E harness used to tap the tab bar by screen coordinate ("70%, 94%")
+  // because `title` is localized and collides with on-screen body text. That
+  // is how .maestro/authenticated.yaml spent its life screenshotting the
+  // Offline screen and saving it as "07-assets.png". These IDs are the stable,
+  // non-localized handle the flows target instead.
+  it.each([
+    ['Find_Records', 'tab-find-records'],
+    ['Data_Collection', 'tab-data-collection'],
+    ['Home', 'tab-home'],
+    ['Offline', 'tab-offline'],
+    ['Settings', 'tab-settings'],
+  ])('gives the %s screen tabBarTestID "%s"', (screenName, expectedTestID) => {
+    render(<BottomTabNavigator />);
+
+    expect(mockCapturedScreens[screenName]).toBeDefined();
+    expect(mockCapturedScreens[screenName].tabBarTestID).toBe(expectedTestID);
+  });
+});
