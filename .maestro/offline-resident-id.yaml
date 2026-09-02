@@ -160,10 +160,19 @@ appId: io.ionic.starter1270348
     file: subflows/set-offline-mode.yaml
     env:
       STATE: "OFF"
+
+# Finish on the Offline tab, not Data Collection. Two reasons:
+#
+# 1. Data Collection is a STACK, and this flow left it on the form-success
+#    screen. Tapping the tab returns to wherever the stack was, not to the
+#    gallery — so asserting "Puente Forms" here fails. The old flow tapped
+#    "30%, 94%" and asserted nothing, so it never noticed which screen it got.
+# 2. The Offline tab renders the literal Online/Offline status chip, which is
+#    what a screenshot named "back-online" should actually be showing.
 - runFlow:
     file: subflows/open-tab.yaml
     env:
-      TAB_ID: "tab-data-collection"
-      EXPECT: "Puente Forms"
-- waitForAnimationToEnd
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
+- assertVisible: "Online"
 - takeScreenshot: .claude/screenshots/offline-id-10-back-online

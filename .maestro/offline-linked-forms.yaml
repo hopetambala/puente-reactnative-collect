@@ -197,9 +197,19 @@ appId: io.ionic.starter1270348
 - tapOn:
     id: "formSubmit"
 - waitForAnimationToEnd
-- tapOn:
-    id: "formSubmit"
-- waitForAnimationToEnd
+# The form ScrollView is keyboardShouldPersistTaps="never", so when the numeric
+# keyboard is open the first tap can be swallowed dismissing it rather than
+# submitting. It does not ALWAYS get swallowed, though — an unconditional second
+# tap fails with "formSubmit not found" whenever the first one worked and
+# navigated away. Tap again only if the button is still there.
+- runFlow:
+    when:
+      visible:
+        id: "formSubmit"
+    commands:
+      - tapOn:
+          id: "formSubmit"
+      - waitForAnimationToEnd
 
 # SupplementaryForm calls toRoot() after save → navigates to BottomTabNavigator.
 # "Form successfully submitted" is only shown by IdentificationForm (setSelectedForm("")).
