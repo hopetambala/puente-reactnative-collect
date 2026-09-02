@@ -76,17 +76,34 @@ All coordinates are **percentage of screen** (`x%, y%`). The active simulator
 is `EC8EF83C-395B-491E-AC7F-3676B4557DFC` (iPhone 16, iOS 18.6).
 These are confirmed working across multiple flows.
 
-### Tab bar (y ≈ 94%)
+### Tab bar — use testIDs, not coordinates
 
-The five bottom tabs sit at a fixed 94% height. Tap by x position:
+Every tab button carries a `tabBarTestID`. Use `subflows/open-tab.yaml`, which
+taps by id AND asserts the destination rendered:
 
-| Tab | x%, y% | Notes |
+```yaml
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
+```
+
+| Tab | `TAB_ID` | `EXPECT` |
 |---|---|---|
-| Search / Find Records | `10%, 94%` | magnifying glass |
-| Data Collection | `30%, 94%` | folder / forms icon |
-| Home | `50%, 94%` | house icon |
-| Offline | `70%, 94%` | question mark icon |
-| Settings | `90%, 94%` | gear icon |
+| Find Records | `tab-find-records` | `Search Individual` |
+| Data Collection | `tab-data-collection` | `Puente Forms` |
+| Home | `tab-home` | `Home` |
+| Offline Sync | `tab-offline` | `Offline Sync` |
+| Settings | `tab-settings` | `Name, Phone, Email` |
+
+**There is no Assets tab.** The bottom navigator is Find Records, Data
+Collection, Home, Offline, Settings; `domains/Assets` is deep-link only. The old
+coordinate map in this file called the 4th tab "Assets" and the flow
+screenshotted Offline Sync as `07-assets.png` on every run for years without
+failing — a coordinate tap cannot fail, and a screenshot never fails.
+
+`yarn lint:maestro` now rejects new tab-bar coordinate taps.
 
 ### Sign-in screen
 
@@ -172,73 +189,42 @@ appId: io.ionic.starter1270348
 
 ### Login (staging credentials via env vars)
 
+Use the subflow. Do not paste the old coordinate-tap preamble — the sign-in
+fields carry testIDs now, and nine hand-copied versions of this block is what
+made a sign-in layout change a nine-file edit.
+
 ```yaml
-- extendedWaitUntil:
-    visible: "Log-In"
-    timeout: 20000
-
-- tapOn:
-    point: "50%, 38%"
-- inputText: ${PARSE_USERNAME}
-- tapOn:
-    point: "50%, 48%"
-- inputText: ${PARSE_PASSWORD}
-- scroll
-- tapOn: "Log-In"
-- waitForAnimationToEnd
-
-- runFlow:
-    when:
-      visible: "Your Impact Dashboard"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
-
-- extendedWaitUntil:
-    visible: "Home"
-    timeout: 30000
+- runFlow: subflows/login.yaml
 ```
+
+It skips onboarding, signs in by testID, clears coachmarks, and asserts that
+Home actually rendered.
 
 Run with: `maestro test -e PARSE_USERNAME=Test -e PARSE_PASSWORD=test <flow>.yaml`
 
 ### Navigate to Data Collection gallery
 
 ```yaml
-- tapOn:
-    point: "30%, 94%"
-- waitForAnimationToEnd
-
 - runFlow:
-    when:
-      visible: "Capture Field Data"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-data-collection"
+      EXPECT: "Puente Forms"
 ```
 
-### Enable force-offline mode
+The subflow clears coachmarks before and after the tap — they render over the
+tab bar, so a tap aimed at a tab otherwise hits the coachmark.
+
+### Toggle force-offline mode
+
+Identical to enable; the toggle flips whichever way it currently sits.
 
 ```yaml
-- tapOn:
-    point: "90%, 94%"
-- waitForAnimationToEnd
-- tapOn:
-    id: "dev-offline-toggle"
-- waitForAnimationToEnd
-- tapOn:
-    id: "settings-close-button"
-- waitForAnimationToEnd
-- tapOn:
-    point: "30%, 94%"
-- waitForAnimationToEnd
-```
-
-### Disable force-offline mode
-
-```yaml
-- tapOn:
-    point: "90%, 94%"
-- waitForAnimationToEnd
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-settings"
+      EXPECT: "Name, Phone, Email"
 - tapOn:
     id: "dev-offline-toggle"
 - waitForAnimationToEnd
@@ -370,9 +356,11 @@ Add extra `waitForAnimationToEnd` calls and navigate directly to the Offline tab
 ### Navigate to Offline tab + sync
 
 ```yaml
-- tapOn:
-    point: "70%, 94%"
-- waitForAnimationToEnd
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
 - extendedWaitUntil:
     visible: "Retry"
     timeout: 5000
@@ -385,6 +373,9 @@ Add extra `waitForAnimationToEnd` calls and navigate directly to the Offline tab
 - extendedWaitUntil:
     notVisible: "Retry"
     timeout: 60000
+# `notVisible` alone also passes on a blank or crashed screen. The queue is only
+# proven empty when the empty state actually renders.
+- assertVisible: "No forms queued. You are all caught up!"
 ```
 
 ---
@@ -476,7 +467,7 @@ never fires `onPress`. This is already set on `ResidentIdSearchbar`'s FlatList.
 | 04-home | Home tab | yes |
 | 05-data-collection | Data Collection tab | yes |
 | 06-find-records | Find Records tab | yes |
-| 07-assets | Assets tab | yes |
+| 07-offline-sync | Offline Sync tab | yes |
 | 08-settings | Settings tab | yes |
 
 The flow lives in `.maestro/visual-qa.yaml`; the authenticated portion is in
