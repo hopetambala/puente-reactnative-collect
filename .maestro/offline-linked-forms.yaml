@@ -26,68 +26,35 @@ appId: io.ionic.starter1270348
 - launchApp:
     clearState: true
 
+- runFlow: subflows/login.yaml
+
 - runFlow:
-    when:
-      visible: "Skip"
-    commands:
-      - tapOn: "Skip"
-
-- extendedWaitUntil:
-    visible: "Log-In"
-    timeout: 20000
-
-- tapOn:
-    point: "50%, 38%"
-- inputText: ${PARSE_USERNAME}
-- tapOn:
-    point: "50%, 48%"
-- inputText: ${PARSE_PASSWORD}
-- scroll
-- tapOn: "Log-In"
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-data-collection"
+      EXPECT: "Puente Forms"
 - waitForAnimationToEnd
-
-- runFlow:
-    when:
-      visible: "Your Impact Dashboard"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
-
-- extendedWaitUntil:
-    visible: "Home"
-    timeout: 30000
-
-- tapOn:
-    point: "30%, 94%"
-- waitForAnimationToEnd
-
-- runFlow:
-    when:
-      visible: "Capture Field Data"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
 
 - takeScreenshot: .claude/screenshots/offline-linked-01-gallery-online
 
 # ─── ENABLE FORCE OFFLINE ──────────────────────────────────────────────────
-- tapOn:
-    point: "90%, 94%"
-- waitForAnimationToEnd
 - runFlow:
-    when:
-      visible: "Your Preferences"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-settings"
+      EXPECT: "Name, Phone, Email"
+- waitForAnimationToEnd
 - tapOn:
     id: "dev-offline-toggle"
 - waitForAnimationToEnd
 - tapOn:
     id: "settings-close-button"
 - waitForAnimationToEnd
-- tapOn:
-    point: "30%, 94%"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-data-collection"
+      EXPECT: "Puente Forms"
 - waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/offline-linked-02-offline-mode
 
@@ -250,8 +217,11 @@ appId: io.ionic.starter1270348
 - takeScreenshot: .claude/screenshots/offline-linked-12-env-submitted
 
 # ─── VERIFY OFFLINE QUEUE HAS BOTH FORMS ───────────────────────────────────
-- tapOn:
-    point: "70%, 94%"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
 - waitForAnimationToEnd
 - extendedWaitUntil:
     visible: "Retry"
@@ -259,15 +229,12 @@ appId: io.ionic.starter1270348
 - takeScreenshot: .claude/screenshots/offline-linked-13-retry-badge-both-forms
 
 # ─── RESTORE ONLINE MODE AND SYNC ──────────────────────────────────────────
-- tapOn:
-    point: "90%, 94%"
-- waitForAnimationToEnd
 - runFlow:
-    when:
-      visible: "Your Preferences"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-settings"
+      EXPECT: "Name, Phone, Email"
+- waitForAnimationToEnd
 - tapOn:
     id: "dev-offline-toggle"
 - waitForAnimationToEnd
@@ -275,8 +242,11 @@ appId: io.ionic.starter1270348
     id: "settings-close-button"
 - waitForAnimationToEnd
 
-- tapOn:
-    point: "70%, 94%"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
 - waitForAnimationToEnd
 - tapOn: "Retry"
 - waitForAnimationToEnd
@@ -284,4 +254,8 @@ appId: io.ionic.starter1270348
 - extendedWaitUntil:
     notVisible: "Retry"
     timeout: 60000
+
+# The queue is only proven empty when the empty state actually renders.
+# `notVisible: "Retry"` alone also passes on a blank or crashed screen.
+- assertVisible: "No forms queued. You are all caught up!"
 - takeScreenshot: .claude/screenshots/offline-linked-14-both-synced

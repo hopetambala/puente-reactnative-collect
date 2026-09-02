@@ -25,75 +25,40 @@ appId: io.ionic.starter1270348
 - launchApp:
     clearState: true
 
-# Skip onboarding if present (first install)
-- runFlow:
-    when:
-      visible: "Skip"
-    commands:
-      - tapOn: "Skip"
-
-- extendedWaitUntil:
-    visible: "Log-In"
-    timeout: 20000
-
-# Sign in with coordinate taps (avoids floating-label ambiguity)
-- tapOn:
-    point: "50%, 38%"
-- inputText: ${PARSE_USERNAME}
-- tapOn:
-    point: "50%, 48%"
-- inputText: ${PARSE_PASSWORD}
-- scroll
-- tapOn: "Log-In"
-
-# Dismiss "Your Impact Dashboard" coachmark if shown on first login
-- runFlow:
-    when:
-      visible: "Your Impact Dashboard"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
-
-- extendedWaitUntil:
-    visible: "Home"
-    timeout: 30000
+- runFlow: subflows/login.yaml
 
 # Navigate to Data Collection tab (tab 2 of 5, x≈30%, y≈94%)
-- tapOn:
-    point: "30%, 94%"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-data-collection"
+      EXPECT: "Puente Forms"
 - waitForAnimationToEnd
 
 # Dismiss "Capture Field Data" coachmark if present
-- runFlow:
-    when:
-      visible: "Capture Field Data"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
-
 - takeScreenshot: .claude/screenshots/offline-id-01-gallery-online
 
 # ─── ENABLE FORCE OFFLINE ──────────────────────────────────────────────────
 # Toggle the DEV_FORCE_OFFLINE flag via the Settings screen.
 # The DevOfflineToggle component is only rendered when __DEV__ === true
 # (dev builds), so it is dead code in production.
-- tapOn:
-    point: "90%, 94%"
-- waitForAnimationToEnd
 - runFlow:
-    when:
-      visible: "Your Preferences"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-settings"
+      EXPECT: "Name, Phone, Email"
+- waitForAnimationToEnd
 - tapOn:
     id: "dev-offline-toggle"
 - waitForAnimationToEnd
 - tapOn:
     id: "settings-close-button"
 - waitForAnimationToEnd
-- tapOn:
-    point: "30%, 94%"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-data-collection"
+      EXPECT: "Puente Forms"
 - waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/offline-id-02-gallery-offline
 
@@ -186,8 +151,11 @@ appId: io.ionic.starter1270348
 
 # Navigate to Offline tab (tab 4 of 5, x≈70%) to check the queued form badge.
 # useFocusEffect re-reads offlineIDForms so the count reflects the just-saved form.
-- tapOn:
-    point: "70%, 94%"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
 - waitForAnimationToEnd
 - extendedWaitUntil:
     visible: "Retry"
@@ -196,22 +164,22 @@ appId: io.ionic.starter1270348
 
 # ─── DISABLE FORCE OFFLINE (cleanup) ──────────────────────────────────────
 # Restore online mode so subsequent flows start from a known online state.
-- tapOn:
-    point: "90%, 94%"
-- waitForAnimationToEnd
 - runFlow:
-    when:
-      visible: "Your Preferences"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-settings"
+      EXPECT: "Name, Phone, Email"
+- waitForAnimationToEnd
 - tapOn:
     id: "dev-offline-toggle"
 - waitForAnimationToEnd
 - tapOn:
     id: "settings-close-button"
 - waitForAnimationToEnd
-- tapOn:
-    point: "30%, 94%"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-data-collection"
+      EXPECT: "Puente Forms"
 - waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/offline-id-10-back-online

@@ -1,0 +1,59 @@
+# Sign in, and prove we arrived.
+#
+# WHY THIS FILE EXISTS
+# This preamble was copy-pasted into 9 flows. Each copy typed into the username
+# field by tapping the point "50%, 38%" — a hardcoded fraction of a 393x852
+# screen — because the floating label makes the field ambiguous to a text
+# selector. Nine copies meant a sign-in layout change was nine edits, and a
+# coordinate that drifted failed silently: a tap on empty space is not an error,
+# so the flow sailed on and failed later somewhere unrelated.
+#
+# The fields now carry stable testIDs (domains/Auth/SignIn/index.js), so this
+# targets them by id. An id that stops existing fails HERE, on the line that
+# names it.
+#
+# Params (both optional):
+#   ALREADY_SIGNED_IN_OK — "true" to no-op when a session is already live.
+#
+# Requires: -e PARSE_USERNAME=... -e PARSE_PASSWORD=...
+# The `maestro` yarn script already passes both.
+appId: io.ionic.starter1270348
+---
+# Onboarding carousel on a fresh install.
+- runFlow:
+    when:
+      visible: "Skip"
+    commands:
+      - tapOn: "Skip"
+      - waitForAnimationToEnd
+
+# Only sign in if we are actually on the sign-in screen. A flow that ran before
+# this one may have left a live session.
+- runFlow:
+    when:
+      visible: "Log-In"
+    commands:
+      # Precondition: the sign-in form is really up, not a splash that happens
+      # to contain the words.
+      - assertVisible:
+          id: "signin-username"
+      - tapOn:
+          id: "signin-username"
+      - inputText: ${PARSE_USERNAME}
+      - tapOn:
+          id: "signin-password"
+      - inputText: ${PARSE_PASSWORD}
+      # Scroll the submit button clear of the keyboard before pressing it.
+      - scroll
+      - tapOn:
+          id: "signin-submit"
+
+- runFlow: dismiss-coachmarks.yaml
+
+# POST-CONDITION: authentication actually succeeded and the Home tab rendered.
+# Without this a wrong password lands back on the sign-in screen and every
+# later step taps into a form it cannot see.
+- extendedWaitUntil:
+    visible: "Home"
+    timeout: 30000
+- waitForAnimationToEnd
