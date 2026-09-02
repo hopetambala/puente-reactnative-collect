@@ -1,0 +1,46 @@
+# Put the app into (or out of) forced-offline mode, and prove it took.
+#
+# WHY THIS FILE EXISTS
+# All five offline flows opened Settings, tapped the dev toggle, then tapped
+# `settings-close-button` to leave. That button is the "Back" control at the
+# BOTTOM of a long scrolling Settings screen, well below the fold, and
+# `tapOn: id:` does not scroll to find an element. Every offline flow died
+# there — on master, before any of this branch's changes. Nobody knew, because
+# nobody ran them and nothing gated on them.
+#
+# Leaving via the Back button was never necessary anyway: Settings is a tab, so
+# the caller just opens the next tab. That drops the dependency entirely.
+#
+# The toggle also went unasserted. If it silently failed the form submitted
+# ONLINE, the queue stayed empty, and the flow failed later at the "Retry"
+# wait — pointing at the sync code rather than at the toggle that never fired.
+#
+# Params:
+#   STATE — "ON" to force offline, "OFF" to restore online
+#
+# Usage:
+#   - runFlow:
+#       file: subflows/set-offline-mode.yaml
+#       env:
+#         STATE: "ON"
+appId: io.ionic.starter1270348
+---
+- runFlow:
+    file: open-tab.yaml
+    env:
+      TAB_ID: "tab-settings"
+      EXPECT: "Force Offline Mode"
+
+# The switch is a toggle, so only flip it when it is not already where we want
+# it. Anchored regex: a bare "ON" would also match any element merely
+# containing those letters.
+- runFlow:
+    when:
+      notVisible: "^${STATE}$"
+    commands:
+      - tapOn:
+          id: "dev-offline-toggle"
+      - waitForAnimationToEnd
+
+# POST-CONDITION: the toggle really is in the requested state.
+- assertVisible: "^${STATE}$"

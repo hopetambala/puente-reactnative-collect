@@ -45,17 +45,9 @@ appId: io.ionic.starter1270348
 
 # ─── ENABLE FORCE OFFLINE ──────────────────────────────────────────────────
 - runFlow:
-    file: subflows/open-tab.yaml
+    file: subflows/set-offline-mode.yaml
     env:
-      TAB_ID: "tab-settings"
-      EXPECT: "Name, Phone, Email"
-- waitForAnimationToEnd
-- tapOn:
-    id: "dev-offline-toggle"
-- waitForAnimationToEnd
-- tapOn:
-    id: "settings-close-button"
-- waitForAnimationToEnd
+      STATE: "ON"
 - runFlow:
     file: subflows/open-tab.yaml
     env:
@@ -187,17 +179,9 @@ appId: io.ionic.starter1270348
 # DEV_FORCE_OFFLINE is still set (persisted across restart), so turn it OFF
 # first, then sync.
 - runFlow:
-    file: subflows/open-tab.yaml
+    file: subflows/set-offline-mode.yaml
     env:
-      TAB_ID: "tab-settings"
-      EXPECT: "Name, Phone, Email"
-- waitForAnimationToEnd
-- tapOn:
-    id: "dev-offline-toggle"
-- waitForAnimationToEnd
-- tapOn:
-    id: "settings-close-button"
-- waitForAnimationToEnd
+      STATE: "OFF"
 
 # Navigate to Offline tab and sync.
 - runFlow:

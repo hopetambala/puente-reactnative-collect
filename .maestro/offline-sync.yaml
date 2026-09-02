@@ -34,17 +34,9 @@ appId: io.ionic.starter1270348
 
 # ─── ENABLE FORCE OFFLINE ──────────────────────────────────────────────────
 - runFlow:
-    file: subflows/open-tab.yaml
+    file: subflows/set-offline-mode.yaml
     env:
-      TAB_ID: "tab-settings"
-      EXPECT: "Name, Phone, Email"
-- waitForAnimationToEnd
-- tapOn:
-    id: "dev-offline-toggle"
-- waitForAnimationToEnd
-- tapOn:
-    id: "settings-close-button"
-- waitForAnimationToEnd
+      STATE: "ON"
 - runFlow:
     file: subflows/open-tab.yaml
     env:
@@ -123,17 +115,9 @@ appId: io.ionic.starter1270348
 # ─── RESTORE ONLINE MODE ───────────────────────────────────────────────────
 # Clear DEV_FORCE_OFFLINE so postOfflineForms() can reach the Parse backend.
 - runFlow:
-    file: subflows/open-tab.yaml
+    file: subflows/set-offline-mode.yaml
     env:
-      TAB_ID: "tab-settings"
-      EXPECT: "Name, Phone, Email"
-- waitForAnimationToEnd
-- tapOn:
-    id: "dev-offline-toggle"
-- waitForAnimationToEnd
-- tapOn:
-    id: "settings-close-button"
-- waitForAnimationToEnd
+      STATE: "OFF"
 - takeScreenshot: .claude/screenshots/offline-sync-06-back-online
 
 # ─── SYNC ──────────────────────────────────────────────────────────────────

@@ -43,17 +43,9 @@ appId: io.ionic.starter1270348
 # The DevOfflineToggle component is only rendered when __DEV__ === true
 # (dev builds), so it is dead code in production.
 - runFlow:
-    file: subflows/open-tab.yaml
+    file: subflows/set-offline-mode.yaml
     env:
-      TAB_ID: "tab-settings"
-      EXPECT: "Name, Phone, Email"
-- waitForAnimationToEnd
-- tapOn:
-    id: "dev-offline-toggle"
-- waitForAnimationToEnd
-- tapOn:
-    id: "settings-close-button"
-- waitForAnimationToEnd
+      STATE: "ON"
 - runFlow:
     file: subflows/open-tab.yaml
     env:
@@ -165,17 +157,9 @@ appId: io.ionic.starter1270348
 # ─── DISABLE FORCE OFFLINE (cleanup) ──────────────────────────────────────
 # Restore online mode so subsequent flows start from a known online state.
 - runFlow:
-    file: subflows/open-tab.yaml
+    file: subflows/set-offline-mode.yaml
     env:
-      TAB_ID: "tab-settings"
-      EXPECT: "Name, Phone, Email"
-- waitForAnimationToEnd
-- tapOn:
-    id: "dev-offline-toggle"
-- waitForAnimationToEnd
-- tapOn:
-    id: "settings-close-button"
-- waitForAnimationToEnd
+      STATE: "OFF"
 - runFlow:
     file: subflows/open-tab.yaml
     env:

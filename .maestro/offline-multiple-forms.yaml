@@ -37,17 +37,9 @@ appId: io.ionic.starter1270348
 
 # ─── ENABLE FORCE OFFLINE ──────────────────────────────────────────────────
 - runFlow:
-    file: subflows/open-tab.yaml
+    file: subflows/set-offline-mode.yaml
     env:
-      TAB_ID: "tab-settings"
-      EXPECT: "Name, Phone, Email"
-- waitForAnimationToEnd
-- tapOn:
-    id: "dev-offline-toggle"
-- waitForAnimationToEnd
-- tapOn:
-    id: "settings-close-button"
-- waitForAnimationToEnd
+      STATE: "ON"
 - runFlow:
     file: subflows/open-tab.yaml
     env:
@@ -186,17 +178,9 @@ appId: io.ionic.starter1270348
 
 # ─── RESTORE ONLINE MODE AND SYNC BOTH FORMS ───────────────────────────────
 - runFlow:
-    file: subflows/open-tab.yaml
+    file: subflows/set-offline-mode.yaml
     env:
-      TAB_ID: "tab-settings"
-      EXPECT: "Name, Phone, Email"
-- waitForAnimationToEnd
-- tapOn:
-    id: "dev-offline-toggle"
-- waitForAnimationToEnd
-- tapOn:
-    id: "settings-close-button"
-- waitForAnimationToEnd
+      STATE: "OFF"
 - takeScreenshot: .claude/screenshots/offline-multi-09-back-online
 
 # Navigate to Offline tab and sync.
