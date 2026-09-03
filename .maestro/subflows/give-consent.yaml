@@ -1,0 +1,71 @@
+# The GDPR consent gate that every data-collection form opens with.
+#
+# WHY THIS FILE EXISTS
+# This pair of taps was written as coordinates in eight places — the checkbox at
+# "10%, 71%" ("10%, 66%" online, because the offline banner shifts layout ~5%)
+# and "Continue to Form" at "50%, 79%". The comments left behind show the cost:
+# bounds derived by trial and error, e.g. "(10%, 68%) -> empty space below View
+# Full Policy" and "(10%, 75%) -> hit Continue to Form top edge (mustConsent
+# alert fired)", plus a guard to dismiss that alert "if the checkbox tap was
+# slightly off" — an admission the tap missed often enough to need papering over.
+#
+# WHY IT STILL HAS A COORDINATE FALLBACK
+# Both controls have ids (`gdpr-consent-row` predates this file; the comment
+# beside it says it exists "so XCTest/Maestro can find it by testID").
+# They work — but ONLY on a launch without `clearState`.
+#
+# Measured 2026-09-03 on iPhone 16 / iOS 18.6, twice, in two flows:
+#   resident-id-form   (launchApp)                  -> id taps COMPLETED
+#   offline-resident-id(launchApp clearState: true) -> id not in tree, 15s wait
+#   offline-sync       (launchApp clearState: true) -> id not in tree, 15s wait
+#
+# On the clearState path the XCTest accessibility tree for this screen contains
+# ONLY status-bar elements (Collect, clock, wifi, battery) while the screen is
+# fully rendered and visible in the screenshot. That is not a timing problem —
+# `extendedWaitUntil visible: id:` checks tree membership, not frame geometry,
+# and still times out.
+#
+# THAT IS AN APP BUG, NOT A TEST BUG: a screen absent from the accessibility
+# tree is a screen VoiceOver cannot read. It is the consent gate of a health
+# data app, so a blind surveyor cannot obtain consent on a fresh install.
+# Tracked separately; this file only has to cope with it.
+appId: io.ionic.starter1270348
+---
+- waitForAnimationToEnd
+
+# Preferred path: tap what the user sees, by id.
+- runFlow:
+    when:
+      visible:
+        id: "gdpr-consent-row"
+    commands:
+      - tapOn:
+          id: "gdpr-consent-row"
+      - waitForAnimationToEnd
+      - tapOn:
+          id: "gdpr-continue-button"
+      - waitForAnimationToEnd
+
+# Fallback: the screen is not in the accessibility tree at all (see above), so
+# there is nothing to target but pixels. Only the clearState flows reach this,
+# and they all show the offline banner, so these are the banner-shifted numbers.
+- runFlow:
+    when:
+      notVisible:
+        id: "gdpr-consent-row"
+    commands:
+      - tapOn:
+          point: "10%, 71%"
+      - waitForAnimationToEnd
+      # A miss checks nothing, and Continue then raises the mustConsent alert
+      # rather than advancing. Clear it so the Continue tap below lands on the
+      # consent screen rather than on a modal.
+      - runFlow:
+          when:
+            visible: "OK"
+          commands:
+            - tapOn: "OK"
+            - waitForAnimationToEnd
+      - tapOn:
+          point: "50%, 79%"
+      - waitForAnimationToEnd

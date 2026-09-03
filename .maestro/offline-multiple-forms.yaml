@@ -59,12 +59,7 @@ appId: io.ionic.starter1270348
       - tapOn: "OK"
       - waitForAnimationToEnd
 
-- tapOn:
-    point: "10%, 71%"
-- waitForAnimationToEnd
-- tapOn:
-    point: "50%, 79%"
-- waitForAnimationToEnd
+- runFlow: subflows/give-consent.yaml
 
 - tapOn: "First Name"
 - inputText: "Batch"
@@ -120,12 +115,7 @@ appId: io.ionic.starter1270348
       - tapOn: "OK"
       - waitForAnimationToEnd
 
-- tapOn:
-    point: "10%, 71%"
-- waitForAnimationToEnd
-- tapOn:
-    point: "50%, 79%"
-- waitForAnimationToEnd
+- runFlow: subflows/give-consent.yaml
 
 - tapOn: "First Name"
 - inputText: "Batch"

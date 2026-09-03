@@ -19,6 +19,28 @@
 # The `maestro` yarn script already passes both.
 appId: io.ionic.starter1270348
 ---
+# READINESS GATE — must come before any `when:` guard.
+#
+# `runFlow: when: visible:` does not wait. It samples the screen once and skips
+# if the thing is not there yet. On a cold `clearState` launch the dev client is
+# still pulling the JS bundle from Metro, so the screen is empty, BOTH guards
+# below skip, and the flow sails on to fail at the post-condition with
+# "Last 7 Days is not visible" — pointing at Home, which was never the problem.
+# Seen doing exactly that in offline-multiple-forms on 2026-09-03.
+#
+# Maestro matches text selectors as regexes, so this waits for whichever of the
+# three possible first screens actually turns up: onboarding, sign-in, or an
+# already-authenticated Home.
+- extendedWaitUntil:
+    visible: "Skip|Log-In|Last 7 Days"
+    timeout: 60000
+
+# extendedWaitUntil returns the moment the element joins the accessibility tree,
+# which is BEFORE its entrance animation finishes. Tapping in that window throws
+# kAXErrorInvalidUIElement inside the XCTest driver — a hard crash, not a retry.
+# Seen killing the run at `Tap on "Skip"` on 2026-09-03.
+- waitForAnimationToEnd
+
 # Onboarding carousel on a fresh install.
 - runFlow:
     when:

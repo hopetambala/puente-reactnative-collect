@@ -61,12 +61,7 @@ appId: io.ionic.starter1270348
       - tapOn: "OK"
       - waitForAnimationToEnd
 
-- tapOn:
-    point: "10%, 71%"
-- waitForAnimationToEnd
-- tapOn:
-    point: "50%, 79%"
-- waitForAnimationToEnd
+- runFlow: subflows/give-consent.yaml
 - takeScreenshot: .claude/screenshots/offline-linked-03-id-form-empty
 
 - tapOn: "First Name"
@@ -123,12 +118,7 @@ appId: io.ionic.starter1270348
       - tapOn: "OK"
       - waitForAnimationToEnd
 
-- tapOn:
-    point: "10%, 71%"
-- waitForAnimationToEnd
-- tapOn:
-    point: "50%, 79%"
-- waitForAnimationToEnd
+- runFlow: subflows/give-consent.yaml
 - waitForAnimationToEnd
 - waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/offline-linked-08-env-form-with-searchbar

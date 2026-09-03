@@ -42,13 +42,7 @@ appId: io.ionic.starter1270348
       - tapOn: "OK"
       - waitForAnimationToEnd
 
-# Tap checkbox by coordinate. Online flow has no offline banner, so 66% is correct.
-# XCTest tree works in the non-clearState online flow, so "Continue to Form" uses text.
-- tapOn:
-    point: "10%, 66%"
-- waitForAnimationToEnd
-- tapOn: "Continue to Form"
-- waitForAnimationToEnd
+- runFlow: subflows/give-consent.yaml
 - takeScreenshot: .claude/screenshots/resident-id-03-form-empty
 
 # Fill required text fields (fname, lname are validation: true).

@@ -66,12 +66,7 @@ appId: io.ionic.starter1270348
       - tapOn: "OK"
       - waitForAnimationToEnd
 
-- tapOn:
-    point: "10%, 71%"
-- waitForAnimationToEnd
-- tapOn:
-    point: "50%, 79%"
-- waitForAnimationToEnd
+- runFlow: subflows/give-consent.yaml
 
 - tapOn: "First Name"
 - inputText: "Persist"
@@ -135,26 +130,9 @@ appId: io.ionic.starter1270348
 - waitForAnimationToEnd
 
 # Re-login only if the session token expired between the two launches.
-- runFlow:
-    when:
-      visible: "Log-In"
-    commands:
-      - tapOn:
-          point: "50%, 38%"
-      - inputText: ${PARSE_USERNAME}
-      - tapOn:
-          point: "50%, 48%"
-      - inputText: ${PARSE_PASSWORD}
-      - scroll
-      - tapOn: "Log-In"
-      - waitForAnimationToEnd
-
-- runFlow:
-    when:
-      visible: "Your Impact Dashboard"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
+# login.yaml is already internally guarded on "Log-In" being visible, so it is a
+# no-op when the session survived — which is the normal case for this flow.
+- runFlow: subflows/login.yaml
 
 - extendedWaitUntil:
     visible: "Home"
