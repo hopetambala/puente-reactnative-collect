@@ -150,7 +150,7 @@
     "@babel/eslint-parser": "^7.28.5",
     "@babel/preset-react": "^7.28.5",
     "@types/react": "~19.2.10",
-    "@faker-js/faker": "^9.3.0",
+    "@faker-js/faker": "^10.5.0",
     "@gorhom/bottom-sheet": "^5.2.8",
     "@testing-library/react-native": "^13.3.3",
     "babel-eslint": "10.1.0",
