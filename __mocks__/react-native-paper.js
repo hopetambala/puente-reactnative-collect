@@ -55,6 +55,13 @@ module.exports = {
     testID,
     secureTextEntry,
   }),
+  // Rendered by the GDPR consent screen. Its absence made that component
+  // render `undefined` and crash the test renderer with "Element type is
+  // invalid", which reads like a broken import rather than a gap here.
+  // `status` is forwarded so a test can assert checked/unchecked.
+  Checkbox: ({ status, disabled, testID }) => React.createElement('checkbox', {
+    status, disabled, testID,
+  }),
   Text: ({ children }) => React.createElement('text', null, children),
   Title: ({ children }) => React.createElement('text', null, children),
   IconButton: ({ onPress, testID }) => React.createElement('button', { onPress, testID, type: 'button' }),
