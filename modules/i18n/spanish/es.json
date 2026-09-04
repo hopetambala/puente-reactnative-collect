@@ -780,6 +780,11 @@
   "offlineSync": {
     "title": "Sincronización sin conexión",
     "noForms": "No hay formularios en cola. ¡Estás al día!",
-    "lastSync": "Última sincronización:"
+    "lastSync": "Última sincronización:",
+    "queuedOne": "1 formulario está guardado en este dispositivo y todavía no ha llegado al servidor.",
+    "queuedMany": "%{count} formularios están guardados en este dispositivo y todavía no han llegado al servidor.",
+    "stillOnDevice": "Tus formularios siguen guardados en este dispositivo. No se ha perdido nada.",
+    "failedOffline": "Estás sin conexión. Conéctate a internet e inténtalo de nuevo.",
+    "failedOnline": "El servidor no aceptó estos formularios. Inténtalo de nuevo en unos minutos y contacta con soporte si sigue ocurriendo."
   }
 }

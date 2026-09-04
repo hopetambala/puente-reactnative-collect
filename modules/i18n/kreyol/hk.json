@@ -780,6 +780,11 @@
   "offlineSync": {
     "title": "Senkronizasyon san entènèt",
     "noForms": "Pa gen fòm nan fiel. Ou konplè!",
-    "lastSync": "Dènye senkronizasyon:"
+    "lastSync": "Dènye senkronizasyon:",
+    "queuedOne": "1 fòm sere sou aparèy sa a e li poko rive sou sèvè a.",
+    "queuedMany": "%{count} fòm sere sou aparèy sa a e yo poko rive sou sèvè a.",
+    "stillOnDevice": "Fòm ou yo toujou sere sou aparèy sa a. Anyen pa pèdi.",
+    "failedOffline": "Ou san entènèt. Konekte sou entènèt epi eseye ankò.",
+    "failedOnline": "Sèvè a pa aksepte fòm sa yo. Eseye ankò nan kèk minit, epi kontakte sipò si sa kontinye."
   }
 }
