@@ -468,7 +468,14 @@ This project uses Claude Code skills and agents in `.claude/`:
 | `dlite-design-system-engineer` | Any StyleSheet or inline style change |
 | `product-manager` | Scoping, PRDs, prioritization — what to build and why |
 | `ux-review` | When a screen or component is complete — runs dlite-auditor, motion-auditor, mobile-delight-auditor |
-| `visual-qa` | Screenshot the iOS simulator to verify visual correctness |
+| `visual-qa` | Screenshot the iOS simulator to verify a change LOOKS right |
+| `qa-engineer` | Write, extend, or repair a Maestro E2E flow — coverage for a feature, or a regression flow for a bug |
+
+`visual-qa` and `qa-engineer` both drive Maestro, and the split is what you
+want out the far end: `visual-qa` runs existing flows to LOOK at the result
+(layout, spacing, type), `qa-engineer` writes the flow and proves it can fail.
+Auditing a screen's appearance is the first; "we have no coverage for X" is the
+second.
 
 The `skill-eval` hook fires before every response and forces evaluation of each skill.
 Do not skip it.

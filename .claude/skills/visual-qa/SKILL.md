@@ -11,6 +11,11 @@ description: >
 
 # Visual QA — iOS simulator screenshot + fix workflow
 
+> **Writing a flow, not looking at one?** Use `qa-engineer`. This skill runs
+> existing flows to inspect how a screen LOOKS; `qa-engineer` authors flows and
+> makes them able to fail. If `.maestro/` has no flow for what you need, start
+> there and come back here to audit the result.
+
 This is an Expo React Native app. Visual QA runs against the **iOS simulator**,
 not a browser. UI navigation and screenshots are driven by
 [Maestro](https://maestro.mobile.dev), which taps through the real screens.
