@@ -89,6 +89,7 @@ separate so translating the app cannot break the suite.
 | `organization-scope.yaml` | Regression flow for organization alias-set scoping | Yes |
 | `find-records-history.yaml` | Resident → record history → Identification record | Yes |
 | `resident-id-form.yaml` | Formik validation errors, then a successful submit | Yes |
+| `environmental-health-online.yaml` | Collects an Environmental Health form ONLINE against an existing resident, and asserts the record reached the server rather than the offline queue | Yes — needs the resident "Rararo Long" |
 
 ### Offline data collection
 

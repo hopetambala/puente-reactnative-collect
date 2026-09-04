@@ -148,6 +148,17 @@ or finish somewhere with no stack.
 **Anchor short strings.** Maestro matches text as a regex, so a bare `ON` also
 matches any element containing those letters. Use `^ON$`.
 
+**And a selector matches an element's FULL text, not a substring.** These two
+facts pull in opposite directions and both bite. `"No forms queued"` does NOT
+match an element reading `"No forms queued. You are all caught up!"` — it waited
+the full 30s and failed against a screen that was correct. Either use the whole
+string, or make the partial explicit with `.*`:
+
+```yaml
+- extendedWaitUntil:
+    visible: "Retry|No forms queued.*"   # not "Retry|No forms queued"
+```
+
 ---
 
 ## Verified traps
@@ -197,6 +208,46 @@ correctly degrades to free text. If a flow depends on seeded data, say so in its
 header and name the environment.
 
 ---
+
+## If something seems off, it is a finding — not a workaround
+
+You will spend most of your time watching the app do things. That makes you the
+person best placed to notice what is wrong with it, and the worst-placed to
+notice you are ignoring it — because every oddity arrives disguised as an
+obstacle between you and a green flow.
+
+**Every time you reach for a workaround, write down what you worked around.**
+A workaround is a bug report you have not filed yet.
+
+Signals that are almost always a real defect, not a harness quirk:
+
+- **Rendered but unmatchable.** Text is plainly on screen and a wait on it times
+  out. That is not flakiness — a screen missing from the accessibility tree is a
+  screen VoiceOver cannot read. This is how the consent-screen bug and the
+  `ResidentCard` bug were both found.
+- **State that outlives what should reset it.** A field still holding a previous
+  session's value, a queue that survives a wipe, a toggle that does not follow
+  the setting. In a data collection app this is contamination: the wrong value
+  submitted against the wrong person.
+- **A control you cannot reach as a user.** A keyboard that will not dismiss, a
+  button below the fold with no scroll to it, a tap that lands on the wrong
+  layer. If the flow struggles to reach it with a perfect model of the screen, a
+  surveyor with one hand in a hot clinic has no chance.
+- **An element the tree says is tappable while it is visually covered.** Maestro
+  reports the tap COMPLETED and nothing happens. The same confusion is available
+  to VoiceOver users.
+- **Copy that does not match what happened** — "saved" for something queued,
+  a success message on a failed write.
+
+What to do: **flag it, then work around it.** Not instead of. Say plainly what
+you observed, what you measured, and what it would mean for a surveyor; record
+it in the flow's comments so the workaround is self-explaining; and tell the
+user rather than burying it in a commit body. If it is cheap and in scope, fix
+it — `ResidentCard` got its `testID` and `accessibilityLabel` that way, which
+fixed VoiceOver as well as the flow. If it is not, say so and leave it visible.
+
+Never quietly paper over a defect to get a flow green. A green flow bought that
+way is worth less than the bug you swallowed to get it.
 
 ## The loop
 

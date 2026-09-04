@@ -1,0 +1,243 @@
+# Puente Collect — collecting an Environmental Health form ONLINE.
+#
+# WHY THIS EXISTS
+# Environmental Health had exactly one flow — `offline-linked-forms.yaml` — and
+# it only exercises the offline path, against a resident that was itself queued
+# offline moments earlier. The everyday case was uncovered: a surveyor with a
+# connection, attaching an EXISTING resident, and the record actually reaching
+# Parse rather than the AsyncStorage queue.
+#
+# WHAT IT GUARDS
+# SupplementaryForm picks its success message from where the record went:
+#
+#   if (result?.isOfflineLocal || surveyee?.isOfflineLocal)
+#     alert("Saved offline — will sync when you reconnect")
+#   else
+#     alert("Form successfully submitted")
+#
+# So a silent fallback to the offline queue — the failure that loses a
+# surveyor's work without telling them — is visible in the copy. This flow
+# asserts the online message AND the absence of the offline one, then confirms
+# the queue really is empty. Asserting only "submitted" would pass on the
+# offline path too, since both end in an alert and a navigate.
+#
+# ENVIRONMENT
+# Needs a backend with the resident "Rararo Long" in the signed-in user's
+# organization — the same fixture `find-records-history.yaml` relies on.
+#
+# Run:
+#   yarn start:prod-clear        # or start:staging-clear — Metro FIRST
+#   yarn maestro .maestro/environmental-health-online.yaml
+appId: io.ionic.starter1270348
+---
+# Deliberately NOT clearState. A cold-wiped launch empties the consent screen's
+# accessibility tree (see subflows/give-consent.yaml), which would force this
+# flow onto coordinates for no reason — the bug under test here is about where
+# the record goes, not first-run behaviour.
+- launchApp
+
+- runFlow: subflows/login.yaml
+
+# ─── PRECONDITION: an empty queue, and a real connection ───────────────────
+# The closing assertion is "nothing was queued". That only means anything if
+# the queue started empty, so drain whatever a previous flow left behind.
+# Retry SYNCS the queue; it does not discard it, so this is safe to run.
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
+# Wait for the queue COUNT to actually render before sampling it. The count is
+# read asynchronously, and `runFlow: when:` samples once without waiting — so
+# guarding on "Retry" alone silently skips the drain whenever the screen has not
+# finished loading, and the assertion below then fails on a queue this flow was
+# supposed to have emptied. Maestro matches text as a regex, so one wait covers
+# both possible states.
+# NOTE the ".*": a Maestro text selector matches the element's FULL text, not a
+# substring, so a bare "No forms queued" never matches the element that actually
+# reads "No forms queued. You are all caught up!".
+- extendedWaitUntil:
+    visible: "Retry|No forms queued.*"
+    timeout: 30000
+- runFlow:
+    when:
+      visible: "Retry"
+    commands:
+      - tapOn: "Retry"
+      - extendedWaitUntil:
+          notVisible: "Retry"
+          timeout: 60000
+- assertVisible: "No forms queued. You are all caught up!"
+
+# Previous offline flows leave DEV_FORCE_OFFLINE set. Without this the form
+# would queue and the flow would fail at the end for an unrelated reason.
+- runFlow:
+    file: subflows/set-offline-mode.yaml
+    env:
+      STATE: "OFF"
+
+# The status chip is the app's own view of connectivity — assert it agrees
+# before trusting anything this flow concludes about online submission.
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
+- assertVisible: "Online"
+- takeScreenshot: .claude/screenshots/env-health-01-online-empty-queue
+
+# ─── OPEN THE ENVIRONMENTAL HEALTH FORM ────────────────────────────────────
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-data-collection"
+      EXPECT: "Puente Forms"
+
+- tapOn: "Environmental Health"
+- waitForAnimationToEnd
+
+# Some entries raise a confirmation alert before the consent screen.
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+- runFlow: subflows/give-consent.yaml
+
+# POST-CONDITION: the form really opened. The searchbar is unique to a
+# supplementary form — the gallery does not have one.
+- extendedWaitUntil:
+    visible:
+      id: "resident-searchbar-input"
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/env-health-02-form-open
+
+# ─── ATTACH AN EXISTING RESIDENT ───────────────────────────────────────────
+# The offline sibling flow taps this searchbar by coordinate. It does not need
+# to here: that comment is about the offline banner shifting layout ~5%, and
+# this flow has no banner. Prefer the id.
+- tapOn:
+    id: "resident-searchbar-input"
+- inputText: "Rararo"
+- waitForAnimationToEnd
+
+# The row arrives with a Reanimated entering animation. Waiting on tree
+# MEMBERSHIP is safe during that; tapping by id is not, hence the settle after.
+- extendedWaitUntil:
+    visible:
+      id: "resident-result-0"
+    timeout: 20000
+- waitForAnimationToEnd
+- takeScreenshot: .claude/screenshots/env-health-03-resident-results
+
+# The list sets keyboardShouldPersistTaps="handled", so this fires onPress even
+# with the keyboard up — no dismiss dance needed.
+- tapOn:
+    id: "resident-result-0"
+- waitForAnimationToEnd
+
+# POST-CONDITION: the resident is actually attached. Without this a missed tap
+# only surfaces much later, as a validation error on submit.
+#
+# Targets the card's id, not the resident's name. The name is rendered inside a
+# paper Card with onPress, which collapses to ONE touchable accessibility
+# element and absorbs the Text children — so on device the name is plainly
+# visible and completely unmatchable (a 15s wait on it still timed out).
+# Writing this flow is what surfaced that; `resident-card` and a real
+# accessibilityLabel were added to fix it, which also gives VoiceOver something
+# to announce. extendedWaitUntil rather than assertVisible because selecting
+# clears the query, and swapping the list for the card is a React state update.
+- extendedWaitUntil:
+    visible:
+      id: "resident-card"
+    timeout: 15000
+- takeScreenshot: .claude/screenshots/env-health-04-resident-attached
+
+# ─── FILL THE ONE REQUIRED FIELD AND SUBMIT ────────────────────────────────
+# Every select on this form is optional; only the household count has
+# validation: true.
+- scroll
+- scroll
+- scroll
+- scroll
+- scroll
+
+- tapOn:
+    id: "numberInput-numberofIndividualsLivingintheHouse"
+# Erase generously first. inputText APPENDS, and this field holds its value
+# across relaunches, so a re-run types into whatever the last run left.
+- eraseText: 12
+- inputText: "4"
+- waitForAnimationToEnd
+
+# Answering an optional select does double duty: it is a thing a surveyor
+# actually does, and tapping a non-text control blurs the number field, which
+# is the only reliable way to drop the numeric keyboard here.
+#
+# It has to go: `hideKeyboard` FAILS outright on this field, and while the
+# keyboard is up the submit button sits behind it — Maestro finds `formSubmit`
+# in the tree and reports the tap COMPLETED, but the tap lands on the keyboard,
+# so the form never submits and the run dies later at the missing success alert.
+- tapOn: "No assistance"
+- waitForAnimationToEnd
+
+# Scroll AFTER filling, not just before. The numeric keyboard stays up — nothing
+# dismisses it here, not `hideKeyboard` (fails outright) and not tapping another
+# control — so the submit button has to be moved out from behind it instead.
+# Until it is, Maestro finds `formSubmit` in the tree and reports the tap
+# COMPLETED while the tap actually lands on the keyboard, and the run dies much
+# later at the missing success alert.
+- scroll
+- scroll
+- takeScreenshot: .claude/screenshots/env-health-05-form-filled
+
+# `hideKeyboard` does NOT work here — it fails outright on this numeric field,
+# the same way it does on a paper Searchbar. So use the pattern the offline
+# flows already prove: the form ScrollView is keyboardShouldPersistTaps="never",
+# so the first tap is eaten dismissing the keyboard and the second submits.
+# Conditional, because when the first tap DOES submit, an unconditional second
+# fails with "formSubmit not found".
+- tapOn:
+    id: "formSubmit"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible:
+        id: "formSubmit"
+    commands:
+      - tapOn:
+          id: "formSubmit"
+      - waitForAnimationToEnd
+
+# ─── THE ASSERTION THIS FLOW EXISTS FOR ────────────────────────────────────
+# Online submit must report an online save...
+- extendedWaitUntil:
+    visible: "Form successfully submitted"
+    timeout: 30000
+# ...and must NOT have quietly fallen back to the offline queue. This is the
+# pair that makes the flow able to fail: the offline path also ends in an alert
+# and a navigate, so the positive assertion alone would pass on it.
+- assertNotVisible: "Saved offline — will sync when you reconnect"
+- takeScreenshot: .claude/screenshots/env-health-06-submitted-online
+
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+# ─── AND NOTHING WAS QUEUED ────────────────────────────────────────────────
+# The queue was empty before; an online submit must leave it that way. If the
+# record had gone to AsyncStorage instead of Parse, "Retry" would be here.
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
+- assertVisible: "No forms queued. You are all caught up!"
+- assertNotVisible: "Retry"
+- takeScreenshot: .claude/screenshots/env-health-07-queue-still-empty
