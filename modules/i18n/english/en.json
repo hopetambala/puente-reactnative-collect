@@ -786,6 +786,11 @@
     "queuedMany": "%{count} forms are saved on this device and have not reached the server yet.",
     "stillOnDevice": "Your forms are still saved on this device. Nothing has been lost.",
     "failedOffline": "You are offline. Reconnect to the internet and try again.",
-    "failedOnline": "The server did not accept these forms. Try again in a few minutes, and contact support if it keeps happening."
+    "failedOnline": "The server did not accept these forms. Try again in a few minutes, and contact support if it keeps happening.",
+    "queuedTitle": "Waiting to sync",
+    "discard": "Discard",
+    "discardTitle": "Discard this form?",
+    "discardWarning": "%{form} has not reached the server. Discarding deletes it from this device permanently and it cannot be recovered.",
+    "unknownForm": "Saved form"
   }
 }

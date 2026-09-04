@@ -786,6 +786,11 @@
     "queuedMany": "%{count} formularios están guardados en este dispositivo y todavía no han llegado al servidor.",
     "stillOnDevice": "Tus formularios siguen guardados en este dispositivo. No se ha perdido nada.",
     "failedOffline": "Estás sin conexión. Conéctate a internet e inténtalo de nuevo.",
-    "failedOnline": "El servidor no aceptó estos formularios. Inténtalo de nuevo en unos minutos y contacta con soporte si sigue ocurriendo."
+    "failedOnline": "El servidor no aceptó estos formularios. Inténtalo de nuevo en unos minutos y contacta con soporte si sigue ocurriendo.",
+    "queuedTitle": "Esperando sincronización",
+    "discard": "Descartar",
+    "discardTitle": "¿Descartar este formulario?",
+    "discardWarning": "%{form} no ha llegado al servidor. Descartarlo lo elimina de este dispositivo de forma permanente y no se puede recuperar.",
+    "unknownForm": "Formulario guardado"
   }
 }

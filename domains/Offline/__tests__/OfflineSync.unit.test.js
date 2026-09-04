@@ -1,6 +1,7 @@
 import OfflineSyncScreen from "@app/domains/Offline";
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
+import { Alert } from "react-native";
 
 jest.mock("@modules/async-storage", () => ({
   getData: jest.fn(),
@@ -29,7 +30,7 @@ jest.mock("@react-navigation/native", () => ({
   },
 }));
 
-const { getData } = require("@modules/async-storage");
+const { getData, storeData } = require("@modules/async-storage");
 const { handleUpload } = require("@impacto-design-system/Extensions/Header/upload");
 
 // Flatten the tree into the string a surveyor actually reads. Asserting on
@@ -167,5 +168,115 @@ describe("OfflineSyncScreen — a failed sync explains itself", () => {
     const tree = await renderAndRetry();
 
     await waitFor(() => expect(screenText(tree)).toContain("Session expired"));
+  });
+});
+
+describe("OfflineSyncScreen — the queue can be inspected and unblocked", () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  const idRecord = {
+    parseClass: "SurveyData",
+    localObject: { fname: "Link", lname: "Test" },
+  };
+  const envRecord = {
+    parseClass: "HistoryEnvironmentalHealth",
+    localObject: {},
+  };
+
+  const queueRecords = (records) => {
+    getData.mockImplementation((key) =>
+      Promise.resolve(key === "offlineSupForms" ? records : null)
+    );
+  };
+
+  // A wedged queue showed only a count. The surveyor could not tell which form
+  // was stuck, so "3 forms have not reached the server" was the whole story.
+  it("lists each queued form by name", async () => {
+    getData.mockImplementation((key) => {
+      if (key === "offlineIDForms") return Promise.resolve([idRecord]);
+      if (key === "offlineSupForms") return Promise.resolve([envRecord]);
+      return Promise.resolve(null);
+    });
+
+    const tree = render(<OfflineSyncScreen />);
+
+    await waitFor(() => expect(screenText(tree)).toContain("Resident ID"));
+    expect(screenText(tree)).toContain("Environmental Health");
+  });
+
+  // index is position WITHIN a queue, so a resident form and a supplementary
+  // form are both index 0. Keying the controls on it renders duplicate testIDs,
+  // which makes getByTestId ambiguous and a Maestro tap non-deterministic.
+  it("gives every queued row a distinct discard control", async () => {
+    getData.mockImplementation((key) => {
+      if (key === "offlineIDForms") return Promise.resolve([idRecord]);
+      if (key === "offlineSupForms") return Promise.resolve([envRecord]);
+      return Promise.resolve(null);
+    });
+
+    const tree = render(<OfflineSyncScreen />);
+
+    await waitFor(() => expect(tree.getByTestId("queued-discard-0")).toBeTruthy());
+    expect(tree.getByTestId("queued-discard-1")).toBeTruthy();
+  });
+
+  it("names the resident an identification record describes", async () => {
+    getData.mockImplementation((key) =>
+      Promise.resolve(key === "offlineIDForms" ? [idRecord] : null)
+    );
+
+    const tree = render(<OfflineSyncScreen />);
+
+    await waitFor(() => expect(screenText(tree)).toContain("Link Test"));
+  });
+
+  // Discarding is unrecoverable — the record exists nowhere else. It must never
+  // happen on a single press.
+  it("asks for confirmation before discarding, and does not delete yet", async () => {
+    queueRecords([envRecord]);
+    const alert = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+
+    const tree = render(<OfflineSyncScreen />);
+    await waitFor(() => expect(tree.getByTestId("queued-discard-0")).toBeTruthy());
+    fireEvent.press(tree.getByTestId("queued-discard-0"));
+
+    expect(alert).toHaveBeenCalled();
+    expect(storeData).not.toHaveBeenCalledWith(expect.anything(), "offlineSupForms");
+    alert.mockRestore();
+  });
+
+  it("removes the record once the destructive choice is confirmed", async () => {
+    queueRecords([envRecord]);
+    const alert = jest
+      .spyOn(Alert, "alert")
+      .mockImplementation(async (title, message, buttons) => {
+        const confirm = buttons.find((b) => b.style === "destructive");
+        await confirm.onPress();
+      });
+
+    const tree = render(<OfflineSyncScreen />);
+    await waitFor(() => expect(tree.getByTestId("queued-discard-0")).toBeTruthy());
+    fireEvent.press(tree.getByTestId("queued-discard-0"));
+
+    await waitFor(() =>
+      expect(storeData).toHaveBeenCalledWith([], "offlineSupForms")
+    );
+    alert.mockRestore();
+  });
+
+  // The warning has to name the cost. "Are you sure?" is not informed consent
+  // about a health record that exists nowhere but this phone.
+  it("names the form and the permanence in the confirmation", async () => {
+    queueRecords([envRecord]);
+    const alert = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+
+    const tree = render(<OfflineSyncScreen />);
+    await waitFor(() => expect(tree.getByTestId("queued-discard-0")).toBeTruthy());
+    fireEvent.press(tree.getByTestId("queued-discard-0"));
+
+    const [, message] = alert.mock.calls[0];
+    expect(message).toContain("Environmental Health");
+    expect(message).toMatch(/permanently|cannot be recovered/i);
+    alert.mockRestore();
   });
 });

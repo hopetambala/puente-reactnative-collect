@@ -5,11 +5,12 @@ import {
   cleanupPostedOfflineForms,
   postOfflineForms,
 } from "@modules/offline/post";
+import { describeQueuedForms, removeQueuedForm } from "@modules/offline/queue";
 import { getTokens } from "@modules/theme/tokens";
 import NetInfo from "@react-native-community/netinfo";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { Button, Text, useTheme } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -17,6 +18,7 @@ function OfflineSyncScreen() {
   const { dark } = useTheme();
   const t = getTokens(dark ? "dark" : "light");
   const [offlineFormCount, setOfflineFormCount] = useState(0);
+  const [queuedForms, setQueuedForms] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submission, setSubmission] = useState(null);
   const [lastSyncTimestamp, setLastSyncTimestamp] = useState(null);
@@ -32,12 +34,15 @@ function OfflineSyncScreen() {
         getData("offlineAssetSupForms"),
       ]);
     setLastSyncTimestamp(ts);
-    const total =
-      (idForms?.length ?? 0) +
-      (supForms?.length ?? 0) +
-      (assetIdForms?.length ?? 0) +
-      (assetSupForms?.length ?? 0);
-    setOfflineFormCount(total);
+    const queues = {
+      offlineIDForms: idForms,
+      offlineSupForms: supForms,
+      offlineAssetIDForms: assetIdForms,
+      offlineAssetSupForms: assetSupForms,
+    };
+    const entries = describeQueuedForms(queues);
+    setQueuedForms(entries);
+    setOfflineFormCount(entries.length);
   }, []);
 
   // Refresh count every time the tab comes into focus
@@ -104,8 +109,8 @@ function OfflineSyncScreen() {
       marginBottom: t.tkDliteSemanticSpacing400,
     },
     card: {
-      backgroundColor: t.tkDliteSemanticColorSurface,
-      borderRadius: t.tkDliteSemanticBorderRadiusMedium,
+      backgroundColor: t.tkDliteSemanticColorSurfaceBase,
+      borderRadius: t.tkDliteSemanticBorderRadiusMd,
       padding: t.tkDliteSemanticSpacing400,
       marginBottom: t.tkDliteSemanticSpacing400,
     },
@@ -135,12 +140,68 @@ function OfflineSyncScreen() {
       fontSize: 14,
       marginTop: t.tkDliteSemanticSpacing200,
     },
+    queuedHeading: {
+      color: t.tkDliteSemanticColorTextSecondary,
+      fontSize: t.tkDliteSemanticTypographySize200,
+      marginTop: t.tkDliteSemanticSpacing400,
+      marginBottom: t.tkDliteSemanticSpacing200,
+    },
+    queuedRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      borderTopWidth: 1,
+      borderTopColor: t.tkDliteSemanticColorBorder,
+      paddingVertical: t.tkDliteSemanticSpacing200,
+    },
+    queuedLabel: {
+      flex: 1,
+      color: t.tkDliteSemanticColorTextPrimary,
+      fontSize: t.tkDliteSemanticTypographySize300,
+      marginRight: t.tkDliteSemanticSpacing300,
+    },
     helpText: {
       color: t.tkDliteSemanticColorTextSecondary,
       fontSize: 14,
       marginTop: t.tkDliteSemanticSpacing200,
     },
   });
+
+  // A queued record is named the way the surveyor first met it in the gallery.
+  // A custom form carries its own title, because every custom form shares the
+  // FormResults class and the class therefore identifies nothing.
+  const labelFor = (entry) => {
+    const formName =
+      entry.customTitle ||
+      (entry.formNameKey
+        ? I18n.t(entry.formNameKey)
+        : I18n.t("offlineSync.unknownForm"));
+    return entry.personName ? `${formName} — ${entry.personName}` : formName;
+  };
+
+  // The upload is all-or-nothing, so one record the server keeps refusing stops
+  // every other queued form from syncing — and nothing in the app could clear
+  // it (offline-clear-button empties the resident CACHE, not this queue). This
+  // is the escape hatch. It destroys a record that exists nowhere else, so it
+  // names the form and the permanence and takes a second, deliberate press.
+  const confirmDiscard = (entry) => {
+    Alert.alert(
+      I18n.t("offlineSync.discardTitle"),
+      I18n.t("offlineSync.discardWarning", { form: labelFor(entry) }),
+      [
+        { text: I18n.t("global.cancel"), style: "cancel" },
+        {
+          text: I18n.t("offlineSync.discard"),
+          style: "destructive",
+          onPress: async () => {
+            await removeQueuedForm(entry.storageKey, entry.index);
+            await loadStatusBar();
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   // Take the count from the number being described, not from the queue.
   // The success line reports `submission`, but handleUpload resets the queue
@@ -174,6 +235,37 @@ function OfflineSyncScreen() {
           {offlineFormCount > 0 ? (
             <>
               <Text style={styles.countText}>{queuedText}</Text>
+              <Text style={styles.queuedHeading}>
+                {I18n.t("offlineSync.queuedTitle")}
+              </Text>
+              {/*
+                Numbered by position in the COMBINED list, not by entry.index —
+                that is a position within one queue, so a resident form and a
+                supplementary form are both index 0 and the controls collided.
+              */}
+              {queuedForms.map((entry, position) => (
+                <View
+                  key={`${entry.storageKey}-${entry.index}`}
+                  style={styles.queuedRow}
+                >
+                  <Text
+                    testID={`queued-form-${position}`}
+                    style={styles.queuedLabel}
+                  >
+                    {labelFor(entry)}
+                  </Text>
+                  <Button
+                    testID={`queued-discard-${position}`}
+                    mode="text"
+                    onPress={() => confirmDiscard(entry)}
+                    accessibilityLabel={`${I18n.t(
+                      "offlineSync.discard"
+                    )} ${labelFor(entry)}`}
+                  >
+                    {I18n.t("offlineSync.discard")}
+                  </Button>
+                </View>
+              ))}
               <Button
                 testID="offline-retry-button"
                 mode="contained"
