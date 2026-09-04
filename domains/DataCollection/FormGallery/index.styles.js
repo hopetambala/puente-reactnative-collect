@@ -38,7 +38,7 @@ const createStyles = (theme) => StyleSheet.create({
   card: {
     borderWidth: 1,
     borderColor: theme.colors.outline,
-    borderRadius: t.tkDliteSemanticBorderRadiusMedium, // borderRadius.md
+    borderRadius: t.tkDliteSemanticBorderRadiusMd, // borderRadius.md
     backgroundColor: theme.colors.surfaceBase,
   },
   cardTitle: {
@@ -49,7 +49,7 @@ const createStyles = (theme) => StyleSheet.create({
   comingSoonCard: {
     borderWidth: 1,
     borderColor: theme.colors.outline,
-    borderRadius: t.tkDliteSemanticBorderRadiusMedium, // borderRadius.md
+    borderRadius: t.tkDliteSemanticBorderRadiusMd, // borderRadius.md
     backgroundColor: theme.colors.surfaceBase,
     padding: spacing.lg,
   },

@@ -24,7 +24,7 @@
     "test-no-integration": "jest --testPathIgnorePatterns='integrat(e|ion)' --maxWorkers=4 --forceExit",
     "test-all:parallel": "concurrently --kill-others-on-fail 'yarn test:unit' 'yarn test:integration' 'yarn test:snapshot'",
     "lint": "eslint '**/*.{js,jsx}' --quiet",
-    "lint:all": "yarn lint && yarn lint:theme-imports && yarn lint:animations && yarn lint:i18n && yarn lint:locale-sync && yarn lint:maestro",
+    "lint:all": "yarn lint && yarn lint:theme-imports && yarn lint:animations && yarn lint:tokens && yarn lint:i18n && yarn lint:locale-sync && yarn lint:maestro",
     "lint-fix": "eslint '**/*.{js,jsx}' --fix",
     "lint:animations": "node scripts/lint-animations.js",
     "lint:animations:hints": "node scripts/lint-animations.js --fix-hints",
@@ -48,7 +48,8 @@
     "post-version": "node scripts/update-version/versionNumber.js",
     "maestro": "JAVA_HOME=/opt/homebrew/opt/openjdk PATH=/opt/homebrew/opt/openjdk/bin:$PATH maestro test -e PARSE_USERNAME=Test -e PARSE_PASSWORD=test",
     "lint:maestro": "node scripts/lint-maestro.js",
-    "maestro:stability": "bash scripts/maestro-stability.sh"
+    "maestro:stability": "bash scripts/maestro-stability.sh",
+    "lint:tokens": "node scripts/lint-tokens.js"
   },
   "jest": {
     "preset": "jest-expo",
