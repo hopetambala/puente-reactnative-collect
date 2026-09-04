@@ -791,6 +791,7 @@
     "discard": "Descartar",
     "discardTitle": "¿Descartar este formulario?",
     "discardWarning": "%{form} no ha llegado al servidor. Descartarlo lo elimina de este dispositivo de forma permanente y no se puede recuperar.",
-    "unknownForm": "Formulario guardado"
+    "unknownForm": "Formulario guardado",
+    "discardConfirm": "Descartar permanentemente"
   }
 }

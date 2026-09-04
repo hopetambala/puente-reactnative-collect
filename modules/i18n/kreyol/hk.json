@@ -791,6 +791,7 @@
     "discard": "Jete",
     "discardTitle": "Jete fòm sa a?",
     "discardWarning": "%{form} poko rive sou sèvè a. Si ou jete l, l ap efase nèt sou aparèy sa a e ou p ap ka jwenn li ankò.",
-    "unknownForm": "Fòm ki sere"
+    "unknownForm": "Fòm ki sere",
+    "discardConfirm": "Jete nèt"
   }
 }

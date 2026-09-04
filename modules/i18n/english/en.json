@@ -791,6 +791,7 @@
     "discard": "Discard",
     "discardTitle": "Discard this form?",
     "discardWarning": "%{form} has not reached the server. Discarding deletes it from this device permanently and it cannot be recovered.",
-    "unknownForm": "Saved form"
+    "unknownForm": "Saved form",
+    "discardConfirm": "Discard permanently"
   }
 }

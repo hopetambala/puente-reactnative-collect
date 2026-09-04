@@ -191,7 +191,10 @@ function OfflineSyncScreen() {
       [
         { text: I18n.t("global.cancel"), style: "cancel" },
         {
-          text: I18n.t("offlineSync.discard"),
+          // Deliberately NOT the same word as the row control: on screen the
+          // row's Discard sits behind the alert, so an identical label makes the
+          // confirm ambiguous — and it should name its consequence anyway.
+          text: I18n.t("offlineSync.discardConfirm"),
           style: "destructive",
           onPress: async () => {
             await removeQueuedForm(entry.storageKey, entry.index);
@@ -254,9 +257,17 @@ function OfflineSyncScreen() {
                   >
                     {labelFor(entry)}
                   </Text>
+                  {/*
+                    Error-coloured TEXT button, not a red slab: Retry is the
+                    contained control and must stay the loudest thing here —
+                    the same hierarchy the cache-clear screen settled on. Red
+                    is not the only signal either; the label says "Discard" and
+                    the confirmation names the consequence.
+                  */}
                   <Button
                     testID={`queued-discard-${position}`}
                     mode="text"
+                    textColor={t.tkDliteSemanticColorError}
                     onPress={() => confirmDiscard(entry)}
                     accessibilityLabel={`${I18n.t(
                       "offlineSync.discard"

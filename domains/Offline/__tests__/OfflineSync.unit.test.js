@@ -264,6 +264,24 @@ describe("OfflineSyncScreen — the queue can be inspected and unblocked", () =>
     alert.mockRestore();
   });
 
+  // The row control and the confirmation button must not read the same, or the
+  // confirm is ambiguous on screen (and untappable by an E2E flow, which would
+  // find two matches). The destructive choice should name its consequence.
+  it("labels the confirmation distinctly from the row control", async () => {
+    queueRecords([envRecord]);
+    const alert = jest.spyOn(Alert, "alert").mockImplementation(() => {});
+
+    const tree = render(<OfflineSyncScreen />);
+    await waitFor(() => expect(tree.getByTestId("queued-discard-0")).toBeTruthy());
+    fireEvent.press(tree.getByTestId("queued-discard-0"));
+
+    const [, , buttons] = alert.mock.calls[0];
+    const confirm = buttons.find((b) => b.style === "destructive");
+    expect(confirm.text).not.toBe("Discard");
+    expect(confirm.text).toMatch(/permanently/i);
+    alert.mockRestore();
+  });
+
   // The warning has to name the cost. "Are you sure?" is not informed consent
   // about a health record that exists nowhere but this phone.
   it("names the form and the permanence in the confirmation", async () => {
