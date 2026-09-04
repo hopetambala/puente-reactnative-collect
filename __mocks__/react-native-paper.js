@@ -62,6 +62,13 @@ module.exports = {
   Checkbox: ({ status, disabled, testID }) => React.createElement('checkbox', {
     status, disabled, testID,
   }),
+  // Rendered by ResidentCard. On device a paper Card with onPress collapses to
+  // ONE touchable accessibility element, so forward the props a test needs to
+  // assert that the card identifies itself rather than swallowing its children.
+  Card: ({ children, onPress, testID, accessibilityLabel, accessibilityRole }) =>
+    React.createElement('card', {
+      onPress, testID, accessibilityLabel, accessibilityRole,
+    }, children),
   Text: ({ children }) => React.createElement('text', null, children),
   Title: ({ children }) => React.createElement('text', null, children),
   IconButton: ({ onPress, testID }) => React.createElement('button', { onPress, testID, type: 'button' }),
