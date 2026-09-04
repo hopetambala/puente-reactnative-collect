@@ -361,3 +361,69 @@ describe("postHousehold offline — queue accumulation", () => {
     expect(localObject.objectId).toBeUndefined();
   });
 });
+
+// DO NOT "fix" this by stamping a local id. It was tried, on 2026-09-03, and it
+// broke offline sync on a real device.
+//
+// Cloud Code's master branch derives an idempotency key (`objectIdOffline`)
+// from a local id — `PatientID-` for residents, `Household-` for households,
+// and, since puente-node-cloudcode cf16c0f (2026-07-16), `SupID-` for
+// supplementary forms. Stamping `SupID-` here looked like a free fix for the
+// duplicate records a retry creates after a partial failure.
+//
+// It broke offline sync against STAGING. Measured by running
+// .maestro/offline-linked-forms.yaml on the simulator (APP_ENV=staging), queue
+// cleared beforehand —
+//   with the stamp:    sync fails, "Failed Attempt Submitting Offline Forms."
+//   without the stamp: both forms sync, queue empties
+// Every unit test passed in both directions; only the device caught it.
+//
+// Read the next paragraph before re-landing this. PRODUCTION almost certainly
+// DOES handle the prefix: puente-node-cloudcode deploys to production
+// automatically on every merge to master (.github/workflows/deploy.yaml, and
+// its runs succeed), and cf16c0f is an ancestor of the deployed commit.
+// STAGING has no automated deploy at all — that repo's README calls a staging
+// deploy a manual "fallback" — so staging's Cloud Code is of unknown vintage.
+// The Maestro harness only ever exercises staging.
+//
+// Two things remain UNVERIFIED, and the revert rests on them:
+//   1. Nobody has read staging's live Cloud Code.
+//   2. The reverted diff changed the stamp AND the identity of the stored and
+//      returned object at once; the isolation run separating them never ran.
+//
+// So: keep supplementary forms unstamped until staging's Cloud Code is
+// confirmed to strip `SupID-`. Landing it before then blinds the E2E harness,
+// which is worse than the duplicate records it would fix.
+describe("postSupplementaryForm offline — no local id until the backend takes one", () => {
+  beforeEach(() => {
+    checkOnlineStatus.mockResolvedValue(false);
+    storeData.mockClear();
+  });
+
+  const lastQueuedTo = (key) => {
+    const call = storeData.mock.calls.filter((c) => c[1] === key).pop();
+    return call[0][call[0].length - 1];
+  };
+
+  it("queues a supplementary form without stamping an objectId", async () => {
+    await postSupplementaryForm({
+      parseClass: "HistoryEnvironmentalHealth",
+      parseParentClassID: "PatientID-abc",
+      localObject: { fieldA: 1 },
+    });
+
+    expect(lastQueuedTo("offlineSupForms").localObject.objectId).toBeUndefined();
+  });
+
+  it("queues an asset supplementary form without stamping an objectId", async () => {
+    await postSupplementaryAssetForm({
+      parseClass: "Vitals",
+      parseParentClassID: "AssetID-abc",
+      localObject: {},
+    });
+
+    expect(
+      lastQueuedTo("offlineAssetSupForms").localObject.objectId
+    ).toBeUndefined();
+  });
+});

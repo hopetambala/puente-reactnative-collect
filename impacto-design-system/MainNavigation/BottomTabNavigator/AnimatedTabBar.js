@@ -145,6 +145,7 @@ function AnimatedTabBar({ state, descriptors, navigation, onTabPress }) {
                 onPress={onPress}
                 onLongPress={onLongPress}
                 accessibilityLabel={options.tabBarAccessibilityLabel ?? options.title ?? route.name}
+                testID={options.tabBarTestID ?? route.name}
                 renderIcon={options.tabBarIcon}
               />
             );
@@ -158,7 +159,7 @@ function AnimatedTabBar({ state, descriptors, navigation, onTabPress }) {
 /**
  * Single tab button with proportional width animation and press feedback.
  */
-function TabButton({ isFocused, activeWidth, inactiveWidth, onPress, onLongPress, accessibilityLabel, renderIcon }) {
+function TabButton({ isFocused, activeWidth, inactiveWidth, onPress, onLongPress, accessibilityLabel, testID, renderIcon }) {
   const targetWidth = isFocused ? activeWidth : inactiveWidth;
   const width = useSharedValue(targetWidth);
   const press = useSharedValue(1);
@@ -185,6 +186,7 @@ function TabButton({ isFocused, activeWidth, inactiveWidth, onPress, onLongPress
       accessibilityRole="button"
       accessibilityState={{ selected: isFocused }}
       accessibilityLabel={accessibilityLabel}
+      testID={testID}
     >
       <Animated.View
         style={[styles.tabButtonInner, containerStyle]}

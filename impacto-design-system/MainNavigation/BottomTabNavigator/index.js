@@ -83,6 +83,7 @@ export default function BottomTabNavigator() {
         options={{
           title: I18n.t("dataCollection.findRecord"),
           headerShown: false,
+          tabBarTestID: "tab-find-records",
           tabBarIcon: tabIcon("search-outline"),
         }}
       >
@@ -97,6 +98,7 @@ export default function BottomTabNavigator() {
         options={{
           title: I18n.t("bottomTab.dataCollection"),
           headerShown: false,
+          tabBarTestID: "tab-data-collection",
           tabBarIcon: tabIcon("folder-outline"),
         }}
       >
@@ -111,6 +113,7 @@ export default function BottomTabNavigator() {
         options={{
           title: I18n.t("bottomTab.home"),
           headerShown: false,
+          tabBarTestID: "tab-home",
           tabBarIcon: tabIcon("home-outline"),
         }}
       >
@@ -125,6 +128,7 @@ export default function BottomTabNavigator() {
         options={{
           title: I18n.t("bottomTab.offline"),
           headerShown: false,
+          tabBarTestID: "tab-offline",
           tabBarIcon: tabIcon("cloud-upload-outline"),
         }}
       >
@@ -139,6 +143,7 @@ export default function BottomTabNavigator() {
         options={{
           title: I18n.t("global.settings"),
           headerShown: false,
+          tabBarTestID: "tab-settings",
           tabBarIcon: tabIcon("cog-outline"),
         }}
       >

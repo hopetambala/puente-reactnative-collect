@@ -138,7 +138,30 @@ const createPaperInputPickerStyles = (theme) => {
     },
   });
 
-  return { styleButton, styles, stylesDefault, stylesPaper, styleX };
+  // Bar above the iOS numeric keypad. The keypad has no return key, so this
+  // is the only affordance that closes it — and the only one VoiceOver can
+  // reach (the form's own tap-to-dismiss is accessible={false}).
+  const stylesAccessory = StyleSheet.create({
+    bar: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      alignItems: "center",
+      backgroundColor: colors.surfaceVariant,
+      borderTopWidth: 1,
+      borderTopColor: colors.outline,
+      paddingHorizontal: spacing.sm,
+      paddingVertical: spacing.xs,
+    },
+  });
+
+  return {
+    styleButton,
+    styles,
+    stylesDefault,
+    stylesPaper,
+    styleX,
+    stylesAccessory,
+  };
 };
 
 export default createPaperInputPickerStyles;

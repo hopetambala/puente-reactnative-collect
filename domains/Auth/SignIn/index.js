@@ -248,6 +248,7 @@ function SignIn({ navigation, route }) {
                   >
                   <FormInput
                     label={I18n.t("signIn.username")}
+                    testID="signin-username"
                     formikProps={formikProps}
                     formikKey="username"
                     placeholder="johndoe@example.com"
@@ -255,6 +256,7 @@ function SignIn({ navigation, route }) {
                   />
                   <FormInput
                     label={I18n.t("signIn.password")}
+                    testID="signin-password"
                     formikProps={formikProps}
                     formikKey="password"
                     placeholder={I18n.t("signIn.password")}
@@ -280,6 +282,7 @@ function SignIn({ navigation, route }) {
                     <Button
                       mode="contained"
                       theme={theme}
+                      testID="signin-submit"
                       style={styles.submitButton}
                       onPress={formikProps.handleSubmit}
                     >
