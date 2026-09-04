@@ -371,16 +371,29 @@ describe("postHousehold offline — queue accumulation", () => {
 // supplementary forms. Stamping `SupID-` here looked like a free fix for the
 // duplicate records a retry creates after a partial failure.
 //
-// It is not free: the DEPLOYED backend does not handle it. Measured by running
-// .maestro/offline-linked-forms.yaml against the simulator —
+// It broke offline sync against STAGING. Measured by running
+// .maestro/offline-linked-forms.yaml on the simulator (APP_ENV=staging), queue
+// cleared beforehand —
 //   with the stamp:    sync fails, "Failed Attempt Submitting Offline Forms."
 //   without the stamp: both forms sync, queue empties
-// — with the queue cleared beforehand so the runs were comparable. Every unit
-// test passed in both directions; only the device caught it.
+// Every unit test passed in both directions; only the device caught it.
 //
-// A local objectId Parse does not recognise is rejected outright, so until the
-// deployed Cloud Code is CONFIRMED to strip `SupID-` (not merely until master
-// contains the branch), supplementary forms must reach the queue unstamped.
+// Read the next paragraph before re-landing this. PRODUCTION almost certainly
+// DOES handle the prefix: puente-node-cloudcode deploys to production
+// automatically on every merge to master (.github/workflows/deploy.yaml, and
+// its runs succeed), and cf16c0f is an ancestor of the deployed commit.
+// STAGING has no automated deploy at all — that repo's README calls a staging
+// deploy a manual "fallback" — so staging's Cloud Code is of unknown vintage.
+// The Maestro harness only ever exercises staging.
+//
+// Two things remain UNVERIFIED, and the revert rests on them:
+//   1. Nobody has read staging's live Cloud Code.
+//   2. The reverted diff changed the stamp AND the identity of the stored and
+//      returned object at once; the isolation run separating them never ran.
+//
+// So: keep supplementary forms unstamped until staging's Cloud Code is
+// confirmed to strip `SupID-`. Landing it before then blinds the E2E harness,
+// which is worse than the duplicate records it would fix.
 describe("postSupplementaryForm offline — no local id until the backend takes one", () => {
   beforeEach(() => {
     checkOnlineStatus.mockResolvedValue(false);
