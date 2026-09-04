@@ -197,9 +197,25 @@ tab hits the coachmark. `open-tab.yaml` clears them before *and* after.
 fields. Dismiss by scrolling or tapping empty space.
 
 **Only one Maestro at a time.** Two runs cannot share the XCUITest driver; they
-fail with `ConnectException` that looks exactly like ambient flakiness. Check
-`pgrep -f 'maestro test'` first. After a driver crash, reset the simulator
-headlessly — `xcrun simctl shutdown <udid> && xcrun simctl boot <udid>`. Never
+fail with `ConnectException` that looks exactly like ambient flakiness.
+
+Checking `pgrep -f 'maestro test'` is NOT enough. The runner spawns an
+`xcodebuild` driver whose command line contains neither "maestro test" nor
+"maestro-stability", so killing the stability script leaves the driver alive and
+holding the port — and the next run dies with `ConnectException` while `pgrep`
+reports nothing. Check for the driver itself:
+
+```bash
+pgrep -f 'maestro-driver-ios-config|maestro.cli.AppKt'
+```
+
+**Do not clean up with `pkill -f maestro`.** `pkill -f` matches the whole
+process line INCLUDING the environment, and every process that inherited a PATH
+containing `~/.maestro/bin` matches — which on this machine killed the user's
+editor extension hosts. Kill the two precise patterns above instead.
+
+After a driver crash, reset the simulator headlessly —
+`xcrun simctl shutdown <udid> && xcrun simctl boot <udid>`. Never
 `open -a Simulator`; it steals the user's focus.
 
 **Backend data differs by environment.** Staging's Parse `Organization` class

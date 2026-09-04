@@ -109,6 +109,19 @@ Each of these now ends on a positive assertion — `No forms queued. You are all
 caught up!` — rather than only `notVisible: "Retry"`, which also passes on a
 blank or crashed screen.
 
+The sync button carries `testID="offline-retry-button"`. Prefer it to the
+English word "Retry": the surrounding copy is translated, and the button is the
+one thing on the screen that a Spanish or Kreyòl run still has to find. The
+readiness gate in `environmental-health-online.yaml` stays on text only because
+it has to match either the queued or the empty state in a single wait.
+
+Two ids worth knowing when a form has a number field:
+`numberInput-<formikKey>` is the field, and
+`numberInput-done-<formikKey>` is the Done button on its keypad accessory bar.
+Tap the latter to close the numeric keypad — `hideKeyboard` fails outright on
+it, and while it is up the ScrollView's `keyboardShouldPersistTaps="never"`
+eats the first tap on submit while Maestro reports that tap as COMPLETED.
+
 ## Running
 
 ```bash
