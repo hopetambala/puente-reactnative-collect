@@ -79,10 +79,30 @@ const postSupplementaryFormBase = async (postParams, { offlineKey, fnName }) => 
     return result.value;
   }
 
+  // Stamp a local id before queueing. A partially-failed sync leaves the WHOLE
+  // batch on the device, so the next Retry re-sends records that already saved.
+  // Cloud Code dedupes on `objectIdOffline`, which it derives from a local id —
+  // and it has always had a `SupID-` branch for exactly this. The client never
+  // stamped one, so supplementary forms arrived with no idempotency key and a
+  // retry after a partial failure created DUPLICATE health records, silently,
+  // and more on every further retry.
+  //
+  // Only on the offline branch: posting online sends localObject straight to
+  // Parse, which rejects an objectId it does not know.
   const supForms = await getData(offlineKey);
   const existing = supForms ?? [];
-  await storeData([...existing, postParams], offlineKey);
-  return postParams;
+  const queued = {
+    ...postParams,
+    localObject: {
+      ...postParams.localObject,
+      // Never re-key a record that already carries one, or a re-queue would
+      // defeat the dedupe it exists for.
+      objectId:
+        postParams?.localObject?.objectId ?? `SupID-${generateRandomID()}`,
+    },
+  };
+  await storeData([...existing, queued], offlineKey);
+  return queued;
 };
 
 /** ***********************************************
