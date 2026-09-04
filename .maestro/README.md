@@ -104,6 +104,7 @@ offline mode internally via the dev toggle in Settings.
 | `offline-multiple-forms.yaml` | Two forms offline → badge accumulates → sync clears both | Yes |
 | `offline-badge-persistence.yaml` | Submit offline → force-kill → cold relaunch → badge survives | Yes |
 | `offline-linked-forms.yaml` | Linked forms queue and sync together | Yes |
+| `offline-discard-queued-form.yaml` | Queue is listed by form name → discard asks first → cancel keeps it → confirm removes it | Yes |
 
 Each of these now ends on a positive assertion — `No forms queued. You are all
 caught up!` — rather than only `notVisible: "Retry"`, which also passes on a
