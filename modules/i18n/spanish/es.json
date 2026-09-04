@@ -22,7 +22,8 @@
     "settings": "Configuración",
     "tryAgain": "Intentar de nuevo",
     "cancel": "Cancelar",
-    "recordsStoredOnDevice": "%{count} registros guardados en este dispositivo"
+    "recordsStoredOnDevice": "%{count} registros guardados en este dispositivo",
+    "done": "Listo"
   },
   "signUp": {
     "firstName": "Nombre de verdadero",

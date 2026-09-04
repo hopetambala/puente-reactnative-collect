@@ -22,7 +22,8 @@
     "settings": "Paramèt",
     "tryAgain": "Eseye ankò",
     "cancel": "Anile",
-    "recordsStoredOnDevice": "%{count} dosye sere sou aparèy sa a"
+    "recordsStoredOnDevice": "%{count} dosye sere sou aparèy sa a",
+    "done": "Fini"
   },
   "signUp": {
     "firstName": "Non",

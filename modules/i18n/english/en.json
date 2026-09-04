@@ -22,7 +22,8 @@
     "settings": "Settings",
     "tryAgain": "Try Again",
     "cancel": "Cancel",
-    "recordsStoredOnDevice": "%{count} records stored on this device"
+    "recordsStoredOnDevice": "%{count} records stored on this device",
+    "done": "Done"
   },
   "signUp": {
     "firstName": "First Name",

@@ -49,3 +49,79 @@ describe('PaperInputPicker - select field', () => {
     expect(formikProps.setFieldValue).toHaveBeenCalledWith('continueProgram', 'No');
   });
 });
+
+describe('PaperInputPicker - numberInput keyboard dismissal', () => {
+  const numberData = {
+    label: 'Number of individuals living in the house',
+    formikKey: 'numberofIndividualsLivingintheHouse',
+    fieldType: 'numberInput',
+  };
+
+  // keyboardType="numeric" gives an iOS keypad with NO return key, so there is
+  // no key that dismisses it. The only dismiss affordance on the form is a
+  // TouchableWithoutFeedback marked `accessible={false}` (domains/DataCollection/
+  // Forms/index.js), which is deliberately hidden from VoiceOver. A VoiceOver
+  // user therefore has no way to close the keyboard at all, and the submit
+  // button sits behind it.
+  it('offers a Done control for the numeric keypad', () => {
+    const { getByTestId } = render(
+      <PaperInputPicker
+        data={numberData}
+        formikProps={buildFormikProps({ numberofIndividualsLivingintheHouse: '4' })}
+        customForm
+      />
+    );
+
+    expect(
+      getByTestId('numberInput-done-numberofIndividualsLivingintheHouse')
+    ).toBeTruthy();
+  });
+
+  it('exposes that Done control to assistive technology', () => {
+    const { getByTestId } = render(
+      <PaperInputPicker
+        data={numberData}
+        formikProps={buildFormikProps({ numberofIndividualsLivingintheHouse: '4' })}
+        customForm
+      />
+    );
+
+    const done = getByTestId('numberInput-done-numberofIndividualsLivingintheHouse');
+    expect(done.props.accessibilityLabel).toBeTruthy();
+  });
+
+  it('dismisses the keyboard when Done is pressed', () => {
+    const { Keyboard } = require('react-native'); // eslint-disable-line global-require
+    const dismiss = jest.spyOn(Keyboard, 'dismiss').mockImplementation(() => {});
+
+    const { getByTestId } = render(
+      <PaperInputPicker
+        data={numberData}
+        formikProps={buildFormikProps({ numberofIndividualsLivingintheHouse: '4' })}
+        customForm
+      />
+    );
+
+    fireEvent.press(getByTestId('numberInput-done-numberofIndividualsLivingintheHouse'));
+
+    expect(dismiss).toHaveBeenCalled();
+    dismiss.mockRestore();
+  });
+
+  // The accessory is wired to the field by id; a field that does not name it
+  // renders a Done button the keyboard never shows.
+  it('links the field to the accessory view', () => {
+    const { getByTestId } = render(
+      <PaperInputPicker
+        data={numberData}
+        formikProps={buildFormikProps({ numberofIndividualsLivingintheHouse: '4' })}
+        customForm
+      />
+    );
+
+    const field = getByTestId('numberInput-numberofIndividualsLivingintheHouse');
+    expect(field.props.inputAccessoryViewID).toBe(
+      'numberInput-accessory-numberofIndividualsLivingintheHouse'
+    );
+  });
+});

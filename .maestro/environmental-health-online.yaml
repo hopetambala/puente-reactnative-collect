@@ -59,13 +59,19 @@ appId: io.ionic.starter1270348
 - extendedWaitUntil:
     visible: "Retry|No forms queued.*"
     timeout: 30000
+# The readiness gate above stays on text because it has to match EITHER state
+# in one wait. The tap does not — `offline-retry-button` exists now, so use it
+# and stop depending on the English word "Retry" surviving translation.
 - runFlow:
     when:
-      visible: "Retry"
+      visible:
+        id: "offline-retry-button"
     commands:
-      - tapOn: "Retry"
+      - tapOn:
+          id: "offline-retry-button"
       - extendedWaitUntil:
-          notVisible: "Retry"
+          notVisible:
+            id: "offline-retry-button"
           timeout: 60000
 - assertVisible: "No forms queued. You are all caught up!"
 
@@ -173,44 +179,42 @@ appId: io.ionic.starter1270348
 - inputText: "4"
 - waitForAnimationToEnd
 
-# Answering an optional select does double duty: it is a thing a surveyor
-# actually does, and tapping a non-text control blurs the number field, which
-# is the only reliable way to drop the numeric keyboard here.
+# Close the numeric keypad using its own Done bar.
 #
-# It has to go: `hideKeyboard` FAILS outright on this field, and while the
-# keyboard is up the submit button sits behind it — Maestro finds `formSubmit`
-# in the tree and reports the tap COMPLETED, but the tap lands on the keyboard,
-# so the form never submits and the run dies later at the missing success alert.
+# This assertion is load-bearing beyond this flow. keyboardType="numeric" gives
+# an iOS keypad with NO return key: `hideKeyboard` fails outright on it, and the
+# form's only other dismiss affordance is a TouchableWithoutFeedback marked
+# accessible={false} — which VoiceOver cannot reach, so a blind surveyor had no
+# way to close it at all while the submit button sat behind it. Writing this
+# flow is what surfaced that; an InputAccessoryView Done button was added to fix
+# it. Targeting the button by id here means the flow FAILS if that accessory
+# ever stops rendering, rather than silently going back to the old dance.
+- extendedWaitUntil:
+    visible:
+      id: "numberInput-done-numberofIndividualsLivingintheHouse"
+    timeout: 10000
+- takeScreenshot: .claude/screenshots/env-health-05-numeric-keypad-done
+- tapOn:
+    id: "numberInput-done-numberofIndividualsLivingintheHouse"
+- waitForAnimationToEnd
+
+# Answering an optional select is a thing a surveyor actually does, and it
+# confirms the form is still interactive with the keypad gone.
 - tapOn: "No assistance"
 - waitForAnimationToEnd
 
-# Scroll AFTER filling, not just before. The numeric keyboard stays up — nothing
-# dismisses it here, not `hideKeyboard` (fails outright) and not tapping another
-# control — so the submit button has to be moved out from behind it instead.
-# Until it is, Maestro finds `formSubmit` in the tree and reports the tap
-# COMPLETED while the tap actually lands on the keyboard, and the run dies much
-# later at the missing success alert.
 - scroll
 - scroll
-- takeScreenshot: .claude/screenshots/env-health-05-form-filled
+- takeScreenshot: .claude/screenshots/env-health-06-form-filled
 
-# `hideKeyboard` does NOT work here — it fails outright on this numeric field,
-# the same way it does on a paper Searchbar. So use the pattern the offline
-# flows already prove: the form ScrollView is keyboardShouldPersistTaps="never",
-# so the first tap is eaten dismissing the keyboard and the second submits.
-# Conditional, because when the first tap DOES submit, an unconditional second
-# fails with "formSubmit not found".
+# With the keypad dismissed the submit is a single, unconditional tap. It used
+# to need a conditional second one: the form ScrollView is
+# keyboardShouldPersistTaps="never", so while the keypad was up the first tap
+# was eaten dismissing it — and Maestro reported that eaten tap as COMPLETED,
+# so the run died much later at the missing success alert.
 - tapOn:
     id: "formSubmit"
 - waitForAnimationToEnd
-- runFlow:
-    when:
-      visible:
-        id: "formSubmit"
-    commands:
-      - tapOn:
-          id: "formSubmit"
-      - waitForAnimationToEnd
 
 # ─── THE ASSERTION THIS FLOW EXISTS FOR ────────────────────────────────────
 # Online submit must report an online save...
@@ -221,7 +225,7 @@ appId: io.ionic.starter1270348
 # pair that makes the flow able to fail: the offline path also ends in an alert
 # and a navigate, so the positive assertion alone would pass on it.
 - assertNotVisible: "Saved offline — will sync when you reconnect"
-- takeScreenshot: .claude/screenshots/env-health-06-submitted-online
+- takeScreenshot: .claude/screenshots/env-health-07-submitted-online
 
 - runFlow:
     when:
@@ -239,5 +243,6 @@ appId: io.ionic.starter1270348
       TAB_ID: "tab-offline"
       EXPECT: "Offline Sync"
 - assertVisible: "No forms queued. You are all caught up!"
-- assertNotVisible: "Retry"
-- takeScreenshot: .claude/screenshots/env-health-07-queue-still-empty
+- assertNotVisible:
+    id: "offline-retry-button"
+- takeScreenshot: .claude/screenshots/env-health-08-queue-still-empty
