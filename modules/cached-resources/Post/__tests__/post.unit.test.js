@@ -361,3 +361,56 @@ describe("postHousehold offline — queue accumulation", () => {
     expect(localObject.objectId).toBeUndefined();
   });
 });
+
+// DO NOT "fix" this by stamping a local id. It was tried, on 2026-09-03, and it
+// broke offline sync on a real device.
+//
+// Cloud Code's master branch derives an idempotency key (`objectIdOffline`)
+// from a local id — `PatientID-` for residents, `Household-` for households,
+// and, since puente-node-cloudcode cf16c0f (2026-07-16), `SupID-` for
+// supplementary forms. Stamping `SupID-` here looked like a free fix for the
+// duplicate records a retry creates after a partial failure.
+//
+// It is not free: the DEPLOYED backend does not handle it. Measured by running
+// .maestro/offline-linked-forms.yaml against the simulator —
+//   with the stamp:    sync fails, "Failed Attempt Submitting Offline Forms."
+//   without the stamp: both forms sync, queue empties
+// — with the queue cleared beforehand so the runs were comparable. Every unit
+// test passed in both directions; only the device caught it.
+//
+// A local objectId Parse does not recognise is rejected outright, so until the
+// deployed Cloud Code is CONFIRMED to strip `SupID-` (not merely until master
+// contains the branch), supplementary forms must reach the queue unstamped.
+describe("postSupplementaryForm offline — no local id until the backend takes one", () => {
+  beforeEach(() => {
+    checkOnlineStatus.mockResolvedValue(false);
+    storeData.mockClear();
+  });
+
+  const lastQueuedTo = (key) => {
+    const call = storeData.mock.calls.filter((c) => c[1] === key).pop();
+    return call[0][call[0].length - 1];
+  };
+
+  it("queues a supplementary form without stamping an objectId", async () => {
+    await postSupplementaryForm({
+      parseClass: "HistoryEnvironmentalHealth",
+      parseParentClassID: "PatientID-abc",
+      localObject: { fieldA: 1 },
+    });
+
+    expect(lastQueuedTo("offlineSupForms").localObject.objectId).toBeUndefined();
+  });
+
+  it("queues an asset supplementary form without stamping an objectId", async () => {
+    await postSupplementaryAssetForm({
+      parseClass: "Vitals",
+      parseParentClassID: "AssetID-abc",
+      localObject: {},
+    });
+
+    expect(
+      lastQueuedTo("offlineAssetSupForms").localObject.objectId
+    ).toBeUndefined();
+  });
+});
