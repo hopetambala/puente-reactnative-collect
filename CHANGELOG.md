@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.7.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.7.0...v15.7.1) (2026-09-08)
+
+
+### Documentation Changes
+
+* **release:** EAS's version bump is not dependable either way ([0082e56](https://github.com/hopetambala/puente-reactnative-collect/commit/0082e5656723bb9dc6f4cbc338b116fa1db93e3b))
+* **release:** verify the built commit, never local git log ([07784f0](https://github.com/hopetambala/puente-reactnative-collect/commit/07784f0fd02554d9276b55e9fa84824432b69473))
+
+
+### Bug fixes
+
+* **autofill:** make the organization dropdown actually selectable ([#621](https://github.com/hopetambala/puente-reactnative-collect/issues/621)) ([9385522](https://github.com/hopetambala/puente-reactnative-collect/commit/93855227b93637c9a4ba18f1e239cf491602671a)), closes [#619](https://github.com/hopetambala/puente-reactnative-collect/issues/619)
+* **offline:** supplementary idempotency + partial-sync data loss, and the harness that caught them ([#622](https://github.com/hopetambala/puente-reactnative-collect/issues/622)) ([9c58eb8](https://github.com/hopetambala/puente-reactnative-collect/commit/9c58eb83cf5c3b61c4a83119e25000e48be07388)), closes [puente-node-cloudcode#639](https://github.com/hopetambala/puente-node-cloudcode/issues/639) [puente-node-cloudcode#639](https://github.com/hopetambala/puente-node-cloudcode/issues/639) [puente-flask-rest-aggregator#127](https://github.com/hopetambala/puente-flask-rest-aggregator/issues/127) [puente-node-cloudcode#639](https://github.com/hopetambala/puente-node-cloudcode/issues/639)
+* **release:** reconcile the build number EAS actually shipped ([0757287](https://github.com/hopetambala/puente-reactnative-collect/commit/075728721cfa83e41f85101f747b1e27872bee29))
+
 ## [15.7.0](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.6.1...v15.7.0) (2026-08-30)
 
 
