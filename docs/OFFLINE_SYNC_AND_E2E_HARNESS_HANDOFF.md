@@ -1,188 +1,261 @@
 # Claude Handoff: offline sync correctness + the E2E harness that now catches it
 
-Date: 2026-09-04
+Date: 2026-09-04 (rewritten — the blocker below is **answered**, and the two
+defects it gated are fixed)
 Repository: `/Users/hopetambala/Documents/development/puente/puente-reactnative-collect`
 Branch: `test/e2e-harness-assertions`
-PR: [#622 — test(e2e): make the Maestro harness able to fail](https://github.com/hopetambala/puente-reactnative-collect/pull/622) — **OPEN, not merged**
 
-Status at handoff: 524 unit + 77 integration tests green, all six lints clean,
-working tree clean, everything pushed.
+Open PRs from this work — **both auto-deploy to production on merge:**
+- [puente-flask-rest-aggregator #127](https://github.com/hopetambala/puente-flask-rest-aggregator/pull/127) — keep Parse internals out of supplementary CSVs. **Merge FIRST.**
+- [puente-node-cloudcode #639](https://github.com/hopetambala/puente-node-cloudcode/pull/639) — partial-failure reporting. Stops silent field-data loss.
+- [puente-reactnative-collect #622](https://github.com/hopetambala/puente-reactnative-collect/pull/622) — the E2E harness work. Still open, still unmerged.
 
 ---
 
-## Read this first: the one blocked question
+## The blocked question is answered
 
-**Nobody has read the Cloud Code actually running on production Back4App.**
-Every claim below about what production does is inference from CI config and git
-ancestry. That inference has already been wrong once in this work, in the
-opposite direction, so treat it as unproven.
+**Production Cloud Code was read**, with the b4a CLI, on 2026-09-04.
 
-The blocker is a permission denial, not a technical one. The setup is known to
-work up to the last step:
+| | `SupID-` branch | Live release | Vintage |
+|---|---|---|---|
+| **Production** | **Present** | v120 = `GHA d860f22` | 2026-09-01. `diff -r` vs local `master` → **0 differences** |
+| **Staging, before** | **Absent** | v711 | **2026-07-15** — and before that, *2022* |
+| **Staging, now** | Present | v712 | 2026-09-04, mirrors production. `diff -r` → **0 differences** |
+
+`cf16c0f`, which added the branch, landed **2026-07-16 06:35 -0700** — about 32
+hours *after* staging's last deploy. Staging missed the fix by a day and a half.
+
+### The revert's stated reason was backwards
+
+`60f01be` reverted the client stamp because "the deployed backend does not
+handle it." True of **staging**, which is what every device observation hit.
+False of **production**, which is what ships. So the revert was costing
+production a real fix, and `aa12e32`'s commit message was right on the facts.
+
+**Mechanism, read rather than inferred:** staging's
+`postObjectsWithRelationshipsArray` had no `SupID-` handling, so it passed
+`localObject.objectId` straight to Parse, which rejects an objectId it does not
+know — hence the device failure. Production moves that id to `objectIdOffline`
+and deletes `objectId`, so Parse never sees an unknown id and the record dedupes.
+
+**Confirmed on device.** `.maestro/offline-linked-forms.yaml` — the exact flow
+that failed with the stamp against old staging — **passes with the stamp against
+staging-that-matches-production**. The old doc's action #3 (an isolation run to
+separate the stamp from the object-identity change) is therefore moot: the
+mechanism is read, and the identity half is checked (no caller reads the
+returned id — `SupplementaryForm` uses only `result?.isOfflineLocal`,
+`AssetSupplementary` ignores the return value).
+
+### Re-reading deployed Cloud Code
 
 ```bash
-# 1. The system b4a is corrupt — /usr/local/bin/b4a contains the ASCII string
-#    "Not Found" (a failed download saved as the binary). Do not trust it.
-mkdir -p /tmp/b4acheck && cd /tmp/b4acheck
-curl -sL -o b4a https://github.com/back4app/parse-cli/releases/download/release_3.3.1/b4a_mac_m1
-chmod +x b4a && ./b4a version        # expect: 3.3.1
-
-# 2. Credentials already exist at ~/.back4app/netrc.
-#    Verified working: `./b4a list` returns dev, production, staging.
-
-# 3. b4a needs a Parse project dir. .parse.project is not secret:
-printf '{\n  "project_type": 1,\n  "parse": { "jssdk": "2.2.25" }\n}\n' > .parse.project
-
-# 4. .parse.local maps names -> applicationId. Take the ids from environment.js
-#    (prod.parseAppId, staging.parseAppId). Do NOT print them.
-#    Shape: {"applications":{"production":{"applicationId":"..."},
-#                            "staging":{"applicationId":"..."}}}
-
-# 5. THE COMMANDS THAT ANSWER THE QUESTION — all read-only:
-./b4a releases production
-./b4a download production
-./b4a releases staging
-./b4a download staging
-grep -n "SupID-" <downloaded>/cloud/src/services/offline/offline.js
+cd .../puente-node-cloudcode          # already has .parse.project
+printf '{"applications":{"production":{"applicationId":"<APP_ID>"}}}\n' > .parse.local
+b4a releases production
+b4a download production -l /tmp/dl-prod
+diff -r /tmp/dl-prod/cloud ./cloud
+rm -f .parse.local                    # gitignored anyway
 ```
 
-Step 5 was **blocked by the Claude Code auto-mode classifier**. It needs a Bash
-permission rule, or the user runs it and pastes the output.
-
-**Never run** `b4a deploy`, `rollback`, `develop`, `new`, or `add` here. The
-point is to read. A deploy from a scratch project could overwrite production
-Cloud Code with an empty directory.
-
-### What the answer decides
-
-| If production Cloud Code **has** the `SupID-` branch | If it **does not** |
-|---|---|
-| The revert (`60f01be`) is costing production a real fix. Deploy staging to match, then re-land the client stamp and delete the guard test. | The revert was right on its stated terms; leave it, and the duplicate-record bug needs a different fix entirely. |
+- The system `/usr/local/bin/b4a` is **corrupt** — it contains the ASCII string
+  "Not Found". Get one from
+  `github.com/back4app/parse-cli/releases/download/release_3.3.1/b4a_mac_m1`.
+- **b4a needs BOTH `.parse.project` and `.parse.local`.** `b4a list` works
+  without them; everything else says "Command must be run inside a Parse project."
+- App IDs are not secrets (they ship in the app binary). The master keys beside
+  them in `environment.js` are.
+- **Never** `b4a deploy/rollback/develop/new/add` casually — `deploy` ships the
+  working tree. Keep the pre-deploy download as your rollback reference.
 
 ---
 
-## Background: how this got confusing
+## The bigger finding, closed
 
-A client change stamped `SupID-<id>` on supplementary forms queued offline, so
-Cloud Code could dedupe re-sent records. On device it made offline sync fail;
-without it, sync passed. That was reported as "the deployed backend does not
-handle it" and reverted.
+The old doc's central point — *the harness tests staging, which is hand-deployed
+and of unknown vintage* — was worse than it read. Staging wasn't merely old:
 
-That reason is probably **backwards**:
+- **13 files differed** from production.
+- **5 did not exist at all**: `invoice.definer.js`, `rateCard.definer.js`,
+  `usage.definer.js` (the entire billing Cloud Code) and
+  `organization.definer.js` + `services/organization/`.
+- **Metadata semantics were inverted.** Production fills only empty fields
+  (`mergeMetadataAsFallback`); staging did `{ ...localObject, ...metadata }`, so
+  metadata **overwrote** collected values. Every flow asserting on
+  `surveyingUser` / `surveyingOrganization` was validating the opposite rule.
 
-- The simulator was running `APP_ENV=staging`. Every device observation was
-  against staging. (Verified: Metro process env.)
-- `environment.js` gives staging and prod **different `parseAppId`s**, and
-  `b4a list` shows three separate apps — `dev`, `production`, `staging`.
-- `puente-node-cloudcode/.github/workflows/deploy.yaml` deploys **only to
-  production**, on merge to master. Its runs succeed (15/15 recent; latest
-  2026-09-01 at `d860f22`).
-- **Staging has no automated deploy at all.** That repo's `README.md:90-95`
-  calls a staging deploy a manual "fallback".
-- The `SupID-` handling landed in cloud commit `cf16c0f` (2026-07-16), which is
-  an ancestor of `d860f22`.
+Staging now mirrors production, so the harness tests something meaningful.
 
-So production plausibly has it and staging plausibly does not — the reverse of
-what was written. `cf16c0f`'s own message says the branch exists *"so the mobile
-app can start stamping them without another server deploy"*, and notes
-*"SupID case saved 0 because Parse rejects unknown objectIds"*.
-
-### The bigger finding
-
-**The Maestro harness tests staging, which is hand-deployed and of unknown
-vintage.** Production tracks master automatically; staging does not track
-anything. So every E2E flow — and the release gate in `CLAUDE.md` that depends
-on them — validates against a backend that is not what ships. That is a larger
-problem than the bug that exposed it.
+**Still unresolved:** staging has no automated deploy and will drift again. The
+real fix is a staging deploy job in `puente-node-cloudcode`.
 
 ---
 
-## Verified vs inferred (do not blur these again)
+## E2E validation, 2026-09-04
 
-**Verified — measured or read directly:**
-- Metro ran `APP_ENV=staging`; all device runs hit staging.
-- staging and prod are different Back4App apps (different `parseAppId`; `b4a list`).
-- Production deploy pipeline exists, targets production only, and reports success.
-- `cf16c0f` is an ancestor of the deployed SHA `d860f22`.
-- Staging has no automated deploy (`README.md:90-95`).
-- On staging: with the `SupID-` stamp sync FAILED; without it sync PASSED.
+Full suite against staging v712, app unchanged — **12/13 pass**. The one failure
+is `signup-organization-picker`, which **cannot** pass against staging: its own
+header says *"REQUIRES A BACKEND WITH ORGANISATION DATA — staging will not do."*
+Measured by REST: staging's `Organization` class has **0 rows**, production has
+**59**. Deploying Cloud Code does not bring data. Run that flow with
+`yarn start:prod-clear`. Do not count it as a regression.
 
-**Inferred — not proven, do not restate as fact:**
-- That staging's Cloud Code predates `cf16c0f`.
-- That production's live Cloud Code matches `d860f22`. A successful deploy job
-  is not an inspection of what is running.
-- That the `SupID-` prefix specifically caused the staging failure. The reverted
-  diff changed **two** things: the stamp *and* the identity of the object stored
-  and returned by `postSupplementaryFormBase`. The isolation run that would
-  separate them was set up but **never completed** — the simulator was taken
-  over by another app mid-experiment.
+`visual-qa` failed in that run with `IOSDriverTimeoutException` and **passes in
+isolation** — a stray driver from the 13th consecutive run, not a regression.
 
-**Known confound in that A/B:** the app's data container UUID changed between
-the two runs (the app was reinstalled). Queue state was cleared before each, but
-the runs were not otherwise identical.
+Offline flows re-run after the client change — **7/7 pass**:
+`offline-linked-forms`, `offline-sync`, `offline-multiple-forms`,
+`offline-resident-id`, `offline-badge-persistence`,
+`offline-discard-queued-form`, `environmental-health-online`.
 
 ---
 
-## Open defects
+## Defects
 
-### 1. Supplementary forms have no idempotency key — UNFIXED
-A partially-failed batch stays queued in full, so every Retry re-sends records
-that already saved. Resident (`PatientID-`) and household (`Household-`) records
-dedupe; supplementary forms do not. Result: duplicate health records, more on
-every retry.
+### 1. Supplementary forms had no idempotency key — **FIXED on this branch**
 
-Guarded against a naive re-fix by
-`modules/cached-resources/Post/__tests__/post.unit.test.js` (the
-"no local id until the backend takes one" describe block). Read its comment
-before touching it.
+Proven first, in `modules/offline/__test__/retry-duplicates.integrate.test.js`,
+which runs the real retry path (queue offline, sync, sync again with no cleanup):
 
-### 2. Four Cloud Code defects turn one bad record into a permanent total wedge
-In `puente-node-cloudcode` (reported, **not** modified):
+```
+before: expect(supplementaryCopies).toBe(1) → Received: 2
+after:  ✓ does not create a second copy of a record that already saved
+```
 
-| Location | Defect |
-|---|---|
-| `cloud/src/services/offline/offline.js:78,81` | `record.parseParentClassID.includes(…)` unguarded — a null parent throws `TypeError`. The sibling function guards every equivalent access. |
-| `offline.js:104-108` | Catches and returns the **Error object** where callers expect an array |
-| `cloud/src/services/post/hooks/afterSave.js:2,27` | Hooks call `records.map(…)` on whatever they receive — an Error has no `.map`, so it throws again |
-| `offline.js:64,136`, `afterSave.js:19,46` | `return Promise.all(…)` un-awaited inside `try` — those `catch` blocks are dead code |
+Residents were always protected (`PatientID-` → `objectIdOffline`); supplementary
+forms were not. `postSupplementaryFormBase` now stamps `SupID-<id>` on the
+offline branch only, and never re-keys a record that already carries one.
 
-Chain: one record throws → `Promise.all` rejects the category → category returns
-an Error → hook `.map`s it and throws → `Offline.upload` catches and returns the
-error → client's `isCompleteUploadResult` sees no arrays → status `Error` →
-queue kept in full → next Retry hits the same record → forever.
+`af63282`'s guard test is **deleted** — every condition its own comment set for
+re-landing has been met.
 
-Suggested fix: `Promise.allSettled` per record **plus an explicit failure flag**.
-Do **not** return bare arrays on partial failure — the client deletes the queue
-on success (`cleanupPostedOfflineForms`), which would silently destroy the
-unsaved records.
+### 2. A partially-failed sync — **FIXED** (server in #639, client here)
 
-### 3. Why a record is refused in the first place — UNKNOWN
-No reproduction. Everything above explains amplification, not the trigger.
+Both save paths in `post.js` end in `.catch((error) => console.error(...))`, so a
+refused save resolves **`undefined`** rather than rejecting, and travels on
+looking like a saved record. **The old doc had this wrong** — it said a record
+throws and `Promise.all` rejects; really the failure is swallowed and detonates
+one step later.
+
+| Category | afterSave hook? | Old behaviour |
+|---|---|---|
+| `residentForms`, `residentSupplementaryForms`, `assetSupplementaryForms` | Yes | hook calls `.get()` on the `undefined` → throws → **wedged loudly, data kept** |
+| `households`, `assetForms` | **No** | `undefined` stayed in the array → device told everything worked → **record silently lost** |
+
+Proven in `modules/offline/__test__/partial-failure.integrate.test.js`:
+
+```
+✓ expect(savedInParse).toBe(1)        // 1 of 2 households persisted
+✕ expect(status).not.toBe("Success")  // it WAS "Success"   ← before #639
+```
+
+The client deletes its queue on `"Success"`, so the unsaved household was erased
+from the only device holding it. Same root cause as the wedge, opposite symptom,
+and the quiet one is worse.
+
+**The payload shape is the load-bearing decision.** On full success it is
+byte-identical to before. On partial failure the five arrays are nested under
+`saved` *on purpose*: a build in the field checks for them at the **top** level
+(`isCompleteUploadResult`), so it reads this as incomplete, reports `Error` and
+keeps its whole queue — its current safe behaviour. **Collect has no OTA**, so
+installed builds stay in use for weeks; the fix had to be safe for them with no
+app release. That is demonstrated, not argued: the partial-failure test went
+green *before* any client change landed.
+
+Client side, on this branch: `postOfflineForms` reports `PartialFailure`
+distinctly from `Error` (which implies nothing saved and invites a full re-send —
+the thing that creates duplicates), and `cleanupPostedOfflineForms(saved, failures)`
+removes an entry **only when it can positively confirm it saved** — by id match,
+or because the category reported no failures and the server confirmed as many
+records as were queued. Everything ambiguous stays queued: a duplicate is
+recoverable, a deleted field record is not.
+
+### 3. Why a record is refused in the first place — still UNKNOWN
+
+No field reproduction. The proof tests induce a refusal with a Parse **schema
+type conflict** (a field saved first as a Number, then sent as a String), which
+is a realistic candidate — it refuses one record while its neighbours are fine.
+**Not confirmed** as the actual field trigger.
 
 ### 4. GDPR consent screen invisible to VoiceOver on `clearState` — UNFIXED
+
 Pre-existing. The a11y tree holds only status-bar elements while the screen
 renders fully. `.maestro/subflows/give-consent.yaml` copes with a documented
 coordinate fallback. First suspect is the paper `Portal`/`Modal` in `TermsModal`.
 
 ---
 
-## What shipped on this branch
+## The local mock was inventing a backend
 
-Device-verified unless noted.
+`test/setup/mockCloudCode.js` is loaded by ParseServer via
+`integrationGlobalSetup.js:86`, and six integration tests drive the offline sync
+path through it. It was not modelling production:
 
-| Area | Change |
-|---|---|
-| Harness | Every flow asserts its arrivals; shared subflows in `.maestro/subflows/`; `yarn lint:maestro`; `yarn maestro:stability` |
-| Harness | Fixed the Assets/Offline mislabel — there is **no Assets tab**; five `offline-*` flows that had been broken on master |
-| New flows | `environmental-health-online.yaml`, `offline-discard-queued-form.yaml` (**5/5 on the stability gate**, watched failing for the right reason first) |
-| Offline UX | Queued forms no longer described as "submitted"; failures explain themselves; expired session no longer renders nothing at all |
-| Offline UX | Queue is listable and a stuck record can be discarded, behind a confirm that names the form and its permanence |
-| a11y | `testID`s on tab bar + sign-in; `ResidentCard` label; numeric keypad Done accessory (`InputAccessoryView`) |
-| Tooling | `yarn lint:tokens` — catches dlite token names the package does not ship, which render as `undefined` and are dropped silently |
-| Skill | `.claude/skills/qa-engineer/` |
+- wrote to three Parse classes that **do not exist**: `SupplementaryForm`,
+  `AssetForm`, `AssetSupplementaryForm`
+- set three fields nothing in any repo reads: `patientObjectId`,
+  `householdObjectId`, `assetObjectId`
+- ignored the `metadata` argument entirely
+- never deduplicated on `objectIdOffline`
+- **threw** on error where production **returns**
 
-Four dead token names were found and fixed. The Offline card had **never**
-rendered a background or corner radius; form gallery cards had square corners.
+So those tests were green against behaviour no backend has. It is now ported from
+the downloaded Cloud Code and documents its own fidelity boundary — organization
+stamping, `Parse.File` conversion and loop forms are deliberately not modelled.
+
+**It currently mirrors PR #639, which is NOT YET DEPLOYED.** If you are debugging
+a live sync, read the deployed code, not this file. Re-check it after #639 merges.
+
+---
+
+## Verified vs inferred
+
+**Verified — downloaded, queried, or executed:**
+- Production runs `d860f22`, byte-identical to `master`, and **has** the `SupID-` branch.
+- Staging was at v711 (2026-07-15) and lacked it; now mirrors production (v712).
+- Production deploys via `.github/workflows/deploy.yaml` on merge to `master`,
+  gated on Jest, linking **production only** — read from the committed file.
+- Staging has no automated deploy.
+- A retried sync duplicated a supplementary form and did not duplicate a resident.
+- A household that failed to save was reported as `"Success"`.
+- A new field on a supplementary class becomes a CSV column — reproduced by
+  running the real `cleanRecords`.
+- `client.__type` and `client.className` already ship in every supplementary export.
+- Staging `Organization` = 0 rows; production = 59.
+- Manage has **zero** references to `objectIdOffline`; the Gatsby site has zero
+  references to this dataset.
+
+**Inferred — do not restate as fact:**
+- That a schema type conflict is the actual field cause of a refused record (§3).
+
+---
+
+## Cross-repo impact
+
+| Repo | Reads/writes this contract | Change |
+|---|---|---|
+| `puente-node-cloudcode` | Producer | **#639** |
+| `puente-reactnative-collect` | Consumer | this branch |
+| `puente-flask-rest-aggregator` | Exports the stamped field | **#127** |
+| `puente-react-nextjs-platform` | Nothing — verified | none |
+| `puente-react-gatsby-website` | Nothing — confirmed | none |
+
+---
+
+## Next actions, in order
+
+1. **Merge #127** (aggregator) and confirm it deployed —
+   `eb status flask-api-40-env`, Health Green, `Deployed Version` carrying the SHA.
+   Must be live before any Collect release, or a raw `SupID-…` column reaches
+   coordinators' spreadsheets.
+2. **Merge #639** (cloudcode) and confirm the GH Actions run succeeded. This
+   stops the household data loss in minutes and needs no app release.
+3. **Re-verify the mock** against the newly-deployed Cloud Code (`b4a download`,
+   `diff -r`) and correct it if #639 changed on the way in.
+4. **Cut the Collect release** — EAS build + store review. No OTA, so allow weeks.
+5. **Add a staging deploy job** to `puente-node-cloudcode`, or staging drifts
+   again and the harness goes back to testing fiction.
+6. **Decide on PR #622.** It contains the harness assertions everything above
+   relies on, and nobody has asked for it.
 
 ---
 
@@ -190,19 +263,21 @@ rendered a background or corner radius; form gallery cards had square corners.
 
 ```bash
 # Metro FIRST, or every flow fails and looks like a regression.
-yarn start:staging-clear          # note: this is what the harness tests
+yarn start:staging-clear          # staging now mirrors production
+yarn start:prod-clear             # needed for signup-organization-picker
 yarn maestro .maestro/<flow>.yaml
 yarn maestro:stability .maestro/<flow>.yaml 5
 
-yarn test:unit && yarn test:integration
-yarn lint:all                     # includes lint:tokens and lint:maestro
+yarn test:unit && yarn test:integration     # 526 + 82
+yarn lint:all                               # includes lint:tokens and lint:maestro
 ```
 
 Bundle id is `io.ionic.starter1270348` — grepping for `puente` or `collect`
 finds nothing.
 
-**Clearing the offline queue between runs.** The app data container UUID changes
-whenever the app is reinstalled, so re-resolve it every time:
+**Clearing the offline queue between runs.** The container UUID changes whenever
+the app is reinstalled, so re-resolve it every time. No `manifest.json` means
+AsyncStorage is already empty.
 
 ```bash
 U=EC8EF83C-395B-491E-AC7F-3676B4557DFC
@@ -216,38 +291,34 @@ find "$C" -name manifest.json -path '*AsyncLocal*'
 
 ## Traps that cost real time here
 
+- **`npx jest` never exits.** In `puente-node-cloudcode` the suite finishes in
+  under a second, then the process hangs on open handles and looks exactly like a
+  wedged run — it cost two killed background tasks, and it was *already* written
+  down. `npm test` passes `--forceExit`; add it when invoking `npx jest`
+  directly. Collect's integration config has the same problem.
 - **`pgrep -f 'maestro test'` does not find the driver.** The runner spawns an
   `xcodebuild` process matching neither "maestro test" nor "maestro-stability",
   so killing a wedged gate leaves it holding the port and the next run dies with
-  a `ConnectException` that looks like ambient flakiness. Check
-  `pgrep -f 'maestro-driver-ios-config|maestro.cli.AppKt'`.
+  a timeout that looks like ambient flakiness. Check
+  `pgrep -f 'maestro-driver-ios-config|maestro.cli.AppKt'` and kill by PID.
 - **Never `pkill -f maestro`.** `pkill -f` matches the whole process line
   *including environment*, so it kills every process whose `PATH` contains
   `~/.maestro/bin` — it killed the editor's extension hosts here.
 - **A test can pass because the assertion cannot fail.** Asserting against
   `JSON.stringify(tree.toJSON())` reads like asserting against the screen; a
   `Text`'s children are separate array entries, so `"1 forms!"` never appears as
-  a substring and the test passed while the bug was live. A first-run green is
-  something to explain, not accept.
-- **Unit tests cannot see backend contracts.** They mock Parse. The `SupID-`
-  change passed 526 tests in both directions; only the device caught it.
+  a substring and the test passed while the bug was live. **A test that passes
+  the moment you write it has proven nothing** — remove the thing it guards and
+  watch it fail. Every new drop-list entry and prune rule here was
+  mutation-checked that way.
+- **Unit tests cannot see backend contracts, and a lying mock is worse than
+  none.** 526 tests passed in both directions on the `SupID-` change while the
+  mock had invented three Parse classes.
+- **Reading the code is how you form a hypothesis, never how you confirm it.**
+  Every claim here that survived came from downloading, querying or running
+  something. The two the old version got wrong — the revert's reason and the
+  wedge mechanism — came from reading and reasoning.
+- **Deploying code does not deploy data.** Staging gained
+  `organization.definer.js` and still has 0 `Organization` rows.
 - Never `open -a Simulator` — boot headlessly with `xcrun simctl boot`.
 - One Maestro at a time.
-
----
-
-## Next actions, in order
-
-1. **Unblock and run the `b4a` read** above. Everything else about the offline
-   queue is guesswork until that is answered.
-2. Decide whether staging Cloud Code is meant to track production. If yes, the
-   real fix is a staging deploy job in `puente-node-cloudcode` — at which point
-   the harness starts testing something meaningful, and the `SupID-` stamp can
-   land for real.
-3. Complete the isolation run: apply only the object-identity half of `aa12e32`
-   (new stored/returned object, **no** stamp) and run
-   `.maestro/offline-linked-forms.yaml` with the queue cleared. Passing means
-   the prefix was the cause; failing means the whole account is wrong.
-4. Fix the four Cloud Code defects — with tests, in that repo, deployed
-   deliberately.
-5. Decide on PR #622. It has not been merged and no one has asked for it to be.

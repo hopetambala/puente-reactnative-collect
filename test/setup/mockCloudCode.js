@@ -252,10 +252,41 @@ module.exports = function mockCloudCode(Parse) {
 
   /**
    * Cloud function: uploadOfflineForms
-   * Uploads offline collected forms to the Parse database
-   * Real implementation: Processes forms through various factories with metadata enrichment
-   * Simplified mock: Saves forms directly with whitelisted fields
-   * Used for: Syncing offline form data when online connection restored
+   *
+   * MIRRORS puente-node-cloudcode PR #639 (branch
+   * fix/offline-partial-failure-reporting), which is NOT YET DEPLOYED. Until it
+   * merges, production still swallows failed saves — so if you are debugging a
+   * live sync, read the deployed code, not this file. Originally ported from
+   * `cloud/src/services/offline/offline.js` + `cloud/src/services/post/post.js`
+   * as actually deployed to production Back4App — release v120 (`GHA d860f22`),
+   * downloaded with the b4a CLI and verified byte-identical to `master` on
+   * 2026-09-04. Staging was mirrored onto the same code (v712) the same day.
+   *
+   * The mock this replaces invented a backend. It wrote to three Parse classes
+   * that do not exist in the schema (`SupplementaryForm`, `AssetForm`,
+   * `AssetSupplementaryForm`), set three fields nothing in any repo reads
+   * (`patientObjectId`, `householdObjectId`, `assetObjectId`), ignored the
+   * `metadata` argument entirely, never deduplicated, and threw on error where
+   * production RETURNS the error. Six integration tests drove the offline sync
+   * path through it, so they were validating behaviour no backend has.
+   *
+   * FIDELITY BOUNDARY — deliberately NOT modelled, and why:
+   *   - `Organization.stampOrganization` (421 lines in production). Mirroring
+   *     it here would be a second source of truth that drifts silently. A test
+   *     that needs organization resolution belongs in puente-node-cloudcode.
+   *   - `Parse.File` base64 conversion for `photoFile` / `signature`.
+   *   - `loop` / `loopParentID` looped forms.
+   *
+   * Offline IDENTITY, dedupe, metadata precedence and failure propagation ARE
+   * modelled, because those are the contract the offline queue depends on —
+   * and they are where the real defects live. In particular this mock
+   * reproduces, on purpose, three production behaviours that are bugs:
+   *   1. A failed `save()` is swallowed into `undefined` rather than rejecting.
+   *   2. The afterSave hooks then call `.get()` on that `undefined` and throw.
+   *   3. `record.parseParentClassID.includes(...)` is unguarded, so a null
+   *      parent is a TypeError.
+   * Reproducing them is the point: a mock that is kinder than production
+   * cannot catch a production bug.
    */
   Parse.Cloud.define('uploadOfflineForms', async (request) => {
     const offlineForms = request.params;
@@ -264,141 +295,335 @@ module.exports = function mockCloudCode(Parse) {
       throw new Error('offlineForms parameter is required');
     }
 
-    console.log('🔄 uploadOfflineForms called with:', {
-      residentFormsCount: offlineForms.residentForms?.length || 0,
-      supplementaryFormsCount: offlineForms.residentSupplementaryForms?.length || 0,
-      householdsCount: offlineForms.households?.length || 0,
-      assetFormsCount: offlineForms.assetForms?.length || 0,
-      assetSupplementaryFormsCount: offlineForms.assetSupplementaryForms?.length || 0,
-    });
+    // Metadata FILLS GAPS, it does not overwrite. Staging did the opposite
+    // (`{ ...localObject, ...metadata }`) until 2026-09-04, so every flow that
+    // asserted on surveyingUser/surveyingOrganization stamping was validating
+    // the inverted rule.
+    const mergeMetadataAsFallback = (localObject, metadata) => {
+      const merged = { ...localObject };
+      Object.entries(metadata || {}).forEach(([key, value]) => {
+        if (merged[key] === undefined || merged[key] === null || merged[key] === '') {
+          merged[key] = value;
+        }
+      });
+      return merged;
+    };
 
-    try {
-      const uploadedForms = {
-        residentForms: [],
-        residentSupplementaryForms: [],
-        households: [],
-        assetForms: [],
-        assetSupplementaryForms: [],
-      };
+    // A save Parse refuses resolves UNDEFINED rather than rejecting, so it
+    // travels on looking like a saved record. An explicit marker lets a partial
+    // failure be reported instead of vanishing. Mirrors
+    // cloud/src/services/offline/failureMarker.js.
+    const isUnsaved = (row) => !row || row.offlineSaveFailed === true;
 
-      // Upload resident forms
-      if (offlineForms.residentForms && Array.isArray(offlineForms.residentForms)) {
-        uploadedForms.residentForms = await Promise.all(offlineForms.residentForms.map(async (form) => {
-          const SurveyData = Parse.Object.extend('SurveyData');
-          const surveyData = new SurveyData();
-
-          if (form.localObject) {
-            const { fname, lname, nickname, dob, sex, objectId } = form.localObject;
-            if (fname) surveyData.set('fname', fname);
-            if (lname) surveyData.set('lname', lname);
-            if (nickname) surveyData.set('nickname', nickname);
-            if (dob) surveyData.set('dob', dob);
-            if (sex) surveyData.set('sex', sex);
-            if (objectId) surveyData.set('patientObjectId', objectId);
-          }
-
-          const result = await surveyData.save(null, { useMasterKey: true });
-          return { objectId: result.id, ...result.toJSON() };
-        }));
+    const attempt = async (category, record, run) => {
+      const lo = (record && record.localObject) || {};
+      const offlineId = lo.objectIdOffline || lo.objectId || null;
+      try {
+        const saved = await run();
+        if (saved === undefined || saved === null) {
+          return {
+            offlineSaveFailed: true, category, offlineId, message: 'Parse refused the save',
+          };
+        }
+        return saved;
+      } catch (error) {
+        const detail = (error && error.message) ? error.message : String(error);
+        return {
+          offlineSaveFailed: true,
+          category,
+          offlineId,
+          message: (error && error.code) ? `[${error.code}] ${detail}` : detail,
+        };
       }
+    };
 
-      // Upload supplementary forms
-      if (offlineForms.residentSupplementaryForms && Array.isArray(offlineForms.residentSupplementaryForms)) {
-        uploadedForms.residentSupplementaryForms = await Promise.all(
-          offlineForms.residentSupplementaryForms.map(async (form) => {
-            const SupplementaryForm = Parse.Object.extend('SupplementaryForm');
-            const suppForm = new SupplementaryForm();
+    // The idempotency key. A partially-failed batch stays queued in full, so a
+    // retry re-sends records that already saved; if one carries an
+    // objectIdOffline that is already in Parse, the existing record is returned
+    // instead of a duplicate being created.
+    const findExistingOfflineRecord = (parseClass, objectIdOffline) => {
+      const query = new Parse.Query(parseClass);
+      query.equalTo('objectIdOffline', objectIdOffline);
+      return query.first({ useMasterKey: true });
+    };
 
-            if (form.localObject) {
-              const { title, description, formSpecificationsId, fields, surveyingUser, surveyingOrganization } = form.localObject;
-              if (title) suppForm.set('title', title);
-              if (description) suppForm.set('description', description);
-              if (formSpecificationsId) suppForm.set('formSpecificationsId', formSpecificationsId);
-              if (fields) suppForm.set('fields', fields);
-              if (surveyingUser) suppForm.set('surveyingUser', surveyingUser);
-              if (surveyingOrganization) suppForm.set('surveyingOrganization', surveyingOrganization);
-            }
+    // Mirrors post.postObjectFactory('post', …). Note the trailing catch:
+    // production swallows a save failure and resolves UNDEFINED.
+    const postObject = async (survey) => {
+      const surveyPoint = new Parse.Object(survey.parseClass);
+      const { localObject, parseUser } = survey;
 
-            const result = await suppForm.save(null, { useMasterKey: true });
-            return { objectId: result.id, ...result.toJSON() };
-          })
+      if (Array.isArray(localObject.location)) {
+        const { location } = localObject;
+        localObject.location = new Parse.GeoPoint(
+          parseFloat(location[0]), parseFloat(location[1]),
         );
       }
 
-      // Upload households
-      if (offlineForms.households && Array.isArray(offlineForms.households)) {
-        uploadedForms.households = await Promise.all(offlineForms.households.map(async (form) => {
-          const Household = Parse.Object.extend('Household');
-          const household = new Household();
+      Object.keys(localObject).forEach((key) => surveyPoint.set(key, localObject[key]));
 
-          if (form.localObject) {
-            const { latitude, longitude, objectId } = form.localObject;
-            if (latitude !== undefined && latitude !== null) household.set('latitude', latitude);
-            if (longitude !== undefined && longitude !== null) household.set('longitude', longitude);
-            if (objectId) household.set('householdObjectId', objectId);
-          }
-
-          const result = await household.save(null, { useMasterKey: true });
-          return { objectId: result.id, ...result.toJSON() };
-        }));
+      if (typeof parseUser !== 'undefined' && parseUser) {
+        const userObject = new Parse.Object('_User');
+        userObject.id = String(parseUser);
+        surveyPoint.set('parseUser', userObject);
       }
 
-      // Upload asset forms
-      if (offlineForms.assetForms && Array.isArray(offlineForms.assetForms)) {
-        uploadedForms.assetForms = await Promise.all(offlineForms.assetForms.map(async (form) => {
-          const AssetForm = Parse.Object.extend('AssetForm');
-          const assetForm = new AssetForm();
+      return surveyPoint.save(null, { useMasterKey: true })
+        .then((result) => result)
+        .catch((error) => {
+          // eslint-disable-next-line no-console
+          console.error('Error: postObject', error);
+        });
+    };
 
-          if (form.localObject) {
-            const { name, location, communityname, province, country, objectId } = form.localObject;
-            if (name) assetForm.set('name', name);
-            if (location) assetForm.set('location', location);
-            if (communityname) assetForm.set('communityname', communityname);
-            if (province) assetForm.set('province', province);
-            if (country) assetForm.set('country', country);
-            if (objectId) assetForm.set('assetObjectId', objectId);
-          }
+    // Mirrors post.postObjectFactory('post-relationship', …).
+    const postObjectWithRelationships = async (survey) => {
+      const supplementaryForm = new Parse.Object(survey.parseClass);
+      const { localObject } = survey;
 
-          const result = await assetForm.save(null, { useMasterKey: true });
-          return { objectId: result.id, ...result.toJSON() };
-        }));
-      }
-
-      // Upload asset supplementary forms
-      if (offlineForms.assetSupplementaryForms && Array.isArray(offlineForms.assetSupplementaryForms)) {
-        uploadedForms.assetSupplementaryForms = await Promise.all(
-          offlineForms.assetSupplementaryForms.map(async (form) => {
-            const AssetSuppForm = Parse.Object.extend('AssetSupplementaryForm');
-            const assetSuppForm = new AssetSuppForm();
-
-            if (form.localObject) {
-              const { title, description, formSpecificationsId, fields, surveyingUser, surveyingOrganization } = form.localObject;
-              if (title) assetSuppForm.set('title', title);
-              if (description) assetSuppForm.set('description', description);
-              if (formSpecificationsId) assetSuppForm.set('formSpecificationsId', formSpecificationsId);
-              if (fields) assetSuppForm.set('fields', fields);
-              if (surveyingUser) assetSuppForm.set('surveyingUser', surveyingUser);
-              if (surveyingOrganization) assetSuppForm.set('surveyingOrganization', surveyingOrganization);
-            }
-
-            const result = await assetSuppForm.save(null, { useMasterKey: true });
-            return { objectId: result.id, ...result.toJSON() };
-          })
-        );
-      }
-
-      console.log('📤 uploadOfflineForms returning:', {
-        residentFormsCount: uploadedForms.residentForms.length,
-        supplementaryFormsCount: uploadedForms.residentSupplementaryForms.length,
-        householdsCount: uploadedForms.households.length,
-        assetFormsCount: uploadedForms.assetForms.length,
-        assetSupplementaryFormsCount: uploadedForms.assetSupplementaryForms.length,
+      Object.keys(localObject).forEach((key) => {
+        if (key !== 'photoFile') supplementaryForm.set(key, localObject[key]);
       });
 
-      return uploadedForms;
-    } catch (error) {
-      console.error('❌ uploadOfflineForms error:', error.message);
-      throw new Error(`Upload offline forms failed: ${error.message}`);
+      // A real parent id can be pointed at directly. Ids minted offline
+      // (PatientID-/AssetID-) do not exist in Parse yet and are resolved after
+      // upload by afterSupplementaryFormHook via objectIdOffline.
+      const parentId = survey.parseParentClassID ? String(survey.parseParentClassID) : '';
+      const parentIsOfflineLocal = parentId.includes('PatientID-') || parentId.includes('AssetID-');
+      if (parentId && !parentIsOfflineLocal && survey.parseParentClass) {
+        const parentForm = new Parse.Object(survey.parseParentClass);
+        parentForm.id = parentId;
+        supplementaryForm.set('client', parentForm);
+      }
+
+      if (typeof survey.parseUser !== 'undefined' && survey.parseUser) {
+        const userObject = new Parse.Object('_User');
+        userObject.id = String(survey.parseUser);
+        supplementaryForm.set('parseUser', userObject);
+      }
+
+      return supplementaryForm.save(null, { useMasterKey: true })
+        .then((result) => result)
+        .catch((error) => {
+          // eslint-disable-next-line no-console
+          console.error('Error: postObjectWithRelationships', error);
+        });
+    };
+
+    const postObjectsArray = async (data, metadata, category) => {
+      if (!data) return Promise.all([]);
+      const promises = data.map(async (obj) => attempt(category, obj, async () => {
+        const record = obj;
+        record.localObject = mergeMetadataAsFallback(record.localObject, metadata);
+        const { localObject } = record;
+
+        if (localObject.objectId && localObject.objectId.includes('PatientID-')) {
+          localObject.objectIdOffline = localObject.objectId;
+          delete localObject.objectId;
+        }
+        if (localObject.householdId && localObject.householdId.includes('Household-')) {
+          localObject.householdObjectIdOffline = localObject.householdId;
+        }
+        if (localObject.objectId && localObject.objectId.includes('AssetID-')) {
+          localObject.objectIdOffline = localObject.objectId;
+          delete localObject.objectId;
+        }
+
+        if (localObject.objectIdOffline) {
+          const existing = await findExistingOfflineRecord(
+            record.parseClass, localObject.objectIdOffline,
+          );
+          if (existing) return existing;
+        }
+
+        return postObject(record);
+      }));
+
+      return Promise.all(promises);
+    };
+
+    const postObjectsWithRelationshipsArray = async (data, metadata, category) => {
+      if (!data) return Promise.all([]);
+      const promises = data.map(async (obj) => attempt(category, obj, async () => {
+        const record = obj;
+        record.localObject = mergeMetadataAsFallback(record.localObject, metadata);
+        const { localObject } = record;
+
+        // Guarded. A record with no parent id used to throw a TypeError here.
+        const parentId = record.parseParentClassID ? String(record.parseParentClassID) : '';
+        if (parentId.includes('PatientID-')) {
+          localObject.parseParentClassObjectIdOffline = parentId;
+        }
+        if (parentId.includes('AssetID-')) {
+          localObject.parseParentClassObjectIdOffline = parentId;
+        }
+
+        // The supplementary idempotency key. Production has had this branch
+        // since cf16c0f (2026-07-16); the client has never stamped a SupID-.
+        if (localObject.objectId && localObject.objectId.includes('SupID-')) {
+          localObject.objectIdOffline = localObject.objectId;
+          delete localObject.objectId;
+        }
+
+        if (localObject.objectIdOffline) {
+          const existing = await findExistingOfflineRecord(
+            record.parseClass, localObject.objectIdOffline,
+          );
+          if (existing) return existing;
+        }
+
+        return postObjectWithRelationships(record);
+      }));
+
+      return Promise.all(promises);
+    };
+
+    const postHouseholdArray = async (data, metadata, category) => {
+      if (!data) return [];
+      const promises = data.map(async (obj) => attempt(category, obj, async () => {
+        const record = obj;
+        record.localObject = mergeMetadataAsFallback(record.localObject, metadata);
+        const { localObject } = record;
+
+        if (localObject.objectId && localObject.objectId.includes('Household-')) {
+          localObject.objectIdOffline = localObject.objectId;
+          delete localObject.objectId;
+        }
+
+        if (localObject.objectIdOffline) {
+          const existing = await findExistingOfflineRecord(
+            record.parseClass, localObject.objectIdOffline,
+          );
+          if (existing) return existing;
+        }
+
+        return postObject(record);
+      }));
+
+      return Promise.all(promises);
+    };
+
+    // Resolves householdClient from the phone-side household id.
+    const afterSurveyHouseholdHook = async (records) => {
+      if (!Array.isArray(records)) return [];
+      const data = records.map(async (record) => {
+        if (isUnsaved(record)) return record;
+        const survey = record;
+        const householdPointer = await survey.get('householdObjectIdOffline');
+        if (!householdPointer) return survey;
+
+        const householdQuery = new Parse.Query('Household');
+        householdQuery.equalTo('objectIdOffline', householdPointer);
+        const household = await householdQuery.first({ useMasterKey: true });
+        if (!household) return survey;
+
+        const resident = await new Parse.Query('SurveyData').get(survey.id, { useMasterKey: true });
+        resident.set('householdClient', household);
+        resident.set('householdId', String(household.id));
+        return resident.save(null, { useMasterKey: true });
+      });
+
+      return Promise.all(data);
+    };
+
+    // Resolves the `client` pointer from the phone-side parent id.
+    const afterSupplementaryFormHook = async (records, parentClass = 'SurveyData') => {
+      if (!Array.isArray(records)) return [];
+      const data = records.map(async (record) => {
+        if (isUnsaved(record)) return record;
+        const supplementaryForm = record;
+        const parentPointer = await supplementaryForm.get('parseParentClassObjectIdOffline');
+        if (!parentPointer) return supplementaryForm;
+
+        const parentQuery = new Parse.Query(parentClass);
+        parentQuery.equalTo('objectIdOffline', parentPointer);
+        const parent = await parentQuery.first({ useMasterKey: true });
+
+        if (!parent) {
+          // eslint-disable-next-line no-console
+          console.error(`afterSupplementaryFormHook: ORPHANED ${supplementaryForm.className} ${supplementaryForm.id} — no ${parentClass} found with objectIdOffline=${parentPointer}; client pointer NOT set`);
+          return supplementaryForm;
+        }
+        supplementaryForm.set('client', parent);
+        return supplementaryForm.save(null, { useMasterKey: true })
+          // eslint-disable-next-line no-console
+          .catch((error) => console.error('Error: afterSupplementaryFormHook', error));
+      });
+
+      return Promise.all(data);
+    };
+
+    const OfflineFactory = (records, type) => {
+      const {
+        residentForms,
+        residentSupplementaryForms,
+        households,
+        assetForms,
+        assetSupplementaryForms,
+        metadata,
+      } = records;
+
+      // households and assetForms have NO afterSave hook. That asymmetry is
+      // load-bearing: a swallowed failure in those two categories still yields
+      // an ARRAY (holding undefined), which the client reads as success and
+      // then deletes the queue — whereas the three hooked categories throw and
+      // wedge instead. Same root cause, opposite symptom.
+      if (type === 'households') return postHouseholdArray(households, metadata, 'households');
+      if (type === 'assetForms') return postObjectsArray(assetForms, metadata, 'assetForms');
+      if (type === 'residentForms') return postObjectsArray(residentForms, metadata, 'residentForms').then((results) => afterSurveyHouseholdHook(results));
+      if (type === 'residentSupplementaryForms') return postObjectsWithRelationshipsArray(residentSupplementaryForms, metadata, 'residentSupplementaryForms').then((results) => afterSupplementaryFormHook(results, 'SurveyData'));
+      if (type === 'assetSupplementaryForms') return postObjectsWithRelationshipsArray(assetSupplementaryForms, metadata, 'assetSupplementaryForms').then((results) => afterSupplementaryFormHook(results, 'Assets'));
+      return [];
+    };
+
+    try {
+      const households = await OfflineFactory(offlineForms, 'households');
+      const residentForms = await OfflineFactory(offlineForms, 'residentForms');
+      const assetForms = await OfflineFactory(offlineForms, 'assetForms');
+      const residentSupplementaryForms = await OfflineFactory(offlineForms, 'residentSupplementaryForms');
+      const assetSupplementaryForms = await OfflineFactory(offlineForms, 'assetSupplementaryForms');
+      const categories = {
+        residentForms,
+        assetForms,
+        households,
+        residentSupplementaryForms,
+        assetSupplementaryForms,
+      };
+
+      const saved = {};
+      const failures = [];
+      Object.entries(categories).forEach(([key, list]) => {
+        const rows = Array.isArray(list) ? list : [];
+        saved[key] = rows.filter((row) => !isUnsaved(row));
+        rows.filter(isUnsaved).forEach((row) => failures.push({
+          category: key,
+          offlineId: (row && row.offlineId) || null,
+          message: (row && row.message) || 'Parse refused the save',
+        }));
+      });
+
+      if (failures.length === 0) return saved;
+
+      return { status: 'PartialFailure', saved, failures };
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Error: Offline', err);
+      // Answers in the documented shape even on an unexpected throw.
+      return {
+        status: 'Error',
+        saved: {
+          residentForms: [],
+          assetForms: [],
+          households: [],
+          residentSupplementaryForms: [],
+          assetSupplementaryForms: [],
+        },
+        failures: [{
+          category: null,
+          offlineId: null,
+          message: (err && err.message) ? err.message : String(err),
+        }],
+      };
     }
   });
 

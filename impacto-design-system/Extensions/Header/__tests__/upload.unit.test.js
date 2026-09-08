@@ -157,4 +157,56 @@ describe("handleUpload", () => {
     expect(setSubmission).toHaveBeenCalledWith(3);
     expect(resetFormCount).toHaveBeenCalledWith(0);
   });
+
+  // A partial sync is the dangerous case: some records reached Parse and some
+  // did not. Clearing the whole queue destroys the ones that did not — they
+  // exist nowhere else. Re-sending the whole queue duplicates the ones that
+  // did. So the saved map must be passed through, and the badge must keep
+  // showing what is still waiting.
+  it("prunes only the saved records when the sync partially failed", async () => {
+    const saved = {
+      households: [{ objectIdOffline: "Household-1" }],
+      residentForms: [{ objectIdOffline: "PatientID-1" }],
+    };
+    const failures = [
+      { category: "households", offlineId: "Household-2", message: "refused" },
+    ];
+    const postOfflineForms = jest.fn().mockResolvedValue({
+      status: "PartialFailure",
+      offlineForms: {},
+      uploadedForms: { status: "PartialFailure", saved },
+      failures,
+    });
+    const cleanupPostedOfflineForms = jest.fn().mockResolvedValue();
+    const setIsSubmitting = jest.fn();
+    const setSubmission = jest.fn();
+    const resetFormCount = jest.fn();
+    // 3 queued before the sync, 1 left after pruning. Deliberately NOT
+    // consistent with (queued - failures), so a subtraction would give 2 and
+    // only counting the server's `saved` gives the right answer.
+    const getQueuedFormCount = jest
+      .fn()
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(1);
+
+    await handleUpload({
+      postOfflineForms,
+      cleanupPostedOfflineForms,
+      setIsSubmitting,
+      setSubmission,
+      getQueuedFormCount,
+      resetFormCount,
+    });
+
+    // pruned selectively, and told which records failed so it can tell a
+    // fully-drained category from a partially-drained one
+    expect(cleanupPostedOfflineForms).toHaveBeenCalledWith(saved, failures);
+
+    // counted from the server's `saved`, not derived by subtraction
+    expect(setSubmission).toHaveBeenCalledWith(2);
+
+    // re-measured after pruning, not assumed from failures.length
+    expect(resetFormCount).toHaveBeenCalledWith(1);
+    expect(setIsSubmitting).toHaveBeenLastCalledWith(false);
+  });
 });
