@@ -253,10 +253,9 @@ module.exports = function mockCloudCode(Parse) {
   /**
    * Cloud function: uploadOfflineForms
    *
-   * MIRRORS puente-node-cloudcode PR #639 (branch
-   * fix/offline-partial-failure-reporting), which is NOT YET DEPLOYED. Until it
-   * merges, production still swallows failed saves — so if you are debugging a
-   * live sync, read the deployed code, not this file. Originally ported from
+   * MIRRORS PRODUCTION. Re-verified 2026-09-08 against Back4App release v121
+   * (`GHA 1464e23`) — downloaded with the b4a CLI and byte-identical to
+   * `master`. Staging mirrors the same code (v713). Ported from
    * `cloud/src/services/offline/offline.js` + `cloud/src/services/post/post.js`
    * as actually deployed to production Back4App — release v120 (`GHA d860f22`),
    * downloaded with the b4a CLI and verified byte-identical to `master` on
@@ -593,7 +592,13 @@ module.exports = function mockCloudCode(Parse) {
       const saved = {};
       const failures = [];
       Object.entries(categories).forEach(([key, list]) => {
-        const rows = Array.isArray(list) ? list : [];
+        // Unreachable by construction, but coercing a non-array to [] would
+        // drop its records AND record no failure — a clean success, and the
+        // device deletes its queue. Throws into the catch below instead.
+        if (!Array.isArray(list)) {
+          throw new Error(`offline upload: category ${key} was not an array`);
+        }
+        const rows = list;
         saved[key] = rows.filter((row) => !isUnsaved(row));
         rows.filter(isUnsaved).forEach((row) => failures.push({
           category: key,
