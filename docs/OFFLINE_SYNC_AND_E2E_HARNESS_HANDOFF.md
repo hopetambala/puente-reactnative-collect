@@ -93,11 +93,16 @@ real fix is a staging deploy job in `puente-node-cloudcode`.
 ## E2E validation, 2026-09-04
 
 Full suite against staging v712, app unchanged — **12/13 pass**. The one failure
-is `signup-organization-picker`, which **cannot** pass against staging: its own
-header says *"REQUIRES A BACKEND WITH ORGANISATION DATA — staging will not do."*
-Measured by REST: staging's `Organization` class has **0 rows**, production has
-**59**. Deploying Cloud Code does not bring data. Run that flow with
-`yarn start:prod-clear`. Do not count it as a regression.
+was `signup-organization-picker`: staging's `Organization` class held **0 rows**
+against production's **59**, so the picker degraded to free text by design and
+`assertVisible: "Puente"` could not pass. **Deploying Cloud Code does not deploy
+data** — staging gained `organization.definer.js` on 2026-09-04 and still had no
+rows.
+
+**Fixed 2026-09-08:** staging is seeded from production (59 organisations, minus
+`billingEmail` — staging has no use for partner contact addresses). The flow now
+passes against staging, so the suite is **13/13** and no longer carries a
+permanent known-failing exception.
 
 `visual-qa` failed in that run with `IOSDriverTimeoutException` and **passes in
 isolation** — a stray driver from the 13th consecutive run, not a regression.
