@@ -1,116 +1,64 @@
-# Puente Collect — full visual QA flow incl. authenticated tab screens.
+# Puente Collect — authenticated smoke test across all five bottom tabs.
+#
+# This is the release-gate smoke flow (see CLAUDE.md, "The release gate"). It
+# signs in and visits every tab, asserting on arrival each time.
 #
 # Prerequisites:
-#   1. App built and running against staging backend:
-#      EXPO_PUBLIC_APP_ENV=staging APP_ENV=staging yarn ios
-#   2. Run once to accept Terms (clears AsyncStorage):
-#      maestro test -e PARSE_USERNAME=Test -e PARSE_PASSWORD=test .maestro/accept-terms.yaml
-#   3. Then run this flow:
-#      maestro test -e PARSE_USERNAME=Test -e PARSE_PASSWORD=test .maestro/authenticated.yaml
+#   1. Metro running in the environment under test:
+#        yarn start:prod-clear      # or start:staging-clear
+#   2. The simulator has the build under test:
+#        xcrun simctl listapps <device-udid> | grep io.ionic.starter1270348
 #
-# On subsequent runs (after Terms accepted), this flow alone is sufficient.
+# Run:
+#   yarn maestro .maestro/authenticated.yaml
 appId: io.ionic.starter1270348
 ---
-# Launch WITHOUT clearing state (Terms already accepted; starting fresh would
-# re-trigger the Terms modal and lose the session token).
+# Launch WITHOUT clearing state — clearing re-triggers the Terms modal and
+# drops the session token.
 - launchApp
 
-# If we land on onboarding (first install), skip to Sign In.
-- runFlow:
-    when:
-      visible: "Skip"
-    commands:
-      - tapOn: "Skip"
-
-- extendedWaitUntil:
-    visible: "Log-In"
-    timeout: 20000
-- takeScreenshot: .claude/screenshots/01-sign-in
-
-# Enter credentials via coordinate taps to target the editable TextInput
-# (not the floating label). Coordinates are absolute % of 393x852 screen,
-# matching field centers from the accessibility hierarchy.
-#   Username field center: ~(50%, 38%)
-#   Password field center: ~(50%, 48%)
-#   Log-In button — tap its TOP third at ~(50%, 58%) to stay above the keyboard.
-- tapOn:
-    point: "50%, 38%"
-- inputText: ${PARSE_USERNAME}
-- tapOn:
-    point: "50%, 48%"
-- inputText: ${PARSE_PASSWORD}
-# Scroll the form UP so the Log-In button clears the keyboard, then tap it.
-- scroll
-- tapOn: "Log-In"
-
-# Dismiss the "Your Impact Dashboard" onboarding tooltip if it appears
-# (shown on first login; a runFlow guard makes this safe to include always).
-- runFlow:
-    when:
-      visible: "Your Impact Dashboard"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
-
-# Wait for the Home screen title — it renders before async stats load.
-# Then let animations and network data settle before screenshotting.
-- extendedWaitUntil:
-    visible: "Home"
-    timeout: 30000
-- waitForAnimationToEnd
+- runFlow: subflows/login.yaml
 - takeScreenshot: .claude/screenshots/04-home
 
-# Tab bar layout (5 tabs, 393x852 screen, tabBarShowLabel: false):
-#   Find Records  (tab 1): x≈10%, y≈94%
-#   Data Collection(tab 2): x≈30%, y≈94%
-#   Home          (tab 3): x≈50%, y≈94%
-#   Assets        (tab 4): x≈70%, y≈94%
-#   Settings      (tab 5): x≈90%, y≈94%
-# Text-based tapOn hits accessibility labels, which may not match; coordinate
-# taps on the tab bar are used for reliability.
-
 # --- Data Collection ---
-- tapOn:
-    point: "30%, 94%"
-- waitForAnimationToEnd
-# Dismiss the "Capture Field Data" onboarding tooltip if it appears.
 - runFlow:
-    when:
-      visible: "Capture Field Data"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-data-collection"
+      EXPECT: "Puente Forms"
 - takeScreenshot: .claude/screenshots/05-data-collection
 
 # --- Find Records ---
-- tapOn:
-    point: "10%, 94%"
-- waitForAnimationToEnd
-- takeScreenshot: .claude/screenshots/06-find-records
-# Dismiss "Search All Records" tooltip before tapping next tab — the tooltip
-# sits at the bottom of the screen and blocks the tab bar at y≈94%.
 - runFlow:
-    when:
-      visible: "Search All Records"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-find-records"
+      EXPECT: "Search Individual"
+- takeScreenshot: .claude/screenshots/06-find-records
 
-# --- Assets ---
-- tapOn:
-    point: "70%, 94%"
-- waitForAnimationToEnd
-- takeScreenshot: .claude/screenshots/07-assets
+# --- Offline Sync ---
+# This tab was previously tapped at "70%, 94%" and screenshotted as
+# "07-assets.png". It is the Offline tab and always was; there is no Assets tab
+# in the bottom navigator. The filename is corrected here along with the
+# selector, so the screenshot and the screen finally agree.
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
+- takeScreenshot: .claude/screenshots/07-offline-sync
 
 # --- Settings ---
-- tapOn:
-    point: "90%, 94%"
-- waitForAnimationToEnd
-# Dismiss "Your Preferences" onboarding tooltip if present.
 - runFlow:
-    when:
-      visible: "Your Preferences"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-settings"
+      EXPECT: "Name, Phone, Email"
 - takeScreenshot: .claude/screenshots/08-settings
+
+# --- Back to Home, to prove the tab bar still works after the full sweep ---
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-home"
+      EXPECT: "Last 7 Days"

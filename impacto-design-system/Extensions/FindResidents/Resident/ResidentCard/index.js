@@ -62,7 +62,13 @@ function ResidentCard({ resident, onSelectPerson }) {
   );
 
   return (
+    // A Card with onPress collapses to a single touchable accessibility
+    // element, absorbing the Text children below. Without an explicit label it
+    // announces nothing to VoiceOver and is invisible to the E2E harness, even
+    // though the name is plainly on screen.
     <Card
+      testID="resident-card"
+      accessibilityLabel={`${fname || ""} ${lname || ""}`.trim()}
       style={styles.card}
       onPress={() => onSelectPerson && onSelectPerson(resident)}
     >

@@ -1,0 +1,46 @@
+# Open a bottom-tab screen and assert we landed on it.
+#
+# WHY THIS FILE EXISTS
+# Tabs were tapped by screen percentage — "70%, 94%" and friends, 81 such taps
+# across the suite. A coordinate tap cannot fail: it dispatches at that point
+# whether or not the thing you wanted is there.
+#
+# That is not hypothetical here. `authenticated.yaml` tapped "70%, 94%" believing
+# it was the Assets tab and saved the result as `07-assets.png`. The 4th tab is
+# Offline (see impacto-design-system/MainNavigation/BottomTabNavigator/index.js
+# — the tabs are Find_Records, Data_Collection, Home, Offline, Settings; Assets
+# is reachable only by deep link). The flow screenshotted the Offline sync
+# screen under an Assets filename on every run, for as long as the flow existed,
+# and stayed green throughout. An asserted destination is what catches that.
+#
+# Params:
+#   TAB_ID — tab-find-records | tab-data-collection | tab-home
+#            | tab-offline | tab-settings
+#   EXPECT — text that is only on the destination screen. Pick it carefully:
+#            each tab's own accessibilityLabel ("Home", "Settings", "Offline")
+#            is in the tab bar on EVERY screen, so asserting one of those would
+#            pass from anywhere. Home uses "Last 7 Days" for exactly this reason.
+#
+# Usage:
+#   - runFlow:
+#       file: subflows/open-tab.yaml
+#       env:
+#         TAB_ID: "tab-offline"
+#         EXPECT: "Offline Sync"
+appId: io.ionic.starter1270348
+---
+# Coachmarks render at the bottom of the screen and cover the tab bar, so a tap
+# aimed at a tab would hit the coachmark instead. Clear them first.
+- runFlow: dismiss-coachmarks.yaml
+
+- tapOn:
+    id: ${TAB_ID}
+- waitForAnimationToEnd
+
+# Landing on a tab for the first time can raise that tab's own coachmark.
+- runFlow: dismiss-coachmarks.yaml
+
+# THE POST-CONDITION. This is the whole point of the file.
+- extendedWaitUntil:
+    visible: ${EXPECT}
+    timeout: 20000

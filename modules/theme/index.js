@@ -63,7 +63,7 @@ const createTheme = (mode = "light") => {
       error: colorTokens.tkDliteSemanticColorFeedbackDanger,
       // TODO: Add errorContainer token to design system. Temporarily derive from error color.
       // Material Design 3 pattern: errorContainer is a tinted version of error for background surfaces
-      errorContainer: colorTokens.tkDliteSemanticColorFeedbackDangerContainer || (isDark ? "#4D1A1A" : "#FFDDDD"),
+      errorContainer: colorTokens.tkDliteSemanticColorFeedbackDangerContainer || (isDark ? "#4D1A1A" : "#FFDDDD"), // dlite-optional
       warning: colorTokens.tkDliteSemanticColorFeedbackWarning,
       info: colorTokens.tkDliteSemanticColorFeedbackInfo,
 

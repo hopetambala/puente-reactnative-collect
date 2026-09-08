@@ -1,0 +1,192 @@
+# Puente Collect — inspecting the offline queue and discarding a stuck form.
+#
+# WHY THIS EXISTS
+# The offline upload is all-or-nothing. One record Cloud Code refuses stops
+# EVERY other queued form from syncing, permanently — and until this flow's
+# feature existed there was no way out of that state inside the app. The Offline
+# Sync screen showed a count and a Retry button, so a surveyor could not see
+# which form was stuck, and `offline-clear-button` in Settings empties the
+# resident CACHE, not this queue.
+#
+# WHAT IT GUARDS
+#   1. A queued form is LISTED, by the name the surveyor knows it by, with the
+#      resident it describes — not just counted.
+#   2. Discarding asks first. The record exists nowhere else on earth, so a
+#      single press must not delete it.
+#   3. Confirming actually removes it and leaves the queue empty.
+#
+# The interesting failure is silent: a Discard that deletes without asking, or
+# a confirm that removes nothing, both look fine from a screenshot. Each step
+# below asserts the state it produced.
+#
+# ENVIRONMENT
+# Any backend — the record never leaves the device in this flow.
+#
+# Run:
+#   yarn start:prod-clear        # or start:staging-clear — Metro FIRST
+#   yarn maestro .maestro/offline-discard-queued-form.yaml
+appId: io.ionic.starter1270348
+---
+# Deliberately NOT clearState: a cold-wiped launch empties the consent screen's
+# accessibility tree (see subflows/give-consent.yaml) and would force this flow
+# onto coordinates for no reason.
+- launchApp
+
+- runFlow: subflows/login.yaml
+
+# ─── PRECONDITION: an empty queue ──────────────────────────────────────────
+# This flow asserts on the CONTENTS of the queue, so it has to start from a
+# known one. Retry syncs the queue rather than discarding it, so draining is
+# safe. Wait for the count to render before sampling it — `runFlow: when:`
+# samples once without waiting, and the ".*" matters because a Maestro selector
+# matches an element's FULL text.
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
+- runFlow:
+    file: subflows/set-offline-mode.yaml
+    env:
+      STATE: "OFF"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
+- extendedWaitUntil:
+    visible: "Retry|No forms queued.*"
+    timeout: 30000
+- runFlow:
+    when:
+      visible:
+        id: "offline-retry-button"
+    commands:
+      - tapOn:
+          id: "offline-retry-button"
+      - extendedWaitUntil:
+          notVisible:
+            id: "offline-retry-button"
+          timeout: 60000
+- assertVisible: "No forms queued. You are all caught up!"
+
+# ─── QUEUE EXACTLY ONE FORM ────────────────────────────────────────────────
+- runFlow:
+    file: subflows/set-offline-mode.yaml
+    env:
+      STATE: "ON"
+
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-data-collection"
+      EXPECT: "Puente Forms"
+
+- tapOn: "Resident ID"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+- runFlow: subflows/give-consent.yaml
+
+# POST-CONDITION: the form really opened, rather than the gallery still showing.
+- extendedWaitUntil:
+    visible: "First Name"
+    timeout: 20000
+
+- tapOn: "First Name"
+- inputText: "Wedged"
+- tapOn: "Last Name"
+- inputText: "Record"
+- waitForAnimationToEnd
+- tapOn: "Demographics"
+- waitForAnimationToEnd
+
+- scroll
+- tapOn: "Female"
+- waitForAnimationToEnd
+- tapOn: "Single"
+- waitForAnimationToEnd
+- scroll
+- tapOn: "Highschool"
+- waitForAnimationToEnd
+
+- scroll
+- scroll
+- scroll
+- tapOn:
+    id: "formSubmit"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Household Manager"
+    commands:
+      - tapOn: "<"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "Form successfully submitted"
+    timeout: 20000
+
+# ─── 1. THE QUEUE IS INSPECTABLE ───────────────────────────────────────────
+# The whole point: not "1 form", but WHICH form and about WHOM. Before this
+# existed, a surveyor staring at a queue that would not drain had no way to
+# learn either.
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
+- extendedWaitUntil:
+    visible:
+      id: "queued-form-0"
+    timeout: 20000
+- assertVisible: "Resident ID — Wedged Record"
+- takeScreenshot: .claude/screenshots/offline-discard-01-queue-listed
+
+# ─── 2. DISCARDING ASKS FIRST ──────────────────────────────────────────────
+# A queued record exists nowhere but this device. One press must not delete it.
+- tapOn:
+    id: "queued-discard-0"
+- waitForAnimationToEnd
+- assertVisible: "Discard this form?"
+- takeScreenshot: .claude/screenshots/offline-discard-02-confirmation
+
+# Cancel first, and prove the record SURVIVED. Without this the flow would pass
+# against a screen that deletes on the first press and merely happens to show a
+# dialog afterwards.
+- tapOn: "Cancel"
+- waitForAnimationToEnd
+- assertVisible:
+    id: "queued-form-0"
+- assertVisible: "Resident ID — Wedged Record"
+
+# ─── 3. CONFIRMING REMOVES IT ──────────────────────────────────────────────
+# "Discard permanently" is deliberately not the row control's word: the row's
+# "Discard" is still on screen behind the alert, so an identical label would
+# match two elements and make this tap nondeterministic.
+- tapOn:
+    id: "queued-discard-0"
+- waitForAnimationToEnd
+- assertVisible: "Discard this form?"
+- tapOn: "Discard permanently"
+- waitForAnimationToEnd
+
+# Positive end state, not merely the absence of the row — `notVisible` alone
+# also passes on a blank or crashed screen.
+- extendedWaitUntil:
+    visible: "No forms queued. You are all caught up!"
+    timeout: 20000
+- assertNotVisible:
+    id: "queued-form-0"
+- assertNotVisible:
+    id: "offline-retry-button"
+- takeScreenshot: .claude/screenshots/offline-discard-03-queue-emptied
+
+# Leave the device online for whatever runs next.
+- runFlow:
+    file: subflows/set-offline-mode.yaml
+    env:
+      STATE: "OFF"

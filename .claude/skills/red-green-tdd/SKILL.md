@@ -60,6 +60,12 @@ Then move to the next behavior and repeat.
 - Proceed to Green without seeing Red fail **for the right reason**.
 - Edit, skip, weaken, or delete a test to make it pass.
 - Skip the Refactor evaluation (skipping is fine; *not evaluating* is not).
+- Trust a green you never saw red. A test can pass because the assertion cannot
+  fail. Asserting against `JSON.stringify(tree.toJSON())` looks like asserting
+  against the screen and is not: one `Text`'s children arrive as separate array
+  entries, so a substring like `"1 forms!"` never appears no matter what
+  rendered, and the test passed while the bug it named was live on screen.
+  If a new test goes green on the first run, that is not luck — find out why.
 
 ## When to run it inline vs. via subagents
 

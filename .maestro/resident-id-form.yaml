@@ -15,52 +15,17 @@ appId: io.ionic.starter1270348
 ---
 - launchApp
 
-# Skip onboarding if present (first install)
-- runFlow:
-    when:
-      visible: "Skip"
-    commands:
-      - tapOn: "Skip"
-
-- extendedWaitUntil:
-    visible: "Log-In"
-    timeout: 20000
-
-# Sign in with coordinate taps (avoids floating-label ambiguity)
-- tapOn:
-    point: "50%, 38%"
-- inputText: ${PARSE_USERNAME}
-- tapOn:
-    point: "50%, 48%"
-- inputText: ${PARSE_PASSWORD}
-- scroll
-- tapOn: "Log-In"
-
-# Dismiss "Your Impact Dashboard" coachmark if shown on first login
-- runFlow:
-    when:
-      visible: "Your Impact Dashboard"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
-
-- extendedWaitUntil:
-    visible: "Home"
-    timeout: 30000
+- runFlow: subflows/login.yaml
 
 # Navigate to Data Collection tab (tab 2 of 5, x≈30%, y≈94%)
-- tapOn:
-    point: "30%, 94%"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-data-collection"
+      EXPECT: "Puente Forms"
 - waitForAnimationToEnd
 
 # Dismiss "Capture Field Data" coachmark if present
-- runFlow:
-    when:
-      visible: "Capture Field Data"
-    commands:
-      - tapOn: "Got it"
-      - waitForAnimationToEnd
-
 - takeScreenshot: .claude/screenshots/resident-id-01-gallery
 
 # Open Resident ID form card
@@ -77,13 +42,7 @@ appId: io.ionic.starter1270348
       - tapOn: "OK"
       - waitForAnimationToEnd
 
-# Tap checkbox by coordinate. Online flow has no offline banner, so 66% is correct.
-# XCTest tree works in the non-clearState online flow, so "Continue to Form" uses text.
-- tapOn:
-    point: "10%, 66%"
-- waitForAnimationToEnd
-- tapOn: "Continue to Form"
-- waitForAnimationToEnd
+- runFlow: subflows/give-consent.yaml
 - takeScreenshot: .claude/screenshots/resident-id-03-form-empty
 
 # Fill required text fields (fname, lname are validation: true).

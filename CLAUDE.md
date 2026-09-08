@@ -133,10 +133,40 @@ yarn maestro .maestro/authenticated.yaml
 ```
 
 Flows live in `.maestro/`. `authenticated.yaml` signs in and walks Home → Data
-Collection → Find Records → Assets → Settings, screenshotting each into
-`.claude/screenshots/`. `organization-scope.yaml` is the regression flow for
-organization scoping. There are also five `offline-*` flows,
-`find-records-history.yaml`, `resident-id-form.yaml` and `visual-qa.yaml`.
+Collection → Find Records → Offline Sync → Settings, asserting each arrival and
+screenshotting into `.claude/screenshots/`. `organization-scope.yaml` is the
+regression flow for organization scoping. There are also five `offline-*` flows,
+`find-records-history.yaml`, `resident-id-form.yaml`,
+`signup-organization-picker.yaml` and `visual-qa.yaml`.
+
+**There is no Assets tab.** The bottom navigator is Find Records, Data
+Collection, Home, Offline, Settings; `domains/Assets` is deep-link only. A flow
+that tapped `"70%, 94%"` called it Assets and screenshotted Offline Sync as
+`07-assets.png` for the life of the flow, staying green throughout — a
+coordinate tap cannot fail and a screenshot never fails.
+
+**Write flows against ids, and assert every arrival.** Sign-in and tab
+navigation are in `.maestro/subflows/`; reuse them rather than pasting a fourth
+copy of the login preamble:
+
+```yaml
+- runFlow: subflows/login.yaml
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"     # tab-{find-records,data-collection,home,offline,settings}
+      EXPECT: "Offline Sync"
+```
+
+`yarn lint:maestro` (also in `yarn lint:all`) rejects tab-bar coordinate taps,
+flows that never assert, and dangling subflow references. Before trusting a new
+flow, run it five times — a flow that passed once has been shown to pass once:
+
+```bash
+yarn maestro:stability .maestro/authenticated.yaml 5
+```
+
+See `.maestro/README.md` for the tab table and the full rationale.
 
 Prerequisites: a booted simulator with the app installed. The bundle id is
 `io.ionic.starter1270348` — **not** a puente-prefixed one.
@@ -438,7 +468,14 @@ This project uses Claude Code skills and agents in `.claude/`:
 | `dlite-design-system-engineer` | Any StyleSheet or inline style change |
 | `product-manager` | Scoping, PRDs, prioritization — what to build and why |
 | `ux-review` | When a screen or component is complete — runs dlite-auditor, motion-auditor, mobile-delight-auditor |
-| `visual-qa` | Screenshot the iOS simulator to verify visual correctness |
+| `visual-qa` | Screenshot the iOS simulator to verify a change LOOKS right |
+| `qa-engineer` | Write, extend, or repair a Maestro E2E flow — coverage for a feature, or a regression flow for a bug |
+
+`visual-qa` and `qa-engineer` both drive Maestro, and the split is what you
+want out the far end: `visual-qa` runs existing flows to LOOK at the result
+(layout, spacing, type), `qa-engineer` writes the flow and proves it can fail.
+Auditing a screen's appearance is the first; "we have no coverage for X" is the
+second.
 
 The `skill-eval` hook fires before every response and forces evaluation of each skill.
 Do not skip it.

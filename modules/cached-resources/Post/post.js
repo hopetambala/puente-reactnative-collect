@@ -79,10 +79,28 @@ const postSupplementaryFormBase = async (postParams, { offlineKey, fnName }) => 
     return result.value;
   }
 
+  // Stamp a local id before queueing. A partially-failed sync leaves the WHOLE
+  // batch on the device, so the next Retry re-sends records that already saved.
+  // Cloud Code dedupes on `objectIdOffline`, which it derives from a local id,
+  // and it has had a `SupID-` branch for exactly this since cf16c0f
+  // (2026-07-16). Without a stamp there is no idempotency key, and a retry
+  // creates a DUPLICATE health record — one more on every further retry.
+  //
+  // Offline branch only: posting online sends localObject straight to Parse,
+  // which rejects an objectId it does not know.
   const supForms = await getData(offlineKey);
   const existing = supForms ?? [];
-  await storeData([...existing, postParams], offlineKey);
-  return postParams;
+  const queued = {
+    ...postParams,
+    localObject: {
+      ...postParams.localObject,
+      // Never re-key a record that already carries one, or a re-queue would
+      // defeat the dedupe it exists for.
+      objectId: postParams?.localObject?.objectId ?? `SupID-${generateRandomID()}`,
+    },
+  };
+  await storeData([...existing, queued], offlineKey);
+  return queued;
 };
 
 /** ***********************************************

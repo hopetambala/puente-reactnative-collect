@@ -90,6 +90,7 @@ function GdprCompliance({ setConsent }) {
       </Pressable>
 
       <Button
+        testID="gdpr-continue-button"
         style={{ margin: 15 }}
         mode="contained"
         onPress={() => continueToForm()}

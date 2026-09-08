@@ -1,0 +1,41 @@
+# Dismiss any first-run coachmark that happens to be on screen.
+#
+# Every one of these is a CoachmarkOverlay keyed by screen (see
+# domains/HomeScreen/components/CoachmarkOverlay). They appear once per install
+# per screen, which is exactly what makes them treacherous in a flow: the run
+# that first installs the app sees them, the next run does not, and a flow that
+# hardcodes either assumption is flaky by construction.
+#
+# They also sit at the BOTTOM of the screen and cover the tab bar, so this must
+# run BEFORE any tab tap, not just after landing.
+#
+# Titles come from `coachmarks.*` in modules/i18n/english/en.json.
+appId: io.ionic.starter1270348
+---
+- runFlow:
+    when:
+      visible: "Your Impact Dashboard"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Capture Field Data"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Search All Records"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd
+
+- runFlow:
+    when:
+      visible: "Your Preferences"
+    commands:
+      - tapOn: "Got it"
+      - waitForAnimationToEnd

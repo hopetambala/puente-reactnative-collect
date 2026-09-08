@@ -43,3 +43,8 @@ android/
 .claude/handoff
 .claude/screenshots*
 
+# Per-run logs from `yarn maestro:stability`. Note the trailing-slash lesson
+# recorded in CLAUDE.md: a pattern ending in "/" matches a directory but NOT a
+# symlink, which is how a node_modules symlink once got committed. No slash.
+.maestro/.stability
+

@@ -4,7 +4,14 @@ import I18n from "@modules/i18n";
 import { createLayoutStyles } from "@modules/theme";
 import { MOTION_TOKENS } from "@modules/utils/animations";
 import React from "react";
-import { Image, TouchableWithoutFeedback, View } from "react-native";
+import {
+  Image,
+  InputAccessoryView,
+  Keyboard,
+  Platform,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import {
   Button,
   Text,
@@ -44,6 +51,7 @@ function PaperInputPicker({
     stylesDefault,
     stylesPaper,
     styleX,
+    stylesAccessory,
   } = React.useMemo(() => createPaperInputPickerStyles(theme), [theme]);
   const { label, formikKey, fieldType, sideLabel } = data;
 
@@ -132,6 +140,7 @@ function PaperInputPicker({
             )}
             <TextInput
               testID={`numberInput-${formikKey}`}
+              inputAccessoryViewID={`numberInput-accessory-${formikKey}`}
               label={translatedLabel.length > 30 ? "" : translatedLabel}
               onChangeText={handleChange(formikKey)}
               onBlur={(e) => {
@@ -147,6 +156,31 @@ function PaperInputPicker({
               style={stylesDefault.label}
             />
             <Text style={styles.redText}>{errors[formikKey]}</Text>
+            {/*
+              keyboardType="numeric" gives an iOS keypad with no return key, so
+              nothing on it closes the keyboard. The form's only dismiss
+              affordance is a TouchableWithoutFeedback marked accessible={false},
+              which VoiceOver cannot reach — leaving a blind surveyor with no way
+              to close the keypad, and the submit button behind it for everyone.
+              InputAccessoryView is iOS-only; Android keypads have a system
+              dismiss, so the button is not needed there.
+            */}
+            {Platform.OS === "ios" && (
+              <InputAccessoryView
+                nativeID={`numberInput-accessory-${formikKey}`}
+              >
+                <View style={stylesAccessory.bar}>
+                  <Button
+                    testID={`numberInput-done-${formikKey}`}
+                    accessibilityLabel={I18n.t("global.done")}
+                    onPress={Keyboard.dismiss}
+                    mode="text"
+                  >
+                    {I18n.t("global.done")}
+                  </Button>
+                </View>
+              </InputAccessoryView>
+            )}
           </View>
         </Animated.View>
       )}

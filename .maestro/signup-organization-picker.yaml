@@ -17,6 +17,23 @@
 #   signup-org-03-selected    the field AFTER tapping a suggestion. This is the
 #                             assertion that matters: tapping a visible row must
 #                             actually fill the field.
+# REQUIRES A BACKEND WITH ORGANISATION DATA — staging will not do.
+#
+# The suggestions come from `loadSelectableOrganizations()`, which queries the
+# Parse `Organization` class directly (NOT the autofill cache — that derives
+# from _User strings and is only populated after login, so it is empty at the
+# moment signup needs it).
+#
+# Measured 2026-09-02: the STAGING Organization class has **0 rows**. With no
+# options the field degrades to free text by design, no suggestion appears, and
+# `assertVisible: "Puente"` fails. That is the documented fallback working, not
+# the 2022 autofill bug returning — so do not go hunting in AutoFill when you
+# see this fail. Check the backend first:
+#
+#   GET <parseServerUrl>/classes/Organization?limit=1000&keys=name,active
+#
+# Run this flow against prod:
+#   yarn start:prod-clear
 appId: io.ionic.starter1270348
 ---
 - launchApp:

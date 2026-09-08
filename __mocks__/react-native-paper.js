@@ -37,7 +37,14 @@ module.exports = {
       onSurfaceVariant: '#AAAAAA',
     },
   },
-  Button: ({ children, onPress, testID, disabled }) => React.createElement('button', { onPress, testID, disabled, type: 'button' }, children),
+  // accessibilityLabel is forwarded because real paper forwards it to the
+  // underlying Touchable. Dropping it here makes an a11y assertion read
+  // `undefined` and look like a missing label in the component under test.
+  Button: ({
+    children, onPress, testID, disabled, accessibilityLabel, mode,
+  }) => React.createElement('button', {
+    onPress, testID, disabled, accessibilityLabel, mode, type: 'button',
+  }, children),
   // Rendered by AutoFill and every FormInput. Its absence made those
   // components render `undefined` and crash the test renderer with "Element
   // type is invalid", which reads like a broken import rather than a gap here.
@@ -45,6 +52,10 @@ module.exports = {
   // what tells a form to scroll a field clear of the keyboard.
   TextInput: ({
     label, value, onChangeText, onBlur, onFocus, placeholder, testID, secureTextEntry,
+    // Real paper spreads unrecognised props onto the native TextInput. These
+    // two decide which keyboard appears and whether it carries a dismiss bar,
+    // so a mock that swallows them cannot be used to test either.
+    keyboardType, inputAccessoryViewID,
   }) => React.createElement('textinput', {
     accessibilityLabel: label,
     value,
@@ -54,7 +65,23 @@ module.exports = {
     placeholder,
     testID,
     secureTextEntry,
+    keyboardType,
+    inputAccessoryViewID,
   }),
+  // Rendered by the GDPR consent screen. Its absence made that component
+  // render `undefined` and crash the test renderer with "Element type is
+  // invalid", which reads like a broken import rather than a gap here.
+  // `status` is forwarded so a test can assert checked/unchecked.
+  Checkbox: ({ status, disabled, testID }) => React.createElement('checkbox', {
+    status, disabled, testID,
+  }),
+  // Rendered by ResidentCard. On device a paper Card with onPress collapses to
+  // ONE touchable accessibility element, so forward the props a test needs to
+  // assert that the card identifies itself rather than swallowing its children.
+  Card: ({ children, onPress, testID, accessibilityLabel, accessibilityRole }) =>
+    React.createElement('card', {
+      onPress, testID, accessibilityLabel, accessibilityRole,
+    }, children),
   Text: ({ children }) => React.createElement('text', null, children),
   Title: ({ children }) => React.createElement('text', null, children),
   IconButton: ({ onPress, testID }) => React.createElement('button', { onPress, testID, type: 'button' }),

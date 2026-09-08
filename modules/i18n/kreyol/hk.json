@@ -22,7 +22,8 @@
     "settings": "Paramèt",
     "tryAgain": "Eseye ankò",
     "cancel": "Anile",
-    "recordsStoredOnDevice": "%{count} dosye sere sou aparèy sa a"
+    "recordsStoredOnDevice": "%{count} dosye sere sou aparèy sa a",
+    "done": "Fini"
   },
   "signUp": {
     "firstName": "Non",
@@ -780,6 +781,17 @@
   "offlineSync": {
     "title": "Senkronizasyon san entènèt",
     "noForms": "Pa gen fòm nan fiel. Ou konplè!",
-    "lastSync": "Dènye senkronizasyon:"
+    "lastSync": "Dènye senkronizasyon:",
+    "queuedOne": "1 fòm sere sou aparèy sa a e li poko rive sou sèvè a.",
+    "queuedMany": "%{count} fòm sere sou aparèy sa a e yo poko rive sou sèvè a.",
+    "stillOnDevice": "Fòm ou yo toujou sere sou aparèy sa a. Anyen pa pèdi.",
+    "failedOffline": "Ou san entènèt. Konekte sou entènèt epi eseye ankò.",
+    "failedOnline": "Sèvè a pa aksepte fòm sa yo. Eseye ankò nan kèk minit, epi kontakte sipò si sa kontinye.",
+    "queuedTitle": "K ap tann pou senkronize",
+    "discard": "Jete",
+    "discardTitle": "Jete fòm sa a?",
+    "discardWarning": "%{form} poko rive sou sèvè a. Si ou jete l, l ap efase nèt sou aparèy sa a e ou p ap ka jwenn li ankò.",
+    "unknownForm": "Fòm ki sere",
+    "discardConfirm": "Jete nèt"
   }
 }

@@ -361,3 +361,75 @@ describe("postHousehold offline — queue accumulation", () => {
     expect(localObject.objectId).toBeUndefined();
   });
 });
+
+// Supplementary forms are stamped with a `SupID-` local id before queueing.
+//
+// A partially-failed sync leaves the WHOLE batch on the device, so the next
+// Retry re-sends records that already saved. Cloud Code derives an idempotency
+// key (`objectIdOffline`) from that local id — `PatientID-` for residents,
+// `Household-` for households, and, since puente-node-cloudcode cf16c0f
+// (2026-07-16), `SupID-` for supplementary forms. Without a stamp there is no
+// key, so a retry creates a DUPLICATE health record, and another every time.
+//
+// Proven in modules/offline/__test__/retry-duplicates.integrate.test.js:
+// re-syncing the same queue leaves 1 resident and 2 supplementary records.
+//
+// This was tried on 2026-09-03 and reverted because it broke offline sync on
+// the simulator. That reason was BACKWARDS, and the revert cost production a
+// real fix. Both things the revert rested on have since been checked:
+//
+//   1. Staging's live Cloud Code was downloaded (b4a) on 2026-09-04. It had NO
+//      `SupID-` branch, so it passed the local id straight to Parse, which
+//      rejects an objectId it does not know — hence the device failure. Its
+//      last deploy was 2026-07-15, ~32 hours BEFORE cf16c0f landed. PRODUCTION
+//      was downloaded too: release v120, byte-identical to master, branch
+//      present. Staging now mirrors production (v712).
+//   2. The stored/returned object identity: no caller reads it. SupplementaryForm
+//      uses only `result?.isOfflineLocal`; AssetSupplementary ignores the return
+//      value entirely.
+//
+// Only on the offline branch: posting online sends localObject straight to
+// Parse, which rejects an objectId it does not know.
+describe("postSupplementaryForm offline — idempotency key for retries", () => {
+  beforeEach(() => {
+    checkOnlineStatus.mockResolvedValue(false);
+    storeData.mockClear();
+  });
+
+  const lastQueuedTo = (key) => {
+    const call = storeData.mock.calls.filter((c) => c[1] === key).pop();
+    return call[0][call[0].length - 1];
+  };
+
+  it("stamps a SupID- local id so a re-sent record dedupes", async () => {
+    await postSupplementaryForm({
+      parseClass: "HistoryEnvironmentalHealth",
+      parseParentClassID: "PatientID-abc",
+      localObject: { fieldA: 1 },
+    });
+
+    expect(lastQueuedTo("offlineSupForms").localObject.objectId).toMatch(/^SupID-/);
+  });
+
+  it("gives the asset supplementary queue the same key", async () => {
+    await postSupplementaryAssetForm({
+      parseClass: "Vitals",
+      parseParentClassID: "AssetID-abc",
+      localObject: {},
+    });
+
+    expect(lastQueuedTo("offlineAssetSupForms").localObject.objectId).toMatch(/^SupID-/);
+  });
+
+  it("never re-keys a record that already carries one", async () => {
+    // A re-queued record must keep its id, or the dedupe it exists for is
+    // defeated the moment the queue is written twice.
+    await postSupplementaryForm({
+      parseClass: "HistoryEnvironmentalHealth",
+      parseParentClassID: "PatientID-abc",
+      localObject: { objectId: "SupID-already-here" },
+    });
+
+    expect(lastQueuedTo("offlineSupForms").localObject.objectId).toBe("SupID-already-here");
+  });
+});
