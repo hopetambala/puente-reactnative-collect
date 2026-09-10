@@ -1,0 +1,158 @@
+# Puente Collect — screenshots for the public guide at
+# https://puente-dr.github.io/guides/collecting-without-a-signal/
+#
+# CAPTURE ONLY. It asserts just enough to be sure each screenshot shows the
+# state it claims to — a screenshot of the wrong screen is worse than none,
+# because nobody re-checks a picture. Anything needing a real assertion belongs
+# in one of the offline-*.yaml flows.
+#
+# THE SCREENSHOT RULE
+# Every person and organization in a published image must be invented. The
+# resident created here is "Ejemplo Ramirez", who does not exist. Do not swap in
+# a real name, and do not run this against a backend and then publish a shot
+# containing a real partner organization — staging was seeded with production
+# organization names on 2026-09-08 and is no longer safe for that.
+#
+# Run:
+#   yarn start:staging-clear      # Metro FIRST
+#   yarn maestro .maestro/capture-offline-docs.yaml
+#   # images land in docs/img/offline/
+appId: io.ionic.starter1270348
+---
+- launchApp
+- runFlow: subflows/login.yaml
+
+# ─── START FROM AN EMPTY QUEUE ─────────────────────────────────────────────
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
+- runFlow:
+    file: subflows/set-offline-mode.yaml
+    env:
+      STATE: "OFF"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
+- extendedWaitUntil:
+    visible: "Retry|No forms queued.*"
+    timeout: 30000
+- runFlow:
+    when:
+      visible:
+        id: "offline-retry-button"
+    commands:
+      - tapOn:
+          id: "offline-retry-button"
+      - extendedWaitUntil:
+          notVisible:
+            id: "offline-retry-button"
+          timeout: 60000
+
+# ── 4. the empty state (captured first, while the queue is genuinely empty) ──
+- assertVisible: "No forms queued. You are all caught up!"
+- takeScreenshot: docs/img/offline/collect-04-all-caught-up
+
+# ─── GO OFFLINE AND OPEN A FORM ────────────────────────────────────────────
+- runFlow:
+    file: subflows/set-offline-mode.yaml
+    env:
+      STATE: "ON"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-data-collection"
+      EXPECT: "Puente Forms"
+- tapOn: "Resident ID"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+- runFlow: subflows/give-consent.yaml
+- extendedWaitUntil:
+    visible: "First Name"
+    timeout: 20000
+
+# ── 1. the offline banner, on a form the surveyor is actually filling in ──
+- assertVisible: ".*offline.*"
+- takeScreenshot: docs/img/offline/collect-01-offline-banner
+
+# ─── QUEUE ONE FORM ────────────────────────────────────────────────────────
+- tapOn: "First Name"
+- inputText: "Ejemplo"
+- tapOn: "Last Name"
+- inputText: "Ramirez"
+- waitForAnimationToEnd
+- tapOn: "Demographics"
+- waitForAnimationToEnd
+- scroll
+- tapOn: "Female"
+- waitForAnimationToEnd
+- tapOn: "Single"
+- waitForAnimationToEnd
+- scroll
+- tapOn: "Highschool"
+- waitForAnimationToEnd
+- scroll
+- scroll
+- scroll
+- tapOn:
+    id: "formSubmit"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      visible: "Household Manager"
+    commands:
+      - tapOn: "<"
+      - waitForAnimationToEnd
+
+# ── 2. the confirmation that it was saved, not sent ──
+# Best-effort: this is a native alert and can be dismissed by the time we look.
+# The queue shot below is the one the guide actually needs, so a miss here must
+# not abort the run.
+- runFlow:
+    when:
+      visible: "Saved offline.*"
+    commands:
+      - takeScreenshot: docs/img/offline/collect-02-saved-offline
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+      - waitForAnimationToEnd
+
+# ── 3. the queue, listing WHICH form and about whom ──
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-offline"
+      EXPECT: "Offline Sync"
+- extendedWaitUntil:
+    visible: "Waiting to sync"
+    timeout: 20000
+- takeScreenshot: docs/img/offline/collect-03-queue
+
+# ── 5. the discard confirmation, which is permanent ──
+- tapOn: "Discard"
+- extendedWaitUntil:
+    visible: "Discard this form?"
+    timeout: 10000
+- takeScreenshot: docs/img/offline/collect-05-discard-confirm
+
+# Leave the device as we found it: confirm, so the invented record does not
+# linger in a queue someone later syncs.
+- tapOn: "Discard permanently"
+- extendedWaitUntil:
+    visible: "No forms queued.*"
+    timeout: 20000
+- runFlow:
+    file: subflows/set-offline-mode.yaml
+    env:
+      STATE: "OFF"
