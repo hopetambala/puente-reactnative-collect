@@ -508,4 +508,27 @@ When writing data-collection code:
 
 String source of truth: `modules/i18n/english/en.json`.
 `yarn lint:locale-sync` checks for orphaned or missing keys across locales.
-Maestro visual-qa flows use English on-screen labels — keep them in sync with `en.json`.
+
+**The app renders in the DEVICE language.** `modules/i18n/index.js` reads
+expo-localization once at module load; there is no runtime override except the
+picker on the sign-in screen. So changing the language for a test means changing
+the SIMULATOR's language and rebooting it — relaunching the app is not enough,
+because the system reads the preference at boot.
+
+**Maestro text selectors are REGEXES, so flows match English *or* Spanish** in
+one selector: `"Search Individual|Buscar individuo"`. Keep both halves in sync
+with the catalogs. Do not replace an alternation with an `env:` variable —
+a flow-file `env:` default **overrides** `-e` on the command line in this
+version of Maestro (the opposite of what the docs suggest), so a parameterised
+default silently keeps the English string on a Spanish run and the failure
+surfaces sixty seconds later at the sign-in gate. Verified with a two-line flow:
+
+```yaml
+env: { VAR: "parent-default" }        # run with -e VAR="cli-override"
+- assertTrue: ${VAR == "cli-override"}   # -> Assertion is false
+```
+
+**A string that never entered a catalog is invisible to `lint:locale-sync`.**
+Parity checks compare catalogs to each other, so a hardcoded JSX literal passes
+every check while rendering English to everyone. Two shipped that way and were
+found only by photographing the Spanish app.
