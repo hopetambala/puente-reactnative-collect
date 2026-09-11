@@ -50,24 +50,36 @@ module.exports = {
   // type is invalid", which reads like a broken import rather than a gap here.
   // Forwards the handlers tests need to fire - focus especially, since that is
   // what tells a form to scroll a field clear of the keyboard.
-  TextInput: ({
-    label, value, onChangeText, onBlur, onFocus, placeholder, testID, secureTextEntry,
-    // Real paper spreads unrecognised props onto the native TextInput. These
-    // two decide which keyboard appears and whether it carries a dismiss bar,
-    // so a mock that swallows them cannot be used to test either.
-    keyboardType, inputAccessoryViewID,
-  }) => React.createElement('textinput', {
-    accessibilityLabel: label,
-    value,
-    onChangeText,
-    onBlur,
-    onFocus,
-    placeholder,
-    testID,
-    secureTextEntry,
-    keyboardType,
-    inputAccessoryViewID,
-  }),
+  TextInput: Object.assign(
+    ({
+      label, value, onChangeText, onBlur, onFocus, placeholder, testID, secureTextEntry,
+      // Real paper spreads unrecognised props onto the native TextInput. These
+      // two decide which keyboard appears and whether it carries a dismiss bar,
+      // so a mock that swallows them cannot be used to test either.
+      keyboardType, inputAccessoryViewID,
+      // The affordance rendered inside the field -- the password visibility
+      // toggle lives here. Swallowing it made the toggle invisible to tests
+      // even though it renders on device, so nothing could assert the ID the
+      // E2E harness needs to tap.
+      right,
+    }) => React.createElement('textinput', {
+      accessibilityLabel: label,
+      value,
+      onChangeText,
+      onBlur,
+      onFocus,
+      placeholder,
+      testID,
+      secureTextEntry,
+      keyboardType,
+      inputAccessoryViewID,
+    }, right),
+    {
+      Icon: ({ onPress, testID, icon }) => React.createElement('button', {
+        onPress, testID, icon, type: 'button',
+      }),
+    }
+  ),
   // Rendered by the GDPR consent screen. Its absence made that component
   // render `undefined` and crash the test renderer with "Element type is
   // invalid", which reads like a broken import rather than a gap here.

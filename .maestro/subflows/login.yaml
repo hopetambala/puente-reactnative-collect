@@ -62,13 +62,60 @@ appId: io.ionic.starter1270348
       - tapOn:
           id: "signin-username"
       - inputText: ${PARSE_USERNAME}
+      # Make the password field PLAIN TEXT before typing into it.
+      #
+      # Typing into an iOS secure field crashes Maestro's XCUITest driver --
+      # "CommandFailed: Failed to connect to /127.0.0.1:<port>", then
+      # "Restarting after unexpected exit, crash, or test timeout". The flow
+      # dies mid-subflow with no assertion failure, which reads like an app
+      # bug rather than a driver crash.
+      #
+      # This went unnoticed for a long time because the whole suite ran against
+      # an already-authenticated device, so this block was SKIPPED every time.
+      # visual-qa.yaml launches with `clearState: true`, so the moment it runs,
+      # every later flow needs a real sign-in and the suite cannot recover.
+      # Found 2026-09-11.
+      - tapOn:
+          id: "signin-password-visibility"
+      - waitForAnimationToEnd
       - tapOn:
           id: "signin-password"
       - inputText: ${PARSE_PASSWORD}
       # Scroll the submit button clear of the keyboard before pressing it.
+      #
+      # Do NOT "dismiss the keyboard" by tapping the static text above the
+      # button: "Don't have an account?" sits immediately above the Terms &
+      # Conditions button (SignIn/index.js:331-340), and the tap lands on THAT,
+      # opening a modal with `dismissable={false}` whose only exit is an Ok
+      # button at the bottom of a ~3600px ScrollView the driver cannot scroll.
+      # The run then fails the post-condition below, which reads like bad
+      # credentials. Cost an hour on 2026-09-11.
       - scroll
       - tapOn:
           id: "signin-submit"
+
+# Terms and Service / Privacy Policy gate. It is shown AFTER a successful
+# sign-in to an account that has not accepted it yet -- NOT on launch, and not
+# on the sign-in screen (verified 2026-09-11: a plain launch never shows it).
+# It renders over everything, so the post-condition below fails while the modal
+# sits on top, which reads like bad credentials rather than an ungated modal.
+#
+# Only reachable on a cleared install, which is why it stayed hidden for so
+# long: the suite ran against an already-authenticated device until
+# visual-qa.yaml (clearState: true) forced a real sign-in.
+#
+# `^Ok$` is anchored because a bare "Ok" also matches alert buttons elsewhere.
+- runFlow:
+    when:
+      visible: "Terms and Service"
+    commands:
+      - scrollUntilVisible:
+          element:
+            text: "^Ok$"
+          direction: DOWN
+          timeout: 20000
+      - tapOn: "^Ok$"
+      - waitForAnimationToEnd
 
 - runFlow: dismiss-coachmarks.yaml
 
