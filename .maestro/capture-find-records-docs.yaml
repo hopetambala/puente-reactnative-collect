@@ -1,0 +1,112 @@
+# Puente Collect — screenshots for the public guide at
+# https://puente-dr.github.io/guides/finding-someone-you-already-surveyed/
+#
+# CAPTURE ONLY. It asserts just enough to be sure each screenshot shows the
+# state it claims to — a screenshot of the wrong screen is worse than none,
+# because nobody re-checks a picture. Anything needing a real assertion belongs
+# in find-records-history.yaml or resident-search-by-id.yaml.
+#
+# THE SCREENSHOT RULE
+# Every person in a published image must be invented. Resident search shows
+# REAL residents, so the searches here are chosen to return ONLY synthetic
+# staging records. Verified against staging 2026-09-11 (app id ZvGwjA7c…):
+#
+#   "Ejemplo"  -> 2 rows, both invented: "Paciente Ejemplo" (nickname Fulano,
+#                 cedula 001679264892) and "Ejemplo Ramirez"
+#   "00167"    -> 1 row, "Paciente Ejemplo", matched on cedulaNumber alone
+#   "Fulano"   -> matched on nickname alone
+#
+# DO NOT broaden these search terms. A single letter returns real people, and
+# staging was seeded with production organization names on 2026-09-08. If the
+# staging data is reseeded and these rows disappear, re-derive terms that return
+# only invented records rather than capturing whatever comes back.
+#
+# Run:
+#   yarn start:staging-clear      # Metro FIRST
+#   yarn maestro .maestro/capture-find-records-docs.yaml
+#   # images land in docs/img/find-records/
+appId: io.ionic.starter1270348
+---
+- launchApp
+- runFlow: subflows/login.yaml
+
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-find-records"
+      EXPECT: "Search Individual"
+- waitForAnimationToEnd
+
+# ── 1. searching by name ────────────────────────────────────────────────────
+- tapOn: "Search by name or ID"
+- inputText: "Ejemplo"
+- extendedWaitUntil:
+    visible:
+      id: "resident-card"
+    timeout: 30000
+- assertVisible: ".*Ejemplo.*"
+# The first tap on a card is consumed dismissing the keyboard and leaves the
+# list in place (verified 2026-09-11). Use it to get a screenshot showing the
+# results rather than half a keyboard.
+- tapOn:
+    id: "resident-card"
+- waitForAnimationToEnd
+- assertVisible: "Search Individual"
+- takeScreenshot: docs/img/find-records/find-01-search-by-name
+
+# ── 2. searching by the ID on the card ──────────────────────────────────────
+# A cedula prefix cannot match any name, so a result here proves the ID search
+# specifically. Before 15.7.2 this returned nothing at all.
+- tapOn: "Search by name or ID"
+- eraseText: 12
+- inputText: "00167"
+- extendedWaitUntil:
+    visible:
+      id: "resident-card"
+    timeout: 30000
+- assertVisible: ".*Paciente.*"
+# The first tap on a card is consumed dismissing the keyboard and leaves the
+# list in place (verified 2026-09-11). Use it to get a screenshot showing the
+# results rather than half a keyboard.
+- tapOn:
+    id: "resident-card"
+- waitForAnimationToEnd
+- assertVisible: "Search Individual"
+- takeScreenshot: docs/img/find-records/find-02-search-by-id
+
+# ── 3. the resident, and the way into their history ────────────────────────
+# ResidentCard carries an accessibilityLabel of "<fname> <lname>", so this taps
+# the person by name rather than a coordinate that drifts when the list order
+# changes.
+# The first tap only dismisses the keyboard -- the touch is consumed closing it,
+# and the card stays put. Tap again once the keyboard is out of the way.
+- tapOn: "Paciente Ejemplo"
+- waitForAnimationToEnd
+- runFlow:
+    when:
+      notVisible: "View Record History"
+    commands:
+      - tapOn: "Paciente Ejemplo"
+      - waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "View Record History"
+    timeout: 20000
+- takeScreenshot: docs/img/find-records/find-03-resident
+
+# ── 4. everything already collected about them ──────────────────────────────
+- tapOn: "View Record History"
+- waitForAnimationToEnd
+- takeScreenshot: docs/img/find-records/find-04-record-history
+
+# ── 5. how many residents this phone can search offline ────────────────────
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-settings"
+      EXPECT: "Force Offline Mode"
+- waitForAnimationToEnd
+- tapOn: "Find Records"
+- extendedWaitUntil:
+    visible: "Record storage limit"
+    timeout: 20000
+- takeScreenshot: docs/img/find-records/find-05-storage-limit
