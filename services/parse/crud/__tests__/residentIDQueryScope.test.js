@@ -15,7 +15,7 @@ const mockQuery = {
   limit: jest.fn(function l() { return this; }),
   equalTo: jest.fn(function e(...a) { constraints.push(['equalTo', ...a]); return this; }),
   containedIn: jest.fn(function c(...a) { constraints.push(['containedIn', ...a]); return this; }),
-  exclude: jest.fn(function x() { return this; }),
+  select: jest.fn(function sel() { return this; }),
   find: jest.fn(() => Promise.resolve([])),
 };
 
@@ -61,14 +61,16 @@ describe('residentIDQuery organization scoping', () => {
 describe('residentIDQuery payload', () => {
   beforeEach(() => { constraints.length = 0; jest.clearAllMocks(); });
 
-  test('excludes the heavy fields no resident screen reads', async () => {
+  test('asks only for the fields a resident screen or link actually reads', async () => {
     await residentIDQuery({ parseParam: ['testORG'], limit: 10 });
 
-    expect(mockQuery.exclude).toHaveBeenCalled();
-    const excluded = mockQuery.exclude.mock.calls[0];
-    expect(excluded).toEqual(expect.arrayContaining(['searchIndex', 'signature', 'location']));
-    // picture is DISPLAYED by ResidentPage; excluding it blanks the photo,
-    // offline especially, where there is no refetch to repair it.
-    expect(excluded).not.toContain('picture');
+    expect(mockQuery.select).toHaveBeenCalled();
+    const selected = mockQuery.select.mock.calls[0];
+    // picture is DISPLAYED by ResidentPage and objectIdOffline is the identity
+    // records are linked by; dropping either is invisible until someone is
+    // offline or a record is orphaned.
+    expect(selected).toEqual(expect.arrayContaining(['fname', 'lname', 'picture', 'objectIdOffline']));
+    // 892 -> 452 bytes/row comes from leaving these out.
+    ['searchIndex', 'signature', 'location'].forEach((f) => expect(selected).not.toContain(f));
   });
 });

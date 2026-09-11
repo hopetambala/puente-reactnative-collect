@@ -27,7 +27,7 @@ const mockCompositeQuery = {
   descending: jest.fn(),
   equalTo: jest.fn(),
   containedIn: jest.fn(),
-  exclude: jest.fn(),
+  select: jest.fn(),
   limit: jest.fn(),
   find: mockFind,
 };
@@ -125,15 +125,17 @@ describe('ResidentIdSearchbar parseSearch', () => {
 // Every field SurveyData carries is transferred unless excluded, and this
   // query's results become the offline resident cache. Measured 2026-09-11:
   // 892 bytes/row, 1.70 MB at the 2000-row cap.
-  it('excludes the heavy fields no resident screen reads', async () => {
+  it('asks only for the fields a resident screen or link actually reads', async () => {
     await parseSearch('testORG', '');
 
-    expect(mockCompositeQuery.exclude).toHaveBeenCalled();
-    const excluded = mockCompositeQuery.exclude.mock.calls[0];
-    expect(excluded).toEqual(expect.arrayContaining(['searchIndex', 'signature', 'location']));
-    // picture is DISPLAYED by ResidentPage -- excluding it would blank the
-    // resident's photo, offline especially, where there is no refetch.
-    expect(excluded).not.toContain('picture');
+    expect(mockCompositeQuery.select).toHaveBeenCalled();
+    const selected = mockCompositeQuery.select.mock.calls[0];
+    // picture is DISPLAYED by ResidentPage and objectIdOffline is the identity
+    // records are linked by; dropping either is invisible until someone is
+    // offline or a record is orphaned.
+    expect(selected).toEqual(expect.arrayContaining(['fname', 'lname', 'picture', 'objectIdOffline']));
+    // 892 -> 452 bytes/row comes from leaving these out.
+    ['searchIndex', 'signature', 'location'].forEach((f) => expect(selected).not.toContain(f));
   });
 
   it('sets the limit on the composite OR query, where Parse can see it', async () => {

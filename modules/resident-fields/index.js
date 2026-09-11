@@ -45,4 +45,67 @@ export const RESIDENT_PAYLOAD_EXCLUDED_FIELDS = Object.freeze([
   "location",
 ]);
 
+/**
+ * The fields a resident query asks for. An ALLOWLIST, replacing the denylist
+ * above — which is kept only as the record of what was proven unused.
+ *
+ * Measured against staging 2026-09-11 over 300 rows:
+ *
+ *   full                 892 B/row   1.70 MB at the 2000-row cap
+ *   excludeKeys denylist 662 B/row   1.26 MB   (-26%)
+ *   this allowlist       452 B/row   0.86 MB   (-49%)
+ *
+ * WHY THIS IS THE RISKY DIRECTION, AND WHAT MAKES IT SAFE
+ * These results BECOME the offline resident cache. A field left out is a field
+ * that does not exist offline, where there is no refetch to repair it, and the
+ * resident object is what later records are linked to — that is how orphaned
+ * records get made, and this system has repaired those by hand before.
+ *
+ * So this list is not a judgement about what the screens "probably" need. It is
+ * the union of every property read off a resident-shaped object anywhere in the
+ * app, enumerated by grep across domains/, impacto-design-system/, context/,
+ * modules/ and services/. Each entry names its consumer in the tests.
+ *
+ * BEFORE REMOVING A FIELD, prove nothing reads it — including the edit form,
+ * which seeds itself from the cached record and writes back what it was seeded
+ * with. A field missing there is saved as empty over real data.
+ *
+ * objectId, createdAt and updatedAt are returned by Parse whether requested or
+ * not (verified against staging), so they are deliberately absent.
+ */
+export const RESIDENT_QUERY_FIELDS = Object.freeze([
+  // identity and linking
+  "objectIdOffline",
+  "householdId",
+  "surveyingOrganization",
+  // shown in the result list
+  "fname",
+  "lname",
+  "nickname",
+  "sex",
+  "educationLevel",
+  "city",
+  "communityname",
+  // resident detail
+  "picture",
+  "cedulaNumber",
+  "dob",
+  "province",
+  // seeds the edit form; omitting any of these saves empty over real data
+  "marriageStatus",
+  // BOTH phone fields. buildEditFormValues reads `record.phone ||
+  // record.telephoneNumber`, so omitting `phone` blanks the number of every
+  // resident whose is stored there -- on save, silently. `phone` was missing
+  // from the first version of this list; editFormSeedFields.unit.test.js now
+  // derives the required set from the editor's own source so it cannot happen
+  // again.
+  "phone",
+  "telephoneNumber",
+  "subcounty",
+  "region",
+  "latitude",
+  "longitude",
+  "altitude",
+]);
+
 export default RESIDENT_PAYLOAD_EXCLUDED_FIELDS;
