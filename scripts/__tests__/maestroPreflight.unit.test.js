@@ -15,6 +15,8 @@
  * So: refuse to start when another run holds the device, and say which PID.
  */
 const {
+  formatMetroDownMessage,
+  isMetroUp,
   findConflictingMaestroRuns,
   formatConflictMessage,
 } = require('@app/scripts/maestro-preflight');
@@ -135,5 +137,55 @@ describe('formatConflictMessage', () => {
     // A message that says "conflict" without the recovery command sends the
     // reader hunting; the whole failure mode is that it looks like flakiness.
     expect(msg).toMatch(/kill/i);
+  });
+});
+
+/**
+ * Metro readiness.
+ *
+ * With the packager down, the dev client launches to a red screen reading
+ * "No script URL provided". Maestro sees no crash — the app is up — so the run
+ * proceeds and dies 60 seconds later on
+ *
+ *     Assert that "Skip|Log-In|Last 7 Days" is visible... FAILED
+ *
+ * which points at the sign-in screen: a wrong password, a slow backend, a
+ * broken login flow. Anything but the packager. Cost a capture run on
+ * 2026-09-11, immediately after a simulator reboot.
+ *
+ * The check is a plain HTTP probe, and it must never block a run because the
+ * probe itself failed — same rule the conflicting-run check already follows.
+ */
+describe('Metro readiness', () => {
+  it('is satisfied when the packager answers', async () => {
+    const fetcher = jest.fn().mockResolvedValue({ ok: true });
+
+    await expect(isMetroUp(fetcher)).resolves.toBe(true);
+  });
+
+  it('is not satisfied when nothing is listening', async () => {
+    const fetcher = jest.fn().mockRejectedValue(new Error('ECONNREFUSED'));
+
+    await expect(isMetroUp(fetcher)).resolves.toBe(false);
+  });
+
+  it('is not satisfied when something answers but not with a 200', async () => {
+    const fetcher = jest.fn().mockResolvedValue({ ok: false, status: 502 });
+
+    await expect(isMetroUp(fetcher)).resolves.toBe(false);
+  });
+
+  it('treats a probe that throws synchronously as "cannot tell", not "down"', async () => {
+    // Never block a run because the CHECK broke.
+    const fetcher = () => { throw new Error('fetch is not defined'); };
+
+    await expect(isMetroUp(fetcher)).resolves.toBe(true);
+  });
+
+  it('names the packager and the command that starts it', () => {
+    const message = formatMetroDownMessage();
+
+    expect(message).toMatch(/No script URL provided/);
+    expect(message).toMatch(/yarn start:staging/);
   });
 });
