@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.7.2](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.7.1...v15.7.2) (2026-09-11)
+
+
+### Documentation Changes
+
+* **e2e:** capture the offline-guide screenshots from the running app ([#627](https://github.com/hopetambala/puente-reactnative-collect/issues/627)) ([9a937f4](https://github.com/hopetambala/puente-reactnative-collect/commit/9a937f443cbd3e0debf4409b3bb1241c9c104189))
+
+
+### Bug fixes
+
+* **find-records:** make resident lookup find residents that already exist ([#628](https://github.com/hopetambala/puente-reactnative-collect/issues/628)) ([66f761f](https://github.com/hopetambala/puente-reactnative-collect/commit/66f761f566351304c1be5e483ef2c0aabffbc25d))
+
 ### [15.7.1](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.7.0...v15.7.1) (2026-09-08)
 
 
