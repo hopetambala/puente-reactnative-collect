@@ -21,12 +21,31 @@
 # staging data is reseeded and these rows disappear, re-derive terms that return
 # only invented records rather than capturing whatever comes back.
 #
+# BOTH LANGUAGES
+# Every text selector matches English OR Spanish, because Collect renders in the
+# DEVICE language and the guides are bilingual. Maestro matches text as a REGEX,
+# so an alternation covers both with no variable to get wrong — and `env:`
+# defaults in a flow file OVERRIDE `-e` on the command line in this version of
+# Maestro (verified), so a parameterised default would silently have kept the
+# English selector on the Spanish run.
+#
+# Only the OUTPUT DIRECTORY varies, and it is read from an optional `-e OUT=`
+# below rather than an `env:` default, for the same reason.
+#
 # Run:
-#   yarn start:staging-clear      # Metro FIRST
-#   yarn maestro .maestro/capture-find-records-docs.yaml
-#   # images land in docs/img/find-records/
+#   yarn start:staging-clear                  # Metro FIRST
+#   ./.maestro/capture-guide-docs.sh both     # both languages
+#
+#   # or one language, by hand:
+#   yarn maestro .maestro/capture-find-records-docs.yaml            # English
+#   yarn maestro .maestro/capture-find-records-docs.yaml \
+#     -e OUT=docs/img/find-records/es                               # on an es device
 appId: io.ionic.starter1270348
 ---
+# Screenshot destination. `OUT` is left UNSET by default on purpose: an unset
+# Maestro variable arrives as its own name, hence the guard.
+- evalScript: "${output.dir = (typeof OUT === 'undefined' || OUT === '' || OUT === 'OUT') ? 'docs/img/find-records' : OUT}"
+
 - launchApp
 - runFlow: subflows/login.yaml
 
@@ -34,11 +53,11 @@ appId: io.ionic.starter1270348
     file: subflows/open-tab.yaml
     env:
       TAB_ID: "tab-find-records"
-      EXPECT: "Search Individual"
+      EXPECT: "Search Individual|Buscar individuo"
 - waitForAnimationToEnd
 
 # ── 1. searching by name ────────────────────────────────────────────────────
-- tapOn: "Search by name or ID"
+- tapOn: "Search by name or ID|Buscar por nombre o ID"
 - inputText: "Ejemplo"
 - extendedWaitUntil:
     visible:
@@ -51,13 +70,13 @@ appId: io.ionic.starter1270348
 - tapOn:
     id: "resident-card"
 - waitForAnimationToEnd
-- assertVisible: "Search Individual"
-- takeScreenshot: docs/img/find-records/find-01-search-by-name
+- assertVisible: "Search Individual|Buscar individuo"
+- takeScreenshot: ${output.dir}/find-01-search-by-name
 
 # ── 2. searching by the ID on the card ──────────────────────────────────────
 # A cedula prefix cannot match any name, so a result here proves the ID search
 # specifically. Before 15.7.2 this returned nothing at all.
-- tapOn: "Search by name or ID"
+- tapOn: "Search by name or ID|Buscar por nombre o ID"
 - eraseText: 12
 - inputText: "00167"
 - extendedWaitUntil:
@@ -71,8 +90,8 @@ appId: io.ionic.starter1270348
 - tapOn:
     id: "resident-card"
 - waitForAnimationToEnd
-- assertVisible: "Search Individual"
-- takeScreenshot: docs/img/find-records/find-02-search-by-id
+- assertVisible: "Search Individual|Buscar individuo"
+- takeScreenshot: ${output.dir}/find-02-search-by-id
 
 # ── 3. the resident, and the way into their history ────────────────────────
 # ResidentCard carries an accessibilityLabel of "<fname> <lname>", so this taps
@@ -84,19 +103,19 @@ appId: io.ionic.starter1270348
 - waitForAnimationToEnd
 - runFlow:
     when:
-      notVisible: "View Record History"
+      notVisible: "View Record History|Ver historial de registros"
     commands:
       - tapOn: "Paciente Ejemplo"
       - waitForAnimationToEnd
 - extendedWaitUntil:
-    visible: "View Record History"
+    visible: "View Record History|Ver historial de registros"
     timeout: 20000
-- takeScreenshot: docs/img/find-records/find-03-resident
+- takeScreenshot: ${output.dir}/find-03-resident
 
 # ── 4. everything already collected about them ──────────────────────────────
-- tapOn: "View Record History"
+- tapOn: "View Record History|Ver historial de registros"
 - waitForAnimationToEnd
-- takeScreenshot: docs/img/find-records/find-04-record-history
+- takeScreenshot: ${output.dir}/find-04-record-history
 
 # ── 5. how many residents this phone can search offline ────────────────────
 - runFlow:
@@ -105,8 +124,8 @@ appId: io.ionic.starter1270348
       TAB_ID: "tab-settings"
       EXPECT: "Force Offline Mode"
 - waitForAnimationToEnd
-- tapOn: "Find Records"
+- tapOn: "Find Records|Buscar registros"
 - extendedWaitUntil:
-    visible: "Record storage limit"
+    visible: "Record storage limit|Límite de almacenamiento de registros"
     timeout: 20000
-- takeScreenshot: docs/img/find-records/find-05-storage-limit
+- takeScreenshot: ${output.dir}/find-05-storage-limit

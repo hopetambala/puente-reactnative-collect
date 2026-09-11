@@ -17,6 +17,20 @@
 #
 # Requires: -e PARSE_USERNAME=... -e PARSE_PASSWORD=...
 # The `maestro` yarn script already passes both.
+#
+# THE TEXT SELECTORS MATCH ENGLISH *OR* SPANISH.
+# Collect renders in the DEVICE language (modules/i18n reads the locale once at
+# launch; there is no in-app override until the sign-in screen's own picker).
+# On a Spanish simulator an English-only selector waits for a string that will
+# never appear, and the run dies here, at the readiness gate, reporting
+# "Skip|Log-In|Last 7 Days is not visible" — which reads as a broken sign-in or
+# a dead packager. It cost two capture runs on 2026-09-11.
+#
+# Maestro matches text selectors as REGEXES, so a union alternation covers both
+# languages with no variable, no flag and no default to get wrong. That matters:
+# `env:` defaults inside a flow file OVERRIDE `-e` on the command line in this
+# version of Maestro (verified, not assumed), so a parameterised default would
+# have silently kept the English string on the Spanish run.
 appId: io.ionic.starter1270348
 ---
 # READINESS GATE — must come before any `when:` guard.
@@ -32,7 +46,7 @@ appId: io.ionic.starter1270348
 # three possible first screens actually turns up: onboarding, sign-in, or an
 # already-authenticated Home.
 - extendedWaitUntil:
-    visible: "Skip|Log-In|Last 7 Days"
+    visible: "Skip|Omitir|Log-In|Iniciar sesión|Last 7 Days|Últimos 7 Días"
     timeout: 60000
 
 # extendedWaitUntil returns the moment the element joins the accessibility tree,
@@ -44,16 +58,16 @@ appId: io.ionic.starter1270348
 # Onboarding carousel on a fresh install.
 - runFlow:
     when:
-      visible: "Skip"
+      visible: "Skip|Omitir"
     commands:
-      - tapOn: "Skip"
+      - tapOn: "Skip|Omitir"
       - waitForAnimationToEnd
 
 # Only sign in if we are actually on the sign-in screen. A flow that ran before
 # this one may have left a live session.
 - runFlow:
     when:
-      visible: "Log-In"
+      visible: "Log-In|Iniciar sesión"
     commands:
       # Precondition: the sign-in form is really up, not a splash that happens
       # to contain the words.
@@ -107,7 +121,7 @@ appId: io.ionic.starter1270348
 # `^Ok$` is anchored because a bare "Ok" also matches alert buttons elsewhere.
 - runFlow:
     when:
-      visible: "Terms and Service"
+      visible: "Terms and Service|Condiciones y servicio"
     commands:
       - scrollUntilVisible:
           element:
@@ -128,6 +142,6 @@ appId: io.ionic.starter1270348
 # like it does. The segmented control is unique to this screen and renders as
 # soon as `user` is set, before the async stats land.
 - extendedWaitUntil:
-    visible: "Last 7 Days"
+    visible: "Last 7 Days|Últimos 7 Días"
     timeout: 30000
 - waitForAnimationToEnd
