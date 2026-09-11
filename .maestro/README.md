@@ -84,7 +84,7 @@ separate so translating the app cannot break the suite.
 | File | What it does | Auth |
 |---|---|---|
 | `visual-qa.yaml` | Screenshots onboarding and sign-in | No |
-| `signup-organization-picker.yaml` | Signup organization autocomplete is selectable | No — but needs **prod** (staging's `Organization` class is empty, measured 2026-09-02) |
+| `signup-organization-picker.yaml` | Signup organization autocomplete is selectable | No — needs a backend with organizations. Staging now has 59, "Puente" among them (measured 2026-09-11); it was empty when this said "prod only" on 2026-09-02 |
 | `authenticated.yaml` | Signs in, visits all five tabs, asserts each | Yes |
 | `organization-scope.yaml` | Regression flow for organization alias-set scoping | Yes |
 | `find-records-history.yaml` | Resident → record history → Identification record | Yes |
@@ -134,16 +134,24 @@ re-checks a picture. Anything needing a real assertion belongs in a flow above.
 |---|---|---|
 | `capture-find-records-docs.yaml` | /guides/finding-someone-you-already-surveyed/ | Yes |
 | `capture-offline-docs.yaml` | /guides/collecting-without-a-signal/ | Yes |
+| `capture-org-signup-docs.yaml` | /guides/how-to-create-and-manage-orgs/ | No |
 
 ```bash
 yarn start:staging-clear                  # Metro FIRST
 ./.maestro/capture-guide-docs.sh both     # English and Spanish
 ```
 
-**Every person in a published image must be invented.** Resident search shows
-REAL residents, so the search terms are chosen to return only synthetic staging
-records, and staging has carried production organization names since
-2026-09-08. Do not broaden a search term to whatever happens to come back.
+**Every person in a published image must be invented, and every organization
+must be one we may show.** Resident search returns REAL residents and the signup
+picker returns REAL organizations, so both search terms are chosen to narrow to
+what is publishable and were verified before capturing:
+
+    "Ejemplo", "00167"  ->  only synthetic staging residents
+    "Pu"                ->  exactly one organization: "Puente", our own
+
+Do not broaden either. A single letter returns real people, and a shorter
+organization prefix returns real partners. Staging has carried production
+organization names since 2026-09-08.
 
 ### Running a flow in Spanish
 

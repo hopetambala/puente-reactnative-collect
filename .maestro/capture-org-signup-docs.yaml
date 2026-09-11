@@ -1,0 +1,67 @@
+# Puente Collect — the signup organization picker, for the public guide at
+# https://puente-dr.github.io/guides/how-to-create-and-manage-orgs/
+#
+# CAPTURE ONLY. It asserts just enough to be sure each screenshot shows the
+# state it claims to — a screenshot of the wrong screen is worse than none,
+# because nobody re-checks a picture. The real regression coverage for this
+# picker is signup-organization-picker.yaml, which this deliberately mirrors.
+#
+# THE SCREENSHOT RULE
+# Every organization in a published image must be one we are entitled to show.
+# The search term is "Pu", which on staging matches exactly ONE organization:
+# "Puente" — our own. Verified 2026-09-11 against staging (59 organizations):
+#
+#   name $regex "^Pu"  ->  ["Puente"]
+#
+# DO NOT broaden the term. A shorter or more common prefix returns real partner
+# organizations, and this image is published.
+#
+# STAGING IS ENOUGH NOW. .maestro/README.md long said this picker needs prod,
+# because staging's Organization class was empty when that was measured
+# (2026-09-02). Staging carries 59 organizations today, "Puente" among them.
+#
+# BOTH LANGUAGES
+# Text selectors match English or Spanish — Maestro matches text as a regex, and
+# Collect renders in the device language. `.maestro/capture-guide-docs.sh` sets
+# the simulator's language and passes OUT.
+#
+# Run:
+#   yarn start:staging-clear                  # Metro FIRST
+#   ./.maestro/capture-guide-docs.sh both
+appId: io.ionic.starter1270348
+---
+# Screenshot destination. `OUT` is unset by default on purpose: an unset Maestro
+# variable arrives as its own name, hence the guard.
+- evalScript: "${output.dir = (typeof OUT === 'undefined' || OUT === '' || OUT === 'OUT') ? 'docs/img/organizations' : OUT}"
+
+- launchApp:
+    clearState: false
+- runFlow: subflows/dismiss-coachmarks.yaml
+
+# The signup link sits under the sign-in form. Both catalogs render it with an
+# exclamation mark, and Spanish adds a leading inverted one.
+- extendedWaitUntil:
+    visible: "Sign Up!|¡?Regístrate!"
+    timeout: 30000
+- tapOn: "Sign Up!|¡?Regístrate!"
+- waitForAnimationToEnd
+
+# ── 1. the organization field, before anything is typed ────────────────────
+- extendedWaitUntil:
+    visible: "Organization|Organización"
+    timeout: 20000
+- takeScreenshot: ${output.dir}/collect-01-signup-organization-empty
+
+# ── 2. what a prefix suggests ──────────────────────────────────────────────
+- tapOn: "Organization|Organización"
+- inputText: "Pu"
+- extendedWaitUntil:
+    visible: "Puente"
+    timeout: 20000
+- takeScreenshot: ${output.dir}/collect-02-signup-organization-suggestions
+
+# ── 3. the choice, made ────────────────────────────────────────────────────
+- tapOn: "Puente"
+- waitForAnimationToEnd
+- assertVisible: "Puente"
+- takeScreenshot: ${output.dir}/collect-03-signup-organization-selected

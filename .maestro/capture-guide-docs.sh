@@ -57,6 +57,8 @@ capture () {
     ${out_suffix:+-e OUT="docs/img/find-records/$out_suffix"}
   yarn maestro .maestro/capture-offline-docs.yaml \
     ${out_suffix:+-e OUT="docs/img/offline/$out_suffix"}
+  yarn maestro .maestro/capture-org-signup-docs.yaml \
+    ${out_suffix:+-e OUT="docs/img/organizations/$out_suffix"}
 }
 
 case "$WHICH" in
@@ -75,3 +77,4 @@ echo
 echo "images:"
 echo "  docs/img/find-records/       docs/img/find-records/es/"
 echo "  docs/img/offline/            docs/img/offline/es/"
+echo "  docs/img/organizations/      docs/img/organizations/es/"
