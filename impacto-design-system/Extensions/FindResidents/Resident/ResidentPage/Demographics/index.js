@@ -19,7 +19,7 @@ const createDemographicsStyles = (theme) => StyleSheet.create({
   },
 });
 
-function Demographics({ dob, community, province, city, license }) {
+function Demographics({ dob, community, province, city, cedulaNumber }) {
   const theme = useTheme();
   const styles = useMemo(() => createDemographicsStyles(theme), [theme]);
   return <View style={styles.container}>
@@ -41,7 +41,7 @@ function Demographics({ dob, community, province, city, license }) {
     </Text>
     <Text style={styles.labels}>
       {I18n.t("findResident.residentPage.demographics.license")}
-      {` ${license || "—"}`}
+      {` ${cedulaNumber || "—"}`}
     </Text>
   </View>
 }

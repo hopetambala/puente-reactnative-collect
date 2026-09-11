@@ -1,5 +1,6 @@
-import { getData, storeData } from "@modules/async-storage";
+import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
+import { getFindRecordsLimit, setFindRecordsLimit } from "@modules/settings";
 import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
 import {
@@ -23,9 +24,12 @@ function FindRecords() {
 
   useEffect(() => {
     async function setUserInformation() {
-      const storedLimit = await getData("findRecordsLimit");
-      const currentLimit =
-        storedLimit === null || storedLimit === undefined ? 2000 : storedLimit;
+      // Read through @modules/settings, which owns the default and the
+      // validation. This screen used to keep its own default, while the code
+      // that actually caps the cache kept two others (1000 and 2000) and never
+      // read this key at all — so the control reported success and changed
+      // nothing.
+      const currentLimit = await getFindRecordsLimit();
       // getData returns null for a key that was never written -- on a fresh
       // install, or after "Clear Cached ID Forms". Without the guard this throws
       // and the whole screen renders empty.
@@ -89,17 +93,18 @@ function FindRecords() {
       }, 1000);
     };
 
-    await storeData(newLimit, "findRecordsLimit").then(
-      () => {
-        setUpdated(true);
-        submitAction();
-      },
-      (error) => {
-        console.log(error); //eslint-disable-line
-        setSubmitting(false);
-        handleFailedAttempt();
-      }
-    );
+    // setFindRecordsLimit REJECTS a value that would empty the cache -- a
+    // limit of 0 sends limit(0) to Parse and returns nothing. Report that
+    // instead of claiming success.
+    try {
+      await setFindRecordsLimit(newLimit);
+      setUpdated(true);
+      submitAction();
+    } catch (error) {
+      console.log(error); //eslint-disable-line
+      setSubmitting(false);
+      handleFailedAttempt();
+    }
   };
 
   const startEdit = (key) => {

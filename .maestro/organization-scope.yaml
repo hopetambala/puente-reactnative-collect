@@ -66,3 +66,24 @@ appId: io.ionic.starter1270348
       EXPECT: "Search Individual"
 - waitForAnimationToEnd
 - takeScreenshot: .claude/screenshots/organization-scope-04-find-records
+
+# --- Resident search: the path that decides whether a duplicate gets created ---
+# `parseSearch` in FindResidents/_utils used `equalTo` on the account's own
+# organization string while every other scoped read had moved to `containedIn`
+# over the alias set. This is the search that answers "does this person already
+# have a record?", so the narrow scope hid existing residents and the surveyor
+# entered them a second time.
+#
+# HONEST LIMIT OF THIS ASSERTION: the Test account's own string ('testORG') has
+# 134 of internal-test's 343 rows, so it returned SOME results even while
+# broken. What this guards is the query still working at all — a malformed
+# containedIn array, or a limit of 0, returns nothing and is caught here.
+# Proving the alias set specifically needs an account whose own string holds a
+# small share of its organization's rows (dr-missions: 11 of 633).
+- tapOn: "Search by name or ID"
+- inputText: "a"
+- extendedWaitUntil:
+    visible:
+      id: "resident-card"
+    timeout: 30000
+- takeScreenshot: .claude/screenshots/organization-scope-05-resident-search

@@ -3,6 +3,7 @@ import client from "@app/services/parse/client";
 import { getData, storeData } from "@modules/async-storage";
 import { populateCache, residentQuery } from "@modules/cached-resources";
 import { loadOrganizationScope } from "@modules/organization";
+import { getFindRecordsLimit } from "@modules/settings";
 import React, { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 import { UserContext } from "./auth.context";
@@ -27,10 +28,16 @@ export function OfflineContextProvider({ children }) {
         client(selectedENV.TEST_MODE)
       );
 
+      // The surveyor's own cap. This was hardcoded at 2000 while parseSearch
+      // hardcoded 1000 — both write `residentData`, so the last writer decided
+      // how many residents were searchable offline, and the control in
+      // Settings -> Find Records that claimed to set it was never read.
+      const limit = await getFindRecordsLimit();
+
       const queryParams = {
         skip: 0,
         offset: 0,
-        limit: 2000,
+        limit,
         parseColumn: "surveyingOrganization",
         parseParam,
       };

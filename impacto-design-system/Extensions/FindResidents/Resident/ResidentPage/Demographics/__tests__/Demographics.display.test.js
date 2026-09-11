@@ -55,3 +55,24 @@ describe('Demographics - missing fields never render "undefined"', () => {
     ).toBeDefined();
   });
 });
+
+/**
+ * The row labelled "License Number" read `selectPerson.license`, and `license`
+ * is not a field on SurveyData -- all 65 are in schema/schema.json and it is
+ * not among them. So the row showed an em dash for every resident, while the
+ * value sat in `cedulaNumber`, whose own en.json label IS "License Number".
+ */
+describe('Demographics - the national ID row', () => {
+  it('shows the cedula number rather than an em dash', () => {
+    const { getByText } = render(<Demographics cedulaNumber="402-1234567-8" />);
+
+    expect(getByText(/402-1234567-8/)).toBeTruthy();
+  });
+
+  it('still falls back to an em dash when the resident has no cedula', () => {
+    const { getByText } = render(<Demographics />);
+
+    // This RTL version's getByText takes a string or RegExp, not a predicate.
+    expect(getByText(/demographics\.license\s*—/)).toBeTruthy();
+  });
+});

@@ -4,7 +4,7 @@ import { getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
 import checkOnlineStatus from "@modules/offline";
 import { MOTION_TOKENS } from "@modules/utils/animations";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, Pressable, View } from "react-native";
 import { Button, Searchbar, Text, useTheme } from "react-native-paper";
 import Animated, { Keyframe } from "react-native-reanimated";
@@ -27,29 +27,48 @@ function ResidentIdSearchbar({
   const [residentsData, setResidentsData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [online, setOnline] = useState(true);
-  const [searchTimeout, setSearchTimeout] = useState(null);
+
+  // Monotonic fetch sequence: a response only lands if no newer fetch has
+  // started since. A slow superseded search must never overwrite the list with
+  // results for a query the surveyor has already changed.
+  const fetchSeqRef = useRef(0);
+
+  // The debounce timer lives in a ref, not state — clearing must see the
+  // latest timer even when keystrokes land inside a single render batch.
+  const searchTimeoutRef = useRef(null);
   const { residentOfflineData } = useContext(OfflineContext);
 
   useEffect(() => {
-    checkOnlineStatus().then(async (connected) => {
-      if (connected) fetchData(true, "");
-      if (!connected) fetchData(false, "");
-    });
+    fetchData("");
   }, [surveyingOrganization]);
 
-  const fetchOfflineData = async () => {
+  const fetchOfflineData = (isCurrent = () => true) => {
+    // Guard the flag too, not just the data — a superseded fetch must not flip
+    // the offline banner.
+    if (!isCurrent()) return Promise.resolve();
     setOnline(false);
 
     return residentOfflineData().then((residents) => {
+      if (!isCurrent()) return;
       setResidentsData(residents);
       setLoading(false);
     });
   };
 
-  const fetchOnlineData = async (qry) => {
+  const fetchOnlineData = async (qry, isCurrent = () => true) => {
+    if (!isCurrent()) return undefined;
     setOnline(true);
 
-    const records = await parseSearch(surveyingOrganization, qry);
+    let records;
+    try {
+      records = await parseSearch(surveyingOrganization, qry);
+    } catch (e) {
+      // Online search failed (expired session, flaky signal, server error). An
+      // unhandled rejection here left the surveyor staring at an empty list —
+      // and an empty list is how a resident who already exists gets entered a
+      // second time. Fall back to the cached residents instead.
+      return fetchOfflineData(isCurrent);
+    }
 
     let offlineData = [];
 
@@ -62,14 +81,23 @@ function ResidentIdSearchbar({
       }
     });
 
+    if (!isCurrent()) return undefined;
     const allData = records.concat(offlineData);
     setResidentsData(allData.slice());
     setLoading(false);
+    return undefined;
   };
 
-  const fetchData = (onLine, qry) => {
-    if (!onLine) fetchOfflineData();
-    if (onLine) fetchOnlineData(qry);
+  // Connectivity is resolved at fetch time — never trusted from a previous
+  // render — so a surveyor who loses (or regains) signal mid-session gets the
+  // right search path on their very next keystroke.
+  const fetchData = (qry) => {
+    fetchSeqRef.current += 1;
+    const fetchId = fetchSeqRef.current;
+    const isCurrent = () => fetchId === fetchSeqRef.current;
+    return checkOnlineStatus().then((connected) =>
+      connected ? fetchOnlineData(qry, isCurrent) : fetchOfflineData(isCurrent)
+    );
   };
 
   const filterOfflineList = () =>
@@ -90,15 +118,13 @@ function ResidentIdSearchbar({
 
     if (input === "") setLoading(false);
 
-    clearTimeout(searchTimeout);
+    clearTimeout(searchTimeoutRef.current);
 
     setQuery(input);
 
-    setSearchTimeout(
-      setTimeout(() => {
-        fetchData(online, input);
-      }, 1000)
-    );
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchData(input);
+    }, 1000);
   };
 
   const onSelectSurveyee = (listItem) => {
@@ -147,7 +173,7 @@ function ResidentIdSearchbar({
         value={query}
       />
       {!online && (
-        <Button onPress={() => fetchData(false, "")}>
+        <Button onPress={() => fetchData("")}>
           {I18n.t("global.refresh")}
         </Button>
       )}

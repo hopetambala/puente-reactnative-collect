@@ -9,7 +9,7 @@
  */
 
 import FindRecords from '@app/domains/Settings/SettingsHome/AccountSettings/FindRecords';
-import { fireEvent, render, waitFor } from '@testing-library/react-native';
+import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
 import React from 'react';
 
 jest.mock('@modules/i18n', () => ({ t: (key) => key }));
@@ -30,6 +30,14 @@ jest.mock('@app/domains/Settings/index.styles', () => ({
 jest.mock('@modules/async-storage', () => ({
   getData: jest.fn(),
   storeData: jest.fn().mockResolvedValue(undefined),
+}));
+
+const mockGetFindRecordsLimit = jest.fn().mockResolvedValue(2000);
+const mockSetFindRecordsLimit = jest.fn().mockResolvedValue(undefined);
+jest.mock('@modules/settings', () => ({
+  FIND_RECORDS_LIMIT_DEFAULT: 2000,
+  getFindRecordsLimit: (...args) => mockGetFindRecordsLimit(...args),
+  setFindRecordsLimit: (...args) => mockSetFindRecordsLimit(...args),
 }));
 
 jest.mock('react-native-paper', () => {
@@ -136,5 +144,81 @@ describe('FindRecords settings', () => {
 
       expect(getByText('500')).toBeTruthy();
     });
+  });
+});
+
+/**
+ * The control wrote `findRecordsLimit` and nothing read it, so raising it did
+ * nothing and the screen still said "You have updated your storage limit".
+ * The value now flows through @modules/settings, which every cache and search
+ * path reads — and which refuses a value that would empty the cache.
+ */
+describe('FindRecords settings - the limit is a real setting', () => {
+  let alertSpy;
+
+  // The screen confirms success from inside a 1000ms setTimeout. With real
+  // timers that callback fires AFTER this suite tears down, and it reaches for
+  // Alert in a dead environment -- which surfaces as a failure in whichever
+  // unrelated suite happens to run next. Fake timers keep it inside the test.
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers();
+    const { getData: gd } = require('@modules/async-storage'); // eslint-disable-line global-require
+    gd.mockResolvedValue(null);
+    mockGetFindRecordsLimit.mockResolvedValue(2000);
+    mockSetFindRecordsLimit.mockResolvedValue(undefined);
+    // eslint-disable-next-line global-require
+    alertSpy = jest.spyOn(require('react-native').Alert, 'alert').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    // Drain anything the screen scheduled while the environment is still alive.
+    act(() => { jest.runOnlyPendingTimers(); });
+    jest.useRealTimers();
+    alertSpy.mockRestore();
+  });
+
+  const mount = async () => {
+    const utils = render(<FindRecords />);
+    await act(async () => {}); // flush the mount effect that reads the setting
+    return utils;
+  };
+
+  const setLimitTo = async (utils, value) => {
+    await act(async () => { fireEvent.press(utils.getByTestId('edit-currentLimit')); });
+    await act(async () => { fireEvent.changeText(utils.getByTestId('input-currentLimit'), value); });
+    await act(async () => { fireEvent.press(utils.getByTestId('confirm-currentLimit')); });
+    await act(async () => { fireEvent.press(utils.getByText('global.submit')); });
+  };
+
+  it('reads the current limit through the shared setting, not a local default', async () => {
+    mockGetFindRecordsLimit.mockResolvedValue(5000);
+
+    const utils = await mount();
+
+    expect(mockGetFindRecordsLimit).toHaveBeenCalled();
+    expect(utils.getByText('5000')).toBeTruthy();
+  });
+
+  it('persists through the shared setter so the cache paths see the change', async () => {
+    const utils = await mount();
+
+    await setLimitTo(utils, '5000');
+
+    expect(mockSetFindRecordsLimit).toHaveBeenCalledWith(5000);
+  });
+
+  // A zero limit sends limit(0) to Parse, which returns nothing -- it would
+  // empty the offline register of whoever mistyped it. The setter rejects, and
+  // the screen must report that rather than claiming success.
+  it('reports failure when the limit is refused, instead of claiming success', async () => {
+    mockSetFindRecordsLimit.mockRejectedValue(new Error('refused'));
+
+    const utils = await mount();
+    await setLimitTo(utils, '0');
+
+    const titles = alertSpy.mock.calls.map(([title]) => title);
+    expect(titles).toContain('global.error');
+    expect(titles).not.toContain('global.success');
   });
 });

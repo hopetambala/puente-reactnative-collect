@@ -86,7 +86,7 @@ function ResidentPage({
         city={city}
         community={selectPerson.communityname}
         province={selectPerson.province}
-        license={selectPerson.license}
+        cedulaNumber={selectPerson.cedulaNumber}
         selectPerson={selectPerson}
       />
       {navigateToNewRecord && puenteForms?.length > 0 && (
