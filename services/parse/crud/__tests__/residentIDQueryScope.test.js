@@ -15,6 +15,7 @@ const mockQuery = {
   limit: jest.fn(function l() { return this; }),
   equalTo: jest.fn(function e(...a) { constraints.push(['equalTo', ...a]); return this; }),
   containedIn: jest.fn(function c(...a) { constraints.push(['containedIn', ...a]); return this; }),
+  exclude: jest.fn(function x() { return this; }),
   find: jest.fn(() => Promise.resolve([])),
 };
 
@@ -48,5 +49,26 @@ describe('residentIDQuery organization scoping', () => {
     expect(constraints).toContainEqual([
       'containedIn', 'surveyingOrganization', ['Peace Corps'],
     ]);
+  });
+});
+
+/**
+ * The other cache writer. residentIDQuery fills the same `residentData` key as
+ * parseSearch, so if only one of them excludes the heavy fields the cache
+ * contents depend on which path last wrote it — the exact drift that let the
+ * two resident searches diverge in the first place.
+ */
+describe('residentIDQuery payload', () => {
+  beforeEach(() => { constraints.length = 0; jest.clearAllMocks(); });
+
+  test('excludes the heavy fields no resident screen reads', async () => {
+    await residentIDQuery({ parseParam: ['testORG'], limit: 10 });
+
+    expect(mockQuery.exclude).toHaveBeenCalled();
+    const excluded = mockQuery.exclude.mock.calls[0];
+    expect(excluded).toEqual(expect.arrayContaining(['searchIndex', 'signature', 'location']));
+    // picture is DISPLAYED by ResidentPage; excluding it blanks the photo,
+    // offline especially, where there is no refetch to repair it.
+    expect(excluded).not.toContain('picture');
   });
 });

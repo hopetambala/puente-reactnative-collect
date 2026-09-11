@@ -106,6 +106,43 @@ export async function loadOrganizationScope(organization, parseInstance) {
   return organizationMatchValues(organization, organizations);
 }
 
+/**
+ * The organization scope, served from cache when there is one.
+ *
+ * `loadOrganizationScope` above queries the Organization class on every call,
+ * which is correct for the deliberate populate paths — they run once and should
+ * pick up alias edits. Resident search is different: it calls this on every
+ * debounced keystroke, and hitting the network for a table that changes maybe
+ * monthly turned a one-round-trip search into two. On a field connection that
+ * doubles the latency of every search a surveyor types.
+ *
+ * Reads the set the populate paths already persisted, and only goes to the
+ * network when nothing is cached at all. Like its sibling it narrows, never
+ * blanks: any failure falls back to [organization].
+ */
+export async function loadOrganizationScopeCached(organization, parseInstance) {
+  let organizations = null;
+  try {
+    organizations = await getData(ORGANIZATION_CACHE_KEY);
+  } catch (error) {
+    organizations = null;
+  }
+
+  // Nothing cached yet — a fresh install, or a sign-in before any populate
+  // path has run. (The "Clear Cached ID Forms" control does NOT reach this key;
+  // invalidateResidentCache deletes only `residentData`.) Pay for the read
+  // once; loadOrganizationScope writes the cache on its way through.
+  //
+  // Staleness is bounded: useHomeStats, offline.context and cached-resources
+  // all still call the uncached resolver, so alias edits land on the next home
+  // screen load rather than needing a reinstall.
+  if (!organizations || !organizations.length) {
+    return loadOrganizationScope(organization, parseInstance);
+  }
+
+  return organizationMatchValues(organization, organizations);
+}
+
 /** Never offered to a new account: a junk bucket, not a partner. */
 const NON_SELECTABLE_SHORT_CODES = new Set(["internal-test"]);
 

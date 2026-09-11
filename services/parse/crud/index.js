@@ -1,5 +1,6 @@
 import selectedENV from "@app/environment";
 import client from "@app/services/parse/client";
+import { RESIDENT_PAYLOAD_EXCLUDED_FIELDS } from "@modules/resident-fields";
 
 import {
   customMultiParamQueryService,
@@ -57,6 +58,10 @@ function residentIDQuery(params) {
       Array.isArray(parseParam) ? parseParam : [parseParam]
     );
     query.limit(limit);
+
+    // Same denylist as parseSearch: both write `residentData`, so if only one
+    // excluded these the cache contents would depend on which path wrote last.
+    query.exclude(...RESIDENT_PAYLOAD_EXCLUDED_FIELDS);
 
     query.find().then(
       (records) => {

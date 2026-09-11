@@ -11,6 +11,7 @@ const mockCompositeQuery = {
   descending: jest.fn(),
   equalTo: jest.fn(),
   containedIn: jest.fn(),
+  exclude: jest.fn(),
   limit: jest.fn(),
   find: mockFind,
 };
@@ -21,6 +22,7 @@ const mockCompositeQuery = {
 const mockLoadOrganizationScope = jest.fn();
 jest.mock('@modules/organization', () => ({
   loadOrganizationScope: (...args) => mockLoadOrganizationScope(...args),
+  loadOrganizationScopeCached: (...args) => mockLoadOrganizationScope(...args),
 }));
 
 const mockGetFindRecordsLimit = jest.fn();
@@ -139,6 +141,20 @@ describe('parseSearch - case-insensitive resident search', () => {
 
     const fields = mockSubQueries.flatMap((q) => q.matches.mock.calls.map(([field]) => field));
     expect(fields).toContain('nickname');
+  });
+
+// Every field SurveyData carries is transferred unless excluded, and this
+  // query's results become the offline resident cache. Measured 2026-09-11:
+  // 892 bytes/row, 1.70 MB at the 2000-row cap.
+  test('excludes the heavy fields no resident screen reads', async () => {
+    await parseSearch('testORG', '');
+
+    expect(mockCompositeQuery.exclude).toHaveBeenCalled();
+    const excluded = mockCompositeQuery.exclude.mock.calls[0];
+    expect(excluded).toEqual(expect.arrayContaining(['searchIndex', 'signature', 'location']));
+    // picture is DISPLAYED by ResidentPage -- excluding it would blank the
+    // resident's photo, offline especially, where there is no refetch.
+    expect(excluded).not.toContain('picture');
   });
 
   test('scopes to the organization and resolves serialized results', async () => {

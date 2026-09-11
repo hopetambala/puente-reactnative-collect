@@ -67,6 +67,10 @@ function ResidentIdSearchbar({
       // unhandled rejection here left the surveyor staring at an empty list —
       // and an empty list is how a resident who already exists gets entered a
       // second time. Fall back to the cached residents instead.
+      //
+      // Logged rather than swallowed silently: a fallback that never surfaces
+      // means an expired session looks exactly like "this person is new".
+      console.log("resident search failed, using cached residents:", String(e)); //eslint-disable-line
       return fetchOfflineData(isCurrent);
     }
 

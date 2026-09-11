@@ -1,6 +1,7 @@
 import { getData, storeData } from "@modules/async-storage";
 import {
   loadOrganizationScope,
+  loadOrganizationScopeCached,
   loadSelectableOrganizations,
   organizationMatchValues,
 } from "@modules/organization";
@@ -187,5 +188,83 @@ describe("loadSelectableOrganizations", () => {
     const Parse = parseStub([], { shouldThrow: true });
 
     expect(await loadSelectableOrganizations(Parse)).toEqual([]);
+  });
+});
+
+/**
+ * loadOrganizationScopeCached — RED-GREEN TDD
+ *
+ * `loadOrganizationScope` queries the Organization class on EVERY call and only
+ * reads its AsyncStorage cache when that query fails. That is right for the
+ * deliberate cache-populate paths, which run once and should get fresh aliases.
+ *
+ * It is wrong for resident search, which calls it on every debounced keystroke:
+ * it turned a one-round-trip search into two, and the second one fetches a
+ * table of organizations that changes maybe monthly. On the connection this app
+ * exists to work on, that doubles the latency of every search a surveyor types.
+ *
+ * The alias set is already persisted by every populate path, so search reads it
+ * and only goes to the network when there is nothing cached at all.
+ */
+describe("loadOrganizationScopeCached", () => {
+  const makeParse = (records, { onFind } = {}) => ({
+    Query: function Query() {
+      const q = {
+        select: () => q,
+        limit: () => q,
+        find: async () => {
+          if (onFind) onFind();
+          return records;
+        },
+      };
+      return q;
+    },
+  });
+
+  const cachedOrgs = [
+    { objectId: "o1", name: "DR Missions", shortCode: "dr-missions", aliases: ["DR Missions", "DRMT"] },
+  ];
+
+  beforeEach(() => {
+    getData.mockReset();
+    storeData.mockReset();
+  });
+
+  it("resolves the alias set from cache without touching the network", async () => {
+    getData.mockResolvedValue(cachedOrgs);
+    let hits = 0;
+    const parse = makeParse([], { onFind: () => { hits += 1; } });
+
+    const values = await loadOrganizationScopeCached("DRMT", parse);
+
+    expect(values.sort()).toEqual(["DR Missions", "DRMT"]);
+    expect(hits).toBe(0);
+  });
+
+  it("falls back to the network the first time, when nothing is cached yet", async () => {
+    getData.mockResolvedValue(null);
+    let hits = 0;
+    const record = {
+      id: "o1",
+      get: (k) => ({ name: "DR Missions", shortCode: "dr-missions", aliases: ["DR Missions", "DRMT"] }[k]),
+    };
+    const parse = makeParse([record], { onFind: () => { hits += 1; } });
+
+    const values = await loadOrganizationScopeCached("DRMT", parse);
+
+    expect(values.sort()).toEqual(["DR Missions", "DRMT"]);
+    expect(hits).toBe(1);
+  });
+
+  it("never blanks the scope when both cache and network fail", async () => {
+    getData.mockRejectedValue(new Error("storage unavailable"));
+    const parse = {
+      Query: function Query() {
+        const q = { select: () => q, limit: () => q, find: async () => { throw new Error("offline"); } };
+        return q;
+      },
+    };
+
+    await expect(loadOrganizationScopeCached("DRMT", parse)).resolves.toEqual(["DRMT"]);
   });
 });

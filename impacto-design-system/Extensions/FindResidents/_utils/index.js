@@ -1,4 +1,5 @@
-import { loadOrganizationScope } from "@modules/organization";
+import { loadOrganizationScopeCached } from "@modules/organization";
+import { RESIDENT_PAYLOAD_EXCLUDED_FIELDS } from "@modules/resident-fields";
 import { getFindRecordsLimit } from "@modules/settings";
 import { Parse } from "parse/react-native";
 
@@ -70,9 +71,12 @@ const parseSearch = async (surveyingOrganization, qry) => {
   // this is the search that answers "does this person already have a record?",
   // the missing 87% came back as a NEW resident.
   //
-  // loadOrganizationScope caches to AsyncStorage so it still resolves offline,
-  // and falls back to [organization] on failure: it narrows, never blanks.
-  const organizationValues = await loadOrganizationScope(surveyingOrganization);
+  // The CACHED resolver: search runs on every debounced keystroke, and hitting
+  // the network for a table that changes monthly made every search two
+  // round-trips instead of one. It reads the set the populate paths persist,
+  // falls back to the network only when nothing is cached, and falls back to
+  // [organization] on any failure — it narrows, never blanks.
+  const organizationValues = await loadOrganizationScopeCached(surveyingOrganization);
 
   // The surveyor's own cap (Settings -> Find Records), not a hardcoded one.
   const limit = await getFindRecordsLimit();
@@ -92,6 +96,11 @@ const parseSearch = async (surveyingOrganization, qry) => {
     // limits under Query.or and defaults the composite to 100, which would
     // silently cap the auto-populated offline cache.
     query.limit(limit);
+
+    // 892 -> 662 bytes/row. These results become the offline resident cache,
+    // so this is a denylist of proven-unused fields, never an allowlist: a
+    // missing field would surface offline as an unlinkable resident.
+    query.exclude(...RESIDENT_PAYLOAD_EXCLUDED_FIELDS);
 
     query.descending("updatedAt");
 

@@ -1,4 +1,5 @@
-import { loadOrganizationScope } from "@modules/organization";
+import { loadOrganizationScopeCached } from "@modules/organization";
+import { RESIDENT_PAYLOAD_EXCLUDED_FIELDS } from "@modules/resident-fields";
 import { getFindRecordsLimit } from "@modules/settings";
 import { Parse } from "parse/react-native";
 
@@ -41,7 +42,7 @@ const parseSearch = async (surveyingOrganization, qry) => {
   // SurveyData rows under "DRMT" against 11 under "DR Missions", so an account
   // holding the latter searched 1.8% of its own residents and was told nothing
   // was wrong.
-  const organizationValues = await loadOrganizationScope(surveyingOrganization);
+  const organizationValues = await loadOrganizationScopeCached(surveyingOrganization);
   const limit = await getFindRecordsLimit();
 
   const anchoredQuery = `^${escapeRegex(qry)}`;
@@ -63,6 +64,11 @@ const parseSearch = async (surveyingOrganization, qry) => {
     // `restOptions.limit = restOptions.limit || 100`). This searchbar asked for
     // 3000 on the subqueries and was silently capped at 100.
     query.limit(limit);
+
+    // 892 -> 662 bytes/row. These results become the offline resident cache,
+    // so this is a denylist of proven-unused fields, never an allowlist: a
+    // missing field would surface offline as an unlinkable resident.
+    query.exclude(...RESIDENT_PAYLOAD_EXCLUDED_FIELDS);
 
     query.descending("createdAt");
 
