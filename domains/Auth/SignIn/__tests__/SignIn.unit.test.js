@@ -32,6 +32,15 @@ describe('SignIn automation hooks', () => {
     ['username field', 'signin-username'],
     ['password field', 'signin-password'],
     ['submit button', 'signin-submit'],
+    // Typing into an iOS SECURE text field crashes Maestro's XCUITest driver
+    // ("Failed to connect to 127.0.0.1:<port>", driver restarts). The E2E
+    // harness therefore cannot sign in from a cleared state at all -- which
+    // visual-qa.yaml causes on every run, since it launches with
+    // clearState: true. Toggling the field to plain text first avoids the
+    // crash, so the toggle needs an ID the flows can address. Tapping it by
+    // coordinate is what this whole set of IDs exists to stop: a drifted tap
+    // lands on empty space and fails later somewhere unrelated.
+    ['password visibility toggle', 'signin-password-visibility'],
   ])('exposes the %s as testID "%s"', (_label, testID) => {
     const { getByTestId } = renderSignIn();
 

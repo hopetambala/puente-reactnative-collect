@@ -16,6 +16,11 @@ jest.mock("@modules/cached-resources", () => ({
   populateCache: jest.fn(),
 }));
 
+const mockGetFindRecordsLimit = jest.fn();
+jest.mock("@modules/settings", () => ({
+  getFindRecordsLimit: (...args) => mockGetFindRecordsLimit(...args),
+}));
+
 const mockUser = { organization: "test-org", objectId: "u1" };
 
 function TestConsumer({ onContext }) {
@@ -203,5 +208,49 @@ describe("OfflineContext — populateResidentDataCache", () => {
         await capturedCtx.populateResidentDataCache();
       })
     ).rejects.toThrow("cache failure");
+  });
+});
+
+/**
+ * The "Record storage limit" control in Settings -> Find Records wrote
+ * `findRecordsLimit` and nothing read it: the cap here was hardcoded at 2000
+ * while parseSearch hardcoded 1000, so whichever path last wrote residentData
+ * decided how many residents were searchable offline. Both now read the
+ * surveyor's setting.
+ */
+describe("OfflineContext - residentOnlineData honours the storage limit", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    storeData.mockResolvedValue(undefined);
+    getData.mockResolvedValue(null);
+    residentQuery.mockResolvedValue([]);
+    mockGetFindRecordsLimit.mockResolvedValue(2000);
+  });
+
+  it("passes the surveyor's configured limit to residentQuery", async () => {
+    mockGetFindRecordsLimit.mockResolvedValue(5000);
+    let ctx;
+    renderWithContext((c) => { ctx = c; });
+
+    await act(async () => {
+      await ctx.residentOnlineData();
+    });
+
+    expect(residentQuery).toHaveBeenCalledWith(
+      expect.objectContaining({ limit: 5000 })
+    );
+  });
+
+  it("defaults to 2000 when the surveyor never set one", async () => {
+    let ctx;
+    renderWithContext((c) => { ctx = c; });
+
+    await act(async () => {
+      await ctx.residentOnlineData();
+    });
+
+    expect(residentQuery).toHaveBeenCalledWith(
+      expect.objectContaining({ limit: 2000 })
+    );
   });
 });

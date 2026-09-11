@@ -1,0 +1,66 @@
+# Puente Collect — resident search by ID and nickname.
+#
+# WHY THIS EXISTS
+# The searchbar's placeholder says "Search by name or ID" and there was no ID
+# search: the query only ever matched fname and lname. A surveyor who typed a
+# resident's cedula got an empty list, and an empty list is how a person who
+# already has a record gets entered a second time. The offline list filter also
+# matched `nickname` while the online query did not, so the same search returned
+# different people depending on whether there was signal.
+#
+# WHY THESE TWO SEARCH TERMS
+# Both were chosen against staging (app id ZvGwjA7c…, measured 2026-09-10) so
+# that each isolates ONE field and each fails on the old code:
+#
+#   "0898"  matches cedulaNumber 08985784678456 (Ana Testss) and NOTHING in
+#           fname / lname / nickname / householdId anywhere in scope.
+#   "Anns"  matches nickname "Anns" on that same record and NOTHING in
+#           fname / lname / cedulaNumber / householdId.
+#
+# Both records carry surveyingOrganization "testOrganization", which is an ALIAS
+# of internal-test, not the "Test" string on the account. So each assertion also
+# proves the alias-set scoping: under the old `equalTo("surveyingOrganization",
+# "Test")` both searches returned 0 rows.
+#
+#   old code: 0 results for either term  ->  this flow fails
+#   new code: 1 result for each          ->  this flow passes
+#
+# The records are synthetic staging fixtures ("Ana Testss"), not real residents.
+# If staging is reseeded and these disappear, re-derive the terms rather than
+# loosening the assertions — a search term that any name could also match
+# proves nothing.
+#
+# Run:
+#   yarn start:staging-clear      # Metro FIRST
+#   yarn maestro .maestro/resident-search-by-id.yaml
+appId: io.ionic.starter1270348
+---
+- launchApp
+
+- runFlow: subflows/login.yaml
+
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: "tab-find-records"
+      EXPECT: "Search Individual"
+- waitForAnimationToEnd
+
+# ─── 1. the ID the placeholder promises ────────────────────────────────────
+- tapOn: "Search by name or ID"
+- inputText: "0898"
+- extendedWaitUntil:
+    visible:
+      id: "resident-card"
+    timeout: 30000
+# The name confirms it is the RIGHT record, not merely that some row rendered.
+- assertVisible: ".*Testss.*"
+
+# ─── 2. nickname, which only the offline filter used to match ──────────────
+- eraseText: 10
+- inputText: "Anns"
+- extendedWaitUntil:
+    visible:
+      id: "resident-card"
+    timeout: 30000
+- assertVisible: ".*Testss.*"

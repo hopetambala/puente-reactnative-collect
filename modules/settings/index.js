@@ -60,14 +60,64 @@ const setStartingPattern = async (pattern) =>
 const getStartingPattern = async () =>
   getData(STARTING_PATTERN_KEY);
 
+/**
+ * How many residents Find Records keeps searchable.
+ *
+ * Settings -> Find Records has offered this control for a long time, but
+ * nothing read the key it wrote: the real caps were hardcoded, and they
+ * disagreed (parseSearch used 1000, residentQuery used 2000), so whichever
+ * path last wrote `residentData` decided how much of the register a surveyor
+ * could search offline. Every cache and search path now reads this.
+ *
+ * It is a CAP on a query, so a non-positive value would return nothing and
+ * empty the cache of whoever mistyped it. Anything not a positive, finite
+ * number folds back to the default rather than being trusted.
+ */
+const FIND_RECORDS_LIMIT_KEY = "findRecordsLimit";
+const FIND_RECORDS_LIMIT_DEFAULT = 2000;
+
+const isUsableLimit = (value) => {
+  // Arrays and objects coerce to numbers in ways nobody means: Number([]) is 0
+  // and Number(["5"]) is 5. Only numbers and numeric strings are considered.
+  if (typeof value !== "number" && typeof value !== "string") return false;
+  if (typeof value === "string" && value.trim() === "") return false;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0;
+};
+
+const getFindRecordsLimit = async () => {
+  // A read failure must not blank the cache — fall back, never throw.
+  let stored;
+  try {
+    stored = await getData(FIND_RECORDS_LIMIT_KEY);
+  } catch (error) {
+    return FIND_RECORDS_LIMIT_DEFAULT;
+  }
+  // Older builds stored whatever string the keyboard produced.
+  return isUsableLimit(stored) ? Number(stored) : FIND_RECORDS_LIMIT_DEFAULT;
+};
+
+const setFindRecordsLimit = async (value) => {
+  if (!isUsableLimit(value)) {
+    throw new Error(
+      `findRecordsLimit must be a positive number, got ${JSON.stringify(value)}`
+    );
+  }
+  return storeData(Number(value), FIND_RECORDS_LIMIT_KEY);
+};
+
 export {
   clearOnboardingData,
   clearOnboardingStep,
+  FIND_RECORDS_LIMIT_DEFAULT,
+  FIND_RECORDS_LIMIT_KEY,
+  getFindRecordsLimit,
   getHasSeenCoachmark,
   getHasSeenCoachmarks,
   getHasSeenOnboarding,
   getOnboardingStep,
   getStartingPattern,
+  setFindRecordsLimit,
   setHasSeenCoachmark,
   setHasSeenCoachmarks,
   setHasSeenOnboarding,

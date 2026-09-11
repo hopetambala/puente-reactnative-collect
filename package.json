@@ -46,7 +46,7 @@
     "release-major": "standard-version --release-as major",
     "postinstall": "patch-package",
     "post-version": "node scripts/update-version/versionNumber.js",
-    "maestro": "JAVA_HOME=/opt/homebrew/opt/openjdk PATH=/opt/homebrew/opt/openjdk/bin:$PATH maestro test -e PARSE_USERNAME=Test -e PARSE_PASSWORD=test",
+    "maestro": "node scripts/maestro-preflight.js && JAVA_HOME=/opt/homebrew/opt/openjdk PATH=/opt/homebrew/opt/openjdk/bin:$PATH maestro test -e PARSE_USERNAME=Test -e PARSE_PASSWORD=test",
     "lint:maestro": "node scripts/lint-maestro.js",
     "maestro:stability": "bash scripts/maestro-stability.sh",
     "lint:tokens": "node scripts/lint-tokens.js"

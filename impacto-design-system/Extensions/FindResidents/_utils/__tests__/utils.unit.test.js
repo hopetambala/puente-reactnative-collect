@@ -10,9 +10,25 @@ const mockSubQueries = [];
 const mockCompositeQuery = {
   descending: jest.fn(),
   equalTo: jest.fn(),
+  containedIn: jest.fn(),
+  exclude: jest.fn(),
   limit: jest.fn(),
   find: mockFind,
 };
+
+// Resolving the organization's full alias set is what makes the search find a
+// resident collected under a sibling string. Mocked so the test asserts the
+// CALL, not the network.
+const mockLoadOrganizationScope = jest.fn();
+jest.mock('@modules/organization', () => ({
+  loadOrganizationScope: (...args) => mockLoadOrganizationScope(...args),
+  loadOrganizationScopeCached: (...args) => mockLoadOrganizationScope(...args),
+}));
+
+const mockGetFindRecordsLimit = jest.fn();
+jest.mock('@modules/settings', () => ({
+  getFindRecordsLimit: (...args) => mockGetFindRecordsLimit(...args),
+}));
 
 jest.mock('parse/react-native', () => {
   const QueryMock = jest.fn(() => {
@@ -39,6 +55,8 @@ describe('parseSearch - case-insensitive resident search', () => {
     jest.clearAllMocks();
     mockSubQueries.length = 0;
     mockFind.mockResolvedValue([]);
+    mockLoadOrganizationScope.mockResolvedValue(['testORG']);
+    mockGetFindRecordsLimit.mockResolvedValue(2000);
   });
 
   // Production data proved the old startsWith search is case-sensitive:
@@ -77,7 +95,66 @@ describe('parseSearch - case-insensitive resident search', () => {
   test('sets the limit on the composite OR query, not just the subqueries', async () => {
     await parseSearch('testORG', '');
 
-    expect(mockCompositeQuery.limit).toHaveBeenCalledWith(1000);
+    expect(mockCompositeQuery.limit).toHaveBeenCalledWith(2000);
+  });
+
+  // The cap is the surveyor's own setting. It was hardcoded at 1000 here and
+  // 2000 in residentQuery, so whichever path wrote residentData last decided
+  // how many residents were searchable offline.
+  test('takes its cap from the findRecordsLimit setting', async () => {
+    mockGetFindRecordsLimit.mockResolvedValue(5000);
+
+    await parseSearch('testORG', '');
+
+    expect(mockCompositeQuery.limit).toHaveBeenCalledWith(5000);
+  });
+
+/**
+   * "Search by name or ID" promised an ID search that did not exist: the query
+   * only ever matched fname and lname. A surveyor who typed a resident's
+   * cedula got nothing back and could reasonably conclude the person was not
+   * in the system -- then entered them again.
+   *
+   * cedulaNumber is the Dominican national identity card. Its own label in
+   * en.json is "License Number" and in es.json "Numero de cedula", so it IS
+   * the "ID" the placeholder means. householdId is the other identifier field
+   * staff actually read off a form.
+   *
+   * NOT using fullTextSearchIndex: IdentificationForm writes it only at
+   * collection time (index.js:199-208, holding fname/lname/nickname/
+   * communityname -- no ID at all), so historical records predating it have no
+   * value and would vanish from search.
+   */
+  test('matches the resident ID fields a surveyor would actually type', async () => {
+    await parseSearch('testORG', '402');
+
+    const fields = mockSubQueries.flatMap((q) => q.matches.mock.calls.map(([field]) => field));
+    expect(fields).toEqual(
+      expect.arrayContaining(['fname', 'lname', 'nickname', 'cedulaNumber', 'householdId'])
+    );
+  });
+
+  // The offline list filter already matched nickname while the online query did
+  // not, so the same query returned different people with and without signal.
+  test('matches nickname online, as the offline filter already did', async () => {
+    await parseSearch('testORG', 'chichi');
+
+    const fields = mockSubQueries.flatMap((q) => q.matches.mock.calls.map(([field]) => field));
+    expect(fields).toContain('nickname');
+  });
+
+// Every field SurveyData carries is transferred unless excluded, and this
+  // query's results become the offline resident cache. Measured 2026-09-11:
+  // 892 bytes/row, 1.70 MB at the 2000-row cap.
+  test('excludes the heavy fields no resident screen reads', async () => {
+    await parseSearch('testORG', '');
+
+    expect(mockCompositeQuery.exclude).toHaveBeenCalled();
+    const excluded = mockCompositeQuery.exclude.mock.calls[0];
+    expect(excluded).toEqual(expect.arrayContaining(['searchIndex', 'signature', 'location']));
+    // picture is DISPLAYED by ResidentPage -- excluding it would blank the
+    // resident's photo, offline especially, where there is no refetch.
+    expect(excluded).not.toContain('picture');
   });
 
   test('scopes to the organization and resolves serialized results', async () => {
@@ -85,8 +162,42 @@ describe('parseSearch - case-insensitive resident search', () => {
 
     const result = await parseSearch('testORG', 'ana');
 
-    expect(mockCompositeQuery.equalTo).toHaveBeenCalledWith('surveyingOrganization', 'testORG');
+    expect(mockCompositeQuery.containedIn).toHaveBeenCalledWith(
+      'surveyingOrganization',
+      ['testORG']
+    );
     expect(result).toEqual([]);
+  });
+
+  /**
+   * The bug this replaces. Records carry the organization string that was
+   * COLLECTED, and one organization's records are spread across every string
+   * it has ever been called. Measured in production 2026-08-28 (app id
+   * vBdTHqQU31), SurveyData rows:
+   *
+   *   Rayjon Eye Clinic  1196     Rayjon        185   -> an account saying
+   *                                                      "Rayjon" saw 13%
+   *   DRMT                611     DR Missions    11   -> saw 1.8%
+   *
+   * Collect's own CLAUDE.md already mandates `containedIn, never equalTo` for
+   * this column. This call site was missed, and it is the one a surveyor uses
+   * to check whether a resident already exists — so the narrow scope hid the
+   * existing person and the surveyor created them a second time.
+   */
+  test('matches EVERY organization string, never just the account’s own', async () => {
+    mockLoadOrganizationScope.mockResolvedValue(['Rayjon', 'Rayjon Eye Clinic']);
+
+    await parseSearch('Rayjon', 'ana');
+
+    expect(mockLoadOrganizationScope).toHaveBeenCalledWith('Rayjon');
+    expect(mockCompositeQuery.containedIn).toHaveBeenCalledWith(
+      'surveyingOrganization',
+      ['Rayjon', 'Rayjon Eye Clinic']
+    );
+    expect(mockCompositeQuery.equalTo).not.toHaveBeenCalledWith(
+      'surveyingOrganization',
+      'Rayjon'
+    );
   });
 });
 

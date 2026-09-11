@@ -264,6 +264,11 @@ function SignIn({ navigation, route }) {
                     value={formikProps.values.password}
                     right={
                       <TextInput.Icon
+                        // Addressable by ID because the E2E harness has to tap
+                        // it BEFORE typing: typing into an iOS secure field
+                        // crashes Maestro's XCUITest driver, so the harness
+                        // cannot sign in from a cleared state without this.
+                        testID="signin-password-visibility"
                         icon={checked ? "eye-off" : "eye"}
                         onPress={() => setChecked(!checked)}
                         color={theme.colors.textSecondary}
