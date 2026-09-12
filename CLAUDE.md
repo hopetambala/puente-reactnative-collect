@@ -365,9 +365,23 @@ That is the whole bump. `standard-version` bumps `package.json`, and its
 | File | What it gets |
 |---|---|
 | `app.json` → `version` | the version string — **the TRAIN Apple gates on** |
-| `app.json` → `ios.buildNumber` | the same string |
-| `app.json` → `android.versionCode` | `490` + zero-padded major/minor/patch, monotonic |
-| `ios/Collect/Info.plist` | both `CFBundleShortVersionString` and `CFBundleVersion` |
+| `app.json` → `ios.buildNumber` | a plain counter, one higher than whatever is there |
+| `app.json` → `android.versionCode` | `490` + zero-padded major/minor/patch, **floored** at one above the current code |
+| `ios/Collect/Info.plist` | `CFBundleShortVersionString` (train) and `CFBundleVersion` (counter) |
+
+**The build number is NOT the version.** It used to be, and EAS
+`autoIncrement` then moved it, so App Store Connect read "Version 15.7.2 /
+Build 15.7.4" — three numbers that look like versions, none of them the
+version. `CFBundleVersion` only has to be unique inside its
+`CFBundleShortVersionString` train, so it is now a plain counter that restarts
+on a version bump.
+
+**Both numbers are FLOORS, not answers.** `eas.json` sets `autoIncrement` on
+both platforms, so EAS moves them too — it takes `490150702` to `490150703` on
+a rebuild. Deriving the same number again at the next release hands Play a code
+it has already seen, and Play refuses the upload with "You've already submitted
+this version of the app." That happened on 2026-09-11, when only iOS had
+`autoIncrement` and two Android builds of 15.7.2 both carried `490150702`.
 
 **Do not hand-edit any of these.** Five files that must agree is exactly the
 shape that drifts. If the script is missing something, fix the script and add a

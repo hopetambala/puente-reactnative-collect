@@ -18,5 +18,5 @@ module.exports.readVersion = function readVersion(contents) {
 };
 
 module.exports.writeVersion = function writeVersion(contents, version) {
-  return updateInfoPlist(contents, version);
+  return updateInfoPlist(contents, { shortVersion: version });
 };

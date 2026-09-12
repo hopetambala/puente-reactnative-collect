@@ -104,13 +104,21 @@ describe('.versionrc bumpFiles', () => {
       expect(updater().readVersion(PLIST)).toBe('15.7.1');
     });
 
-    it('writes both version keys and leaves every other key alone', () => {
+    it('writes the TRAIN only, and leaves every other key alone', () => {
       const out = updater().writeVersion(PLIST, '15.7.2');
 
       expect(out).toContain('<key>CFBundleShortVersionString</key>\n    <string>15.7.2</string>');
-      expect(out).toContain('<key>CFBundleVersion</key>\n    <string>15.7.2</string>');
       expect(out).toContain('<key>ITSAppUsesNonExemptEncryption</key>');
-      expect(out).not.toContain('15.7.1');
+    });
+
+    // standard-version knows the version and nothing about build numbers.
+    // CFBundleVersion belongs to the postbump hook, which runs afterwards;
+    // stamping the version over it here would be wrong even though postbump
+    // would immediately correct it.
+    it('does not touch the build number', () => {
+      const out = updater().writeVersion(PLIST, '15.7.2');
+
+      expect(out).toContain('<key>CFBundleVersion</key>\n    <string>15.7.1</string>');
     });
   });
 });
