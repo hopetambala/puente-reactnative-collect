@@ -175,11 +175,22 @@ describe('Metro readiness', () => {
     await expect(isMetroUp(fetcher)).resolves.toBe(false);
   });
 
-  it('treats a probe that throws synchronously as "cannot tell", not "down"', async () => {
-    // Never block a run because the CHECK broke.
-    const fetcher = () => { throw new Error('fetch is not defined'); };
+  it('gives up rather than hanging when something listens but never answers', async () => {
+    // A preflight that hangs is worse than no preflight: it blocks every run,
+    // and the person waiting has no idea the GUARD is the thing stuck. The
+    // probe must carry its own deadline rather than inheriting fetch's
+    // (which is effectively none).
+    // Stands in for a socket that is open but silent. Rejects on abort, which
+    // is what a real fetch does — a fake that ignores the signal would pass
+    // this test against an implementation that hangs forever.
+    let signalSeen = null;
+    const fetcher = (_url, options) => new Promise((_resolve, reject) => {
+      signalSeen = options.signal;
+      options.signal.addEventListener('abort', () => reject(new Error('aborted')));
+    });
 
-    await expect(isMetroUp(fetcher)).resolves.toBe(true);
+    await expect(isMetroUp(fetcher, 20)).resolves.toBe(false);
+    expect(signalSeen.aborted).toBe(true);
   });
 
   it('names the packager and the command that starts it', () => {

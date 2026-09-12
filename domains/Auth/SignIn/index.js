@@ -1,6 +1,8 @@
 import PuenteLogo from "@app/assets/graphics/static/Logo-Black.svg";
 import FormInput from "@impacto-design-system/Extensions/FormikFields/FormInput";
-import LanguagePicker from "@impacto-design-system/Extensions/LanguagePicker";
+import LanguagePicker, {
+  OFFERED_LANGUAGE_KEYS,
+} from "@impacto-design-system/Extensions/LanguagePicker";
 import TermsModal from "@impacto-design-system/Extensions/TermsModal";
 import { deleteData, getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
@@ -49,9 +51,6 @@ const validationSchema = yup.object().shape({
     .min(4, "Seems a bit short..."),
 });
 
-/** Languages LanguagePicker offers; anything else renders as English. */
-const OFFERED_LANGUAGES = ["en", "es", "hk"];
-
 function SignIn({ navigation, route }) {
   const theme = useTheme();
   const [checked, setChecked] = useState(false);
@@ -64,7 +63,7 @@ function SignIn({ navigation, route }) {
   // what I18n itself renders in that case (enableFallback, defaultLocale "en"):
   // the button should name the language on screen, not the one on the device.
   const [language, setLanguage] = useState(
-    OFFERED_LANGUAGES.includes(I18n.locale) ? I18n.locale : "en"
+    OFFERED_LANGUAGE_KEYS.includes(I18n.locale) ? I18n.locale : "en"
   );
   const [visible, setVisible] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);

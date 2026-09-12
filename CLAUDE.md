@@ -316,10 +316,20 @@ works fine — those are different paths.
 
 ### `.easignore` is why gitignored files still reach the build
 
-`environment.js` and `app.json` are **deliberately** gitignored — credentials do
-not belong in git. They still reach EAS because **`.easignore` exists, and when
-it does EAS uses it INSTEAD of `.gitignore`** to decide what to upload. It does
-not exclude them, so a local `eas build` ships them.
+`environment.js` is **deliberately** gitignored — credentials do not belong in
+git. It still reaches EAS because **`.easignore` exists, and when it does EAS
+uses it INSTEAD of `.gitignore`** to decide what to upload. It does not exclude
+the file, so a local `eas build` ships it.
+
+**`app.json` is NOT gitignored, and must not be.** It was listed in
+`.gitignore` until 2026-09-11 while being tracked — 233 commits of it — so the
+line changed nothing for git and this paragraph claimed a credential risk that
+was not there: the only credential-shaped value in the file is
+`$GOOGLE_MAPS_API_KEY`, a placeholder EAS substitutes at build time. What the
+stale line DID do was make `standard-version` skip the file when bumping
+versions, silently, because it reads `.gitignore` literally. That is why three
+releases needed a follow-up "record the version files" commit. Putting it back
+would reintroduce that.
 
 This is the single most misread thing about this repo's release setup:
 

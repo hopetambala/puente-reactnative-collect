@@ -99,20 +99,28 @@ function formatConflictMessage(pids) {
  * points nowhere near the packager. Cost a capture run on 2026-09-11, right
  * after a simulator reboot dropped Metro.
  *
- * `true` on any failure of the CHECK ITSELF: an unavailable fetch, a hung
- * socket, an old Node. This guard exists to name a known cause quickly, never
- * to stand between someone and their test run.
+ * Carries its OWN deadline. Something can hold the port open without ever
+ * answering, and a preflight that hangs is worse than no preflight: it blocks
+ * every run, and the person waiting has no reason to suspect the guard.
+ *
+ * A rejection means nothing is listening, which is the answer this is looking
+ * for. The one thing that must NEVER block a run is the check being unable to
+ * run at all -- an old Node with no global fetch -- and that is decided by the
+ * caller, which simply skips the probe.
  */
-async function isMetroUp(fetcher) {
+async function isMetroUp(fetcher, timeoutMs = METRO_PROBE_TIMEOUT_MS) {
+  const controller = new AbortController();
+  const deadline = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetcher(`${METRO_STATUS_URL}`, { method: "GET" });
+    const response = await fetcher(METRO_STATUS_URL, {
+      method: "GET",
+      signal: controller.signal,
+    });
     return Boolean(response && response.ok);
   } catch (error) {
-    // A rejected promise means nothing is listening -- that IS the answer.
-    if (error instanceof Error && /fetch is not (defined|a function)/.test(error.message)) {
-      return true;
-    }
     return false;
+  } finally {
+    clearTimeout(deadline);
   }
 }
 
@@ -133,6 +141,9 @@ function formatMetroDownMessage() {
 }
 
 const METRO_STATUS_URL = "http://localhost:8081/status";
+
+/** Long enough for a busy packager, short enough not to be the delay itself. */
+const METRO_PROBE_TIMEOUT_MS = 4000;
 
 module.exports = {
   findConflictingMaestroRuns,
@@ -171,7 +182,14 @@ if (require.main === module) {
     process.exit(1);
   }
 
-  isMetroUp(typeof fetch === "function" ? fetch : () => { throw new Error("fetch is not defined"); })
+  // No global fetch (an older Node) means the check cannot run. Never block a
+  // run over that -- decided here rather than encoded in an error message for
+  // isMetroUp to parse back out.
+  if (typeof fetch !== "function") {
+    process.exit(0);
+  }
+
+  isMetroUp(fetch)
     .then((up) => {
       if (!up) {
         process.stderr.write(formatMetroDownMessage());

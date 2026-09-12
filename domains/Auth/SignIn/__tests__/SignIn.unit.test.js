@@ -7,10 +7,19 @@ jest.mock('@app/assets/graphics/static/Logo-Black.svg', () => 'PuenteLogo');
 // Records the props the picker is handed, so a test can assert which language
 // the screen believes it is in.
 const capturedLanguagePickerProps = {};
-jest.mock('@impacto-design-system/Extensions/LanguagePicker', () => (props) => {
-  Object.assign(capturedLanguagePickerProps, props);
-  return null;
-});
+jest.mock('@impacto-design-system/Extensions/LanguagePicker', () => ({
+  __esModule: true,
+  // The REAL list, pulled from the component that owns it. SignIn decides
+  // whether the device locale is one the picker offers; a hardcoded copy here
+  // would let that decision drift from the picker and pass anyway.
+  OFFERED_LANGUAGE_KEYS: jest.requireActual(
+    '@impacto-design-system/Extensions/LanguagePicker'
+  ).OFFERED_LANGUAGE_KEYS,
+  default: (props) => {
+    Object.assign(capturedLanguagePickerProps, props);
+    return null;
+  },
+}));
 jest.mock('@impacto-design-system/Extensions/TermsModal', () => () => null);
 jest.mock('@modules/offline', () => jest.fn().mockResolvedValue(true));
 jest.mock('@modules/i18n', () => ({ t: (key) => key, locale: 'en' }));

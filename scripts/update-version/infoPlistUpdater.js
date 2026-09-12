@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * standard-version updater for ios/Collect/Info.plist.
  *

@@ -13,6 +13,9 @@
  *
  * Listing them makes the release commit self-contained again.
  */
+const fs = require('fs');
+const path = require('path');
+
 const versionrc = require('@app/.versionrc');
 
 const APP_JSON = JSON.stringify(
@@ -44,6 +47,8 @@ const fileEntry = (name) => versionrc.bumpFiles.find((f) => f.filename === name)
  * the only thing that exercises the real contract; unit tests that call the
  * functions directly pass either way.
  */
+// The path is READ FROM CONFIG — that is the contract under test, so the
+// require cannot be static. Both rules are disabled for that one reason.
 // eslint-disable-next-line global-require, import/no-dynamic-require
 const updaterFor = (name) => require(`@app/${fileEntry(name).updater}`);
 
@@ -121,11 +126,6 @@ describe('.versionrc bumpFiles', () => {
  * follow-up "record the version files" commit.
  */
 describe('bumpFiles are not gitignored', () => {
-  // eslint-disable-next-line global-require
-  const fs = require('fs');
-  // eslint-disable-next-line global-require
-  const path = require('path');
-
   const ignoreLines = fs
     .readFileSync(path.join(__dirname, '../../../.gitignore'), 'utf8')
     .split('\n')

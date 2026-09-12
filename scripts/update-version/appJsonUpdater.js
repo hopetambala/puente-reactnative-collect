@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * standard-version updater for app.json.
  *

@@ -11,6 +11,17 @@ const languages = [
   { key: "hk", label: "languagePicker.creole" },
 ];
 
+/**
+ * The languages this picker offers, for callers that must decide whether a
+ * locale is one of them — SignIn seeds its state from the device locale and
+ * has to fall back for anything else.
+ *
+ * Exported rather than copied: a second hardcoded list is how a fourth
+ * language gets added to the picker and silently falls back to English
+ * everywhere else.
+ */
+export const OFFERED_LANGUAGE_KEYS = languages.map((l) => l.key);
+
 const styles = StyleSheet.create({
   container: {
     paddingVertical: spacing.md,
