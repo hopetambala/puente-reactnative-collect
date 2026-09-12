@@ -1,3 +1,4 @@
+const eas = require("@app/eas.json");
 const { computeVersionUpdates, updateInfoPlist } = require("@app/scripts/update-version/versionNumber");
 
 describe("computeVersionUpdates", () => {
@@ -58,4 +59,59 @@ describe("updateInfoPlist", () => {
 
     expect(updateInfoPlist(once, "15.7.0")).toEqual(once);
   });
+});
+
+/**
+ * The Android versionCode must only ever go UP — including past a value EAS
+ * already burned.
+ *
+ * Play identifies a release by `expo.android.versionCode` and refuses one it
+ * has seen:
+ *
+ *   ✖ Something went wrong when submitting your app to Google Play Store.
+ *     You've already submitted this version of the app.
+ *
+ * That happened on 2026-09-11 because only iOS had `autoIncrement` in
+ * eas.json, so two builds of 15.7.2 both carried versionCode 490150702.
+ * Turning autoIncrement on for Android fixes the rebuild case and creates a
+ * WORSE one on its own: EAS bumps 490150702 -> 490150703, and the next
+ * `release-patch` to 15.7.3 makes this function derive 490150703 again — a
+ * number Play has already taken.
+ *
+ * So the derived code is a FLOOR, not an answer. Whatever is already in
+ * app.json wins if it is higher.
+ */
+describe("computeVersionUpdates — versionCode never regresses", () => {
+  it("uses the derived code when nothing higher has been used", () => {
+    expect(computeVersionUpdates("15.7.3", 490150702).versionCode).toBe(490150703);
+  });
+
+  it("steps past a code EAS already incremented to", () => {
+    // EAS took 490150703 for the second build of 15.7.2. Deriving it again for
+    // 15.7.3 is the collision Play rejects.
+    expect(computeVersionUpdates("15.7.3", 490150703).versionCode).toBe(490150704);
+  });
+
+  it("steps past a code far ahead of the derived one", () => {
+    expect(computeVersionUpdates("15.7.3", 490150799).versionCode).toBe(490150800);
+  });
+
+  it("still works when the current code is unknown", () => {
+    expect(computeVersionUpdates("15.7.3").versionCode).toBe(490150703);
+  });
+});
+
+/**
+ * Both platforms must auto-increment, or one of them cannot be rebuilt.
+ *
+ * iOS had it and Android did not, which is the whole reason the Play
+ * submission above failed while the App Store one went through.
+ */
+describe("eas.json build numbering", () => {
+  it.each(["ios", "android"])(
+    "auto-increments the %s build number, so a rebuild is submittable",
+    (platform) => {
+      expect(eas.build.production[platform].autoIncrement).toBe(true);
+    }
+  );
 });

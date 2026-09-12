@@ -31,6 +31,7 @@
         "autoIncrement": true
       },
       "android": {
+        "autoIncrement": true,
         "gradleCommand": ":app:bundleRelease",
         "cache": {
           "disabled": false

@@ -16,8 +16,16 @@
 const fs = require("fs");
 const path = require("path");
 
-/** The values every non-package.json file derives from the version string. */
-function computeVersionUpdates(version) {
+/**
+ * The values every non-package.json file derives from the version string.
+ *
+ * `currentVersionCode` is what app.json holds right now. It matters because
+ * EAS also moves that number: `autoIncrement` bumps it on every build and
+ * writes it back. So the code derived from the version is a FLOOR, not an
+ * answer — if EAS has already gone past it, deriving it again hands Play a
+ * number it has seen, and Play refuses the upload.
+ */
+function computeVersionUpdates(version, currentVersionCode = 0) {
   const [major, minor, patch] = version.split(".").map(Number);
   const pad = (n) => String(n).padStart(2, "0");
 
@@ -27,9 +35,18 @@ function computeVersionUpdates(version) {
     // submissions on: a higher build number does not help if the train is
     // closed, which is what got build 90186 rejected.
     buildNumber: version,
-    // Play refuses a versionCode that does not increase, so this must be
-    // monotonic across every bump.
-    versionCode: parseInt(`490${pad(major)}${pad(minor)}${pad(patch)}`),
+    // Play refuses a versionCode it has already seen, so this must be strictly
+    // greater than anything used before — including values EAS produced, which
+    // is why the current code is taken into account rather than assumed lower.
+    //
+    // The 490MMmmpp encoding is kept because it makes a code readable at a
+    // glance (490150703 is 15.7.3), but readability yields to monotonicity:
+    // a rebuilt version leaves the code one step ahead of its encoding, and
+    // that is correct.
+    versionCode: Math.max(
+      parseInt(`490${pad(major)}${pad(minor)}${pad(patch)}`, 10),
+      Number(currentVersionCode || 0) + 1
+    ),
   };
 }
 
@@ -57,7 +74,10 @@ function main() {
   const appJson = JSON.parse(fs.readFileSync(appJsonPath, "utf8"));
 
   const oldVersion = appJson.expo.version;
-  const updates = computeVersionUpdates(packageJson.version);
+  const updates = computeVersionUpdates(
+    packageJson.version,
+    appJson.expo.android.versionCode
+  );
 
   appJson.expo.version = updates.version;
   appJson.expo.ios.buildNumber = updates.buildNumber;
