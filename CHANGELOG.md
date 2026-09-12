@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [15.7.3](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.7.2...v15.7.3) (2026-09-12)
+
+
+### Documentation Changes
+
+* **e2e:** capture the find-records guide screenshots from the running app ([c37dbf3](https://github.com/hopetambala/puente-reactnative-collect/commit/c37dbf3e4d3efade7a4a6e4ce235a94f64c11262))
+* **maestro:** the harness runs in Spanish now, and says so ([3ea96ad](https://github.com/hopetambala/puente-reactnative-collect/commit/3ea96ad77a13104afd428b9666fc207a0e74e089))
+
+
+### New Features
+
+* **e2e:** capture the guide screenshots in Spanish as well as English ([c372183](https://github.com/hopetambala/puente-reactnative-collect/commit/c372183d28db72fee57a0b5709ecac0b76c097d8))
+* **e2e:** capture the signup organization picker for the guide, both languages ([0805d79](https://github.com/hopetambala/puente-reactnative-collect/commit/0805d797e2b2ab85a2aad4fd6a7feab53a4a26a0))
+
+
+### Code Refactors
+
+* **review:** address the staff review on this branch ([e9d1974](https://github.com/hopetambala/puente-reactnative-collect/commit/e9d1974124365e217b1ad1a464569422ba23095a))
+
+
+### Bug fixes
+
+* **maestro:** refuse to start a run when Metro is not answering ([c710e5c](https://github.com/hopetambala/puente-reactnative-collect/commit/c710e5cf5b707ed64315d3eeb2b1aba8c689b248))
+* **release:** make the iOS build number a counter, not the version ([33e4cbb](https://github.com/hopetambala/puente-reactnative-collect/commit/33e4cbba0d2bee3aba2ffbe8c18cc9ea966bf48a))
+* **release:** make the release commit contain the version files it bumped ([b76a565](https://github.com/hopetambala/puente-reactnative-collect/commit/b76a5657516ef104a788c125b3a5e05cc3e2c338))
+* **release:** stop handing Play a versionCode it has already seen ([291c136](https://github.com/hopetambala/puente-reactnative-collect/commit/291c13630870f27511aded0627a97e5e43023dd5))
+
 ### [15.7.2](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.7.1...v15.7.2) (2026-09-11)
 
 
