@@ -10,32 +10,37 @@
 # run BEFORE any tab tap, not just after landing.
 #
 # Titles come from `coachmarks.*` in modules/i18n/english/en.json.
+# Titles match English OR Spanish: the app renders in the device language, and
+# an unmatched title silently SKIPS its dismissal, leaving the coachmark over
+# the tab bar so the next tab tap lands on the coachmark. Maestro text selectors
+# are regexes — see subflows/login.yaml for why this is an alternation rather
+# than a variable.
 appId: io.ionic.starter1270348
 ---
 - runFlow:
     when:
-      visible: "Your Impact Dashboard"
+      visible: "Your Impact Dashboard|Tu Panel de Impacto"
     commands:
-      - tapOn: "Got it"
+      - tapOn: "Got it|Entendido"
       - waitForAnimationToEnd
 
 - runFlow:
     when:
-      visible: "Capture Field Data"
+      visible: "Capture Field Data|Captura Datos de Campo"
     commands:
-      - tapOn: "Got it"
+      - tapOn: "Got it|Entendido"
       - waitForAnimationToEnd
 
 - runFlow:
     when:
-      visible: "Search All Records"
+      visible: "Search All Records|Busca Todos los Registros"
     commands:
-      - tapOn: "Got it"
+      - tapOn: "Got it|Entendido"
       - waitForAnimationToEnd
 
 - runFlow:
     when:
-      visible: "Your Preferences"
+      visible: "Your Preferences|Tus Preferencias"
     commands:
-      - tapOn: "Got it"
+      - tapOn: "Got it|Entendido"
       - waitForAnimationToEnd

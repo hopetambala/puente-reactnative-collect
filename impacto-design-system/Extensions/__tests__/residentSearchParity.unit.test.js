@@ -90,12 +90,12 @@ describe('the two resident searches agree', () => {
   );
 
   it.each(Object.entries(SOURCES))(
-    '%s strips the heavy fields from the payload it caches',
+    '%s asks for the same fields it caches',
     (name, src) => {
-      // Both write `residentData`. If only one excluded these, the cache
-      // contents would depend on which path happened to write last.
-      expect(src).toContain('RESIDENT_PAYLOAD_EXCLUDED_FIELDS');
-      expect(src).toContain('query.exclude(');
+      // Both write `residentData`. If they asked for different fields, the
+      // cache contents would depend on which path happened to write last.
+      expect(src).toContain('RESIDENT_QUERY_FIELDS');
+      expect(src).toContain('query.select(');
     }
   );
 

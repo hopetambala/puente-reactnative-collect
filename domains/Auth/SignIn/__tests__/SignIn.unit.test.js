@@ -4,7 +4,22 @@ import { render } from '@testing-library/react-native';
 import React from 'react';
 
 jest.mock('@app/assets/graphics/static/Logo-Black.svg', () => 'PuenteLogo');
-jest.mock('@impacto-design-system/Extensions/LanguagePicker', () => () => null);
+// Records the props the picker is handed, so a test can assert which language
+// the screen believes it is in.
+const capturedLanguagePickerProps = {};
+jest.mock('@impacto-design-system/Extensions/LanguagePicker', () => ({
+  __esModule: true,
+  // The REAL list, pulled from the component that owns it. SignIn decides
+  // whether the device locale is one the picker offers; a hardcoded copy here
+  // would let that decision drift from the picker and pass anyway.
+  OFFERED_LANGUAGE_KEYS: jest.requireActual(
+    '@impacto-design-system/Extensions/LanguagePicker'
+  ).OFFERED_LANGUAGE_KEYS,
+  default: (props) => {
+    Object.assign(capturedLanguagePickerProps, props);
+    return null;
+  },
+}));
 jest.mock('@impacto-design-system/Extensions/TermsModal', () => () => null);
 jest.mock('@modules/offline', () => jest.fn().mockResolvedValue(true));
 jest.mock('@modules/i18n', () => ({ t: (key) => key, locale: 'en' }));
@@ -45,5 +60,50 @@ describe('SignIn automation hooks', () => {
     const { getByTestId } = renderSignIn();
 
     expect(getByTestId(testID)).toBeTruthy();
+  });
+});
+
+/**
+ * The language picker must show the language the app is ACTUALLY in.
+ *
+ * Collect chooses its language from the DEVICE at launch (modules/i18n reads
+ * expo-localization once at module load). The picker on this screen kept its
+ * own copy of that answer as `useState("en")` — a constant — so on a Spanish
+ * phone the app rendered Spanish while the button above the form read
+ * "Ingles".
+ *
+ * Seen for real on 2026-09-11, on a simulator set to es_DO: the whole sign-in
+ * screen in Spanish, "Iniciar sesión", "Contraseña" — under a language button
+ * claiming English. A surveyor who opens that picker is being told the app is
+ * in a language it is not in.
+ *
+ * The i18n mock at the top of this file is a mutable object, so `locale` can be
+ * changed between mounts without resetting the module registry — resetting it
+ * re-registers React Native Testing Library's own hooks and fails with "Hooks
+ * cannot be defined inside tests".
+ */
+describe('the language picker reflects the language the app is in', () => {
+  // eslint-disable-next-line global-require
+  const I18n = require('@modules/i18n');
+  const original = I18n.locale;
+
+  afterEach(() => { I18n.locale = original; });
+
+  const languageShownByThePicker = (locale) => {
+    I18n.locale = locale;
+    capturedLanguagePickerProps.language = undefined;
+    renderSignIn();
+    return capturedLanguagePickerProps.language;
+  };
+
+  it.each([['es'], ['hk']])(
+    'starts on %s when that is the device language, not on English',
+    (locale) => {
+      expect(languageShownByThePicker(locale)).toBe(locale);
+    }
+  );
+
+  it('still starts on English on an English device', () => {
+    expect(languageShownByThePicker('en')).toBe('en');
   });
 });

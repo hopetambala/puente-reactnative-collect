@@ -13,12 +13,26 @@
 # containing a real partner organization — staging was seeded with production
 # organization names on 2026-09-08 and is no longer safe for that.
 #
+# BOTH LANGUAGES
+# Every text selector matches English OR Spanish — Collect renders in the DEVICE
+# language, Maestro matches text as a REGEX, and a flow-file `env:` default
+# OVERRIDES `-e` in this version of Maestro (verified), so an alternation is
+# both simpler and safer than a variable. Only the output directory varies.
+#
 # Run:
-#   yarn start:staging-clear      # Metro FIRST
-#   yarn maestro .maestro/capture-offline-docs.yaml
-#   # images land in docs/img/offline/
+#   yarn start:staging-clear                  # Metro FIRST
+#   ./.maestro/capture-guide-docs.sh both     # both languages
+#
+#   # or one language, by hand:
+#   yarn maestro .maestro/capture-offline-docs.yaml                 # English
+#   yarn maestro .maestro/capture-offline-docs.yaml \
+#     -e OUT=docs/img/offline/es                                    # on an es device
 appId: io.ionic.starter1270348
 ---
+# Screenshot destination. `OUT` is left UNSET by default on purpose: an unset
+# Maestro variable arrives as its own name, hence the guard.
+- evalScript: "${output.dir = (typeof OUT === 'undefined' || OUT === '' || OUT === 'OUT') ? 'docs/img/offline' : OUT}"
+
 - launchApp
 - runFlow: subflows/login.yaml
 
@@ -27,7 +41,7 @@ appId: io.ionic.starter1270348
     file: subflows/open-tab.yaml
     env:
       TAB_ID: "tab-offline"
-      EXPECT: "Offline Sync"
+      EXPECT: "Offline Sync|Sincronización sin conexión"
 - runFlow:
     file: subflows/set-offline-mode.yaml
     env:
@@ -36,9 +50,9 @@ appId: io.ionic.starter1270348
     file: subflows/open-tab.yaml
     env:
       TAB_ID: "tab-offline"
-      EXPECT: "Offline Sync"
+      EXPECT: "Offline Sync|Sincronización sin conexión"
 - extendedWaitUntil:
-    visible: "Retry|No forms queued.*"
+    visible: "Retry|Reintentar|No forms queued.*|No hay formularios en cola.*"
     timeout: 30000
 - runFlow:
     when:
@@ -53,8 +67,8 @@ appId: io.ionic.starter1270348
           timeout: 60000
 
 # ── 4. the empty state (captured first, while the queue is genuinely empty) ──
-- assertVisible: "No forms queued. You are all caught up!"
-- takeScreenshot: docs/img/offline/collect-04-all-caught-up
+- assertVisible: "No forms queued. You are all caught up!|No hay formularios en cola. ¡Estás al día!"
+- takeScreenshot: ${output.dir}/collect-04-all-caught-up
 
 # ─── GO OFFLINE AND OPEN A FORM ────────────────────────────────────────────
 - runFlow:
@@ -65,39 +79,39 @@ appId: io.ionic.starter1270348
     file: subflows/open-tab.yaml
     env:
       TAB_ID: "tab-data-collection"
-      EXPECT: "Puente Forms"
-- tapOn: "Resident ID"
+      EXPECT: "Puente Forms|Formularios Puente"
+- tapOn: "Resident ID|Identificación de residente"
 - waitForAnimationToEnd
 - runFlow:
     when:
-      visible: "OK"
+      visible: "OK|Aceptar"
     commands:
-      - tapOn: "OK"
+      - tapOn: "OK|Aceptar"
       - waitForAnimationToEnd
 - runFlow: subflows/give-consent.yaml
 - extendedWaitUntil:
-    visible: "First Name"
+    visible: "First Name|Primer Nombre"
     timeout: 20000
 
 # ── 1. the offline banner, on a form the surveyor is actually filling in ──
-- assertVisible: ".*offline.*"
-- takeScreenshot: docs/img/offline/collect-01-offline-banner
+- assertVisible: ".*offline.*|.*sin conexión.*"
+- takeScreenshot: ${output.dir}/collect-01-offline-banner
 
 # ─── QUEUE ONE FORM ────────────────────────────────────────────────────────
-- tapOn: "First Name"
+- tapOn: "First Name|Primer Nombre"
 - inputText: "Ejemplo"
-- tapOn: "Last Name"
+- tapOn: "Last Name|Apellido"
 - inputText: "Ramirez"
 - waitForAnimationToEnd
-- tapOn: "Demographics"
+- tapOn: "Demographics|Demografía"
 - waitForAnimationToEnd
 - scroll
-- tapOn: "Female"
+- tapOn: "Female|Femenino"
 - waitForAnimationToEnd
-- tapOn: "Single"
+- tapOn: "Single|Soltero/a"
 - waitForAnimationToEnd
 - scroll
-- tapOn: "Highschool"
+- tapOn: "Highschool|Termino la escuela secundaria"
 - waitForAnimationToEnd
 - scroll
 - scroll
@@ -107,7 +121,7 @@ appId: io.ionic.starter1270348
 - waitForAnimationToEnd
 - runFlow:
     when:
-      visible: "Household Manager"
+      visible: "Household Manager|Administrador del hogar"
     commands:
       - tapOn: "<"
       - waitForAnimationToEnd
@@ -118,14 +132,14 @@ appId: io.ionic.starter1270348
 # not abort the run.
 - runFlow:
     when:
-      visible: "Saved offline.*"
+      visible: "Saved offline.*|Guardado sin conexión.*"
     commands:
-      - takeScreenshot: docs/img/offline/collect-02-saved-offline
+      - takeScreenshot: ${output.dir}/collect-02-saved-offline
 - runFlow:
     when:
-      visible: "OK"
+      visible: "OK|Aceptar"
     commands:
-      - tapOn: "OK"
+      - tapOn: "OK|Aceptar"
       - waitForAnimationToEnd
 
 # ── 3. the queue, listing WHICH form and about whom ──
@@ -133,24 +147,24 @@ appId: io.ionic.starter1270348
     file: subflows/open-tab.yaml
     env:
       TAB_ID: "tab-offline"
-      EXPECT: "Offline Sync"
+      EXPECT: "Offline Sync|Sincronización sin conexión"
 - extendedWaitUntil:
-    visible: "Waiting to sync"
+    visible: "Waiting to sync|Esperando sincronización"
     timeout: 20000
-- takeScreenshot: docs/img/offline/collect-03-queue
+- takeScreenshot: ${output.dir}/collect-03-queue
 
 # ── 5. the discard confirmation, which is permanent ──
-- tapOn: "Discard"
+- tapOn: "Discard|Descartar"
 - extendedWaitUntil:
-    visible: "Discard this form?"
+    visible: 'Discard this form\?|¿Descartar este formulario\?'
     timeout: 10000
-- takeScreenshot: docs/img/offline/collect-05-discard-confirm
+- takeScreenshot: ${output.dir}/collect-05-discard-confirm
 
 # Leave the device as we found it: confirm, so the invented record does not
 # linger in a queue someone later syncs.
-- tapOn: "Discard permanently"
+- tapOn: "Discard permanently|Descartar permanentemente"
 - extendedWaitUntil:
-    visible: "No forms queued.*"
+    visible: "No forms queued.*|No hay formularios en cola.*"
     timeout: 20000
 - runFlow:
     file: subflows/set-offline-mode.yaml

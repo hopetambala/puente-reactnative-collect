@@ -1,5 +1,5 @@
 import { loadOrganizationScopeCached } from "@modules/organization";
-import { RESIDENT_PAYLOAD_EXCLUDED_FIELDS } from "@modules/resident-fields";
+import { RESIDENT_QUERY_FIELDS } from "@modules/resident-fields";
 import { getFindRecordsLimit } from "@modules/settings";
 import { Parse } from "parse/react-native";
 
@@ -65,10 +65,10 @@ const parseSearch = async (surveyingOrganization, qry) => {
     // 3000 on the subqueries and was silently capped at 100.
     query.limit(limit);
 
-    // 892 -> 662 bytes/row. These results become the offline resident cache,
-    // so this is a denylist of proven-unused fields, never an allowlist: a
-    // missing field would surface offline as an unlinkable resident.
-    query.exclude(...RESIDENT_PAYLOAD_EXCLUDED_FIELDS);
+    // 892 -> 452 bytes/row (1.70 MB -> 0.86 MB at the 2000-row cap). These
+    // results become the offline resident cache, so the list is the union of
+    // every field read off a resident anywhere in the app, not a guess.
+    query.select(...RESIDENT_QUERY_FIELDS);
 
     query.descending("createdAt");
 

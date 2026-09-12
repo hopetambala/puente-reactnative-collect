@@ -1,6 +1,8 @@
 import PuenteLogo from "@app/assets/graphics/static/Logo-Black.svg";
 import FormInput from "@impacto-design-system/Extensions/FormikFields/FormInput";
-import LanguagePicker from "@impacto-design-system/Extensions/LanguagePicker";
+import LanguagePicker, {
+  OFFERED_LANGUAGE_KEYS,
+} from "@impacto-design-system/Extensions/LanguagePicker";
 import TermsModal from "@impacto-design-system/Extensions/TermsModal";
 import { deleteData, getData } from "@modules/async-storage";
 import I18n from "@modules/i18n";
@@ -52,7 +54,17 @@ const validationSchema = yup.object().shape({
 function SignIn({ navigation, route }) {
   const theme = useTheme();
   const [checked, setChecked] = useState(false);
-  const [language, setLanguage] = useState("en");
+  // The language the app is ACTUALLY rendering in, not a guess. Collect picks
+  // its locale from the device at launch (modules/i18n), so a hardcoded "en"
+  // here put a button reading "Ingles" above a sign-in screen rendered entirely
+  // in Spanish -- telling a surveyor the app is in a language it is not in.
+  //
+  // Falls back to "en" for a locale the picker does not offer, because that is
+  // what I18n itself renders in that case (enableFallback, defaultLocale "en"):
+  // the button should name the language on screen, not the one on the device.
+  const [language, setLanguage] = useState(
+    OFFERED_LANGUAGE_KEYS.includes(I18n.locale) ? I18n.locale : "en"
+  );
   const [visible, setVisible] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
   const { onlineLogin, offlineLogin, isLoading, error } =
