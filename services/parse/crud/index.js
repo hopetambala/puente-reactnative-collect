@@ -1,6 +1,9 @@
 import selectedENV from "@app/environment";
 import client from "@app/services/parse/client";
-import { RESIDENT_QUERY_FIELDS } from "@modules/resident-fields";
+import {
+  dedupeResidents,
+  RESIDENT_QUERY_FIELDS,
+} from "@modules/resident-fields";
 
 import {
   customMultiParamQueryService,
@@ -29,17 +32,6 @@ function retrieveHelloFunction() {
 
 function residentIDQuery(params) {
   const { parseParam, limit } = params;
-  function checkIfAlreadyExist(accumulator, currentVal) {
-    return accumulator.some(
-      (item) =>
-        item.get("fname") === currentVal.get("fname") &&
-        item.get("lname") === currentVal.get("lname") &&
-        item.get("sex") === currentVal.get("sex") &&
-        item.get("marriageStatus") === currentVal.get("marriageStatus") &&
-        item.get("educationLevel") === currentVal.get("educationLevel")
-    );
-  }
-
   return new Promise((resolve, reject) => {
     const Parse = getParse();
     const Model = Parse.Object.extend("SurveyData");
@@ -65,12 +57,7 @@ function residentIDQuery(params) {
 
     query.find().then(
       (records) => {
-        const deDuplicatedRecords = records.reduce((accumulator, current) => {
-          if (checkIfAlreadyExist(accumulator, current)) {
-            return accumulator;
-          }
-          return [...accumulator, current];
-        }, []);
+        const deDuplicatedRecords = dedupeResidents(records);
         resolve(JSON.parse(JSON.stringify(deDuplicatedRecords)));
       },
       (error) => {
