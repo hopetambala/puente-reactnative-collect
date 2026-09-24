@@ -1,6 +1,8 @@
 import { GlassView } from "@impacto-design-system/Base";
 import I18n from "@modules/i18n";
+import { PRIVACY_POLICY_URL } from "@modules/legal";
 import { spacing } from "@modules/theme";
+import * as WebBrowser from "expo-web-browser";
 import PropTypes from "prop-types";
 import React from "react";
 import { StyleSheet } from "react-native";
@@ -45,8 +47,15 @@ function TermsModal({ visible, setVisible }) {
               {I18n.t("termsModal.termsService")}
             </Text>
             <Text style={{ marginBottom: spacing.lg }}>
-              {I18n.t("termsModal.policy")}
+              {I18n.t("gdpr.policy")}
             </Text>
+            <Button
+              mode="outlined"
+              testID="privacy-policy-link"
+              onPress={() => WebBrowser.openBrowserAsync(PRIVACY_POLICY_URL)}
+            >
+              {I18n.t("termsModal.viewCurrentPolicy")}
+            </Button>
             <Button
               mode="contained"
               style={styles.button}
