@@ -1,5 +1,8 @@
 import { loadOrganizationScopeCached } from "@modules/organization";
-import { RESIDENT_QUERY_FIELDS } from "@modules/resident-fields";
+import {
+  dedupeResidents,
+  RESIDENT_QUERY_FIELDS,
+} from "@modules/resident-fields";
 import { getFindRecordsLimit } from "@modules/settings";
 import { Parse } from "parse/react-native";
 
@@ -51,17 +54,6 @@ const SEARCHABLE_FIELDS = [
 ];
 
 const parseSearch = async (surveyingOrganization, qry) => {
-  function checkIfAlreadyExist(accumulator, currentVal) {
-    return accumulator.some(
-      (item) =>
-        item.get("fname") === currentVal.get("fname") &&
-        item.get("lname") === currentVal.get("lname") &&
-        item.get("sex") === currentVal.get("sex") &&
-        item.get("marriageStatus") === currentVal.get("marriageStatus") &&
-        item.get("educationLevel") === currentVal.get("educationLevel")
-    );
-  }
-
   // EVERY string this organization's records may carry. Records hold what was
   // COLLECTED, and one organization's are spread across several — in
   // production (2026-08-28, app id vBdTHqQU31) Rayjon has 185 SurveyData rows
@@ -108,12 +100,7 @@ const parseSearch = async (surveyingOrganization, qry) => {
 
     query.find().then(
       (records) => {
-        const deDuplicatedRecords = records.reduce((accumulator, current) => {
-          if (checkIfAlreadyExist(accumulator, current)) {
-            return accumulator;
-          }
-          return [...accumulator, current];
-        }, []);
+        const deDuplicatedRecords = dedupeResidents(records);
         resolve(JSON.parse(JSON.stringify(deDuplicatedRecords)));
       },
       (error) => {
