@@ -103,7 +103,10 @@ commit and tag through a pull request, merge it, and update local `master` befor
 running `yarn build-submit-ios`. The preflight refuses a dirty branch, an
 unmerged commit, mismatched metadata, or a version train Apple has already
 released. `release-patch` also advances `store.config.json`, so App Store
-metadata and the binary stay on the same version.
+metadata and the binary stay on the same version. Before building, add focused
+tester instructions at `store/testflight/<version>.txt`; the build command
+passes that file to the exact auto-submitted build as TestFlight's “What to
+Test” notes and refuses to continue when it is missing.
 
 ### First Time Setup
 

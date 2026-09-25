@@ -1,0 +1,11 @@
+Please focus on these changes:
+
+• Open Find Records for an organization with many residents. Confirm it loads without freezing.
+• Search for residents on Wi-Fi, cellular, and a weak connection. Confirm results appear promptly and reliably.
+• After a successful search, go offline. Reopen a resident and confirm the details needed to view and safely edit the record remain available.
+• Edit an existing record, save it offline, reconnect, and confirm the update syncs without losing data.
+• With the device language set to Spanish or Haitian Creole, relaunch the app and sign in. Confirm the language control shows the correct language.
+• Open the in-app privacy information and confirm the Privacy Policy link opens Puente's current policy.
+• Run a general smoke test: sign in, create a resident, complete a form, attach a photo or location when appropriate, and sync.
+
+When reporting an issue, include the device model, iOS version, organization, connection state, and exact steps to reproduce.

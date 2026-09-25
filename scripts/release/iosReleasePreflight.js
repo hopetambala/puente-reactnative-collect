@@ -136,6 +136,7 @@ async function main() {
 
   console.log(`✅ iOS release preflight passed: ${localVersion} > App Store ${publicVersion}`);
   console.log("✅ Clean merged master and all version-bearing files agree");
+  return { localVersion, publicVersion };
 }
 
 module.exports = {
@@ -147,6 +148,7 @@ module.exports = {
   parseVersion,
   plistValue,
   readLocalVersions,
+  runPreflight: main,
 };
 
 if (require.main === module) {
