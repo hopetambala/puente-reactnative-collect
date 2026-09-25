@@ -125,7 +125,7 @@ async function main() {
   if (!remoteHead) throw new Error("Could not resolve origin/master");
 
   assertGitReleaseState({
-    branch: git(["branch", "--show-current"]),
+    branch: process.env.GITHUB_REF_NAME || git(["branch", "--show-current"]),
     status: git(["status", "--porcelain"]),
     head: git(["rev-parse", "HEAD"]),
     remoteHead,

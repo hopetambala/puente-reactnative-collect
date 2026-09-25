@@ -1,4 +1,4 @@
-name: EAS Build
+name: EAS Build and Submit
 on:
   workflow_dispatch:
 
@@ -28,7 +28,19 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Build on EAS
+      - name: Read versioned TestFlight notes
+        id: testflight
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          NOTES_PATH="store/testflight/${VERSION}.txt"
+          test -s "$NOTES_PATH"
+          {
+            echo 'notes<<EOF'
+            cat "$NOTES_PATH"
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build and submit the exact EAS artifacts
         # Apple credentials are passed here for the same reason eas-submit.yml
         # passes them: without an Apple session EAS cannot regenerate expired
         # signing assets, and `--non-interactive` then fails rather than
@@ -44,4 +56,5 @@ jobs:
         env:
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_EMAIL_ADDRESS }}
           EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
-        run: eas build --platform all --non-interactive
+          TESTFLIGHT_NOTES: ${{ steps.testflight.outputs.notes }}
+        run: eas build --platform all --non-interactive --auto-submit --what-to-test "$TESTFLIGHT_NOTES"
