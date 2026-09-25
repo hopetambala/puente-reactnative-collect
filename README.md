@@ -95,7 +95,15 @@ Build and deployment commands:
 - `yarn build-apps` or `eas build --platform all`: Build for both iOS and Android using EAS Build
 - `eas build --platform ios`: Build for iOS only
 - `eas build --platform android`: Build for Android only
+- `yarn build-submit-ios`: From a clean, current `master`, verify that every version file agrees and that the marketing version is newer than the live App Store version, then build and auto-submit that exact iOS artifact
 - `yarn submit-apps`: Submit the latest builds to both App Store and Google Play
+
+For an iOS patch release, run `yarn release-patch`, push the generated release
+commit and tag through a pull request, merge it, and update local `master` before
+running `yarn build-submit-ios`. The preflight refuses a dirty branch, an
+unmerged commit, mismatched metadata, or a version train Apple has already
+released. `release-patch` also advances `store.config.json`, so App Store
+metadata and the binary stay on the same version.
 
 ### First Time Setup
 

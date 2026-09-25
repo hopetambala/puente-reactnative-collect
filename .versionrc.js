@@ -25,6 +25,10 @@ module.exports = {
       filename: "ios/Collect/Info.plist",
       updater: "scripts/update-version/infoPlistUpdater.js",
     },
+    {
+      filename: "store.config.json",
+      updater: "scripts/update-version/storeConfigUpdater.js",
+    },
   ],
   scripts: {
     postbump: "node scripts/update-version/versionNumber.js",
