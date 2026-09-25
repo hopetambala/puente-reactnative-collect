@@ -1,24 +1,19 @@
-import { GlassView } from "@impacto-design-system/Base";
 import I18n from "@modules/i18n";
 import { PRIVACY_POLICY_URL } from "@modules/legal";
 import { spacing } from "@modules/theme";
 import * as WebBrowser from "expo-web-browser";
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { Button, Modal, Portal, Text } from "react-native-paper";
+import { Button, Modal, Portal, Text, useTheme } from "react-native-paper";
 
-const createStyles = () =>
+const createStyles = (theme) =>
   StyleSheet.create({
     modal: {
-      backgroundColor: "transparent",
-      padding: 0,
-      margin: spacing.xl,
-      borderRadius: spacing.radiusLarge,
-    },
-    glassContainer: {
+      backgroundColor: theme.colors.surfaceRaised || theme.colors.surface,
       padding: spacing.xl,
+      margin: spacing.xl,
       borderRadius: spacing.radiusLarge,
       overflow: "hidden",
     },
@@ -28,7 +23,8 @@ const createStyles = () =>
   });
 
 function TermsModal({ visible, setVisible }) {
-  const styles = createStyles();
+  const theme = useTheme();
+  const styles = useMemo(() => createStyles(theme), [theme]);
 
   return (
     <Portal>
@@ -37,34 +33,28 @@ function TermsModal({ visible, setVisible }) {
         contentContainerStyle={styles.modal}
         dismissable={false}
       >
-        <GlassView
-          style={styles.glassContainer}
-          glassEffectStyle="regular"
-          tintColor="rgba(200, 200, 200, 0.2)"
-        >
-          <ScrollView>
-            <Text variant="headlineMedium" style={{ marginBottom: spacing.md }}>
-              {I18n.t("termsModal.termsService")}
-            </Text>
-            <Text style={{ marginBottom: spacing.lg }}>
-              {I18n.t("gdpr.policy")}
-            </Text>
-            <Button
-              mode="outlined"
-              testID="privacy-policy-link"
-              onPress={() => WebBrowser.openBrowserAsync(PRIVACY_POLICY_URL)}
-            >
-              {I18n.t("termsModal.viewCurrentPolicy")}
-            </Button>
-            <Button
-              mode="contained"
-              style={styles.button}
-              onPress={() => setVisible(false)}
-            >
-              {I18n.t("termsModal.ok")}
-            </Button>
-          </ScrollView>
-        </GlassView>
+        <ScrollView>
+          <Text variant="headlineMedium" style={{ marginBottom: spacing.md }}>
+            {I18n.t("termsModal.termsService")}
+          </Text>
+          <Text style={{ marginBottom: spacing.lg }}>
+            {I18n.t("gdpr.policy")}
+          </Text>
+          <Button
+            mode="outlined"
+            testID="privacy-policy-link"
+            onPress={() => WebBrowser.openBrowserAsync(PRIVACY_POLICY_URL)}
+          >
+            {I18n.t("termsModal.viewCurrentPolicy")}
+          </Button>
+          <Button
+            mode="contained"
+            style={styles.button}
+            onPress={() => setVisible(false)}
+          >
+            {I18n.t("termsModal.ok")}
+          </Button>
+        </ScrollView>
       </Modal>
     </Portal>
   );
