@@ -1,0 +1,15 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "version": "15.7.5",
+    "info": {
+      "en-US": {
+        "title": "Puente - Collect",
+        "description": "Collect and geolocate data in any community worldwide with the Puente app, from Puente Desarrollo Internacional. Our software toolkit is designed for development practitioners and works in low internet connectivity or cellular signal region.\n\nKey features include:\n*Offline Data Collection\n*Custom Forms\n*Field-Based Data Collection\n*Patient Consent Form (GDPR Compliance)\n*Pre-built surveys that cover key health, education, socioeconomic, and infrastructure-related questions\n*Flexible response formats give community residents the ability to voice any issue\n\nGeolocation & Community Mapping\n*All survey submissions are anchored to the user's location (at the time of submission) unless users specify otherwise\n\nSupport Team\ninfo@puente-dr.org",
+        "releaseNotes": "Faster, more reliable resident search\n\n• Resident searches now use about half as much data, improving performance on weak connections.\n• Fixed a freeze when opening Find Records, especially for organizations with many residents.\n• Search results retain the details needed for offline work and safe record editing.\n• The sign-in language control now correctly reflects Spanish and Haitian Creole device settings.\n\nClearer privacy and support information\n\n• Updated the in-app privacy summary and linked it to Puente's current public privacy policy.\n• Aligned privacy and support information across Puente Collect, the App Store, the website, and launch guides.\n\n• Additional reliability improvements and bug fixes.\n\nThank you for the work you do in your community!",
+        "supportUrl": "https://www.puente-dr.org/",
+        "privacyPolicyUrl": "https://www.puente-dr.org/privacy-policy/"
+      }
+    }
+  }
+}
