@@ -2,6 +2,7 @@ const path = require("path");
 
 const {
   buildArguments,
+  metadataArguments,
   readWhatToTest,
 } = require("@app/scripts/release/buildSubmitIos");
 
@@ -21,6 +22,23 @@ describe("iOS build and submit", () => {
       "Please test Find Records",
     ]);
     expect(args).not.toContain("--latest");
+  });
+
+  it("syncs App Store metadata without prompts in CI", () => {
+    expect(metadataArguments({ nonInteractive: true })).toEqual([
+      "metadata:push",
+      "--profile",
+      "production",
+      "--non-interactive",
+    ]);
+  });
+
+  it("allows Apple authentication locally when a session needs refreshing", () => {
+    expect(metadataArguments()).toEqual([
+      "metadata:push",
+      "--profile",
+      "production",
+    ]);
   });
 
   it("reads the instructions for the exact marketing version", () => {
