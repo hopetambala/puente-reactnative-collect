@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [15.7.5](https://github.com/hopetambala/puente-reactnative-collect/compare/v15.7.4...v15.7.5) (2026-09-25)
 
+### User-facing changes
+
+* Resident searches use about half as much data, improving performance on weak connections.
+* Fixed a freeze that could occur when opening Find Records, especially for organizations with many residents.
+* Search results retain the details needed for offline work and safe record editing.
+* The sign-in language control now correctly follows Spanish and Haitian Creole device settings.
+* Updated the in-app privacy summary and linked it to Puente's current public privacy policy.
+* Aligned privacy and support information across Puente Collect, the App Store, the website, and the launch guides.
+* Additional reliability improvements and bug fixes.
+
 ### [15.7.4](///compare/v15.7.3...v15.7.4) (2026-09-24)
 
 

@@ -40,6 +40,8 @@
     "build-submit-ios": "eas build --platform ios --non-interactive && eas submit -p ios --latest --non-interactive",
     "build-submit-android": "eas build --platform android --non-interactive && eas submit -p android --latest --non-interactive",
     "submit-apps": "eas submit -p ios --latest --non-interactive && eas submit -p android --latest --non-interactive",
+    "store:pull": "eas metadata:pull --profile production",
+    "store:push": "eas metadata:push --profile production",
     "gh-prune": "git fetch -p && for branch in `git branch -vv | grep ': gone]' | awk '{print $1}'`; do git branch -D $branch; done",
     "release-patch": "standard-version --release-as patch",
     "release-minor": "standard-version --release-as minor",
