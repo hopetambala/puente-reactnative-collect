@@ -37,6 +37,12 @@ const PLIST = [
   '</plist>',
 ].join('\n');
 
+const STORE_CONFIG = JSON.stringify(
+  { configVersion: 0, apple: { version: '15.7.1', info: { 'en-US': { title: 'Puente - Collect' } } } },
+  null,
+  2
+);
+
 const fileEntry = (name) => versionrc.bumpFiles.find((f) => f.filename === name);
 
 /**
@@ -57,16 +63,16 @@ describe('.versionrc bumpFiles', () => {
     expect(fileEntry('package.json')).toBeTruthy();
   });
 
-  // Without these two the release commit is incomplete and the tag points at a
-  // tree whose native versions are stale.
-  it.each(['app.json', 'ios/Collect/Info.plist'])(
+  // Without these files the release commit is incomplete and the tag points at
+  // a tree whose native or store versions are stale.
+  it.each(['app.json', 'ios/Collect/Info.plist', 'store.config.json'])(
     'lists %s so the release commit contains it',
     (name) => {
       expect(fileEntry(name)).toBeTruthy();
     }
   );
 
-  it.each(['app.json', 'ios/Collect/Info.plist'])(
+  it.each(['app.json', 'ios/Collect/Info.plist', 'store.config.json'])(
     'points %s at an updater MODULE PATH, which is the only form standard-version loads',
     (name) => {
       expect(typeof fileEntry(name).updater).toBe('string');
@@ -119,6 +125,21 @@ describe('.versionrc bumpFiles', () => {
       const out = updater().writeVersion(PLIST, '15.7.2');
 
       expect(out).toContain('<key>CFBundleVersion</key>\n    <string>15.7.1</string>');
+    });
+  });
+
+  describe('store.config.json updater', () => {
+    const updater = () => updaterFor('store.config.json');
+
+    it('reads the App Store version train', () => {
+      expect(updater().readVersion(STORE_CONFIG)).toBe('15.7.1');
+    });
+
+    it('updates only the version while preserving listing metadata', () => {
+      const out = JSON.parse(updater().writeVersion(STORE_CONFIG, '15.7.2'));
+
+      expect(out.apple.version).toBe('15.7.2');
+      expect(out.apple.info['en-US'].title).toBe('Puente - Collect');
     });
   });
 });

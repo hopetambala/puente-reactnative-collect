@@ -37,7 +37,7 @@
     "prettier": "prettier --write '**/*.{js,jsx}'",
     "build-apps": "eas build --platform all",
     "build-submit-all": "eas build --platform all --non-interactive && eas submit -p ios --latest --non-interactive && eas submit -p android --latest --non-interactive",
-    "build-submit-ios": "eas build --platform ios --non-interactive && eas submit -p ios --latest --non-interactive",
+    "build-submit-ios": "node scripts/release/buildSubmitIos.js",
     "build-submit-android": "eas build --platform android --non-interactive && eas submit -p android --latest --non-interactive",
     "submit-apps": "eas submit -p ios --latest --non-interactive && eas submit -p android --latest --non-interactive",
     "store:pull": "eas metadata:pull --profile production",
