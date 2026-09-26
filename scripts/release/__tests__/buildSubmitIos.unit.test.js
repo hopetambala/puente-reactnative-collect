@@ -3,25 +3,42 @@ const path = require("path");
 const {
   buildArguments,
   metadataArguments,
+  parseBuildOutput,
   readWhatToTest,
+  submitArguments,
 } = require("@app/scripts/release/buildSubmitIos");
 
 describe("iOS build and submit", () => {
-  it("auto-submits the exact build and sends the versioned TestFlight instructions", () => {
-    const args = buildArguments("Please test Find Records");
-
-    expect(args).toEqual([
+  it("waits for a machine-readable iOS build result", () => {
+    expect(buildArguments()).toEqual([
       "build",
       "--platform",
       "ios",
       "--profile",
       "production",
       "--non-interactive",
-      "--auto-submit",
-      "--what-to-test",
-      "Please test Find Records",
+      "--wait",
+      "--json",
     ]);
+  });
+
+  it("submits only the build ID returned by EAS", () => {
+    const args = submitArguments("exact-build-id");
+
+    expect(args).toContain("exact-build-id");
     expect(args).not.toContain("--latest");
+  });
+
+  it("extracts the exact iOS build ID and number", () => {
+    expect(
+      parseBuildOutput(JSON.stringify([{ id: "build-id", platform: "IOS", appBuildVersion: "8" }]))
+    ).toEqual({ id: "build-id", platform: "IOS", appBuildVersion: "8" });
+  });
+
+  it("refuses build output without an exact build number", () => {
+    expect(() => parseBuildOutput(JSON.stringify({ id: "build-id" }))).toThrow(
+      /exact iOS build ID and build number/
+    );
   });
 
   it("syncs App Store metadata without prompts in CI", () => {
