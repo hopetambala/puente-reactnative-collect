@@ -105,15 +105,21 @@ unmerged commit, mismatched metadata, or a version train Apple has already
 released. `release-patch` also advances `store.config.json`, so App Store
 metadata and the binary stay on the same version. Before building, add focused
 tester instructions at `store/testflight/<version>.txt`; the build command
-passes that file to the exact auto-submitted build as TestFlight's “What to
-Test” notes and refuses to continue when it is missing. After the exact build
-is uploaded, the command also syncs `store.config.json`, including “What's
-New,” support, and privacy-policy metadata.
+submits only the exact build ID returned by EAS, then sends that file directly
+to Apple's API as TestFlight's “What to Test” notes. It refuses to continue
+when the file or App Store Connect API credentials are missing. After the exact
+build is uploaded, the command also syncs `store.config.json`, including
+“What's New,” support, and privacy-policy metadata.
 
 Merging a release PR that changes `package.json`'s version triggers the same
 flow automatically through `.github/workflows/release-ios.yml`. Ordinary
 package-script edits do not trigger a release. The workflow can also be run
 manually as a one-click fallback from GitHub Actions.
+
+The GitHub release workflow restores the gitignored production
+`environment.js` from the encrypted `ENVIRONMENT_JS` repository secret. It
+uses `ASC_KEY_ID`, `ASC_ISSUER_ID`, and `ASC_PRIVATE_KEY` to update TestFlight
+notes directly through Apple's API without exposing those credentials in Git.
 
 ### First Time Setup
 
