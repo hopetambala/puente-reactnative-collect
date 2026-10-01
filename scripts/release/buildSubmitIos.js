@@ -9,6 +9,9 @@ const {
   setTestFlightNotes,
 } = require("./appStoreConnect");
 const { runPreflight } = require("./iosReleasePreflight");
+// Run by plain `node` in CI, where the babel @app alias does not resolve.
+// eslint-disable-next-line module-resolver/use-alias
+const { updateInfoPlist } = require("../update-version/versionNumber");
 
 const ROOT = path.resolve(__dirname, "../..");
 
@@ -75,6 +78,37 @@ function readWhatToTest(version, root = ROOT) {
   return notes;
 }
 
+/**
+ * Writes the build number Apple just accepted into app.json and Info.plist.
+ *
+ * With appVersionSource "local", the next build increments whatever app.json
+ * holds. EAS does not reliably write its increment back, and in CI the
+ * checkout is thrown away, so without this master stays one build behind
+ * App Store Connect and a rebuild of the same train reuses a consumed number.
+ */
+function recordBuildNumber(buildNumber, root = ROOT) {
+  const appJsonPath = path.join(root, "app.json");
+  const infoPlistPath = path.join(root, "ios/Collect/Info.plist");
+
+  const appJson = JSON.parse(fs.readFileSync(appJsonPath, "utf8"));
+  appJson.expo.ios.buildNumber = String(buildNumber);
+  fs.writeFileSync(appJsonPath, `${JSON.stringify(appJson, null, 2)}\n`, "utf8");
+
+  const plist = fs.readFileSync(infoPlistPath, "utf8");
+  fs.writeFileSync(
+    infoPlistPath,
+    updateInfoPlist(plist, { buildNumber: String(buildNumber) }),
+    "utf8"
+  );
+}
+
+/** Hands the submitted build to later workflow steps; a no-op outside Actions. */
+function writeWorkflowOutputs(outputs, outputPath = process.env.GITHUB_OUTPUT) {
+  if (!outputPath) return;
+  const lines = Object.entries(outputs).map(([key, value]) => `${key}=${value}\n`);
+  fs.appendFileSync(outputPath, lines.join(""));
+}
+
 async function main() {
   const { localVersion } = await runPreflight();
   const whatToTest = readWhatToTest(localVersion);
@@ -106,6 +140,12 @@ async function main() {
   if (submitResult.error) throw submitResult.error;
   if (submitResult.status !== 0) process.exit(submitResult.status || 1);
 
+  // Recorded before the notes and metadata steps: the number is consumed the
+  // moment Apple accepts the binary, whether or not those later steps succeed.
+  recordBuildNumber(build.appBuildVersion);
+  writeWorkflowOutputs({ version: localVersion, build_number: build.appBuildVersion });
+  console.log(`✅ Recorded build ${build.appBuildVersion} in app.json and Info.plist`);
+
   await setTestFlightNotes({
     appId: "1362371696",
     marketingVersion: localVersion,
@@ -129,7 +169,9 @@ module.exports = {
   metadataArguments,
   parseBuildOutput,
   readWhatToTest,
+  recordBuildNumber,
   submitArguments,
+  writeWorkflowOutputs,
 };
 
 if (require.main === module) {

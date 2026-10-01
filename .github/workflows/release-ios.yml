@@ -35,6 +35,9 @@ jobs:
     needs: gate
     if: needs.gate.outputs.should_release == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Checkout merged master
         uses: actions/checkout@v4
@@ -74,8 +77,44 @@ jobs:
           echo "EXPO_ASC_ISSUER_ID=$ASC_ISSUER_ID" >> "$GITHUB_ENV"
 
       - name: Release the merged iOS version
+        id: release
         env:
           CI: 'true'
           EXPO_APPLE_ID: ${{ secrets.EXPO_APPLE_EMAIL_ADDRESS }}
           EXPO_APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.EXPO_APPLE_APP_SPECIFIC_PASSWORD }}
         run: yarn build-submit-ios
+
+      # The checkout is discarded after this job, so the build number Apple
+      # accepted has to go back to master as a PR, or the next build of the
+      # same train reuses it. Runs even if notes or metadata failed afterwards:
+      # the number is consumed once the submit succeeds.
+      - name: Open a PR recording the submitted build number
+        if: always() && steps.release.outputs.build_number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.release.outputs.version }}
+          BUILD_NUMBER: ${{ steps.release.outputs.build_number }}
+        run: |
+          if git diff --quiet -- app.json ios/Collect/Info.plist; then
+            echo "master already records build $BUILD_NUMBER for $VERSION"
+            exit 0
+          fi
+
+          BRANCH="record-build-$BUILD_NUMBER-$VERSION"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git add app.json ios/Collect/Info.plist
+          git commit -m "chore(release): record iOS build $BUILD_NUMBER for $VERSION"
+          git push --force origin "$BRANCH"
+
+          if gh pr view "$BRANCH" --json state --jq .state | grep -q OPEN; then
+            echo "PR for $BRANCH already open"
+            exit 0
+          fi
+
+          gh pr create --base master --head "$BRANCH" \
+            --title "chore(release): record iOS build $BUILD_NUMBER for $VERSION" \
+            --body "Records the build number App Store Connect accepted for Puente Collect $VERSION ($BUILD_NUMBER), so the next build of this train does not reuse it.
+
+          Opened by [Release iOS run $GITHUB_RUN_ID]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
