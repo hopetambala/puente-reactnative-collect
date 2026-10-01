@@ -27,7 +27,7 @@ yarn lint-fix                     # ESLint auto-fix
 yarn lint:animations              # animation system lint (checks for token violations)
 yarn lint:theme-imports           # design token import lint
 yarn release-patch                # bump the version; MERGING that PR is the iOS release (CI builds it)
-yarn build-submit-ios             # what CI runs; locally it is only the fallback when CI fails
+yarn build-submit-ios             # what CI runs; run it locally when Actions can't (billing, outage)
 ```
 
 ## Directory structure
@@ -320,7 +320,8 @@ other `package.json` edits do not. The whole flow:
    `store/testflight/<version>.txt` holds focused "What to Test" notes for
    testers. The release refuses to start without that file.
 2. **Bump and merge:** `yarn release-patch|minor|major` on a branch, open a PR,
-   merge it. That merge is the release. Do not run anything locally afterwards.
+   merge it. That merge is the release. Do not also build locally unless CI
+   could not run (see below).
 3. **CI runs `yarn build-submit-ios`** (`scripts/release/buildSubmitIos.js`) on
    a fresh checkout of master:
    - preflight: clean merged master, every version file agrees, and the version
@@ -339,22 +340,46 @@ other `package.json` edits do not. The whole flow:
    fine-grained token (Contents and Pull requests read/write) that expires, and
    the workflow silently falls back to `GITHUB_TOKEN`, which triggers no CI.
 
-**Never also run `yarn build-submit-ios` locally after merging a bump.** CI is
-already building. Both start from the same `app.json` build number, produce the
-same next number, and Apple refuses whichever uploads second.
+**One release, one builder.** Never run `yarn build-submit-ios` locally while
+the CI release for that merge is running or has already submitted. Both start
+from the same `app.json` build number, produce the same next number, and Apple
+refuses whichever uploads second.
 
-**When the CI release fails,** read the run log before doing anything:
+**Check whether CI actually ran** before deciding:
+
+```bash
+gh run list --workflow release-ios.yml --commit <merge-sha>
+```
+
+**When Actions cannot run, release locally — that is a supported path, not a
+hack.** GitHub Actions billing breaks sometimes (a failed payment locks the
+account) and Actions has outages. The run then never starts: it shows up as
+failed with a billing or "not started" annotation, or not at all. In that case:
+
+1. Confirm the run did not get as far as "Submitted your app" (or did not run
+   at all).
+2. From a clean `master` that matches `origin/master` (the preflight refuses
+   anything else), with Node >= 22, run `yarn build-submit-ios`. It needs:
+   - the production `environment.js` on disk (CI writes it from the
+     `ENVIRONMENT_JS` secret; locally it is your own copy);
+   - the App Store Connect key env vars `EXPO_ASC_API_KEY_PATH` (the `.p8`),
+     `EXPO_ASC_KEY_ID` and `EXPO_ASC_ISSUER_ID`. Without them the script stops
+     before building, because it cannot set the TestFlight notes.
+3. It leaves the build-number change in `app.json` and `Info.plist`. No
+   record-build PR is opened locally: commit those two files on their own
+   branch (`record-build-<N>-<version>`) and merge that PR yourself.
+4. When Actions comes back, **do not re-run the workflow for that merge.** The
+   version is already on TestFlight, and a re-run just uploads a second build.
+
+**When the CI release ran and failed,** read the run log before doing anything:
 
 - **Failed before "Submitted your app":** nothing reached Apple. Re-run it from
   GitHub Actions (`Release iOS` → Run workflow; a manual run skips the
-  version-change gate).
+  version-change gate). If Actions itself is the problem, release locally as
+  above.
 - **Failed after the submit** (notes or metadata): the binary is on TestFlight
   and the record-build PR is still opened. Merge that PR first, then fix
   forward; re-running before it merges rebuilds a consumed number.
-- **Running `yarn build-submit-ios` locally** is the last resort, from a clean,
-  current master. It needs Node >= 22 and the App Store Connect key env vars
-  (`EXPO_ASC_API_KEY_PATH`, `EXPO_ASC_KEY_ID`, `EXPO_ASC_ISSUER_ID`). It leaves
-  the build-number change in your tree; commit it on its own branch.
 
 The workflow's secrets: `EXPO_TOKEN`; `ENVIRONMENT_JS` (production
 `environment.js`, see below); `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_PRIVATE_KEY`;

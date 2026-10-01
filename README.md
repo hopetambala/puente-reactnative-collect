@@ -102,8 +102,10 @@ For an iOS patch release, run `yarn release-patch` and push the generated
 release commit and tag through a pull request. **Merging that PR is the
 release:** `.github/workflows/release-ios.yml` runs `yarn build-submit-ios` on
 the merged `master`, so do not also run it locally — two builds of one train
-start from the same build number and Apple rejects the second. Running it
-locally is the fallback when the workflow fails. The preflight refuses a dirty branch, an
+start from the same build number and Apple rejects the second. When Actions
+cannot run (a billing lock or an outage), run `yarn build-submit-ios` locally
+from the merged `master` instead, then commit the build number it records in
+`app.json` and `Info.plist` through its own PR. The preflight refuses a dirty branch, an
 unmerged commit, mismatched metadata, or a version train Apple has already
 released. `release-patch` also advances `store.config.json`, so App Store
 metadata and the binary stay on the same version. Before building, add focused
