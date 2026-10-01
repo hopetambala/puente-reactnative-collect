@@ -98,9 +98,12 @@ Build and deployment commands:
 - `yarn build-submit-ios`: From a clean, current `master`, verify that every version file agrees and that the marketing version is newer than the live App Store version, then build and auto-submit that exact iOS artifact
 - `yarn submit-apps`: Submit the latest builds to both App Store and Google Play
 
-For an iOS patch release, run `yarn release-patch`, push the generated release
-commit and tag through a pull request, merge it, and update local `master` before
-running `yarn build-submit-ios`. The preflight refuses a dirty branch, an
+For an iOS patch release, run `yarn release-patch` and push the generated
+release commit and tag through a pull request. **Merging that PR is the
+release:** `.github/workflows/release-ios.yml` runs `yarn build-submit-ios` on
+the merged `master`, so do not also run it locally — two builds of one train
+start from the same build number and Apple rejects the second. Running it
+locally is the fallback when the workflow fails. The preflight refuses a dirty branch, an
 unmerged commit, mismatched metadata, or a version train Apple has already
 released. `release-patch` also advances `store.config.json`, so App Store
 metadata and the binary stay on the same version. Before building, add focused
@@ -111,10 +114,12 @@ when the file or App Store Connect API credentials are missing. After the exact
 build is uploaded, the command also syncs `store.config.json`, including
 “What's New,” support, and privacy-policy metadata.
 
-Merging a release PR that changes `package.json`'s version triggers the same
-flow automatically through `.github/workflows/release-ios.yml`. Ordinary
-package-script edits do not trigger a release. The workflow can also be run
-manually as a one-click fallback from GitHub Actions.
+Only a merge that changes `package.json`'s version triggers the workflow;
+ordinary package-script edits do not. It can also be run manually from GitHub
+Actions. After the submit, the workflow opens a
+`chore(release): record iOS build <N> for <version>` PR that writes the build
+number Apple accepted back to `app.json` and `Info.plist` — merge it, or the
+next build of that version reuses a consumed build number.
 
 The GitHub release workflow restores the gitignored production
 `environment.js` from the encrypted `ENVIRONMENT_JS` repository secret. It

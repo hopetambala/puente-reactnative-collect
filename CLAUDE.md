@@ -1,8 +1,14 @@
-# Puente Collect — CLAUDE.md
+# Puente Collect — agent guide
 
 Community health data collection app for field workers (promotores de salud).
 Built with Expo / React Native. Talks to a Parse/Back4App backend. Offline-first:
 data entered without a connection is saved locally and syncs when reconnected.
+
+This file is read by every coding agent on the repo: Claude Code reads
+`CLAUDE.md`, and Codex and Cursor read `AGENTS.md`, which is a symlink to it.
+**Edit `CLAUDE.md`**; never replace the symlink with a copy, or the two drift.
+The "Skills and agents" section is Claude Code–specific; other agents can read
+`.claude/skills/*/SKILL.md` as plain instructions.
 
 ---
 
@@ -20,7 +26,8 @@ yarn test:integration             # integration tests only
 yarn lint-fix                     # ESLint auto-fix
 yarn lint:animations              # animation system lint (checks for token violations)
 yarn lint:theme-imports           # design token import lint
-yarn build-submit-ios             # create expo build, then submit that latest build to testflight
+yarn release-patch                # bump the version; MERGING that PR is the iOS release (CI builds it)
+yarn build-submit-ios             # what CI runs; locally it is only the fallback when CI fails
 ```
 
 ## Directory structure
@@ -266,6 +273,9 @@ bucket, which is why the org-scope flow asserts against its alias set.
 
 ### The release gate — run the Maestro harness BEFORE every release, always
 
+**Run it before you merge the version-bump PR** — that merge starts the build
+(see "How a release runs" below), so there is no later moment to run it.
+
 **No release is cut without an E2E pass on the harness. Ever.** Unit tests
 green, lint clean and CI green are not a release gate on a mobile app: none of
 them execute the screen a surveyor actually touches, and the cost of being wrong
@@ -300,19 +310,63 @@ smoke test. If a flow for your change does not exist, **write one** — the sign
 organization picker was broken for four and a half years partly because
 `.maestro/` had no registration flow and no test referenced `AutoFill`.
 
-### Releases are cut LOCALLY, not from CI
+### How a release runs — merging the version bump IS the iOS release
 
-**Use `yarn build-submit-ios`** — it is in the Commands block at the top of this
-file, and it is the whole release. It expands to
-`eas build --platform ios --non-interactive && eas submit -p ios --latest
---non-interactive`. Siblings: `build-submit-android`, `build-submit-all`, and
-`submit-apps` (submits an already-built artifact without rebuilding).
+iOS releases run in GitHub Actions (`.github/workflows/release-ios.yml`).
+Merging a PR into `master` that changes `package.json`'s `version` starts one;
+other `package.json` edits do not. The whole flow:
 
-Do not reconstruct these from raw `eas` flags. They exist so nobody has to.
+1. **Before merging the bump:** the Maestro release gate above has passed, and
+   `store/testflight/<version>.txt` holds focused "What to Test" notes for
+   testers. The release refuses to start without that file.
+2. **Bump and merge:** `yarn release-patch|minor|major` on a branch, open a PR,
+   merge it. That merge is the release. Do not run anything locally afterwards.
+3. **CI runs `yarn build-submit-ios`** (`scripts/release/buildSubmitIos.js`) on
+   a fresh checkout of master:
+   - preflight: clean merged master, every version file agrees, and the version
+     is newer than the live App Store version;
+   - `eas metadata:lint`, then the EAS build;
+   - submit that exact build ID (never `--latest`);
+   - write the build number Apple accepted into `app.json` and `Info.plist`;
+   - set TestFlight "What to Test" through the App Store Connect API;
+   - `eas metadata:push`.
+4. **Merge the record-build PR.** CI then opens
+   `chore(release): record iOS build <N> for <version>`, changing only
+   `app.json` and `Info.plist`. Until it merges, master is one build behind App
+   Store Connect, and the next build of that train reuses a number Apple has
+   already consumed. It is pushed and opened with the `RELEASE_PR_TOKEN` secret
+   so CI runs on it. If CI does not run, suspect that token first: it is a
+   fine-grained token (Contents and Pull requests read/write) that expires, and
+   the workflow silently falls back to `GITHUB_TOKEN`, which triggers no CI.
 
-The GitHub `EAS Build` workflow has **never** succeeded. Do not reach for it as
-"the" release path and do not conclude the pipeline is broken when a local build
-works fine — those are different paths.
+**Never also run `yarn build-submit-ios` locally after merging a bump.** CI is
+already building. Both start from the same `app.json` build number, produce the
+same next number, and Apple refuses whichever uploads second.
+
+**When the CI release fails,** read the run log before doing anything:
+
+- **Failed before "Submitted your app":** nothing reached Apple. Re-run it from
+  GitHub Actions (`Release iOS` → Run workflow; a manual run skips the
+  version-change gate).
+- **Failed after the submit** (notes or metadata): the binary is on TestFlight
+  and the record-build PR is still opened. Merge that PR first, then fix
+  forward; re-running before it merges rebuilds a consumed number.
+- **Running `yarn build-submit-ios` locally** is the last resort, from a clean,
+  current master. It needs Node >= 22 and the App Store Connect key env vars
+  (`EXPO_ASC_API_KEY_PATH`, `EXPO_ASC_KEY_ID`, `EXPO_ASC_ISSUER_ID`). It leaves
+  the build-number change in your tree; commit it on its own branch.
+
+The workflow's secrets: `EXPO_TOKEN`; `ENVIRONMENT_JS` (production
+`environment.js`, see below); `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_PRIVATE_KEY`;
+`EXPO_APPLE_EMAIL_ADDRESS`, `EXPO_APPLE_APP_SPECIFIC_PASSWORD`; and
+`RELEASE_PR_TOKEN`.
+
+**Android is not automated.** `yarn build-submit-android` runs locally and does
+not record its `versionCode`; reconcile it by hand as described under "Version
+bumping" below.
+
+Use the scripts and do not reconstruct them from raw `eas` flags. They exist so
+nobody has to.
 
 ### `.easignore` is why gitignored files still reach the build
 
@@ -334,17 +388,17 @@ would reintroduce that.
 This is the single most misread thing about this repo's release setup:
 
 - **Local build** — `environment.js` is on disk, `.easignore` lets it through. Works.
-- **CI build** — the runner checks out from git, so the file never exists on
-  disk at all. `.easignore` cannot include what is not there, and the build dies
-  in the `Bundle JavaScript` phase with
+- **CI build** — the runner checks out from git, so the file is not on disk.
+  `release-ios.yml` writes it from the `ENVIRONMENT_JS` secret (PRODUCTION
+  credentials) before building. Any other workflow that builds needs the same
+  step, or it dies in the `Bundle JavaScript` phase with
   `Unable to resolve module ../../../environment`.
 
-If you ever do fix CI, the fix is to generate `environment.js` on the runner —
-and it must use PRODUCTION Parse credentials. The existing `PARSE_APP_ID` /
-`PARSE_JAVASCRIPT_KEY` secrets are the TEST app: `preview.yaml` builds its
-config from them with `TEST_MODE: true` and `puente-test-logs`. Shipping a
-TestFlight build pointed at staging means surveyors collecting into the wrong
-database.
+Never build a release `environment.js` from the `PARSE_APP_ID` /
+`PARSE_JAVASCRIPT_KEY` secrets: those are the TEST app, and `preview.yaml`
+builds its config from them with `TEST_MODE: true` and `puente-test-logs`.
+Shipping a TestFlight build pointed at staging means surveyors collecting into
+the wrong database.
 
 ### Node version
 
@@ -408,9 +462,9 @@ Left alone that is a guaranteed rejection: the next build reads `15.7.0` again,
 increments to `15.7.1` a second time, and Apple refuses a duplicate
 `CFBundleVersion` inside the same train.
 
-`yarn build-submit-ios` now does the reconcile itself: once Apple accepts the
-binary, `scripts/release/buildSubmitIos.js` writes the build number EAS
-returned into `app.json` and `Info.plist`'s `CFBundleVersion`. In CI the
+For iOS, `yarn build-submit-ios` now does the reconcile itself: once Apple
+accepts the binary, `scripts/release/buildSubmitIos.js` writes the build number
+EAS returned into `app.json` and `Info.plist`'s `CFBundleVersion`. In CI the
 `Release iOS` workflow then opens a `record-build-<N>-<version>` PR with just
 those two files — merge it, or the next build of the train reuses the number
 (build 8 of `15.7.5` sat unrecorded on master this way). The PR is pushed and
@@ -418,9 +472,11 @@ opened with the `RELEASE_PR_TOKEN` secret when it exists, so CI runs on it;
 without the secret it falls back to `GITHUB_TOKEN`, and CI does not run.
 Run locally, the files are left changed in your tree for you to commit.
 
-Other `yarn build-submit-*` scripts do not do this yet: read the build number
-off the EAS output ("Build number: Y"), confirm `app.json` and `Info.plist`'s
-`CFBundleVersion` both say Y, and commit them if they do not. Leave
+Other `yarn build-submit-*` scripts (`-android`, `-all`) do not do this yet:
+read the number off the EAS output ("Build number: Y" / "Version code: Y"),
+confirm the files say Y (`ios.buildNumber` and `Info.plist`'s
+`CFBundleVersion` for iOS, `android.versionCode` for Android), and commit them
+if they do not. Leave
 `CFBundleShortVersionString` alone — that is the train, and it only moves on a
 real version bump.
 
