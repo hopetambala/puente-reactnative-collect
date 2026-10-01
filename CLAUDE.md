@@ -408,10 +408,20 @@ Left alone that is a guaranteed rejection: the next build reads `15.7.0` again,
 increments to `15.7.1` a second time, and Apple refuses a duplicate
 `CFBundleVersion` inside the same train.
 
-So after every `yarn build-submit-*`: read the build number off the EAS output
-("Build number: Y"), confirm `app.json` and `Info.plist`'s `CFBundleVersion`
-both say Y, and commit them if they do not. Leave `CFBundleShortVersionString`
-alone — that is the train, and it only moves on a real version bump.
+`yarn build-submit-ios` now does the reconcile itself: once Apple accepts the
+binary, `scripts/release/buildSubmitIos.js` writes the build number EAS
+returned into `app.json` and `Info.plist`'s `CFBundleVersion`. In CI the
+`Release iOS` workflow then opens a `record-build-<N>-<version>` PR with just
+those two files — merge it, or the next build of the train reuses the number
+(build 8 of `15.7.5` sat unrecorded on master this way). That PR is opened with
+`GITHUB_TOKEN`, so CI does not run on it; it only touches the two counters.
+Run locally, the files are left changed in your tree for you to commit.
+
+Other `yarn build-submit-*` scripts do not do this yet: read the build number
+off the EAS output ("Build number: Y"), confirm `app.json` and `Info.plist`'s
+`CFBundleVersion` both say Y, and commit them if they do not. Leave
+`CFBundleShortVersionString` alone — that is the train, and it only moves on a
+real version bump.
 
 Commit that reconcile **on its own**. On the `15.7.2` build the bump was swept
 into an unrelated docs commit by a `git add -A`, which is how a version change

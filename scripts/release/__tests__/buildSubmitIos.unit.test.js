@@ -1,3 +1,5 @@
+const fs = require("fs");
+const os = require("os");
 const path = require("path");
 
 const {
@@ -5,7 +7,9 @@ const {
   metadataArguments,
   parseBuildOutput,
   readWhatToTest,
+  recordBuildNumber,
   submitArguments,
+  writeWorkflowOutputs,
 } = require("@app/scripts/release/buildSubmitIos");
 
 describe("iOS build and submit", () => {
@@ -71,5 +75,60 @@ describe("iOS build and submit", () => {
     expect(() => readWhatToTest("99.99.99", "/tmp/no-such-release-root")).toThrow(
       /Missing store\/testflight\/99.99.99.txt/
     );
+  });
+
+  describe("recording the submitted build number", () => {
+    const repoRoot = path.resolve(__dirname, "../../..");
+    let root;
+
+    beforeEach(() => {
+      root = fs.mkdtempSync(path.join(os.tmpdir(), "record-build-"));
+      fs.mkdirSync(path.join(root, "ios/Collect"), { recursive: true });
+      fs.copyFileSync(path.join(repoRoot, "app.json"), path.join(root, "app.json"));
+      fs.copyFileSync(
+        path.join(repoRoot, "ios/Collect/Info.plist"),
+        path.join(root, "ios/Collect/Info.plist")
+      );
+    });
+
+    afterEach(() => fs.rmSync(root, { recursive: true, force: true }));
+
+    it("writes the build number to app.json and Info.plist", () => {
+      recordBuildNumber("42", root);
+
+      const appJson = JSON.parse(fs.readFileSync(path.join(root, "app.json"), "utf8"));
+      const plist = fs.readFileSync(path.join(root, "ios/Collect/Info.plist"), "utf8");
+
+      expect(appJson.expo.ios.buildNumber).toBe("42");
+      expect(plist).toMatch(/<key>CFBundleVersion<\/key>\s*<string>42<\/string>/);
+    });
+
+    it("leaves the marketing version and Android versionCode alone", () => {
+      const before = JSON.parse(fs.readFileSync(path.join(root, "app.json"), "utf8"));
+      const plistBefore = fs.readFileSync(path.join(root, "ios/Collect/Info.plist"), "utf8");
+
+      recordBuildNumber("42", root);
+
+      const after = JSON.parse(fs.readFileSync(path.join(root, "app.json"), "utf8"));
+      const plistAfter = fs.readFileSync(path.join(root, "ios/Collect/Info.plist"), "utf8");
+      const shortVersion = (plist) =>
+        plist.match(/<key>CFBundleShortVersionString<\/key>\s*<string>([^<]*)/)[1];
+
+      expect(after.expo.version).toBe(before.expo.version);
+      expect(after.expo.android.versionCode).toBe(before.expo.android.versionCode);
+      expect(shortVersion(plistAfter)).toBe(shortVersion(plistBefore));
+    });
+
+    it("hands the submitted build to later workflow steps", () => {
+      const outputPath = path.join(root, "github-output");
+
+      writeWorkflowOutputs({ version: "15.7.5", build_number: "8" }, outputPath);
+
+      expect(fs.readFileSync(outputPath, "utf8")).toBe("version=15.7.5\nbuild_number=8\n");
+    });
+
+    it("writes no workflow outputs outside GitHub Actions", () => {
+      expect(() => writeWorkflowOutputs({ build_number: "8" }, undefined)).not.toThrow();
+    });
   });
 });
