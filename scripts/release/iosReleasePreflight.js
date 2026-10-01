@@ -71,8 +71,8 @@ function assertVersionIsNewer(localVersion, publicVersion) {
   if (compareVersions(localVersion, publicVersion) <= 0) {
     throw new Error(
       `Local iOS version ${localVersion} must be newer than the public App Store ` +
-      `version ${publicVersion}. Run yarn release-patch, open and merge the release PR, ` +
-      `then run yarn build-submit-ios from the updated master branch.`
+      `version ${publicVersion}. Run yarn release-patch and merge the release PR; ` +
+      `merging it starts the Release iOS workflow. Build locally only if Actions cannot run.`
     );
   }
 }
