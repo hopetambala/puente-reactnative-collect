@@ -413,8 +413,9 @@ binary, `scripts/release/buildSubmitIos.js` writes the build number EAS
 returned into `app.json` and `Info.plist`'s `CFBundleVersion`. In CI the
 `Release iOS` workflow then opens a `record-build-<N>-<version>` PR with just
 those two files — merge it, or the next build of the train reuses the number
-(build 8 of `15.7.5` sat unrecorded on master this way). That PR is opened with
-`GITHUB_TOKEN`, so CI does not run on it; it only touches the two counters.
+(build 8 of `15.7.5` sat unrecorded on master this way). The PR is pushed and
+opened with the `RELEASE_PR_TOKEN` secret when it exists, so CI runs on it;
+without the secret it falls back to `GITHUB_TOKEN`, and CI does not run.
 Run locally, the files are left changed in your tree for you to commit.
 
 Other `yarn build-submit-*` scripts do not do this yet: read the build number

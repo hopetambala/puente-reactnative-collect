@@ -43,6 +43,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # Pushes and PRs made with GITHUB_TOKEN do not trigger workflows, so
+          # the record-build PR only gets CI when RELEASE_PR_TOKEN is set.
+          token: ${{ secrets.RELEASE_PR_TOKEN || github.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -91,7 +94,7 @@ jobs:
       - name: Open a PR recording the submitted build number
         if: always() && steps.release.outputs.build_number != ''
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.RELEASE_PR_TOKEN || github.token }}
           VERSION: ${{ steps.release.outputs.version }}
           BUILD_NUMBER: ${{ steps.release.outputs.build_number }}
         run: |
