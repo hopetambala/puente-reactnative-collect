@@ -47,14 +47,14 @@ appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter12
             TAB_ID: "tab-home"
             EXPECT: "Last 7 Days"
       - runFlow:
-          file: open-tab.yaml
-          env:
-            TAB_ID: "tab-data-collection"
-            EXPECT: "Puente Forms"
-      - runFlow:
           when:
             true: ${STATE == 'ON'}
           commands:
+            - runFlow:
+                file: open-tab.yaml
+                env:
+                  TAB_ID: "tab-data-collection"
+                  EXPECT: "Puente Forms"
             - extendedWaitUntil:
                 visible: "You're offline. Records will save and sync automatically."
                 timeout: 20000
@@ -62,8 +62,13 @@ appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter12
           when:
             true: ${STATE == 'OFF'}
           commands:
+            - runFlow:
+                file: open-tab.yaml
+                env:
+                  TAB_ID: "tab-offline"
+                  EXPECT: "Offline Sync"
             - extendedWaitUntil:
-                notVisible: "You're offline. Records will save and sync automatically."
+                visible: "^Online$"
                 timeout: 20000
 
 # The switch is a toggle, so only flip it when it is not already where we want

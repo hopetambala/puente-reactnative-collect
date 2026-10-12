@@ -1,11 +1,12 @@
 {
-  "reviewedOn": "2026-10-11",
+  "reviewedOn": "2026-10-12",
   "privacyPolicyUrl": "https://www.puente-dr.org/privacy-policy/",
   "encryptedInTransit": true,
   "deletionRequestsSupported": true,
   "shared": false,
   "ephemeral": false,
   "purpose": "PSL_APP_FUNCTIONALITY",
+  "accountManagement": ["PSL_NAME", "PSL_EMAIL", "PSL_USER_ACCOUNT", "PSL_PHONE"],
   "required": ["PSL_NAME", "PSL_EMAIL", "PSL_USER_ACCOUNT", "PSL_OTHER_PERSONAL"],
   "optional": ["PSL_ADDRESS", "PSL_PHONE", "PSL_APPROX_LOCATION", "PSL_PRECISE_LOCATION", "PSL_HEALTH", "PSL_PHOTOS", "PSL_USER_GENERATED_CONTENT"],
   "basis": "Account and survey collection in the production app: names, email, account and resident identifiers, demographics, household address, phone, geolocation, resident photos, health/vitals/medical forms, and custom survey answers. Processing is for providing the service; organizational access follows the surveyor's organization and consent flow. Service-provider processing and user-initiated survey submission are excluded from Google's sharing definition. Records are retained rather than processed ephemerally. No advertising, tracking, personalization, or independent security-audit claim is made."

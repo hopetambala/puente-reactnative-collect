@@ -108,6 +108,7 @@ partner organization.
 |---|---|---|
 | `offline-resident-id.yaml` | Submit offline → queued → success page → "Retry" badge | Yes |
 | `offline-sync.yaml` | Submit offline → reconnect → "Retry" → queue empties | Yes |
+| `android-release.yaml` | Standalone Android: save in airplane mode → cold restart with restored session → queue persists → reconnect and sync → named record read back from server | Yes — production internal-test account only |
 | `offline-multiple-forms.yaml` | Two forms offline → badge accumulates → sync clears both | Yes |
 | `offline-badge-persistence.yaml` | Submit offline → force-kill → cold relaunch → badge survives | Yes |
 | `offline-linked-forms.yaml` | Linked forms queue and sync together | Yes |

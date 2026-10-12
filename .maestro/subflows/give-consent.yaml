@@ -32,6 +32,7 @@
 appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 - waitForAnimationToEnd
+- evalScript: ${output.usedConsentIds = false}
 
 # Preferred path: tap what the user sees, by id.
 - runFlow:
@@ -42,6 +43,7 @@ appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter12
       - tapOn:
           id: "gdpr-consent-row"
       - waitForAnimationToEnd
+      - evalScript: ${output.usedConsentIds = true}
       - tapOn:
           id: "gdpr-continue-button"
       - waitForAnimationToEnd
@@ -51,12 +53,14 @@ appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter12
 # and they all show the offline banner, so these are the banner-shifted numbers.
 - runFlow:
     when:
+      true: ${!output.usedConsentIds}
       notVisible:
         id: "gdpr-consent-row"
     commands:
       - tapOn:
           point: "10%, 71%"
       - waitForAnimationToEnd
+
       # A miss checks nothing, and Continue then raises the mustConsent alert
       # rather than advancing. Clear it so the Continue tap below lands on the
       # consent screen rather than on a modal.
@@ -69,3 +73,7 @@ appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter12
       - tapOn:
           point: "50%, 79%"
       - waitForAnimationToEnd
+
+- extendedWaitUntil:
+    visible: "First Name|Nombre"
+    timeout: 20000
