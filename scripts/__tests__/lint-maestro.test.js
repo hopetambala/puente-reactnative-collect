@@ -81,6 +81,35 @@ describe('lintFlows', () => {
     expect(rulesFor('wrong-app.yaml', lintFlows(dir))).toContain('wrong-app-id');
   });
 
+  it('accepts the Android package and shared platform appId while rejecting arbitrary app IDs', () => {
+    const appIds = {
+      'ios.yaml': 'io.ionic.starter1270348',
+      'android.yaml': 'puente.collect',
+      // Maestro evaluates this literal expression; JavaScript must preserve it.
+      // eslint-disable-next-line no-template-curly-in-string
+      'shared.yaml': "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}",
+      'wrong-app.yaml': 'com.example.other',
+      // Preserve the invalid Maestro expression to test the exact app ID guard.
+      // eslint-disable-next-line no-template-curly-in-string
+      'wrong-shared.yaml': "${maestro.platform == 'android' ? 'com.example.other' : 'io.ionic.starter1270348'}",
+    };
+
+    Object.entries(appIds).forEach(([name, appId]) => {
+      fs.writeFileSync(
+        path.join(dir, name),
+        `appId: ${appId}\n---\n- assertVisible: "Home"\n`
+      );
+    });
+
+    const findings = lintFlows(dir);
+
+    expect(rulesFor('wrong-app.yaml', findings)).toContain('wrong-app-id');
+    expect(rulesFor('wrong-shared.yaml', findings)).toContain('wrong-app-id');
+    expect(findings.filter(({ file }) => (
+      ['ios.yaml', 'android.yaml', 'shared.yaml'].includes(file)
+    ))).toEqual([]);
+  });
+
   // authenticated.yaml delegates every assertion to open-tab.yaml. A flow whose
   // checks all live one level down is asserted, not silent.
   it('counts assertions inherited from a called subflow', () => {

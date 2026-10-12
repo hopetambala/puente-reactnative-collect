@@ -33,7 +33,7 @@
 # Run:
 #   yarn start:staging-clear      # Metro FIRST
 #   yarn maestro .maestro/resident-search-by-id.yaml
-appId: io.ionic.starter1270348
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 - launchApp
 

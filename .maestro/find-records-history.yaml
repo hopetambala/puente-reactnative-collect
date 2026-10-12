@@ -13,7 +13,7 @@
 #      maestro test -e PARSE_USERNAME=Test -e PARSE_PASSWORD=test .maestro/find-records-history.yaml
 #
 # Screenshots written to .claude/screenshots/find-records-*.png
-appId: io.ionic.starter1270348
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 - launchApp
 

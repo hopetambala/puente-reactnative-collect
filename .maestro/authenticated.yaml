@@ -11,7 +11,7 @@
 #
 # Run:
 #   yarn maestro .maestro/authenticated.yaml
-appId: io.ionic.starter1270348
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 # Launch WITHOUT clearing state — clearing re-triggers the Terms modal and
 # drops the session token.

@@ -18,7 +18,9 @@ End-to-end UI automation for Puente Collect, driven by [Maestro](https://maestro
    ```bash
    xcrun simctl listapps <device-udid> | grep io.ionic.starter1270348
    ```
-   The bundle id is `io.ionic.starter1270348` — grepping for `puente` or
+   Android flows resolve the package to `puente.collect`; confirm with
+   `adb shell dumpsys package puente.collect` and compare `versionCode` with
+   the exact EAS/Play bundle. iOS's bundle id is `io.ionic.starter1270348` — grepping for `puente` or
    `collect` finds nothing and will convince you the app is missing when it is
    not. If the build predates your change, `npx expo run:ios` first; a green
    flow against a stale binary proves nothing.
@@ -94,8 +96,13 @@ separate so translating the app cannot break the suite.
 ### Offline data collection
 
 Forms saved without a connection are queued in AsyncStorage and synced via the
-"Retry" button. **Airplane mode must be OFF at the start** — the flows toggle
-offline mode internally via the dev toggle in Settings.
+"Retry" button. **Airplane mode must be OFF at the start**. Android's shared
+offline subflow enables real airplane mode and asserts the app's offline banner,
+so it works against a standalone production bundle without a dev menu. iOS
+uses the dev toggle in Settings. Restore connectivity after any failed flow
+before running another sign-in test. Use only the documented internal-test
+account for production-backend QA; never collect synthetic records into a real
+partner organization.
 
 | File | What it tests | Auth |
 |---|---|---|

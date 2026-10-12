@@ -28,7 +28,7 @@
 # Run:
 #   yarn start:staging-clear                  # Metro FIRST
 #   ./.maestro/capture-guide-docs.sh both
-appId: io.ionic.starter1270348
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 # Screenshot destination. `OUT` is unset by default on purpose: an unset Maestro
 # variable arrives as its own name, hence the guard.

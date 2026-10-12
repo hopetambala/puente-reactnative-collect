@@ -29,7 +29,7 @@
 # tree is a screen VoiceOver cannot read. It is the consent gate of a health
 # data app, so a blind surveyor cannot obtain consent on a fresh install.
 # Tracked separately; this file only has to cope with it.
-appId: io.ionic.starter1270348
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 - waitForAnimationToEnd
 
