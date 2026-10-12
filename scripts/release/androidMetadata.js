@@ -38,7 +38,7 @@ function dataSafetyCsv(root) {
   if (csv.split(/\r?\n/, 1)[0] !== header) {
     throw new Error("Google Play Data Safety CSV must have the official five-column header");
   }
-  if (/Warning: truncated output|Total output lines:/i.test(csv)) {
+  if (/Warning: truncated output|Total output lines:|\d+ tokens truncated/i.test(csv)) {
     throw new Error("Google Play Data Safety CSV contains copied output truncation markers");
   }
   return csv;

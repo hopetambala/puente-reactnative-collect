@@ -92,4 +92,10 @@ describe("Google Play release metadata", () => {
 
     expect(() => dataSafetyCsv(root)).toThrow();
   });
+
+  it("rejects inline token-truncation markers inside otherwise valid CSV", () => {
+    fs.writeFileSync(path.join(root, "store/google-play/data-safety.csv"), `${dataSafetyHeader}\nPSL_DATA_TYPES_PERSONAL,PSL…3825 tokens truncated…NAME,TRUE,MULTIPLE_CHOICE,Name\n`);
+
+    expect(() => dataSafetyCsv(root)).toThrow();
+  });
 });
