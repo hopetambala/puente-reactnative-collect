@@ -131,6 +131,14 @@ Tap the latter to close the numeric keypad — `hideKeyboard` fails outright on
 it, and while it is up the ScrollView's `keyboardShouldPersistTaps="never"`
 eats the first tap on submit while Maestro reports that tap as COMPLETED.
 
+The shared Button's `testID` must belong to Paper's actionable button, not an
+outer decorative Pressable. Android exposed that old wrapper as an unnamed
+accessible control, and its bounds could be clipped/inverted after scrolling
+even while **Save Record** was visible. The Button regression tests use
+`userEvent.press` to verify enabled/disabled behavior at the supplied ID and
+reject the extra accessible wrapper. Keep the release flow targeting
+`formSubmit`; do not replace this regression with an unverified coordinate tap.
+
 ### Documentation captures
 
 These take the screenshots in the public guides at
