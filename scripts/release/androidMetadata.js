@@ -34,6 +34,13 @@ function releaseMetadata(root, version, notesPath) {
 function dataSafetyCsv(root) {
   const csv = fs.readFileSync(path.join(root, "store/google-play/data-safety.csv"), "utf8");
   if (!csv.trim()) throw new Error("Google Play Data Safety CSV must not be empty");
+  const header = "Question ID (machine readable),Response ID (machine readable),Response value,Answer requirement,Human-friendly question label";
+  if (csv.split(/\r?\n/, 1)[0] !== header) {
+    throw new Error("Google Play Data Safety CSV must have the official five-column header");
+  }
+  if (/Warning: truncated output|Total output lines:/i.test(csv)) {
+    throw new Error("Google Play Data Safety CSV contains copied output truncation markers");
+  }
   return csv;
 }
 
