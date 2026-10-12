@@ -1,0 +1,13 @@
+{
+  "reviewedOn": "2026-10-12",
+  "healthFeatures": ["Healthcare services and management"],
+  "healthDeclarationBasis": "Collect captures and retrieves health records, including vitals and medical-evaluation forms. This category includes managing health records in Google's declaration guidance. No claim of automated clinical decision support or regulated medical-device approval is made.",
+  "healthDeclarationGuidance": "https://support.google.com/googleplay/android-developer/answer/14738291",
+  "reviewerAccess": {
+    "restricted": true,
+    "accountScope": "internal-test",
+    "instructionsPath": "store/google-play/review-instructions.txt",
+    "credentialsLocation": "Google Play Console Sign in details; not committed here"
+  },
+  "privacyPolicyUrl": "https://www.puente-dr.org/privacy-policy/"
+}
