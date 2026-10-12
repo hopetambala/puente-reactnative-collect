@@ -74,6 +74,8 @@ appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter12
           point: "50%, 79%"
       - waitForAnimationToEnd
 
+# Identification forms open their name fields; supplementary forms open the
+# resident search input instead. The consent gate has neither destination.
 - extendedWaitUntil:
-    visible: "First Name|Nombre"
+    visible: "First Name|Nombre|Search by name or ID|Buscar por nombre o ID"
     timeout: 20000
