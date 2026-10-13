@@ -260,6 +260,13 @@ flow in Spanish" above.
 
 ## First-run note
 
+On Android, the search keyboard covers the bottom tab bar. The release flow
+closes it with `hideKeyboard` after asserting server read-back and before
+targeting `tab-home`. Without that step, build 490150709 correctly saved,
+persisted and synced the record, but the final tab lookup failed because Home
+was behind the keyboard. Keep the ID/destination assertions; do not replace
+the tab tap with coordinates.
+
 On a fresh install the app shows a Terms modal and onboarding coachmarks.
 `subflows/dismiss-coachmarks.yaml` handles the coachmarks, and it runs both
 before and after every tab tap — they render at the bottom of the screen and
