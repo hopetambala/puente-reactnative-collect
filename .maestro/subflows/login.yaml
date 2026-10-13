@@ -31,7 +31,7 @@
 # `env:` defaults inside a flow file OVERRIDE `-e` on the command line in this
 # version of Maestro (verified, not assumed), so a parameterised default would
 # have silently kept the English string on the Spanish run.
-appId: io.ionic.starter1270348
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 # READINESS GATE — must come before any `when:` guard.
 #

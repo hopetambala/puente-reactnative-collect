@@ -16,6 +16,11 @@ const fs = require("fs");
 const path = require("path");
 
 const APP_ID = "io.ionic.starter1270348";
+const ANDROID_APP_ID = "puente.collect";
+// Maestro evaluates this expression in YAML; preserve it as literal text here.
+// eslint-disable-next-line no-template-curly-in-string
+const SHARED_APP_ID = "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}";
+const APP_IDS = [APP_ID, ANDROID_APP_ID, SHARED_APP_ID];
 
 // Only the tab bar sits in the bottom ~10% of the screen. Coordinate taps
 // higher up are still targeting in-form controls that have no stable id yet,
@@ -70,11 +75,17 @@ const lintFlow = (dir, full) => {
   // A subflow is a reusable fragment; it is allowed to be pure setup.
   const isSubflow = file.startsWith("subflows/");
 
-  const appIdMatch = src.match(/^appId:\s*(\S+)/m);
+  const appIdMatch = src.match(/^appId:[ \t]*([^\r\n]+)/m);
   if (!appIdMatch) {
     add("wrong-app-id", "no appId header");
-  } else if (appIdMatch[1] !== APP_ID) {
-    add("wrong-app-id", `appId is "${appIdMatch[1]}", expected "${APP_ID}"`);
+  } else {
+    const appId = appIdMatch[1].trim().replace(/^(["'])(.*)\1$/, "$2");
+    if (!APP_IDS.includes(appId)) {
+      add(
+        "wrong-app-id",
+        `appId is "${appId}", expected one of ${APP_IDS.map((id) => `"${id}"`).join(", ")}`
+      );
+    }
   }
 
   src.split("\n").forEach((line, i) => {

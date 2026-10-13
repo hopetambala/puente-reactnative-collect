@@ -29,9 +29,10 @@
 # tree is a screen VoiceOver cannot read. It is the consent gate of a health
 # data app, so a blind surveyor cannot obtain consent on a fresh install.
 # Tracked separately; this file only has to cope with it.
-appId: io.ionic.starter1270348
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 - waitForAnimationToEnd
+- evalScript: ${output.usedConsentIds = false}
 
 # Preferred path: tap what the user sees, by id.
 - runFlow:
@@ -42,6 +43,7 @@ appId: io.ionic.starter1270348
       - tapOn:
           id: "gdpr-consent-row"
       - waitForAnimationToEnd
+      - evalScript: ${output.usedConsentIds = true}
       - tapOn:
           id: "gdpr-continue-button"
       - waitForAnimationToEnd
@@ -51,12 +53,14 @@ appId: io.ionic.starter1270348
 # and they all show the offline banner, so these are the banner-shifted numbers.
 - runFlow:
     when:
+      true: ${!output.usedConsentIds}
       notVisible:
         id: "gdpr-consent-row"
     commands:
       - tapOn:
           point: "10%, 71%"
       - waitForAnimationToEnd
+
       # A miss checks nothing, and Continue then raises the mustConsent alert
       # rather than advancing. Clear it so the Continue tap below lands on the
       # consent screen rather than on a modal.
@@ -69,3 +73,9 @@ appId: io.ionic.starter1270348
       - tapOn:
           point: "50%, 79%"
       - waitForAnimationToEnd
+
+# Identification forms open their name fields; supplementary forms open the
+# resident search input instead. The consent gate has neither destination.
+- extendedWaitUntil:
+    visible: "First Name|Nombre|Search by name or ID|Buscar por nombre o ID"
+    timeout: 20000

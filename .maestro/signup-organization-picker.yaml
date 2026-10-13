@@ -35,7 +35,7 @@
 # Deploying Cloud Code does not deploy DATA: staging gained
 # organization.definer.js on 2026-09-04 and still had 0 rows until it was
 # seeded separately. Passes against staging and prod alike.
-appId: io.ionic.starter1270348
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 - launchApp:
     clearState: false

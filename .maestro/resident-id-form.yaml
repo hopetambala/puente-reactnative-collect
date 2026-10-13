@@ -11,7 +11,7 @@
 #      maestro test -e PARSE_USERNAME=Test -e PARSE_PASSWORD=test .maestro/resident-id-form.yaml
 #
 # Screenshots written to .claude/screenshots/resident-id-*.png
-appId: io.ionic.starter1270348
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 - launchApp
 

@@ -2,7 +2,6 @@ import { createLayoutStyles, spacing, typography } from "@modules/theme";
 import { MOTION_TOKENS, usePressAnimation } from "@modules/utils/animations";
 import PropTypes from "prop-types";
 import * as React from "react";
-import { Pressable } from "react-native";
 import { Button as PaperButton, useTheme } from "react-native-paper";
 import Animated from "react-native-reanimated";
 
@@ -62,34 +61,35 @@ function Button({
   ];
 
   return (
-    <Pressable testID={testID} onPressIn={onPressIn} onPressOut={onPressOut} disabled={disabled}>
-      <Animated.View
-        style={[
-          {
-            transform: [{ scale: 1 }],
-          },
-          animatedStyle,
-        ]}
+    <Animated.View
+      style={[
+        {
+          transform: [{ scale: 1 }],
+        },
+        animatedStyle,
+      ]}
+    >
+      <PaperButton
+        testID={testID}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        icon={icon || ""}
+        mode={mode || "contained"}
+        disabled={!!disabled}
+        theme={theme}
+        style={buttonStyle}
+        onPress={onPress}
+        compact={!!compact}
+        loading={!!loading}
+        labelStyle={{
+          fontSize: typography.label1.fontSize,
+          fontWeight: typography.label1.fontWeight,
+        }}
+        color={getColor()}
       >
-        <PaperButton
-          icon={icon || ""}
-          mode={mode || "contained"}
-          disabled={!!disabled}
-          theme={theme}
-          style={buttonStyle}
-          onPress={onPress}
-          compact={!!compact}
-          loading={!!loading}
-          labelStyle={{
-            fontSize: typography.label1.fontSize,
-            fontWeight: typography.label1.fontWeight,
-          }}
-          color={getColor()}
-        >
-          {buttonText}
-        </PaperButton>
-      </Animated.View>
-    </Pressable>
+        {buttonText}
+      </PaperButton>
+    </Animated.View>
   );
 }
 

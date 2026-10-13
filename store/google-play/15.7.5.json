@@ -1,0 +1,13 @@
+{
+  "releaseNotes": [
+    {
+      "language": "en-US",
+      "text": "Faster, more reliable resident search with less data use on weak connections. Fixed a freeze in Find Records and preserved details for offline work and safe editing. Fixed session restoration after restarting offline, so queued work stays accessible. Improved Spanish and Haitian Creole language selection. Updated privacy information, the Privacy Policy link, and the readable Terms sheet. Improved button accessibility. Includes reliability fixes."
+    },
+    {
+      "language": "es-ES",
+      "text": "Búsqueda de residentes más rápida y fiable, con menos uso de datos. Corregimos un bloqueo en Buscar registros y conservamos los detalles para editar sin conexión. Ahora la sesión se restaura al reiniciar sin conexión y los formularios pendientes siguen accesibles. Mejoramos la selección de español y criollo haitiano. Actualizamos la información de privacidad, el enlace a la política y la legibilidad de los términos. Mejoramos la accesibilidad de los botones. Incluye mejoras de fiabilidad."
+    }
+  ],
+  "contactEmail": "info@puente-dr.org"
+}

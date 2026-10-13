@@ -1,0 +1,130 @@
+# Standalone Google Play bundle gate. Only use the production internal-test
+# account (the package script supplies Test/test), never a partner organization.
+# Real airplane mode, disk persistence across process death, server read-back.
+appId: puente.collect
+---
+- setAirplaneMode: disabled
+- stopApp
+- launchApp
+- runFlow: subflows/login.yaml
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-offline
+      EXPECT: Offline Sync
+- extendedWaitUntil:
+    visible: "Retry|No forms queued.*"
+    timeout: 30000
+# Preserve and sync any existing synthetic QA queue; never clear app storage
+# while it contains a record that has not reached the server.
+- runFlow:
+    when:
+      visible:
+        id: offline-retry-button
+    commands:
+      - tapOn:
+          id: offline-retry-button
+      - extendedWaitUntil:
+          visible: "No forms queued. You are all caught up!"
+          timeout: 60000
+- assertVisible: "No forms queued. You are all caught up!"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-data-collection
+      EXPECT: Puente Forms
+# A previous collection run can leave the success screen in this tab's stack.
+# stopApp above rebuilds navigation; this assert also guards against stale UI.
+- runFlow:
+    file: subflows/set-offline-mode.yaml
+    env:
+      STATE: "ON"
+- tapOn: Resident ID
+- runFlow: subflows/give-consent.yaml
+- evalScript: ${output.releaseResident = 'AndroidQA' + Date.now()}
+- tapOn: First Name
+- inputText: ${output.releaseResident}
+- tapOn: Last Name
+- inputText: ReleaseTest
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: select-option-sex-female
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: select-option-sex-female
+- scrollUntilVisible:
+    element:
+      id: select-option-marriageStatus-single
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: select-option-marriageStatus-single
+- scrollUntilVisible:
+    element:
+      id: select-option-educationLevel-highschool
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: select-option-educationLevel-highschool
+- scrollUntilVisible:
+    element:
+      id: formSubmit
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: formSubmit
+- extendedWaitUntil:
+    visible: Form successfully submitted
+    timeout: 20000
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-offline
+      EXPECT: Offline Sync
+- assertVisible: "Resident ID — ${output.releaseResident} ReleaseTest"
+- takeScreenshot: .claude/screenshots/android-release-queued
+- stopApp
+- launchApp
+- runFlow: subflows/login.yaml
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-offline
+      EXPECT: Offline Sync
+- assertVisible: "Resident ID — ${output.releaseResident} ReleaseTest"
+- assertVisible:
+    id: offline-retry-button
+- takeScreenshot: .claude/screenshots/android-release-persisted
+- runFlow:
+    file: subflows/set-offline-mode.yaml
+    env:
+      STATE: "OFF"
+- tapOn:
+    id: offline-retry-button
+- extendedWaitUntil:
+    visible: "No forms queued. You are all caught up!"
+    timeout: 60000
+- takeScreenshot: .claude/screenshots/android-release-synced
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-find-records
+      EXPECT: Search Individual
+- tapOn: Search by name or ID
+- inputText: ${output.releaseResident}
+- extendedWaitUntil:
+    visible: "${output.releaseResident} ReleaseTest"
+    timeout: 30000
+- assertVisible:
+    id: resident-card
+- takeScreenshot: .claude/screenshots/android-release-server-readback
+# Android's keyboard covers the tab bar after search. Close it before selecting
+# Home; keep the actual tab ID and destination assertion (no coordinate bypass).
+- hideKeyboard
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-home
+      EXPECT: Last 7 Days

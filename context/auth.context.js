@@ -11,7 +11,7 @@ import React, { createContext, useEffect, useMemo, useState } from "react";
 export const UserContext = createContext();
 
 export function UserContextProvider({ children }) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
 

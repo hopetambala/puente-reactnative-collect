@@ -1,0 +1,11 @@
+Reviewer account: use the same dedicated production internal-test account as
+the Maestro package scripts, not a partner-organization account. Keep its
+credentials in Google Play Console's Sign in details, not in this file.
+
+Console access notes (English, under 500 characters):
+Skip onboarding and sign in with the supplied internal-test account. No MFA,
+payment, invitation, or location restriction is required. Use the five tabs to
+search residents, collect forms, view activity, sync offline forms, and manage
+settings. For a form, confirm survey consent and continue. Location and photo
+permissions are optional. Test records belong to the internal-test organization.
+After offline testing, reconnect and tap Retry in Offline Sync.

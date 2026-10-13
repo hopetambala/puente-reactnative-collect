@@ -18,7 +18,9 @@ End-to-end UI automation for Puente Collect, driven by [Maestro](https://maestro
    ```bash
    xcrun simctl listapps <device-udid> | grep io.ionic.starter1270348
    ```
-   The bundle id is `io.ionic.starter1270348` — grepping for `puente` or
+   Android flows resolve the package to `puente.collect`; confirm with
+   `adb shell dumpsys package puente.collect` and compare `versionCode` with
+   the exact EAS/Play bundle. iOS's bundle id is `io.ionic.starter1270348` — grepping for `puente` or
    `collect` finds nothing and will convince you the app is missing when it is
    not. If the build predates your change, `npx expo run:ios` first; a green
    flow against a stale binary proves nothing.
@@ -94,13 +96,19 @@ separate so translating the app cannot break the suite.
 ### Offline data collection
 
 Forms saved without a connection are queued in AsyncStorage and synced via the
-"Retry" button. **Airplane mode must be OFF at the start** — the flows toggle
-offline mode internally via the dev toggle in Settings.
+"Retry" button. **Airplane mode must be OFF at the start**. Android's shared
+offline subflow enables real airplane mode and asserts the app's offline banner,
+so it works against a standalone production bundle without a dev menu. iOS
+uses the dev toggle in Settings. Restore connectivity after any failed flow
+before running another sign-in test. Use only the documented internal-test
+account for production-backend QA; never collect synthetic records into a real
+partner organization.
 
 | File | What it tests | Auth |
 |---|---|---|
 | `offline-resident-id.yaml` | Submit offline → queued → success page → "Retry" badge | Yes |
 | `offline-sync.yaml` | Submit offline → reconnect → "Retry" → queue empties | Yes |
+| `android-release.yaml` | Standalone Android: save in airplane mode → cold restart with restored session → queue persists → reconnect and sync → named record read back from server | Yes — production internal-test account only |
 | `offline-multiple-forms.yaml` | Two forms offline → badge accumulates → sync clears both | Yes |
 | `offline-badge-persistence.yaml` | Submit offline → force-kill → cold relaunch → badge survives | Yes |
 | `offline-linked-forms.yaml` | Linked forms queue and sync together | Yes |
@@ -122,6 +130,14 @@ Two ids worth knowing when a form has a number field:
 Tap the latter to close the numeric keypad — `hideKeyboard` fails outright on
 it, and while it is up the ScrollView's `keyboardShouldPersistTaps="never"`
 eats the first tap on submit while Maestro reports that tap as COMPLETED.
+
+The shared Button's `testID` must belong to Paper's actionable button, not an
+outer decorative Pressable. Android exposed that old wrapper as an unnamed
+accessible control, and its bounds could be clipped/inverted after scrolling
+even while **Save Record** was visible. The Button regression tests use
+`userEvent.press` to verify enabled/disabled behavior at the supplied ID and
+reject the extra accessible wrapper. Keep the release flow targeting
+`formSubmit`; do not replace this regression with an unverified coordinate tap.
 
 ### Documentation captures
 
@@ -243,6 +259,13 @@ same misleading message. The selectors are alternations now — see "Running a
 flow in Spanish" above.
 
 ## First-run note
+
+On Android, the search keyboard covers the bottom tab bar. The release flow
+closes it with `hideKeyboard` after asserting server read-back and before
+targeting `tab-home`. Without that step, build 490150709 correctly saved,
+persisted and synced the record, but the final tab lookup failed because Home
+was behind the keyboard. Keep the ID/destination assertions; do not replace
+the tab tap with coordinates.
 
 On a fresh install the app shows a Terms modal and onboarding coachmarks.
 `subflows/dismiss-coachmarks.yaml` handles the coachmarks, and it runs both

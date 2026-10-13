@@ -15,32 +15,14 @@
 # the tab bar so the next tab tap lands on the coachmark. Maestro text selectors
 # are regexes — see subflows/login.yaml for why this is an alternation rather
 # than a variable.
-appId: io.ionic.starter1270348
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 - runFlow:
     when:
-      visible: "Your Impact Dashboard|Tu Panel de Impacto"
+      visible: "Your Impact Dashboard|Tu Panel de Impacto|Capture Field Data|Captura Datos de Campo|Search All Records|Busca Todos los Registros|Your Preferences|Tus Preferencias"
     commands:
       - tapOn: "Got it|Entendido"
       - waitForAnimationToEnd
-
-- runFlow:
-    when:
-      visible: "Capture Field Data|Captura Datos de Campo"
-    commands:
-      - tapOn: "Got it|Entendido"
-      - waitForAnimationToEnd
-
-- runFlow:
-    when:
-      visible: "Search All Records|Busca Todos los Registros"
-    commands:
-      - tapOn: "Got it|Entendido"
-      - waitForAnimationToEnd
-
-- runFlow:
-    when:
-      visible: "Your Preferences|Tus Preferencias"
-    commands:
-      - tapOn: "Got it|Entendido"
-      - waitForAnimationToEnd
+      - extendedWaitUntil:
+          notVisible: "Your Impact Dashboard|Tu Panel de Impacto|Capture Field Data|Captura Datos de Campo|Search All Records|Busca Todos los Registros|Your Preferences|Tus Preferencias"
+          timeout: 10000

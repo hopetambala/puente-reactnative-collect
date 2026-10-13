@@ -25,7 +25,7 @@
 # Run:
 #   yarn start:prod-clear        # or start:staging-clear — Metro FIRST
 #   yarn maestro .maestro/offline-discard-queued-form.yaml
-appId: io.ionic.starter1270348
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 # Deliberately NOT clearState: a cold-wiped launch empties the consent screen's
 # accessibility tree (see subflows/give-consent.yaml) and would force this flow

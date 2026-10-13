@@ -5,6 +5,7 @@ import SignUp from "@app/domains/Auth/SignUp";
 import Onboarding from "@app/domains/Onboarding";
 import SettingsView from "@app/domains/Settings";
 import { AlertContext } from "@context/alert.context";
+import { UserContext } from "@context/auth.context";
 import Toast from "@impacto-design-system/Base/Toast";
 import I18n from "@modules/i18n";
 import { getHasSeenOnboarding } from "@modules/settings";
@@ -36,26 +37,35 @@ function RootScreenWrapper(props) {
 function MainNavigation() {
   const theme = useTheme();
   const { visible, message, dismiss } = useContext(AlertContext);
+  const { isAuthenticated, isLoading } = useContext(UserContext);
   const [isOnboardingStateLoaded, setIsOnboardingStateLoaded] = useState(false);
-  const [initialRouteName, setInitialRouteName] = useState("Onboarding");
+  const [onboardingRouteName, setOnboardingRouteName] = useState("Onboarding");
+  const [initialRouteName, setInitialRouteName] = useState(null);
 
   // Load onboarding state on mount
   useEffect(() => {
     const loadOnboardingState = async () => {
       try {
         const seen = await getHasSeenOnboarding();
-        const hasSeen = !!seen;
-        setInitialRouteName(hasSeen ? "Sign In" : "Onboarding");
+        setOnboardingRouteName(seen ? "Sign In" : "Onboarding");
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error("Error loading onboarding state:", e);
-        setInitialRouteName("Onboarding");
+        setOnboardingRouteName("Onboarding");
       } finally {
         setIsOnboardingStateLoaded(true);
       }
     };
     loadOnboardingState();
   }, []);
+
+  useEffect(() => {
+    // Choose once after restoration; later login/loading changes must not
+    // replace or unmount the navigator while a screen is handling them.
+    if (isOnboardingStateLoaded && !isLoading && initialRouteName === null) {
+      setInitialRouteName(isAuthenticated ? "Root" : onboardingRouteName);
+    }
+  }, [isOnboardingStateLoaded, isLoading, isAuthenticated, onboardingRouteName, initialRouteName]);
 
   const styles = StyleSheet.create({
     container: {
@@ -68,7 +78,7 @@ function MainNavigation() {
     <View style={styles.container}>
       {Platform.OS === "ios" && <StatusBar />}
       <NavigationContainer linking={LinkingConfiguration}>
-        {isOnboardingStateLoaded && (
+        {initialRouteName !== null && (
           <Stack.Navigator
             initialRouteName={initialRouteName}
           >

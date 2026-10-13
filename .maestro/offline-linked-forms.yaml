@@ -21,7 +21,7 @@
 #      yarn maestro .maestro/offline-linked-forms.yaml
 #
 # Screenshots written to .claude/screenshots/offline-linked-*.png
-appId: io.ionic.starter1270348
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 - launchApp:
     clearState: true

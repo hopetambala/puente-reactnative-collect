@@ -1,4 +1,5 @@
-# Put the app into (or out of) forced-offline mode, and prove it took.
+# Put the app offline/online and prove it took. Android uses real airplane mode
+# so this also works against the standalone production bundle (no dev toggle).
 #
 # WHY THIS FILE EXISTS
 # All five offline flows opened Settings, tapped the dev toggle, then tapped
@@ -23,24 +24,72 @@
 #       file: subflows/set-offline-mode.yaml
 #       env:
 #         STATE: "ON"
-appId: io.ionic.starter1270348
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
 ---
 - runFlow:
-    file: open-tab.yaml
-    env:
-      TAB_ID: "tab-settings"
-      EXPECT: "Force Offline Mode"
+    when:
+      platform: Android
+    commands:
+      - runFlow:
+          when:
+            true: ${STATE == 'ON'}
+          commands:
+            - setAirplaneMode: enabled
+      - runFlow:
+          when:
+            true: ${STATE == 'OFF'}
+          commands:
+            - setAirplaneMode: disabled
+      # Focus changes re-run the app's real NetInfo network check.
+      - runFlow:
+          file: open-tab.yaml
+          env:
+            TAB_ID: "tab-home"
+            EXPECT: "Last 7 Days"
+      - runFlow:
+          when:
+            true: ${STATE == 'ON'}
+          commands:
+            - runFlow:
+                file: open-tab.yaml
+                env:
+                  TAB_ID: "tab-data-collection"
+                  EXPECT: "Puente Forms"
+            - extendedWaitUntil:
+                visible: "You're offline. Records will save and sync automatically."
+                timeout: 20000
+      - runFlow:
+          when:
+            true: ${STATE == 'OFF'}
+          commands:
+            - runFlow:
+                file: open-tab.yaml
+                env:
+                  TAB_ID: "tab-offline"
+                  EXPECT: "Offline Sync"
+            - extendedWaitUntil:
+                visible: "^Online$"
+                timeout: 20000
 
 # The switch is a toggle, so only flip it when it is not already where we want
 # it. Anchored regex: a bare "ON" would also match any element merely
 # containing those letters.
 - runFlow:
     when:
-      notVisible: "^${STATE}$"
+      platform: iOS
     commands:
-      - tapOn:
-          id: "dev-offline-toggle"
-      - waitForAnimationToEnd
+      - runFlow:
+          file: open-tab.yaml
+          env:
+            TAB_ID: "tab-settings"
+            EXPECT: "Force Offline Mode"
+      - runFlow:
+          when:
+            notVisible: "^${STATE}$"
+          commands:
+            - tapOn:
+                id: "dev-offline-toggle"
+            - waitForAnimationToEnd
 
 # POST-CONDITION: the toggle really is in the requested state.
-- assertVisible: "^${STATE}$"
+      - assertVisible: "^${STATE}$"

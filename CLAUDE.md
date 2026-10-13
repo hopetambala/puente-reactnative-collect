@@ -386,9 +386,29 @@ The workflow's secrets: `EXPO_TOKEN`; `ENVIRONMENT_JS` (production
 `EXPO_APPLE_EMAIL_ADDRESS`, `EXPO_APPLE_APP_SPECIFIC_PASSWORD`; and
 `RELEASE_PR_TOKEN`.
 
-**Android is not automated.** `yarn build-submit-android` runs locally and does
-not record its `versionCode`; reconcile it by hand as described under "Version
-bumping" below.
+**Android uses `yarn build-submit-android`.** It waits for the production build,
+submits that exact returned ID (never `--latest`), waits for submission, and
+records the accepted `versionCode` in `app.json`. Commit that reconcile on its
+own, just as for iOS.
+
+To release an already-uploaded, tested production bundle without rebuilding:
+```bash
+yarn build-submit-android --promote-build <tested-eas-build-id>
+```
+It reads `store/google-play/<version>.json` for English/Spanish release notes
+and support contact metadata, confirms the exact version code is uploaded,
+refuses a rollback of newer production code, validates the edit, and commits
+using `ERROR_IF_IN_REVIEW` so unrelated reviews are not silently cancelled.
+`--release-notes <text-file>` is an explicit English-only override.
+Add `--sync-data-safety` only when the reviewed, version-controlled
+`store/google-play/data-safety.csv` needs publishing. The companion JSON records
+the collection rationale; review both when collection changes.
+
+Google Play authentication uses `GOOGLE_PLAY_ACCESS_TOKEN`, a
+`GOOGLE_PLAY_SERVICE_ACCOUNT_PATH` file, or the matching existing Google Play
+key from the saved EAS session. Credentials stay outside git. A committed track
+is not proof of publication: check Google's release lifecycle until
+`RELEASE_LIFECYCLE_STATE_PUBLISHED`. Google may still require review.
 
 Use the scripts and do not reconstruct them from raw `eas` flags. They exist so
 nobody has to.
@@ -497,7 +517,7 @@ opened with the `RELEASE_PR_TOKEN` secret when it exists, so CI runs on it;
 without the secret it falls back to `GITHUB_TOKEN`, and CI does not run.
 Run locally, the files are left changed in your tree for you to commit.
 
-Other `yarn build-submit-*` scripts (`-android`, `-all`) do not do this yet:
+The legacy `yarn build-submit-all` script does not do this yet:
 read the number off the EAS output ("Build number: Y" / "Version code: Y"),
 confirm the files say Y (`ios.buildNumber` and `Info.plist`'s
 `CFBundleVersion` for iOS, `android.versionCode` for Android), and commit them
