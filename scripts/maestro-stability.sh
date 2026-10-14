@@ -15,7 +15,7 @@
 # that matters and get dismissed as noise.
 #
 # Usage:
-#   yarn maestro:stability .maestro/authenticated.yaml [runs]
+#   yarn maestro:stability .maestro/authenticated.yaml [runs] [maestro arguments...]
 #
 # Prerequisites are the same as any flow: Metro running in the target
 # environment, and the build under test installed on a booted simulator.
@@ -23,9 +23,10 @@ set -uo pipefail
 
 FLOW="${1:-}"
 RUNS="${2:-5}"
+shift "$(( $# < 2 ? $# : 2 ))"
 
 if [[ -z "$FLOW" ]]; then
-  echo "usage: yarn maestro:stability <flow.yaml> [runs]" >&2
+  echo "usage: yarn maestro:stability <flow.yaml> [runs] [maestro arguments...]" >&2
   exit 2
 fi
 if [[ ! -f "$FLOW" ]]; then
@@ -49,9 +50,7 @@ echo
 for ((i = 1; i <= RUNS; i++)); do
   log="$LOG_DIR/run-$i.log"
   printf '  run %d/%d ... ' "$i" "$RUNS"
-  if maestro test -e PARSE_USERNAME="${PARSE_USERNAME:-Test}" \
-                  -e PARSE_PASSWORD="${PARSE_PASSWORD:-test}" \
-                  "$FLOW" >"$log" 2>&1; then
+  if yarn maestro "$FLOW" "$@" >"$log" 2>&1; then
     echo "pass"
     pass=$((pass + 1))
   else

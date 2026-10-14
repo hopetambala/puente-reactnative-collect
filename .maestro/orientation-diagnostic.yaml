@@ -1,0 +1,55 @@
+# Phone/tablet layout diagnostic, using the installed build and selected device.
+# Tests destination accessibility after rotation requests; human inspection of
+# every screenshot is still required to verify actual orientation and layout.
+# setOrientation cannot prove a portrait-locked app rotated. This is not a
+# substitute for the release save/restart/sync journey or visual QA review.
+# Keeps the session and queue intact; returns the device to portrait on success.
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
+---
+- evalScript: ${output.orientationCapture = '.claude/screenshots/' + maestro.platform + '-orientation-' + Date.now()}
+- launchApp
+- runFlow: subflows/login.yaml
+- setOrientation: PORTRAIT
+- waitForAnimationToEnd
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-data-collection
+      EXPECT: Puente Forms
+- takeScreenshot: ${output.orientationCapture}-portrait-collection
+- setOrientation: LANDSCAPE_LEFT
+- waitForAnimationToEnd
+- assertVisible: Puente Forms
+- assertVisible:
+    id: tab-find-records
+- takeScreenshot: ${output.orientationCapture}-landscape-left-collection
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-find-records
+      EXPECT: Search Individual
+- takeScreenshot: ${output.orientationCapture}-landscape-left-find-records
+- setOrientation: LANDSCAPE_RIGHT
+- waitForAnimationToEnd
+- assertVisible: Search Individual
+- assertVisible:
+    id: tab-offline
+- takeScreenshot: ${output.orientationCapture}-landscape-right-find-records
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-offline
+      EXPECT: Offline Sync
+- takeScreenshot: ${output.orientationCapture}-landscape-right-offline
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-home
+      EXPECT: Last 7 Days
+- takeScreenshot: ${output.orientationCapture}-landscape-right-home
+- setOrientation: PORTRAIT
+- waitForAnimationToEnd
+- assertVisible: Last 7 Days
+- assertVisible:
+    id: tab-data-collection
+- takeScreenshot: ${output.orientationCapture}-portrait-home-restored

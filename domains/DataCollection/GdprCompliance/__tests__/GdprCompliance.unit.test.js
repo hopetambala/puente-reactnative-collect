@@ -1,5 +1,8 @@
 import GdprCompliance from '@app/domains/DataCollection/GdprCompliance';
-import { fireEvent, render } from '@testing-library/react-native';
+import I18n from '@modules/i18n';
+import english from '@modules/i18n/english/en.json';
+import spanish from '@modules/i18n/spanish/es.json';
+import { fireEvent, render, userEvent } from '@testing-library/react-native';
 import React from 'react';
 
 jest.mock('@impacto-design-system/Extensions/TermsModal', () => () => null);
@@ -41,6 +44,51 @@ describe('GdprCompliance automation hooks', () => {
     fireEvent.press(getByTestId('gdpr-consent-row'));
     fireEvent.press(getByTestId('gdpr-continue-button'));
 
+    expect(setConsent).toHaveBeenCalledWith(true);
+  });
+});
+
+describe('GdprCompliance accessible consent gate', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it.each([
+    ['English', english],
+    ['Spanish', spanish],
+  ])('offers one localized checkbox that controls consent in %s', async (_language, messages) => {
+    jest.spyOn(I18n, 't').mockImplementation((key) => (
+      key.split('.').reduce((value, part) => value[part], messages)
+    ));
+    const user = userEvent.setup();
+    const setConsent = jest.fn();
+    const { getAllByRole, getByRole, getByTestId } = render(
+      <GdprCompliance setConsent={setConsent} />
+    );
+
+    await user.press(getByTestId('gdpr-continue-button'));
+    expect(setConsent).not.toHaveBeenCalled();
+
+    expect(getAllByRole('checkbox')).toHaveLength(1);
+    const consentOptions = {
+      name: messages.gdpr.communityMemAgrees,
+      checked: false,
+      disabled: false,
+    };
+
+    await user.press(getByRole('checkbox', consentOptions));
+    expect(getAllByRole('checkbox')).toHaveLength(1);
+    expect(getByRole('checkbox', { ...consentOptions, checked: true })).toBeTruthy();
+    expect(setConsent).not.toHaveBeenCalled();
+
+    await user.press(getByRole('checkbox', { ...consentOptions, checked: true }));
+    expect(getByRole('checkbox', consentOptions)).toBeTruthy();
+    await user.press(getByTestId('gdpr-continue-button'));
+    expect(setConsent).not.toHaveBeenCalled();
+
+    await user.press(getByRole('checkbox', consentOptions));
+    await user.press(getByTestId('gdpr-continue-button'));
+    expect(setConsent).toHaveBeenCalledTimes(1);
     expect(setConsent).toHaveBeenCalledWith(true);
   });
 });

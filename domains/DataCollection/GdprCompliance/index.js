@@ -74,10 +74,19 @@ function GdprCompliance({ setConsent }) {
           Pressable (react-native-paper Checkbox would otherwise consume them). */}
       <Pressable
         testID="gdpr-consent-row"
+        accessible
+        accessibilityRole="checkbox"
+        accessibilityLabel={I18n.t("gdpr.communityMemAgrees")}
+        accessibilityState={{ checked, disabled: false }}
         onPress={() => setChecked(!checked)}
         style={styles.checkboxContainer}
       >
-        <View style={styles.checkbox} pointerEvents="none">
+        <View
+          style={styles.checkbox}
+          pointerEvents="none"
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        >
           <Checkbox
             disabled={false}
             color={theme.colors.primary}

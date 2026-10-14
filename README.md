@@ -18,7 +18,7 @@ Here are some quick commands to get started (we use **yarn**):
 
 ## UI Automation (Maestro)
 
-End-to-end flows for the iOS simulator live in [`.maestro/`](.maestro/). See [`.maestro/README.md`](.maestro/README.md) for setup and usage.
+End-to-end flows for iOS and Android live in [`.maestro/`](.maestro/). The shared release journey saves offline, restarts without clearing data, syncs, and reads its unique resident back from the server. See [`.maestro/README.md`](.maestro/README.md) for device selection, platform requirements, and the five-run stability gate.
 
 ## Async Storage Values
 
