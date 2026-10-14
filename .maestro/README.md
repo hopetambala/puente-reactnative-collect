@@ -132,6 +132,15 @@ waits for authenticated Home directly: logging in again would hide session loss.
 Its screenshot names include the unique resident, so repeated runs retain their
 own evidence. Run only against the documented synthetic account.
 
+On iOS, screen-wide accessibility visibility is not proof that a form control
+lies inside its clipped ScrollView. Two repeated October 14 runs reported Save
+Record at y=737–782 while the tab bar occupied y=752–808; the taps landed on
+Home. A before-tap screenshot showed the form viewport ending above the bar.
+The shared journey now uses `scrollUntilVisible` with `centerElement: true` for
+Save, retaining the ID tap and success assertion, and captures that hit target
+before tapping. This avoids the incorrect screen-wide visibility decision; it
+does not claim to repair native accessibility clipping or replace visual proof.
+
 Android exercises real airplane mode through the shared offline helper. iOS
 Simulator has no airplane mode: the iOS journey requires a development build
 with **Force Offline Mode** in Settings, plus Metro if using a development

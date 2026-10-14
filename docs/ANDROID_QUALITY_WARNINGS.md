@@ -57,6 +57,20 @@ The first native build exceeded Expo's 512 MiB Gradle metaspace cap. The
 generated configuration now provides a 4 GiB heap and 1 GiB metaspace and
 preserves unrelated JVM flags; the regression covers the installed template.
 
+The source-linked replacement local APK
+(`24f9d4e119ba704b362a6d0ec07ccaf8f97ed32e51fc0ed1cfa981febe1a48d1`)
+compiled `:expo-notifications:compileReleaseKotlin`; its R8 mapping and compiled
+classes contain the patched downloader. Compilation is confirmed, but native
+bounded-image/cache/cancellation and notification-fallback checks remain pending.
+This hash predates any subsequent shared-JavaScript changes and must be rebuilt
+before those changes can be certified on Android.
+
+The CI regression also exposed workflow steps overwriting the tracked `app.json`
+with `app-example.json`, silently dropping the actual release plugins. All seven
+such steps were removed; runtime credential fixtures remain separate. The guard
+failed before the workflow correction, and the complete local suites and lint
+passed afterward. Store release configuration must come from the tracked file.
+
 The iOS gate exposed missing checkbox accessibility semantics and unreliable
 keyboard dismissal. The existing consent row now has a localized checkbox
 role/state and hides its decorative child from accessibility. The shared flow
@@ -64,6 +78,14 @@ requires IDs rather than its old consent-coordinate fallback and uses existing
 user-accessible keyboard dismissal paths. One complete iOS save/restart/sync
 and unique server-readback pass is recorded in
 `quality-ios-repaired-journey-awake-2.log`; this is **not** a five-pass gate.
+
+The October 14 five-run iOS batch had two complete passes and two Save-tap
+failures before interruption. Accessibility reported Save below the clipped
+form viewport, where its tap hit Home. A diagnostic before-tap capture plus a
+complete save/restart/sync/read-back pass narrowed the finding. The flow now
+centers Save away from the viewport edge, keeps all success assertions, and
+captures the hit target. Native accessibility clipping remains a documented
+finding; this harness correction does not prove that underlying issue fixed.
 
 Use the package scripts, not reconstructed release commands:
 

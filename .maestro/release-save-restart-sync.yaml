@@ -106,6 +106,11 @@ appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter12
       id: formSubmit
     direction: DOWN
     timeout: 20000
+    # iOS AX can report this child inside the screen even when it extends beyond
+    # the clipped form viewport into the tab bar (observed Save -> Home taps).
+    # Scroll it away from that edge rather than trusting screen-wide visibility.
+    centerElement: true
+- takeScreenshot: .claude/screenshots/${output.releaseResident}-save-hit-target
 - tapOn:
     id: formSubmit
 - extendedWaitUntil:
