@@ -10,7 +10,7 @@ const autolinkingRoot = path.dirname(
   })
 );
 
-function resolveInstalledModules(platform, nativeDirectory) {
+function resolveInstalledModules(platform) {
   return JSON.parse(
     execFileSync(
       process.execPath,
@@ -21,14 +21,16 @@ function resolveInstalledModules(platform, nativeDirectory) {
         platform,
         "--json",
       ],
-      { cwd: path.join(appRoot, nativeDirectory), encoding: "utf8" }
+      // SettingsManager resolves from projectRoot, not the ignored Android
+      // directory. This must also run in a clean CI checkout before prebuild.
+      { cwd: appRoot, encoding: "utf8" }
     )
   );
 }
 
 describe("installed Expo notification autolinking", () => {
   it("selects only the patched notification Android project for compilation from source", () => {
-    const android = resolveInstalledModules("android", "android");
+    const android = resolveInstalledModules("android");
     const projects = android.modules.flatMap((module) => module.projects || []);
     const notifications = projects.find((project) => project.name === "expo-notifications");
 
@@ -56,7 +58,7 @@ describe("installed Expo notification autolinking", () => {
   });
 
   it("preserves ordinary iOS notification pod resolution", () => {
-    const apple = resolveInstalledModules("apple", "ios");
+    const apple = resolveInstalledModules("apple");
     const notifications = apple.modules.find((module) => module.packageName === "expo-notifications");
 
     expect(apple.configuration?.buildFromSource || []).toEqual([]);
