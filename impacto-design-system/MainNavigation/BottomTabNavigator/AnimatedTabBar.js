@@ -1,5 +1,6 @@
 import { MOTION_TOKENS } from "@modules/utils/animations";
-import React, { useEffect, useMemo } from "react";
+import { BottomTabBarHeightCallbackContext } from "@react-navigation/bottom-tabs";
+import React, { useContext, useEffect, useMemo } from "react";
 import { Pressable, StyleSheet, useWindowDimensions, View } from "react-native";
 import { useTheme } from "react-native-paper";
 import Animated, {
@@ -41,6 +42,7 @@ function AnimatedTabBar({ state, descriptors, navigation, onTabPress }) {
   const theme = useTheme();
   const isDark = theme.dark;
   const insets = useSafeAreaInsets();
+  const onHeightChange = useContext(BottomTabBarHeightCallbackContext);
   const { width: screenWidth } = useWindowDimensions();
 
   const tabCount = state.routes.length;
@@ -72,6 +74,7 @@ function AnimatedTabBar({ state, descriptors, navigation, onTabPress }) {
 
   return (
     <View
+      onLayout={({ nativeEvent }) => onHeightChange?.(nativeEvent.layout.height)}
       style={[
         styles.outerContainer,
         {

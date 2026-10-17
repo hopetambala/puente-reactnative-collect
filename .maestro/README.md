@@ -8,9 +8,10 @@ End-to-end UI automation for Puente Collect, driven by [Maestro](https://maestro
    ```bash
    curl -Ls "https://get.maestro.mobile.dev" | bash
    ```
-2. Start Metro in the environment you want to exercise — **first**, before any
-   flow. Without it the app has no JS bundle, every step fails, and the run
-   looks like a regression:
+2. For a development client, start Metro in the environment you want to
+   exercise — **first**, before any flow. Without it the development client has
+   no JS bundle. A standalone Android release includes its own bundle and does
+   not need Metro:
    ```bash
    yarn start:prod-clear      # or start:staging-clear
    ```
@@ -50,6 +51,8 @@ paste a fourth copy.
 | `subflows/login.yaml` | Skips onboarding, signs in by testID, dismisses coachmarks, asserts Home rendered | uses `PARSE_USERNAME` / `PARSE_PASSWORD` |
 | `subflows/open-tab.yaml` | Clears coachmarks, taps a tab by testID, asserts the destination | `TAB_ID`, `EXPECT` |
 | `subflows/dismiss-coachmarks.yaml` | Dismisses any first-run coachmark on screen | — |
+| `subflows/set-offline-mode.yaml` | Android: real airplane mode and app network assertion; iOS: asserted DEV switch | `STATE`: `ON` or `OFF` |
+| `subflows/give-consent.yaml` | Accepts consent and asserts the form destination | — |
 
 ```yaml
 - runFlow: subflows/login.yaml
@@ -92,6 +95,8 @@ separate so translating the app cannot break the suite.
 | `find-records-history.yaml` | Resident → record history → Identification record | Yes |
 | `resident-id-form.yaml` | Formik validation errors, then a successful submit | Yes |
 | `environmental-health-online.yaml` | Collects an Environmental Health form ONLINE against an existing resident, and asserts the record reached the server rather than the offline queue | Yes — needs the resident "Rararo Long" |
+| `orientation-diagnostic.yaml` | Phone/tablet diagnostic: requests portrait and both landscape orientations, asserts tab destinations and accessibility, captures screenshots for human layout/orientation inspection | Yes — preserves the session and queue |
+| `terms-visual-diagnostic.yaml` | Requires an online empty queue, logs out through confirmation, opens the sign-in policy sheet, captures top/bottom for opacity/readability inspection, closes it and signs back in | Yes — no state clearing; diagnostic until its stability gate passes |
 
 ### Offline data collection
 
@@ -108,7 +113,8 @@ partner organization.
 |---|---|---|
 | `offline-resident-id.yaml` | Submit offline → queued → success page → "Retry" badge | Yes |
 | `offline-sync.yaml` | Submit offline → reconnect → "Retry" → queue empties | Yes |
-| `android-release.yaml` | Standalone Android: save in airplane mode → cold restart with restored session → queue persists → reconnect and sync → named record read back from server | Yes — production internal-test account only |
+| `release-save-restart-sync.yaml` | Shared iOS/Android: save offline → cold restart with restored session → unique queued record persists → reconnect and sync → same unique named record read back from server | Yes — internal-test account only |
+| `android-release.yaml` | Compatibility entrypoint that calls the shared release journey | Yes — internal-test account only |
 | `offline-multiple-forms.yaml` | Two forms offline → badge accumulates → sync clears both | Yes |
 | `offline-badge-persistence.yaml` | Submit offline → force-kill → cold relaunch → badge survives | Yes |
 | `offline-linked-forms.yaml` | Linked forms queue and sync together | Yes |
@@ -117,6 +123,34 @@ partner organization.
 Each of these now ends on a positive assertion — `No forms queued. You are all
 caught up!` — rather than only `notVisible: "Retry"`, which also passes on a
 blank or crashed screen.
+
+The shared release journey restores online mode before its queue preflight,
+syncs any existing synthetic QA records, and requires an empty queue before
+collecting. It never clears application data or discards records. Every run
+creates a timestamped `AndroidQA`/`IOSQA` resident and checks that exact name in
+the queue, after process death, and in server search results. The restart check
+waits for authenticated Home directly: logging in again would hide session loss.
+Its screenshot names include the unique resident, so repeated runs retain their
+own evidence. Run only against the documented synthetic account.
+
+On iOS, screen-wide accessibility visibility is not proof that a form control
+lies inside its clipped ScrollView. Two repeated October 14 runs reported Save
+Record at y=737–782 while the tab bar occupied y=752–808; the taps landed on
+Home. A before-tap screenshot showed the form viewport ending above the bar.
+The shared journey now scrolls the final footer fully into view after discovering
+Save, checks its position above the Home tab, retains the ID tap and success
+assertion, and captures the hit target before tapping. The positional selector
+compares top edges, not full occlusion; inspect the captures too. `centerElement`
+failed even with Save fully visible at the bottom because this final item cannot
+reach its top-70%-of-screen threshold. The scroll corrects the harness's visibility
+assumption; it does not repair native accessibility clipping or replace visual proof.
+
+Android exercises real airplane mode through the shared offline helper. iOS
+Simulator has no airplane mode: the iOS journey requires a development build
+with **Force Offline Mode** in Settings, plus Metro if using a development
+client. That proves the application queue path, not physical network loss on a
+production iOS binary. Restore connectivity after a failure and preserve its
+queue for the next sync attempt.
 
 The sync button carries `testID="offline-retry-button"`. Prefer it to the
 English word "Retry": the surrounding copy is translated, and the button is the
@@ -208,6 +242,37 @@ A flow that passed once has been shown to pass once, not to be stable.
 ```bash
 yarn maestro:stability .maestro/authenticated.yaml 5
 ```
+
+Select one exact device and run the shared journey five times on each platform,
+serially; the runner accepts and forwards Maestro arguments:
+
+```bash
+yarn maestro .maestro/release-save-restart-sync.yaml --device <ios-udid>
+yarn maestro:stability .maestro/release-save-restart-sync.yaml 5 --device <ios-udid>
+yarn maestro .maestro/release-save-restart-sync.yaml --device <android-serial>
+yarn maestro:stability .maestro/release-save-restart-sync.yaml 5 --device <android-serial>
+```
+
+Before trusting an edited flow, temporarily point its unique queued-resident
+assertion at a nonexistent name and watch it fail at that assertion. Restore
+the assertion, then require five consecutive passes per platform. A failed
+intentional-RED run can leave its synthetic record queued; the normal journey's
+online preflight syncs it without wiping data. Use one Maestro runner at a time.
+
+For phone/tablet orientation diagnostics, select each installed device explicitly:
+
+```bash
+yarn maestro .maestro/orientation-diagnostic.yaml --device <device-id>
+```
+
+Review every timestamped orientation screenshot for actual rotation, clipping,
+tab reachability, readable text and usable controls. The flow uses
+[`setOrientation`](https://docs.maestro.dev/reference/commands-available/setorientation)
+and asserts screen contents; a passing command cannot prove the app respected
+rotation or that the layout looks correct. Record device model, OS and exact
+build identity with the captures. Restore portrait manually if a failure exits
+before the final rotation step. This diagnostic has its own intentional-RED and
+five-pass gate before it is trusted as regression coverage.
 
 Runs it five times and reports a stability percentage, with per-run logs in
 `.maestro/.stability/`. Anything under 100% is flaky — find out why before

@@ -1,0 +1,193 @@
+# Shared iOS/Android release journey: offline save, session/queue persistence
+# across process death, reconnect/sync, then unique named server read-back.
+# Only use the internal-test account (the package script supplies Test/test).
+# Android uses real airplane mode, including standalone release bundles.
+# iOS Simulator has no airplane mode: it uses the DEV-only Settings switch,
+# so the iOS build must expose Force Offline Mode. This does not test iOS radios.
+# Never clear state or discard queued forms, including between stability runs.
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
+---
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - setAirplaneMode: disabled
+- stopApp
+- launchApp
+- runFlow: subflows/login.yaml
+# A failed prior run may have left the iOS DEV switch on. Restore online first
+# so its existing synthetic queue can sync without deleting local records.
+- runFlow:
+    file: subflows/set-offline-mode.yaml
+    env:
+      STATE: "OFF"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-offline
+      EXPECT: Offline Sync
+- extendedWaitUntil:
+    visible: "Retry|No forms queued.*"
+    timeout: 30000
+# Preserve and sync any existing synthetic QA queue; never clear app storage
+# while it contains a record that has not reached the server.
+- runFlow:
+    when:
+      visible:
+        id: offline-retry-button
+    commands:
+      - tapOn:
+          id: offline-retry-button
+      - extendedWaitUntil:
+          visible: "No forms queued. You are all caught up!"
+          timeout: 60000
+- assertVisible: "No forms queued. You are all caught up!"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-data-collection
+      EXPECT: Puente Forms
+# A previous collection run can leave the success screen in this tab's stack.
+# stopApp above rebuilds navigation; this assert also guards against stale UI.
+- runFlow:
+    file: subflows/set-offline-mode.yaml
+    env:
+      STATE: "ON"
+# The iOS helper leaves us in Settings; both platforms must reach the gallery.
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-data-collection
+      EXPECT: Puente Forms
+- tapOn: Resident ID
+- runFlow: subflows/give-consent.yaml
+- evalScript: "${output.releaseResident = (maestro.platform == 'android' ? 'AndroidQA' : 'IOSQA') + Date.now()}"
+- tapOn: First Name
+- inputText: ${output.releaseResident}
+- tapOn: Last Name
+- inputText: ReleaseTest
+# iOS Maestro cannot dismiss this Paper input with hideKeyboard (four native
+# runs failed there). The non-interactive header is inside the form's existing
+# Keyboard.dismiss wrapper; use that real user path, retaining field assertions.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn: Demographics
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: select-option-sex-female
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: select-option-sex-female
+- scrollUntilVisible:
+    element:
+      id: select-option-marriageStatus-single
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: select-option-marriageStatus-single
+- scrollUntilVisible:
+    element:
+      id: select-option-educationLevel-highschool
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: select-option-educationLevel-highschool
+- scrollUntilVisible:
+    element:
+      id: formSubmit
+    direction: DOWN
+    timeout: 20000
+# iOS AX may report Save while it is still outside the clipped form viewport.
+# Save is the final form item: a normal additional scroll brings the footer
+# fully into view. centerElement fails even at the bottom because this last
+# item cannot reach Maestro's top-70%-of-screen threshold. Preserve the finding;
+# this is a user scroll, not a coordinate tap or a retry of failed submission.
+- scroll
+- assertVisible:
+    id: formSubmit
+    above:
+      id: tab-home
+- takeScreenshot: .claude/screenshots/${output.releaseResident}-save-hit-target
+- tapOn:
+    id: formSubmit
+- extendedWaitUntil:
+    visible: Form successfully submitted
+    timeout: 20000
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-offline
+      EXPECT: Offline Sync
+- assertVisible: "Resident ID — ${output.releaseResident} ReleaseTest"
+- takeScreenshot: .claude/screenshots/${output.releaseResident}-queued
+- stopApp
+- launchApp
+# Do not call login here: reauthenticating would conceal a lost disk session.
+- extendedWaitUntil:
+    visible: "Last 7 Days|Últimos 7 Días"
+    timeout: 60000
+- waitForAnimationToEnd
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-offline
+      EXPECT: Offline Sync
+- assertVisible: "Resident ID — ${output.releaseResident} ReleaseTest"
+- assertVisible:
+    id: offline-retry-button
+- takeScreenshot: .claude/screenshots/${output.releaseResident}-persisted
+- runFlow:
+    file: subflows/set-offline-mode.yaml
+    env:
+      STATE: "OFF"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-offline
+      EXPECT: Offline Sync
+- tapOn:
+    id: offline-retry-button
+- extendedWaitUntil:
+    visible: "No forms queued. You are all caught up!"
+    timeout: 60000
+- takeScreenshot: .claude/screenshots/${output.releaseResident}-synced
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-find-records
+      EXPECT: Search Individual
+- tapOn: Search by name or ID
+- inputText: ${output.releaseResident}
+- extendedWaitUntil:
+    visible: "${output.releaseResident} ReleaseTest"
+    timeout: 30000
+- assertVisible:
+    id: resident-card
+- takeScreenshot: .claude/screenshots/${output.releaseResident}-server-readback
+# Close the search input before selecting Home; keep the destination assertion.
+# iOS supports the keyboard Return action, unlike Android's back-based dismissal.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - pressKey: Enter
+      - waitForAnimationToEnd
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-home
+      EXPECT: Last 7 Days

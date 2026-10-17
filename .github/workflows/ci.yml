@@ -61,9 +61,6 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Create app.json
-        run: mv app-example.json app.json
-
       - name: Create environment.js
         run: |
           touch environment.js
@@ -103,9 +100,6 @@ jobs:
       
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-
-      - name: Create app.json
-        run: mv app-example.json app.json
 
       - name: Create environment.js
         run: |
@@ -150,9 +144,6 @@ jobs:
       
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-
-      - name: Create app.json
-        run: mv app-example.json app.json
 
       - name: Create environment.js
         run: |

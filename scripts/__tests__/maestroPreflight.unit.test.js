@@ -56,6 +56,18 @@ describe('findConflictingMaestroRuns', () => {
     expect(findConflictingMaestroRuns(ps, SELF)).toEqual([111]);
   });
 
+  it('finds competing runs with device and other global options before test', () => {
+    const ps = [
+      line(111, '/Users/x/.maestro/bin/maestro --device QA-DEVICE test .maestro/authenticated.yaml'),
+      line(112, '/usr/bin/java -classpath /Users/x/.maestro/lib/* maestro.cli.AppKt --device QA-DEVICE test -e PARSE_USERNAME=Test .maestro/authenticated.yaml'),
+      line(113, '/usr/bin/java -jar /Users/x/.maestro/lib/maestro.jar --device=QA-DEVICE test .maestro/authenticated.yaml'),
+      line(114, 'maestro --udid QA-DEVICE test .maestro/authenticated.yaml'),
+      line(115, 'maestro --platform ios --device QA-DEVICE test .maestro/authenticated.yaml'),
+    ].join('\n');
+
+    expect(findConflictingMaestroRuns(ps, SELF)).toEqual([111, 112, 113, 114, 115]);
+  });
+
   it('reports every conflicting run, not just the first', () => {
     const ps = [
       line(111, 'maestro test .maestro/a.yaml'),
@@ -94,6 +106,12 @@ describe('findConflictingMaestroRuns', () => {
       '/Users/x/.maestro/bin/maestro --version'],
     ['the hierarchy inspector, which does not drive a flow',
       '/usr/bin/java -jar maestro.jar hierarchy'],
+    ['the hierarchy inspector with an explicit device',
+      'maestro --device QA-DEVICE hierarchy'],
+    ['the word test as a device value rather than the subcommand',
+      'maestro --device test hierarchy'],
+    ['the word test in an unrelated device-selection command',
+      'maestro --device QA-DEVICE hierarchy test'],
   ])('does not treat %s as a conflicting run', (_label, cmd) => {
     expect(findConflictingMaestroRuns(line(999, cmd), SELF)).toEqual([]);
   });

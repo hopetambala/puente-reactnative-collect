@@ -26,7 +26,9 @@
  * The first version of this guard matched an invented "maestro test" string and
  * silently found nothing. Both real shapes are covered by tests.
  */
-const MAESTRO_RUN = /(^|[/\s])maestro(\.jar|\.cli\.AppKt)?['"]?\s+test(\s|$)/;
+// Consume global option values before identifying the subcommand, so a device
+// named "test" does not make a hierarchy inspection look like a flow run.
+const MAESTRO_RUN = /(^|[/\s])maestro(\.jar|\.cli\.AppKt)?['"]?\s+(?:(?:--device|--udid|--platform|-p)(?:=\S+|\s+\S+)\s+)*test(\s|$)/;
 const YARN_MAESTRO = /\byarn\s+maestro(\s|$)/;
 
 /**

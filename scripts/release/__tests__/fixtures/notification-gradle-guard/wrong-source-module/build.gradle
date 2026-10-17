@@ -1,0 +1,6 @@
+plugins {
+  id 'com.android.library'
+}
+tasks.register('connectedDebugAndroidTest') {
+  doLast { println 'NOTIFICATION_FIXTURE_TEST_EXECUTED' }
+}

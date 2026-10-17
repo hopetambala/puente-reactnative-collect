@@ -1,0 +1,87 @@
+diff --git a/node_modules/expo-notifications/android/build.gradle b/node_modules/expo-notifications/android/build.gradle
+index 6c92af9..5daf318 100644
+--- a/node_modules/expo-notifications/android/build.gradle
++++ b/node_modules/expo-notifications/android/build.gradle
+@@ -37,6 +37,7 @@ dependencies {
+   implementation 'androidx.lifecycle:lifecycle-process:2.9.3'
+   implementation 'androidx.lifecycle:lifecycle-common-java8:2.9.3'
+   implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
++  implementation 'com.github.bumptech.glide:glide:5.0.5'
+ 
+   // release notes in https://firebase.google.com/support/release-notes/android - cmd + f "Cloud Messaging version"
+   implementation 'com.google.firebase:firebase-messaging:25.0.1'
+diff --git a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/model/RemoteNotificationContent.kt b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/model/RemoteNotificationContent.kt
+index cdbc237..e136411 100644
+--- a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/model/RemoteNotificationContent.kt
++++ b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/model/RemoteNotificationContent.kt
+@@ -24,7 +24,7 @@ class RemoteNotificationContent(private val remoteMessage: RemoteMessage) : INot
+ 
+   override suspend fun getImage(context: Context): Bitmap? {
+     val uri = remoteMessage.notification?.imageUrl
+-    return uri?.let { downloadImage(it) }
++    return uri?.let { downloadImage(context, it) }
+   }
+ 
+   override fun containsImage(): Boolean {
+diff --git a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/presentation/builders/DownloadImage.kt b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/presentation/builders/DownloadImage.kt
+index 1ce92bb..3c9a1ac 100644
+--- a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/presentation/builders/DownloadImage.kt
++++ b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/presentation/builders/DownloadImage.kt
+@@ -1,23 +1,45 @@
+ package expo.modules.notifications.notifications.presentation.builders
+ 
++import android.content.Context
+ import android.graphics.Bitmap
+-import android.graphics.BitmapFactory
+ import android.net.Uri
++import com.bumptech.glide.Glide
++import kotlinx.coroutines.CancellationException
+ import kotlinx.coroutines.Dispatchers
++import kotlinx.coroutines.runInterruptible
+ import kotlinx.coroutines.withContext
+-import kotlinx.coroutines.withTimeout
+-import java.net.URL
++import kotlinx.coroutines.withTimeoutOrNull
+ 
+-suspend fun downloadImage(imageUrl: Uri, connectTimeout: Long = 8000, readTimeout: Long = 8000): Bitmap? {
+-  return runCatching {
+-    withTimeout(connectTimeout + readTimeout) {
++private const val MAX_NOTIFICATION_IMAGE_SIZE = 512
++
++suspend fun downloadImage(context: Context, imageUrl: Uri, connectTimeout: Long = 8000, readTimeout: Long = 8000): Bitmap? {
++  return try {
++    withTimeoutOrNull(connectTimeout + readTimeout) {
+       withContext(Dispatchers.IO) {
+-        val url = URL(imageUrl.toString())
+-        val connection = url.openConnection()
+-        connection.connectTimeout = connectTimeout.toInt()
+-        connection.readTimeout = readTimeout.toInt()
+-        BitmapFactory.decodeStream(connection.inputStream)
++        // Application context also works when a push starts the process before React Native.
++        val requestManager = Glide.with(context.applicationContext)
++        val target = requestManager.asBitmap()
++          .load(imageUrl)
++          .timeout(maxOf(connectTimeout, readTimeout).coerceIn(1, Int.MAX_VALUE.toLong()).toInt())
++          .fitCenter()
++          .disallowHardwareConfig()
++          .submit(MAX_NOTIFICATION_IMAGE_SIZE, MAX_NOTIFICATION_IMAGE_SIZE)
++        try {
++          runInterruptible {
++            // Notifications outlive the request: copy the bounded result before Glide
++            // can recycle/reuse it. Glide keeps ownership of the cached original.
++            target.get().copy(Bitmap.Config.ARGB_8888, false)
++          }
++        } finally {
++          // Clear completed and failed requests as well as cancelled/timed-out ones.
++          requestManager.clear(target)
++        }
+       }
+     }
+-  }.getOrNull()
++  } catch (exception: CancellationException) {
++    throw exception
++  } catch (exception: Exception) {
++    // The notification still appears without an image on a network/decode failure.
++    null
++  }
+ }

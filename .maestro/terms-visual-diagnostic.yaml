@@ -1,0 +1,79 @@
+# Inspect the real sign-in policy sheet without clearing a session/queue blindly.
+# Queue must be empty and online before logout; restores authenticated Home.
+# Screenshots require human opacity/readability review. This is diagnostic until
+# its intentional-failure and five-pass gates have been recorded.
+appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter1270348'}"
+---
+- evalScript: ${output.termsCapture = '.claude/screenshots/' + maestro.platform + '-terms-' + Date.now()}
+- stopApp
+- launchApp
+- runFlow: subflows/login.yaml
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-offline
+      EXPECT: Offline Sync
+- assertVisible: "^Online$"
+- assertVisible: "No forms queued. You are all caught up!"
+- runFlow:
+    file: subflows/open-tab.yaml
+    env:
+      TAB_ID: tab-settings
+      EXPECT: Name, Phone, Email
+- scrollUntilVisible:
+    element:
+      id: settings-logout-button
+    direction: DOWN
+- tapOn:
+    id: settings-logout-button
+- extendedWaitUntil:
+    visible: "Log out\\?|¿Cerrar sesión\\?"
+    timeout: 10000
+- waitForAnimationToEnd
+# iOS includes the underlying Settings button in its tree. Exclude it by
+# requiring the confirmation above that button, rather than relying on match order.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          text: "^Log out$|^Cerrar sesión$"
+          above:
+            id: settings-logout-button
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn: "^Log out$|^Cerrar sesión$"
+- extendedWaitUntil:
+    visible:
+      id: signin-username
+    timeout: 20000
+- waitForAnimationToEnd
+- scrollUntilVisible:
+    element:
+      text: "Terms & Conditions|Términos y condiciones"
+    direction: DOWN
+- tapOn: "Terms & Conditions|Términos y condiciones"
+- extendedWaitUntil:
+    visible: "Privacy Policy|Política de privacidad"
+    timeout: 10000
+- waitForAnimationToEnd
+- takeScreenshot: ${output.termsCapture}-top
+- scrollUntilVisible:
+    element:
+      id: privacy-policy-link
+    direction: DOWN
+- assertVisible:
+    id: privacy-policy-link
+- takeScreenshot: ${output.termsCapture}-bottom
+- scrollUntilVisible:
+    element:
+      text: "^Ok$"
+    direction: DOWN
+- tapOn: "^Ok$"
+- extendedWaitUntil:
+    notVisible: "Privacy Policy|Política de privacidad"
+    timeout: 10000
+- runFlow: subflows/login.yaml
+- assertVisible: "Last 7 Days|Últimos 7 Días"

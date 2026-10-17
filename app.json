@@ -58,6 +58,8 @@
       }
     },
     "plugins": [
+      "./plugins/withAndroidLargeScreen",
+      "./plugins/withAndroidR8Optimization",
       "expo-localization",
       "expo-font",
       "expo-asset",
@@ -69,7 +71,8 @@
           "android": {
             "targetSdkVersion": 36,
             "compileSdkVersion": 36,
-            "enableProguardInReleaseBuilds": true,
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
             "extraProguardRules": "-keep class puente.collect.** { *; }",
             "useLegacyPackaging": false
           }

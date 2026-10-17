@@ -30,10 +30,6 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Create app.json for linting
-        run: |
-          mv app-example.json app.json
-
       - name: Create environment.js for linting
         run: |
           touch environment.js
