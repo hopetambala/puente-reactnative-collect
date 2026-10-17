@@ -1,0 +1,34 @@
+// Transient test-only configuration; never edit the installed module or app.
+gradle.beforeProject { project ->
+  if (project.path == ':expo-notifications') {
+    project.plugins.withId('com.android.library') {
+      def expectedSource = new File(project.property('notificationImagesSourceDir')).canonicalFile
+      if (project.projectDir.canonicalFile != expectedSource) {
+        throw new GradleException('Notification instrumentation requires the source-linked installed module.')
+      }
+      def fixtures = new File(project.property('notificationImagesFixtures'))
+      project.extensions.getByName('androidComponents').finalizeDsl { android ->
+        android.testNamespace = 'expo.modules.notifications.test'
+        android.defaultConfig.testApplicationId = 'expo.modules.notifications.test'
+        android.defaultConfig.testInstrumentationRunner = 'androidx.test.runner.AndroidJUnitRunner'
+        android.sourceSets.androidTest.java.setSrcDirs([fixtures])
+        android.sourceSets.androidTest.manifest.srcFile(new File(fixtures, 'AndroidManifest.xml'))
+      }
+      project.dependencies.add('androidTestImplementation', 'androidx.test:runner:1.7.0')
+      project.dependencies.add('androidTestImplementation', 'androidx.test:core:1.7.0')
+      project.dependencies.add('androidTestImplementation', 'androidx.test.ext:junit:1.3.0')
+    }
+  }
+}
+
+gradle.taskGraph.whenReady { graph ->
+  // Included plugin builds prepare the root build before its test graph exists.
+  if (gradle.parent != null) return
+  if (!graph.allTasks.any { it.path == ':expo-notifications:connectedDebugAndroidTest' }) {
+    throw new GradleException('Only the notification library instrumentation task is allowed.')
+  }
+  if (graph.allTasks.any { it.path.startsWith(':app:') ||
+      (it.name.startsWith('connected') && it.project.path != ':expo-notifications') }) {
+    throw new GradleException('Notification image verification must not build, install, or test the Collect app or another module.')
+  }
+}

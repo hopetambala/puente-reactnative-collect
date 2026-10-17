@@ -29,6 +29,7 @@
     "test-debug": "jest -o --watch --coverage=false",
     "test-run": "jest --forceExit --detectOpenHandles",
     "test:unit": "jest --testPathIgnorePatterns='integrat(e|ion)|snapshot' --maxWorkers=4 --forceExit",
+    "test:native:notification-images": "node scripts/native-notification-images.js",
     "test:integration": "jest --config jest.integration.config.js --maxWorkers=2 --forceExit",
     "test:snapshot": "jest --testPathPattern='snapshot' --maxWorkers=2 --forceExit",
     "test:cov": "jest --coverage --forceExit",

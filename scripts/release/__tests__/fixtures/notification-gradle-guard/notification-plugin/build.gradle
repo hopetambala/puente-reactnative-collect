@@ -1,0 +1,15 @@
+plugins {
+  id 'groovy'
+  id 'java-gradle-plugin'
+}
+gradlePlugin {
+  plugins {
+    fixtureAndroidLibrary {
+      id = 'com.android.library'
+      implementationClass = 'FixtureAndroidLibraryPlugin'
+    }
+  }
+}
+dependencies {
+  implementation localGroovy()
+}

@@ -1,0 +1,10 @@
+project(':app') {
+  tasks.register('assembleDebug') {
+    doLast { println 'APP_FIXTURE_TASK_EXECUTED' }
+  }
+}
+project(':other-module') {
+  tasks.register('connectedDebugAndroidTest') {
+    doLast { println 'OTHER_FIXTURE_TEST_EXECUTED' }
+  }
+}

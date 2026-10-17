@@ -1,0 +1,8 @@
+pluginManagement {
+  includeBuild('notification-plugin')
+}
+rootProject.name = 'notification-guard-root'
+include ':expo-notifications', ':app', ':other-module'
+project(':expo-notifications').projectDir = file(
+  providers.gradleProperty('fixtureWrongSource').isPresent() ? 'wrong-source-module' : 'source-linked-module'
+)

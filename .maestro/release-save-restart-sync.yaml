@@ -106,10 +106,16 @@ appId: "${maestro.platform == 'android' ? 'puente.collect' : 'io.ionic.starter12
       id: formSubmit
     direction: DOWN
     timeout: 20000
-    # iOS AX can report this child inside the screen even when it extends beyond
-    # the clipped form viewport into the tab bar (observed Save -> Home taps).
-    # Scroll it away from that edge rather than trusting screen-wide visibility.
-    centerElement: true
+# iOS AX may report Save while it is still outside the clipped form viewport.
+# Save is the final form item: a normal additional scroll brings the footer
+# fully into view. centerElement fails even at the bottom because this last
+# item cannot reach Maestro's top-70%-of-screen threshold. Preserve the finding;
+# this is a user scroll, not a coordinate tap or a retry of failed submission.
+- scroll
+- assertVisible:
+    id: formSubmit
+    above:
+      id: tab-home
 - takeScreenshot: .claude/screenshots/${output.releaseResident}-save-hit-target
 - tapOn:
     id: formSubmit

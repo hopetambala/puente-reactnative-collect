@@ -83,9 +83,49 @@ The October 14 five-run iOS batch had two complete passes and two Save-tap
 failures before interruption. Accessibility reported Save below the clipped
 form viewport, where its tap hit Home. A diagnostic before-tap capture plus a
 complete save/restart/sync/read-back pass narrowed the finding. The flow now
-centers Save away from the viewport edge, keeps all success assertions, and
-captures the hit target. Native accessibility clipping remains a documented
-finding; this harness correction does not prove that underlying issue fixed.
+scrolls the final footer fully into view, checks Save above the Home tab, keeps
+all success assertions, and captures the hit target. Maestro's centering option
+was tried and failed even when the last item was fully visible. Native
+accessibility clipping remains a documented finding; this harness correction
+does not prove that underlying issue fixed. The positional selector compares
+top edges, so screenshot inspection and the submission assertion remain required.
+
+The subsequent unlocked iOS batch completed **five consecutive** full
+save/restart/sync/exact-server-readback passes on shared source `61e97dd`.
+Evidence: `quality-ios-unlocked-footer-stability.log` (1,473.40 seconds), with
+unique `IOSQA` records `1792012468882`, `1792012761562`, `1792013059567`,
+`1792013351474`, and `1792013639603`. All five before-Save screenshots were
+inspected: the complete button is above the tab bar. Earlier failed batches
+remain retained; they are not counted as part of this successful gate.
+
+Android source `61e97dd` was rebuilt as local APK
+`61184f6f4cf31e94c8cbd5da3d5341709ac0a613c1dcc36d75fc15badc33285d`.
+Its initial durability batch passed once, then failed to navigate from the
+Resident ID gallery card on run two. It has **not** passed a five-run gate.
+
+The canonical `yarn test:native:notification-images --device <serial>
+--expect-avd <qa-avd>` runner attaches real native fixtures only to the
+source-linked notification library's isolated test APK. Command planning and
+target-selection regressions passed, but the first native attempt was stopped
+by its own included-build safety guard before image tests ran. Native bitmap
+behavior is still unverified until that runner completes its actual tests.
+
+On the resumed October 17 run, the corrected included-build guard passed its
+offline Gradle regression, including all negative controls. The real native
+suite then passed **6/6** on the selected Android 16 / API 36 QA emulator:
+large-image dimensions and pixels; copied ownership after Glide cleanup;
+cache reuse with the loopback server stopped; invalid/missing/unavailable
+images; cancellation of a stalled request; and usable notification construction
+after a failed image. Evidence: `quality-native-image-instrumentation-oct17.log`
+and the library's connected-test XML report. The isolated test package is
+`expo.modules.notifications.test`; Collect storage was not cleared or tested by
+this instrumentation. This establishes library behavior, not a full-app
+five-pass release gate or confirmation that Google removed its recommendation.
+
+Fresh iOS authenticated smoke and organization checks also passed. The inspected
+All Time organization activity was 803; authenticated backend counts across the
+same 24 aliases also totalled 803 (a single account-name filter returns 342).
+These totals include all five activity classes, not just resident surveys.
 
 Use the package scripts, not reconstructed release commands:
 
@@ -102,6 +142,21 @@ Local Android release builds use the template's debug signing key and are QA
 artifacts, not store-upload artifacts. Version numbers alone do not identify
 these binaries: retain the APK hash and source revision with test results.
 Local Gradle 9.0 requires a compatible Java runtime; Java 17 is used for QA.
+
+For the native image suite, set `JAVA_HOME` to Java 17 and `ANDROID_HOME` to the
+installed SDK, then use the explicit QA serial and AVD name:
+
+```sh
+yarn test:native:notification-images --device <qa-emulator-serial> --expect-avd <qa-avd> --plan --json
+yarn test:native:notification-images --device <qa-emulator-serial> --expect-avd <qa-avd>
+```
+
+The planning command only queries the selected emulator. Actual instrumentation
+sets `ANDROID_SERIAL`, requires source linkage, rejects app/other-module test
+tasks, and uses the isolated module test package. Node-only CI runs the command
+selection tests; the additional offline composite-build guard regression is
+enabled with `NOTIFICATION_GUARD_GRADLE` pointing to Gradle 9. It was explicitly
+enabled and passed locally rather than treating its default CI skip as evidence.
 
 The shared durability flow never clears a queue. It synchronizes existing
 synthetic records first, tests a unique resident across process death, restores

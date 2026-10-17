@@ -96,6 +96,7 @@ separate so translating the app cannot break the suite.
 | `resident-id-form.yaml` | Formik validation errors, then a successful submit | Yes |
 | `environmental-health-online.yaml` | Collects an Environmental Health form ONLINE against an existing resident, and asserts the record reached the server rather than the offline queue | Yes — needs the resident "Rararo Long" |
 | `orientation-diagnostic.yaml` | Phone/tablet diagnostic: requests portrait and both landscape orientations, asserts tab destinations and accessibility, captures screenshots for human layout/orientation inspection | Yes — preserves the session and queue |
+| `terms-visual-diagnostic.yaml` | Requires an online empty queue, logs out through confirmation, opens the sign-in policy sheet, captures top/bottom for opacity/readability inspection, closes it and signs back in | Yes — no state clearing; diagnostic until its stability gate passes |
 
 ### Offline data collection
 
@@ -136,10 +137,13 @@ On iOS, screen-wide accessibility visibility is not proof that a form control
 lies inside its clipped ScrollView. Two repeated October 14 runs reported Save
 Record at y=737–782 while the tab bar occupied y=752–808; the taps landed on
 Home. A before-tap screenshot showed the form viewport ending above the bar.
-The shared journey now uses `scrollUntilVisible` with `centerElement: true` for
-Save, retaining the ID tap and success assertion, and captures that hit target
-before tapping. This avoids the incorrect screen-wide visibility decision; it
-does not claim to repair native accessibility clipping or replace visual proof.
+The shared journey now scrolls the final footer fully into view after discovering
+Save, checks its position above the Home tab, retains the ID tap and success
+assertion, and captures the hit target before tapping. The positional selector
+compares top edges, not full occlusion; inspect the captures too. `centerElement`
+failed even with Save fully visible at the bottom because this final item cannot
+reach its top-70%-of-screen threshold. The scroll corrects the harness's visibility
+assumption; it does not repair native accessibility clipping or replace visual proof.
 
 Android exercises real airplane mode through the shared offline helper. iOS
 Simulator has no airplane mode: the iOS journey requires a development build
